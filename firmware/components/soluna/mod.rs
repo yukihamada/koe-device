@@ -19,6 +19,13 @@ const PACKET_BUF_SIZE: usize = HEADER_SIZE + MAX_AUDIO_PER_PACKET;
 
 // フラグ
 const FLAG_ADPCM: u8 = 0x01;
+const FLAG_ENCRYPTED: u8 = 0x02;
+const FLAG_HEARTBEAT: u8 = 0x04;
+
+// Heartbeat間隔
+const HEARTBEAT_INTERVAL_MS: u64 = 5_000;
+// ピアタイムアウト (Heartbeatベース)
+const PEER_TIMEOUT_SEC: u32 = 10;
 
 // ジッタバッファ: 8スロット (512ms分、ミキシング対応で大きめ)
 const JITTER_BUF_SIZE: usize = MAX_AUDIO_PER_PACKET * 8;
@@ -276,6 +283,9 @@ pub fn mix_audio(dst: &mut [u8], src: &[u8]) {
 // Soluna ノード
 // =====================================================
 
+// プリセットチャンネル (ダブルタップで巡回)
+pub const CHANNELS: &[&str] = &["soluna", "voice", "music", "ambient"];
+
 pub struct SolunaNode {
     channel_name: [u8; 32],
     channel_len: usize,
@@ -285,11 +295,15 @@ pub struct SolunaNode {
     pub jitter: JitterBuffer,
     encode_state: AdpcmState,
     decode_state: AdpcmState,
-    // ピア管理: 最大8台
+    // ピア管理
     peers: [u32; 8],
     peer_last_seen: [u32; 8],
-    // ピア別デコードstate (ADPCM はステートフル)
     peer_decode_state: [AdpcmState; 8],
+    // PLC (パケットロス補間)
+    last_good_frame: [u8; 2048],
+    last_good_len: usize,
+    expected_seq: [u32; 8], // ピアごとの次期待seq
+    channel_index: usize,  // 現在のチャンネルインデックス
 }
 
 impl SolunaNode {
@@ -297,6 +311,7 @@ impl SolunaNode {
         let mut name = [0u8; 32];
         let len = channel.len().min(32);
         name[..len].copy_from_slice(&channel.as_bytes()[..len]);
+        let ch_idx = CHANNELS.iter().position(|&c| c == channel).unwrap_or(0);
 
         Self {
             channel_name: name,
@@ -310,6 +325,10 @@ impl SolunaNode {
             peers: [0u32; 8],
             peer_last_seen: [0u32; 8],
             peer_decode_state: [AdpcmState::new(); 8],
+            last_good_frame: [0u8; 2048],
+            last_good_len: 0,
+            expected_seq: [0u32; 8],
+            channel_index: ch_idx,
         }
     }
 
@@ -354,8 +373,15 @@ impl SolunaNode {
         }
 
         let flags = packet[18];
-        let audio_data = &packet[HEADER_SIZE..];
 
+        // Heartbeatパケット: ピア存在だけ更新、音声なし
+        if flags & FLAG_HEARTBEAT != 0 {
+            let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
+            self.register_peer(sender_hash, now);
+            return true;
+        }
+
+        let audio_data = &packet[HEADER_SIZE..];
         if audio_data.is_empty() {
             return false;
         }
@@ -364,23 +390,53 @@ impl SolunaNode {
         let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
         let peer_idx = self.register_peer(sender_hash, now);
 
+        let recv_seq = u32::from_le_bytes([packet[6], packet[7], packet[8], packet[9]]);
+
         // ADPCM デコード → PCM
         if flags & FLAG_ADPCM != 0 {
             let decode_state = if let Some(idx) = peer_idx {
+                // PLC: seqギャップ検出 → 前フレームをリピート
+                let expected = self.expected_seq[idx];
+                if expected > 0 && recv_seq > expected {
+                    let gap = (recv_seq - expected) as usize;
+                    if gap <= 3 && self.last_good_len > 0 {
+                        // 欠落フレーム分、前フレームを減衰リピート
+                        for g in 0..gap {
+                            let attenuation = 256 - (g as i32 * 64); // 段階的に減衰
+                            if attenuation <= 0 { break; }
+                            let mut plc_buf = [0u8; 2048];
+                            let len = self.last_good_len;
+                            plc_buf[..len].copy_from_slice(&self.last_good_frame[..len]);
+                            // 減衰適用
+                            let mut k = 0;
+                            while k + 1 < len {
+                                let s = i16::from_le_bytes([plc_buf[k], plc_buf[k+1]]) as i32;
+                                let faded = ((s * attenuation) / 256) as i16;
+                                let bytes = faded.to_le_bytes();
+                                plc_buf[k] = bytes[0];
+                                plc_buf[k+1] = bytes[1];
+                                k += 2;
+                            }
+                            self.jitter.push(&plc_buf[..len]);
+                        }
+                    }
+                }
+                self.expected_seq[idx] = recv_seq + 1;
                 &mut self.peer_decode_state[idx]
             } else {
                 &mut self.decode_state
             };
 
-            let mut pcm_buf = [0u8; 2048]; // ADPCM 512B → PCM 2048B
+            let mut pcm_buf = [0u8; 2048];
             let pcm_len = adpcm_decode(audio_data, &mut pcm_buf, decode_state);
 
             if pcm_len > 0 {
-                // ジッタバッファにすでにデータがあればミキシング、なければ直接push
+                // 正常フレームを記録 (PLC用)
+                self.last_good_frame[..pcm_len].copy_from_slice(&pcm_buf[..pcm_len]);
+                self.last_good_len = pcm_len;
                 self.jitter.push(&pcm_buf[..pcm_len]);
             }
         } else {
-            // 非圧縮PCM (フォールバック)
             self.jitter.push(audio_data);
         }
 
@@ -397,14 +453,14 @@ impl SolunaNode {
         }
         // 新規 or 期限切れスロット
         for i in 0..8 {
-            if self.peers[i] == 0 || now.wrapping_sub(self.peer_last_seen[i]) > 30 {
+            if self.peers[i] == 0 || now.wrapping_sub(self.peer_last_seen[i]) > PEER_TIMEOUT_SEC {
                 self.peers[i] = peer_hash;
                 self.peer_last_seen[i] = now;
                 self.peer_decode_state[i] = AdpcmState::new();
 
                 let count = self.peers.iter()
                     .zip(self.peer_last_seen.iter())
-                    .filter(|(&p, &t)| p != 0 && now.wrapping_sub(t) <= 30)
+                    .filter(|(&p, &t)| p != 0 && now.wrapping_sub(t) <= PEER_TIMEOUT_SEC)
                     .count();
                 PEER_COUNT.store(count as u8, Ordering::Relaxed);
                 info!("Peer +1 ({})", count);
@@ -426,8 +482,22 @@ impl SolunaNode {
         self.decode_state = AdpcmState::new();
         self.peers = [0u32; 8];
         self.peer_decode_state = [AdpcmState::new(); 8];
+        self.last_good_len = 0;
+        self.expected_seq = [0u32; 8];
+        self.channel_index = CHANNELS.iter().position(|&c| c == channel).unwrap_or(0);
         PEER_COUNT.store(0, Ordering::Relaxed);
         info!("Ch: {}", channel);
+    }
+
+    /// 次のチャンネルに切替 (ダブルタップ用)
+    pub fn next_channel(&mut self) {
+        self.channel_index = (self.channel_index + 1) % CHANNELS.len();
+        let ch = CHANNELS[self.channel_index];
+        self.set_channel(ch);
+    }
+
+    pub fn channel_name_str(&self) -> &str {
+        core::str::from_utf8(&self.channel_name[..self.channel_len]).unwrap_or("soluna")
     }
 }
 
@@ -487,4 +557,151 @@ pub fn register_mdns(device_id: &str) -> Result<(), Box<dyn std::error::Error>> 
     }
     info!("mDNS: {}.local", device_id);
     Ok(())
+}
+
+// =====================================================
+// ChaCha20 簡易暗号化 (LAN盗聴防止)
+// =====================================================
+
+/// ChaCha20 quarter round (ゼロアロケーション)
+#[inline]
+fn qr(s: &mut [u32; 16], a: usize, b: usize, c: usize, d: usize) {
+    s[a] = s[a].wrapping_add(s[b]); s[d] ^= s[a]; s[d] = s[d].rotate_left(16);
+    s[c] = s[c].wrapping_add(s[d]); s[b] ^= s[c]; s[b] = s[b].rotate_left(12);
+    s[a] = s[a].wrapping_add(s[b]); s[d] ^= s[a]; s[d] = s[d].rotate_left(8);
+    s[c] = s[c].wrapping_add(s[d]); s[b] ^= s[c]; s[b] = s[b].rotate_left(7);
+}
+
+/// ChaCha20 ブロック生成
+fn chacha20_block(key: &[u8; 32], nonce: &[u8; 12], counter: u32) -> [u8; 64] {
+    let mut state = [0u32; 16];
+    // "expand 32-byte k"
+    state[0] = 0x61707865; state[1] = 0x3320646e;
+    state[2] = 0x79622d32; state[3] = 0x6b206574;
+    for i in 0..8 {
+        state[4 + i] = u32::from_le_bytes([key[i*4], key[i*4+1], key[i*4+2], key[i*4+3]]);
+    }
+    state[12] = counter;
+    for i in 0..3 {
+        state[13 + i] = u32::from_le_bytes([nonce[i*4], nonce[i*4+1], nonce[i*4+2], nonce[i*4+3]]);
+    }
+
+    let mut working = state;
+    for _ in 0..10 { // 20 rounds = 10 double rounds
+        qr(&mut working, 0,4,8,12); qr(&mut working, 1,5,9,13);
+        qr(&mut working, 2,6,10,14); qr(&mut working, 3,7,11,15);
+        qr(&mut working, 0,5,10,15); qr(&mut working, 1,6,11,12);
+        qr(&mut working, 2,7,8,13); qr(&mut working, 3,4,9,14);
+    }
+
+    let mut out = [0u8; 64];
+    for i in 0..16 {
+        let val = working[i].wrapping_add(state[i]);
+        out[i*4..i*4+4].copy_from_slice(&val.to_le_bytes());
+    }
+    out
+}
+
+/// パケットペイロードをXOR暗号化/復号 (対称)
+pub fn encrypt_payload(data: &mut [u8], channel_key: &[u8; 32], seq: u32) {
+    let mut nonce = [0u8; 12];
+    nonce[0..4].copy_from_slice(&seq.to_le_bytes());
+
+    let mut offset = 0;
+    let mut counter = 0u32;
+    while offset < data.len() {
+        let keystream = chacha20_block(channel_key, &nonce, counter);
+        let chunk = (data.len() - offset).min(64);
+        for i in 0..chunk {
+            data[offset + i] ^= keystream[i];
+        }
+        offset += chunk;
+        counter += 1;
+    }
+}
+
+/// チャンネル名からChaCha20キーを派生 (FNV-1aの繰り返しハッシュで32バイト)
+pub fn derive_channel_key(channel: &str) -> [u8; 32] {
+    let mut key = [0u8; 32];
+    for i in 0..8 {
+        let mut input = channel.as_bytes().to_vec();
+        input.push(i as u8);
+        let h = fnv1a(&input);
+        key[i*4..i*4+4].copy_from_slice(&h.to_le_bytes());
+    }
+    key
+}
+
+// =====================================================
+// Heartbeat — ピア存在確認 (5秒間隔)
+// =====================================================
+
+/// Heartbeatパケット構築 (音声なし、19Bヘッダのみ)
+pub fn build_heartbeat(device_hash: u32, ch_hash: u32, out: &mut [u8; PACKET_BUF_SIZE]) -> usize {
+    out[0..2].copy_from_slice(&MAGIC);
+    out[2..6].copy_from_slice(&device_hash.to_le_bytes());
+    out[6..10].copy_from_slice(&0u32.to_le_bytes()); // seq=0 for heartbeat
+    out[10..14].copy_from_slice(&ch_hash.to_le_bytes());
+    out[14..18].copy_from_slice(&ntp_now_ms().to_le_bytes());
+    out[18] = FLAG_HEARTBEAT;
+    HEADER_SIZE // ヘッダのみ、音声なし
+}
+
+/// Heartbeat送信タスク
+pub fn heartbeat_task(socket: &std::net::UdpSocket, dest: std::net::SocketAddrV4) {
+    loop {
+        if !SOLUNA_ACTIVE.load(Ordering::Relaxed) {
+            std::thread::sleep(std::time::Duration::from_millis(500));
+            continue;
+        }
+
+        let device_hash = OWN_DEVICE_HASH.load(Ordering::Relaxed);
+        // ch_hashをSolunaNodeから取得せず、直接計算不可なのでheartbeat用の簡易版
+        // handle_packet側でFLAG_HEARTBEATを見てピアlast_seenを更新
+        let mut packet = [0u8; PACKET_BUF_SIZE];
+        let len = build_heartbeat(device_hash, 0, &mut packet);
+        let _ = socket.send_to(&packet[..len], dest);
+
+        std::thread::sleep(std::time::Duration::from_millis(HEARTBEAT_INTERVAL_MS));
+    }
+}
+
+// =====================================================
+// WAN WebSocket リレー (Fly.ioサーバー経由)
+// =====================================================
+
+const RELAY_URL: &str = "https://api.chatweb.ai/api/v1/soluna/relay";
+
+/// WANリレーにパケット転送 (HTTP POST, UDPの代替)
+/// サーバー側で同じチャンネルの他デバイスにWebSocket pushする
+pub fn relay_send(device_id: &str, channel: &str, packet: &[u8]) {
+    let config = esp_idf_svc::http::client::Configuration {
+        buffer_size: Some(2048),
+        timeout: Some(std::time::Duration::from_secs(3)),
+        ..Default::default()
+    };
+
+    let client = match esp_idf_svc::http::client::EspHttpConnection::new(&config) {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+
+    let headers = [
+        ("Content-Type", "application/octet-stream"),
+        ("X-Device-Id", device_id),
+        ("X-Channel", channel),
+    ];
+
+    let mut req = match client.initiate_request(
+        esp_idf_svc::http::Method::Post,
+        RELAY_URL,
+        &headers,
+    ) {
+        Ok(r) => r,
+        Err(_) => return,
+    };
+
+    let _ = req.write(packet);
+    let _ = req.submit();
+    // Fire and forget — レスポンスは無視
 }

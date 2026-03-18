@@ -695,9 +695,11 @@ footer a:hover { color:#888; }
     </div>
   </div>
 
-  <h1><span class="typewriter-line"><span class="nowrap">すべてを<em>覚える</em>小石。</span></span></h1>
+  <h1><span class="typewriter-line"><span class="nowrap">群衆を<em>楽器</em>にする。</span></span></h1>
   <p class="hero-p">
-    朝の通勤で聞いた会議の内容を、午後のミーティングで思い出させてくれる。<br class="nowrap">5グラム。画面なし。あなたの記憶のバックアップ。
+    1台は記憶。100台はオーケストラ。<br>
+    フェスの観客全員がハミングすると、AIがリアルタイムでハーモニーを生成する。<br>
+    5グラムの小石が、人と音の関係を変える。
   </p>
 
   <div class="hero-stats" id="heroStats">
@@ -754,6 +756,51 @@ footer a:hover { color:#888; }
         <div class="progress-percent">20%</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- 3 REVOLUTIONARY EXPERIENCES -->
+<section class="fade-in-section" style="padding:5rem 2rem;max-width:900px;margin:0 auto;">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="font-size:0.65rem;letter-spacing:0.2em;color:#f97316;margin-bottom:0.5rem;">ONLY KOE CAN DO THIS</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;">スマホにできないことを、やる。</h2>
+    <p style="color:#555;font-size:0.95rem;margin-top:0.8rem;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7;">他のAIウェアラブルは「小さくしたスマホ」。Koeは<strong style="color:#ccc;">人が集まるほど強くなる</strong>デバイス。</p>
+  </div>
+
+  <!-- Experience 1: Crowd Orchestra -->
+  <div style="padding:2.5rem;background:#0e0e0e;border:1px solid #1a1a1a;border-radius:20px;margin-bottom:1.5rem;">
+    <div style="font-size:0.6rem;letter-spacing:0.15em;color:#f97316;margin-bottom:0.5rem;">01</div>
+    <h3 style="font-size:1.4rem;font-weight:200;margin-bottom:1rem;">Crowd Orchestra <span style="color:#555;font-size:0.9rem;">群衆オーケストラ</span></h3>
+    <p style="color:#888;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+      フェスの観客1000人がハミングする。各デバイスがピッチを検出。AIがリアルタイムでハーモニーを計算し、足りないパートを全デバイスから補完再生する。<strong style="color:#ccc;">楽器を弾けなくても、全員で音楽が作れる。</strong>
+    </p>
+    <p style="color:#444;font-size:0.8rem;line-height:1.6;">
+      デバイス上でピッチ検出(ESP32 DSP) → UDPでピッチデータ共有(音声の1/100の帯域) → STAGEでハーモニー計算 → GPS同期で全デバイス同時再生
+    </p>
+  </div>
+
+  <!-- Experience 2: Sound Memory -->
+  <div style="padding:2.5rem;background:#0e0e0e;border:1px solid #1a1a1a;border-radius:20px;margin-bottom:1.5rem;">
+    <div style="font-size:0.6rem;letter-spacing:0.15em;color:#4ade80;margin-bottom:0.5rem;">02</div>
+    <h3 style="font-size:1.4rem;font-weight:200;margin-bottom:1rem;">Sound Memory <span style="color:#555;font-size:0.9rem;">音の記憶</span></h3>
+    <p style="color:#888;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+      「さっき誰かが言ってた店の名前なんだっけ？」→ その瞬間の音声が再生される。テキストへの変換ではない。<strong style="color:#ccc;">声のトーン、背景音、感情 — テキストでは失われる情報を保持する。</strong>
+    </p>
+    <p style="color:#444;font-size:0.8rem;line-height:1.6;">
+      常時録音(30秒ローカルバッファ + クラウド圧縮保存) → セマンティック音声検索 → ダブルタップでオーディオブックマーク → AIデイリーダイジェスト(1日を2分に要約)
+    </p>
+  </div>
+
+  <!-- Experience 3: Spatial Crowd -->
+  <div style="padding:2.5rem;background:#0e0e0e;border:1px solid #1a1a1a;border-radius:20px;">
+    <div style="font-size:0.6rem;letter-spacing:0.15em;color:#60a5fa;margin-bottom:0.5rem;">03</div>
+    <h3 style="font-size:1.4rem;font-weight:200;margin-bottom:1rem;">Spatial Crowd <span style="color:#555;font-size:0.9rem;">空間群衆</span></h3>
+    <p style="color:#888;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+      フェス会場の1000台のマイクが、リアルタイムで3D音声マップを作る。アーティストは群衆のどこで最も盛り上がっているかを音で知る。<strong style="color:#ccc;">録音すれば「あのフェスの体験」を後から3Dで再生できる。</strong>
+    </p>
+    <p style="color:#444;font-size:0.8rem;line-height:1.6;">
+      各デバイスのGPS座標 + マイク入力 → STAGEで3Dオーディオマップ合成 → 空間音響レンダリング → ヘッドホンで360度再生
+    </p>
   </div>
 </section>
 

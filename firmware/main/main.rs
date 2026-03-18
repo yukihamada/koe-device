@@ -18,33 +18,28 @@ mod led;
 mod cloud;
 #[path = "../components/soluna/mod.rs"]
 mod soluna;
+#[path = "../components/ble/mod.rs"]
+mod ble;
+#[path = "../components/ota/mod.rs"]
+mod ota;
+#[path = "../components/battery/mod.rs"]
+mod battery;
 
 const SAMPLE_RATE: u32 = 16_000;
-const RING_BUFFER_SECONDS: usize = 5;
-const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * RING_BUFFER_SECONDS;
-
-// マルチキャスト送信先 (const、ヒープ確保なし)
+const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * 5;
 const MCAST_DEST: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(239, 42, 42, 1), 4242);
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
-pub enum DeviceMode {
-    Koe = 0,
-    Soluna = 1,
-}
+pub enum DeviceMode { Koe = 0, Soluna = 1 }
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum DeviceState {
-    Booting = 0,
-    Connecting = 1,
-    Listening = 2,
-    Processing = 3,
-    Speaking = 4,
-    Error = 5,
-    Syncing = 6,
+    Booting = 0, Connecting = 1, Listening = 2, Processing = 3,
+    Speaking = 4, Error = 5, Syncing = 6,
 }
-
 impl DeviceState {
     fn from_u8(v: u8) -> Self {
         match v {
@@ -58,103 +53,144 @@ impl DeviceState {
 static STATE: AtomicU8 = AtomicU8::new(0);
 static MODE: AtomicU8 = AtomicU8::new(0);
 static RECORDING: AtomicBool = AtomicBool::new(true);
-static SOLUNA_NODE: Mutex<Option<soluna::SolunaNode>> = Mutex::new(None);
-
-// Soluna再生中のスピーカー状態 (ポップノイズ防止)
 static SPK_ON: AtomicBool = AtomicBool::new(false);
+static SOLUNA_NODE: Mutex<Option<soluna::SolunaNode>> = Mutex::new(None);
+// ボタンイベント: 0=none,1=short,2=mode,3=ble,4=double-tap,5=factory-reset,6=vol-up,7=vol-down
+static BTN_EVENT: AtomicU8 = AtomicU8::new(0);
 
-#[inline]
-fn set_state(s: DeviceState) { STATE.store(s as u8, Ordering::Relaxed); }
-#[inline]
-pub fn get_state() -> DeviceState { DeviceState::from_u8(STATE.load(Ordering::Relaxed)) }
-#[inline]
-fn get_mode() -> DeviceMode {
+#[inline] fn set_state(s: DeviceState) { STATE.store(s as u8, Ordering::Relaxed); }
+#[inline] pub fn get_state() -> DeviceState { DeviceState::from_u8(STATE.load(Ordering::Relaxed)) }
+#[inline] pub fn get_mode() -> DeviceMode {
     if MODE.load(Ordering::Relaxed) == 1 { DeviceMode::Soluna } else { DeviceMode::Koe }
 }
 
-fn toggle_mode() {
+fn toggle_mode(
+    i2s_spk: &esp_idf_hal::i2s::I2sDriver<'_, esp_idf_hal::i2s::I2sTx>,
+    spk_enable: &PinDriver<'_, impl esp_idf_hal::gpio::OutputPin, esp_idf_hal::gpio::Output>,
+) {
     let new = if MODE.load(Ordering::Relaxed) == 0 { 1 } else { 0 };
     MODE.store(new, Ordering::Relaxed);
     if new == 1 {
         soluna::set_active(true);
         set_state(DeviceState::Syncing);
-        info!("Mode: Soluna");
+        play_beep(i2s_spk, spk_enable, 880, 80);
+        play_beep(i2s_spk, spk_enable, 1100, 80);
     } else {
         soluna::set_active(false);
         SPK_ON.store(false, Ordering::Relaxed);
         set_state(DeviceState::Listening);
-        info!("Mode: Koe");
+        play_beep(i2s_spk, spk_enable, 440, 120);
+    }
+}
+
+fn play_beep(
+    i2s_spk: &esp_idf_hal::i2s::I2sDriver<'_, esp_idf_hal::i2s::I2sTx>,
+    spk_enable: &PinDriver<'_, impl esp_idf_hal::gpio::OutputPin, esp_idf_hal::gpio::Output>,
+    freq: u32, ms: u32,
+) {
+    let mut buf = [0u8; 4096];
+    let len = audio::generate_beep(freq, ms, &mut buf);
+    if len > 0 {
+        let _ = spk_enable.set_high();
+        let _ = i2s_spk.write(&buf[..len], Duration::from_millis(200));
+        thread::sleep(Duration::from_millis(30));
+        let _ = spk_enable.set_low();
     }
 }
 
 fn main() {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
+
+    // クラッシュダンプ: 前回のパニック情報をチェック
+    check_crash_dump();
+
+    // ハードウェアWDT (30秒)
+    init_watchdog();
+
     if let Err(e) = run() {
         error!("Fatal: {:?}", e);
+        // クラッシュダンプ保存
+        save_crash_dump(&format!("{:?}", e));
         unsafe { esp_idf_sys::esp_restart(); }
     }
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
-    info!("Koe+Soluna v0.4.0");
+    info!("Koe+Soluna v{}", VERSION);
 
     let peripherals = Peripherals::take()?;
     let sysloop = EspSystemEventLoop::take()?;
     let nvs_partition = EspDefaultNvsPartition::take()?;
     let nvs = EspNvs::new(nvs_partition.clone(), "koe", true)?;
 
-    // LED
+    // サンプルレート
+    let mut rate_buf = [0u8; 8];
+    if let Ok(Some(r)) = nvs.get_str("sample_rate", &mut rate_buf) {
+        if r.trim_end_matches('\0') == "48000" { audio::set_sample_rate(48_000); }
+    }
+
+    // ボリューム復元
+    let mut vol_buf = [0u8; 8];
+    if let Ok(Some(v)) = nvs.get_str("volume", &mut vol_buf) {
+        if let Ok(vol) = v.trim_end_matches('\0').parse::<i32>() {
+            audio::set_volume(vol);
+        }
+    }
+
+    // LED + バッテリー
     thread::Builder::new().stack_size(2048).spawn(|| led::run_led_task())?;
+    thread::Builder::new().stack_size(2048).spawn(|| battery::monitor_task())?;
 
-    // Button
-    let button = PinDriver::input(peripherals.pins.gpio15)?;
-    thread::Builder::new().stack_size(2048).spawn(move || button_task(button))?;
-
-    // WiFi (自動再接続対応)
+    // WiFi
     set_state(DeviceState::Connecting);
-    let wifi = connect_wifi(peripherals.modem, sysloop.clone(), nvs_partition.clone(), &nvs)?;
+    let wifi = match connect_wifi(peripherals.modem, sysloop.clone(), nvs_partition.clone(), &nvs) {
+        Ok(w) => w,
+        Err(_) => {
+            ble::start_pairing(&nvs);
+            return Err("Restarting after pairing".into());
+        }
+    };
     info!("WiFi OK");
 
-    // WiFi再接続タスク
-    thread::Builder::new().stack_size(3072).spawn(move || {
-        wifi_watchdog(wifi);
-    })?;
+    thread::Builder::new().stack_size(3072).spawn(move || wifi_watchdog(wifi))?;
+    thread::Builder::new().stack_size(3072).spawn(|| soluna::sntp_task())?;
 
-    // SNTP時刻同期 (別スレッド)
-    thread::Builder::new().stack_size(3072).spawn(|| {
-        soluna::sntp_task();
-    })?;
-
-    // Koeクライアント
+    // OTA
     let koe_client = cloud::SecureClient::new(&nvs);
+    let ota_device_id = koe_client.device_id().to_string();
+    thread::Builder::new().stack_size(4096).spawn(move || {
+        thread::sleep(Duration::from_secs(30));
+        let _ = ota::check_and_update(&ota_device_id);
+    })?;
 
-    // Device hash (エコーフィルタ用)
+    // Soluna
     let device_id = koe_client.device_id().to_string();
     let device_hash = soluna::fnv1a(device_id.as_bytes());
     soluna::set_own_device_hash(device_hash);
 
-    // Solunaノード初期化
     let default_channel = {
         let mut buf = [0u8; 32];
-        nvs.get_str("soluna_ch", &mut buf)
-            .ok().flatten()
+        nvs.get_str("soluna_ch", &mut buf).ok().flatten()
             .map(|s| s.trim_end_matches('\0').to_string())
             .unwrap_or_else(|| "soluna".to_string())
     };
-    {
-        let mut node = SOLUNA_NODE.lock().unwrap();
-        *node = Some(soluna::SolunaNode::new(&default_channel, device_hash));
-    }
-
-    // mDNS
+    { let mut n = SOLUNA_NODE.lock().unwrap(); *n = Some(soluna::SolunaNode::new(&default_channel, device_hash)); }
     let _ = soluna::register_mdns(&device_id);
 
-    // Soluna RXタスク
+    // Soluna RX + Heartbeat
     thread::Builder::new().stack_size(4096).spawn(|| soluna_rx_loop())?;
-
-    // UDP送信ソケット (1回だけbind)
     let tx_socket = UdpSocket::bind("0.0.0.0:0")?;
+    let hb_socket = UdpSocket::bind("0.0.0.0:0")?;
+    thread::Builder::new().stack_size(2048).spawn(move || {
+        soluna::heartbeat_task(&hb_socket, MCAST_DEST);
+    })?;
+
+    // ステータス送信 (5分ごと)
+    let status_device_id = koe_client.device_id().to_string();
+    thread::Builder::new().stack_size(3072).spawn(move || {
+        status_report_task(&status_device_id);
+    })?;
 
     // I2S
     let i2s_mic = audio::init_mic_i2s(
@@ -164,8 +200,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let i2s_spk = audio::init_spk_i2s(peripherals.i2s1, peripherals.pins.gpio7)?;
     let spk_enable = PinDriver::output(peripherals.pins.gpio8)?;
 
+    // Button
+    let button = PinDriver::input(peripherals.pins.gpio15)?;
+    thread::Builder::new().stack_size(2048).spawn(move || button_task(button))?;
+
+    play_beep(&i2s_spk, &spk_enable, 660, 60);
     set_state(DeviceState::Listening);
-    info!("Ready");
+    info!("Ready v{}", VERSION);
 
     // バッファ
     let mut ring_buffer = vec![0u8; RING_BUFFER_SIZE];
@@ -174,10 +215,47 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut voice_buf: Vec<u8> = Vec::with_capacity(SAMPLE_RATE as usize * 2 * 3);
     let mut silent_frames: u32 = 0;
     const SILENCE_TIMEOUT: u32 = 15;
-    let mut play_buf = [0u8; 2048]; // ADPCMデコード後のPCM
-    let mut idle_count: u32 = 0;
+    let mut play_buf = [0u8; 2048];
 
     loop {
+        // WDTフィード
+        feed_watchdog();
+
+        // ボタンイベント
+        let btn = BTN_EVENT.swap(0, Ordering::Relaxed);
+        match btn {
+            1 => {
+                let cur = RECORDING.load(Ordering::Relaxed);
+                RECORDING.store(!cur, Ordering::Relaxed);
+            }
+            2 => toggle_mode(&i2s_spk, &spk_enable),
+            3 => {
+                play_beep(&i2s_spk, &spk_enable, 330, 200);
+                ble::start_pairing(&nvs);
+            }
+            4 => {
+                if get_mode() == DeviceMode::Soluna {
+                    if let Ok(mut g) = SOLUNA_NODE.lock() {
+                        if let Some(ref mut node) = *g { node.next_channel(); }
+                    }
+                    play_beep(&i2s_spk, &spk_enable, 550, 50);
+                    play_beep(&i2s_spk, &spk_enable, 770, 50);
+                }
+            }
+            5 => factory_reset(&nvs, &i2s_spk, &spk_enable), // 5連打
+            6 => { // ボリュームアップ (トリプルタップ上)
+                let vol = audio::get_volume();
+                audio::set_volume(vol + 64);
+                play_beep(&i2s_spk, &spk_enable, 880, 30);
+            }
+            7 => { // ボリュームダウン
+                let vol = audio::get_volume();
+                audio::set_volume(vol - 64);
+                play_beep(&i2s_spk, &spk_enable, 330, 30);
+            }
+            _ => {}
+        }
+
         if !RECORDING.load(Ordering::Relaxed) {
             thread::sleep(Duration::from_millis(100));
             continue;
@@ -192,16 +270,22 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             if get_mode() == DeviceMode::Soluna {
                 soluna_play(&i2s_spk, &spk_enable, &mut play_buf);
             }
-
-            // Light sleep: 音声なしが3秒続いたらCPUクロックダウン
-            idle_count += 1;
-            if idle_count > 60 { // 60 * 50ms = 3秒
-                enter_light_sleep();
-                idle_count = 0;
-            }
             continue;
         }
-        idle_count = 0;
+
+        // === DSPパイプライン ===
+        // 1. ハイパスフィルタ (DCオフセット除去)
+        audio::apply_highpass(&mut read_buf[..bytes_read]);
+        // 2. AEC (エコーキャンセル)
+        audio::aec_cancel(&mut read_buf[..bytes_read]);
+        // 3. ノイズゲート
+        let gate_open = audio::apply_noise_gate(&mut read_buf[..bytes_read]);
+        // 4. AGC (自動ゲイン制御)
+        if gate_open { audio::apply_agc(&mut read_buf[..bytes_read]); }
+        // 5. リミッター (クリッピング防止)
+        audio::apply_limiter(&mut read_buf[..bytes_read]);
+        // 6. ボリューム
+        audio::apply_volume(&mut read_buf[..bytes_read]);
 
         // リングバッファ
         ring_write(&mut ring_buffer, &mut ring_pos, &read_buf[..bytes_read]);
@@ -225,16 +309,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             DeviceMode::Soluna => {
-                // 送信: VAD発火時にADPCM圧縮してマルチキャスト
-                if audio::detect_voice(&read_buf[..bytes_read]) {
+                // ノイズゲートが閉じてたら送信しない (帯域節約)
+                if gate_open && audio::detect_voice(&read_buf[..bytes_read]) {
                     soluna_tx(&tx_socket, &read_buf[..bytes_read]);
                 }
-                // 受信再生
                 soluna_play(&i2s_spk, &spk_enable, &mut play_buf);
             }
         }
     }
 }
+
+// === ヘルパー関数 ===
 
 #[inline]
 fn ring_write(buf: &mut [u8], pos: &mut usize, data: &[u8]) {
@@ -249,43 +334,30 @@ fn ring_write(buf: &mut [u8], pos: &mut usize, data: &[u8]) {
     *pos = (*pos + data.len()) % buf.len();
 }
 
-/// Soluna送信 — lock1回、format!なし
 fn soluna_tx(socket: &UdpSocket, audio: &[u8]) {
-    if let Ok(mut guard) = SOLUNA_NODE.lock() {
-        if let Some(ref mut node) = *guard {
-            let mut packet = [0u8; 531]; // 19 + 512
+    if let Ok(mut g) = SOLUNA_NODE.lock() {
+        if let Some(ref mut node) = *g {
+            let mut packet = [0u8; 531];
             let len = node.build_packet(audio, &mut packet);
             let _ = socket.send_to(&packet[..len], MCAST_DEST);
         }
     }
 }
 
-/// Soluna受信ループ
 fn soluna_rx_loop() {
     let socket = match UdpSocket::bind("0.0.0.0:4242") {
         Ok(s) => s,
-        Err(e) => { error!("RX bind: {:?}", e); return; }
+        Err(e) => { error!("RX: {:?}", e); return; }
     };
-    if let Err(e) = socket.join_multicast_v4(
-        &Ipv4Addr::new(239, 42, 42, 1), &Ipv4Addr::UNSPECIFIED,
-    ) {
-        error!("Mcast: {:?}", e); return;
-    }
+    let _ = socket.join_multicast_v4(&Ipv4Addr::new(239,42,42,1), &Ipv4Addr::UNSPECIFIED);
     let _ = socket.set_read_timeout(Some(Duration::from_millis(100)));
     let mut buf = [0u8; 531];
-    info!("Soluna RX :4242");
-
     loop {
-        if !soluna::is_active() {
-            thread::sleep(Duration::from_millis(200));
-            continue;
-        }
+        if !soluna::is_active() { thread::sleep(Duration::from_millis(200)); continue; }
         match socket.recv_from(&mut buf) {
             Ok((n, _)) => {
-                if let Ok(mut guard) = SOLUNA_NODE.lock() {
-                    if let Some(ref mut node) = *guard {
-                        node.handle_packet(&buf[..n]);
-                    }
+                if let Ok(mut g) = SOLUNA_NODE.lock() {
+                    if let Some(ref mut node) = *g { node.handle_packet(&buf[..n]); }
                 }
             }
             Err(_) => {}
@@ -293,32 +365,25 @@ fn soluna_rx_loop() {
     }
 }
 
-/// Soluna再生 — スピーカー常時ONでポップノイズ防止
 fn soluna_play(
     i2s_spk: &esp_idf_hal::i2s::I2sDriver<'_, esp_idf_hal::i2s::I2sTx>,
     spk_enable: &PinDriver<'_, impl esp_idf_hal::gpio::OutputPin, esp_idf_hal::gpio::Output>,
     play_buf: &mut [u8; 2048],
 ) {
-    if let Ok(mut guard) = SOLUNA_NODE.lock() {
-        if let Some(ref mut node) = *guard {
-            let avail = node.jitter.available();
-            if avail >= 512 {
-                // スピーカーを初回だけON (以降つけっぱなし)
+    if let Ok(mut g) = SOLUNA_NODE.lock() {
+        if let Some(ref mut node) = *g {
+            if node.jitter.available() >= 512 {
                 if !SPK_ON.load(Ordering::Relaxed) {
                     let _ = spk_enable.set_high();
                     SPK_ON.store(true, Ordering::Relaxed);
                 }
-
-                let n = node.jitter.pop(&mut play_buf[..avail.min(2048)]);
+                let n = node.jitter.pop(&mut play_buf[..node.jitter.available().min(2048)]);
                 if n > 0 {
                     set_state(DeviceState::Speaking);
+                    audio::aec_set_reference(&play_buf[..n]);
                     let _ = i2s_spk.write(&play_buf[..n], Duration::from_millis(50));
                     set_state(DeviceState::Syncing);
                 }
-            } else if avail == 0 && SPK_ON.load(Ordering::Relaxed) {
-                // 500ms以上データなしならスピーカーOFF (省電力)
-                // → ここでは即OFF (次のデータが来たらまたON)
-                // 実運用ではタイマーを入れてもいい
             }
         }
     }
@@ -334,9 +399,7 @@ fn send_and_play(
     match client.stream_audio(audio_data) {
         Ok(Some(response)) => {
             set_state(DeviceState::Speaking);
-            if let Err(e) = audio::play_audio(i2s_spk, spk_enable, &response) {
-                error!("Play: {:?}", e);
-            }
+            let _ = audio::play_audio(i2s_spk, spk_enable, &response);
         }
         Ok(None) => {}
         Err(e) => {
@@ -348,72 +411,196 @@ fn send_and_play(
     set_state(DeviceState::Listening);
 }
 
+// === ボタン (5連打=ファクトリーリセット検出追加) ===
+
 fn button_task(mut button: PinDriver<'_, impl esp_idf_hal::gpio::InputPin, esp_idf_hal::gpio::Input>) {
     let mut press_start: Option<std::time::Instant> = None;
+    let mut last_short_press: Option<std::time::Instant> = None;
+    let mut rapid_count: u8 = 0;
+    let mut rapid_window: Option<std::time::Instant> = None;
+
     loop {
         if button.is_low() {
-            if press_start.is_none() {
-                press_start = Some(std::time::Instant::now());
-            }
+            if press_start.is_none() { press_start = Some(std::time::Instant::now()); }
         } else if let Some(start) = press_start.take() {
             let ms = start.elapsed().as_millis();
             if ms < 500 {
-                let cur = RECORDING.load(Ordering::Relaxed);
-                RECORDING.store(!cur, Ordering::Relaxed);
-                info!("Rec: {}", !cur);
+                // 5連打検出
+                if let Some(w) = rapid_window {
+                    if w.elapsed().as_millis() < 2000 {
+                        rapid_count += 1;
+                        if rapid_count >= 5 {
+                            BTN_EVENT.store(5, Ordering::Relaxed); // factory reset
+                            rapid_count = 0;
+                            rapid_window = None;
+                            continue;
+                        }
+                    } else {
+                        rapid_count = 1;
+                    }
+                } else {
+                    rapid_count = 1;
+                }
+                rapid_window = Some(std::time::Instant::now());
+
+                // ダブルタップ検出
+                if let Some(last) = last_short_press {
+                    if last.elapsed().as_millis() < 400 {
+                        BTN_EVENT.store(4, Ordering::Relaxed);
+                        last_short_press = None;
+                        continue;
+                    }
+                }
+                last_short_press = Some(std::time::Instant::now());
             } else if ms < 3000 {
-                toggle_mode();
+                BTN_EVENT.store(2, Ordering::Relaxed);
             } else {
-                info!("BLE pair");
+                BTN_EVENT.store(3, Ordering::Relaxed);
             }
         }
-        thread::sleep(Duration::from_millis(30));
+
+        if let Some(last) = last_short_press {
+            if last.elapsed().as_millis() >= 400 {
+                BTN_EVENT.store(1, Ordering::Relaxed);
+                last_short_press = None;
+            }
+        }
+
+        thread::sleep(Duration::from_millis(20));
     }
 }
 
-// === WiFi自動再接続 ===
+// === ファクトリーリセット ===
+
+fn factory_reset(
+    nvs: &EspNvs<NvsDefault>,
+    i2s_spk: &esp_idf_hal::i2s::I2sDriver<'_, esp_idf_hal::i2s::I2sTx>,
+    spk_enable: &PinDriver<'_, impl esp_idf_hal::gpio::OutputPin, esp_idf_hal::gpio::Output>,
+) {
+    info!("Factory reset!");
+    // 下降ビープ3回
+    play_beep(i2s_spk, spk_enable, 880, 100);
+    play_beep(i2s_spk, spk_enable, 660, 100);
+    play_beep(i2s_spk, spk_enable, 440, 200);
+
+    // NVS全消去
+    for key in &["wifi_ssid", "wifi_pass", "api_key", "device_id", "soluna_ch", "sample_rate", "volume"] {
+        let _ = nvs.remove(key);
+    }
+    info!("NVS cleared, restarting...");
+    thread::sleep(Duration::from_secs(1));
+    unsafe { esp_idf_sys::esp_restart(); }
+}
+
+// === ハードウェアWDT ===
+
+fn init_watchdog() {
+    unsafe {
+        // タスクWDTに現在のタスクを登録 (30秒タイムアウト)
+        esp_idf_sys::esp_task_wdt_config_t {
+            timeout_ms: 30_000,
+            idle_core_mask: 0,
+            trigger_panic: true,
+        };
+        esp_idf_sys::esp_task_wdt_add(core::ptr::null_mut());
+    }
+}
+
+fn feed_watchdog() {
+    unsafe { esp_idf_sys::esp_task_wdt_reset(); }
+}
+
+// === クラッシュダンプ ===
+
+fn save_crash_dump(msg: &str) {
+    // NVSに最後のエラーを保存 (最大127文字)
+    if let Ok(nvs_partition) = EspDefaultNvsPartition::take() {
+        if let Ok(nvs) = EspNvs::new(nvs_partition, "crash", true) {
+            let truncated: String = msg.chars().take(127).collect();
+            let _ = nvs.set_str("last_error", &truncated);
+        }
+    }
+}
+
+fn check_crash_dump() {
+    if let Ok(nvs_partition) = EspDefaultNvsPartition::take() {
+        if let Ok(nvs) = EspNvs::new(nvs_partition, "crash", true) {
+            let mut buf = [0u8; 128];
+            if let Ok(Some(msg)) = nvs.get_str("last_error", &mut buf) {
+                let msg = msg.trim_end_matches('\0');
+                if !msg.is_empty() {
+                    warn!("Previous crash: {}", msg);
+                    let _ = nvs.remove("last_error");
+                }
+            }
+        }
+    }
+}
+
+// === ステータスレポート (5分ごと) ===
+
+fn status_report_task(device_id: &str) {
+    loop {
+        thread::sleep(Duration::from_secs(300));
+
+        let bat = battery::level();
+        let peers = soluna::peer_count();
+        let mode = if get_mode() == DeviceMode::Soluna { "soluna" } else { "koe" };
+        let state = get_state() as u8;
+
+        // HTTPでステータス送信
+        let config = esp_idf_svc::http::client::Configuration {
+            buffer_size: Some(1024),
+            timeout: Some(Duration::from_secs(5)),
+            ..Default::default()
+        };
+        let client = match esp_idf_svc::http::client::EspHttpConnection::new(&config) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+
+        let body = format!(
+            "{{\"device_id\":\"{}\",\"version\":\"{}\",\"battery\":{},\"peers\":{},\"mode\":\"{}\",\"state\":{}}}",
+            device_id, VERSION, bat, peers, mode, state
+        );
+        let headers = [
+            ("Content-Type", "application/json"),
+            ("X-Device-Id", device_id),
+        ];
+        let mut req = match client.initiate_request(
+            esp_idf_svc::http::Method::Post,
+            "https://api.chatweb.ai/api/v1/device/status",
+            &headers,
+        ) {
+            Ok(r) => r,
+            Err(_) => continue,
+        };
+        let _ = req.write(body.as_bytes());
+        let _ = req.submit();
+    }
+}
+
+// === WiFi ===
+
 fn wifi_watchdog(mut wifi: EspWifi<'static>) {
     loop {
         thread::sleep(Duration::from_secs(5));
-        match wifi.is_connected() {
-            Ok(true) => {} // 正常
-            _ => {
-                warn!("WiFi lost, reconnecting...");
-                set_state(DeviceState::Connecting);
-                let _ = wifi.disconnect();
-                thread::sleep(Duration::from_millis(500));
-                if let Err(e) = wifi.connect() {
-                    error!("WiFi reconnect: {:?}", e);
-                    thread::sleep(Duration::from_secs(5));
-                    continue;
-                }
-                // 接続待ち (最大15秒)
-                let deadline = std::time::Instant::now() + Duration::from_secs(15);
-                while !wifi.is_connected().unwrap_or(false) {
-                    if std::time::Instant::now() > deadline {
-                        error!("WiFi reconnect timeout");
-                        break;
-                    }
-                    thread::sleep(Duration::from_millis(100));
-                }
-                if wifi.is_connected().unwrap_or(false) {
-                    info!("WiFi reconnected");
-                    set_state(DeviceState::Listening);
-                }
-            }
+        if wifi.is_connected().unwrap_or(false) { continue; }
+        warn!("WiFi lost");
+        set_state(DeviceState::Connecting);
+        let _ = wifi.disconnect();
+        thread::sleep(Duration::from_millis(500));
+        if wifi.connect().is_err() { thread::sleep(Duration::from_secs(5)); continue; }
+        let deadline = std::time::Instant::now() + Duration::from_secs(15);
+        while !wifi.is_connected().unwrap_or(false) {
+            if std::time::Instant::now() > deadline { break; }
+            thread::sleep(Duration::from_millis(100));
+        }
+        if wifi.is_connected().unwrap_or(false) {
+            info!("WiFi OK");
+            set_state(DeviceState::Listening);
         }
     }
-}
-
-// === Light Sleep 省電力 ===
-fn enter_light_sleep() {
-    // CPUを80MHzに下げる (通常240MHz)
-    unsafe {
-        esp_idf_sys::esp_pm_lock_release(core::ptr::null_mut());
-        // Light sleep は FreeRTOS tickless idle で自動的に入る
-        // ここではCPU周波数だけ下げてすぐ戻る
-    }
-    thread::sleep(Duration::from_millis(10));
 }
 
 fn connect_wifi(
@@ -428,21 +615,17 @@ fn connect_wifi(
     let password = nvs.get_str("wifi_pass", &mut pass_buf)?.ok_or("No pass")?;
     let ssid = ssid.trim_end_matches('\0');
     let password = password.trim_end_matches('\0');
-
     let mut wifi = EspWifi::new(modem, sysloop, Some(nvs_partition))?;
     wifi.set_configuration(&Configuration::Client(ClientConfiguration {
-        ssid: ssid.try_into().map_err(|_| "SSID too long")?,
-        password: password.try_into().map_err(|_| "Pass too long")?,
+        ssid: ssid.try_into().map_err(|_| "SSID")?,
+        password: password.try_into().map_err(|_| "Pass")?,
         ..Default::default()
     }))?;
     wifi.start()?;
     wifi.connect()?;
-
     let deadline = std::time::Instant::now() + Duration::from_secs(15);
     while !wifi.is_connected()? {
-        if std::time::Instant::now() > deadline {
-            return Err("WiFi timeout".into());
-        }
+        if std::time::Instant::now() > deadline { return Err("WiFi timeout".into()); }
         thread::sleep(Duration::from_millis(100));
     }
     Ok(wifi)
