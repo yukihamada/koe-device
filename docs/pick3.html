@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — 画像セレクター v3</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;padding:1.5rem 1.5rem 5rem}
+h1{font-size:1.5rem;font-weight:200;text-align:center;margin-bottom:0.3rem}
+.sub{text-align:center;color:#666;font-size:0.85rem;margin-bottom:1.5rem}
+.cat{margin-bottom:2rem}
+.cat-title{font-size:0.9rem;font-weight:400;color:#f97316;margin-bottom:0.5rem;border-bottom:1px solid #1a1a1a;padding-bottom:0.3rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem}
+.grid.wide{grid-template-columns:repeat(3,1fr)}
+.card{position:relative;border-radius:8px;overflow:hidden;border:2px solid #1a1a1a;cursor:pointer;transition:all 0.15s}
+.card:hover{border-color:#555}
+.card.selected{border-color:#4ade80;box-shadow:0 0 12px rgba(74,222,128,0.2)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.card .tag{position:absolute;top:0.3rem;left:0.3rem;background:rgba(0,0,0,0.75);color:#fff;font-size:0.6rem;font-weight:600;padding:0.1rem 0.4rem;border-radius:100px}
+.card.selected .tag{background:#4ade80;color:#000}
+.card .use{position:absolute;top:0.3rem;right:0.3rem;background:rgba(249,115,22,0.8);color:#fff;font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:100px}
+.card .d{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:1.2rem 0.5rem 0.4rem;font-size:0.6rem;color:#999;line-height:1.3}
+.sep{border-top:1px solid #222;margin:2rem 0;padding-top:1rem}
+.sep h2{font-size:1.1rem;font-weight:200;text-align:center;color:#4ade80;margin-bottom:0.3rem}
+.sep p{text-align:center;font-size:0.75rem;color:#555}
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-top:1px solid #1a1a1a;padding:0.7rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:100}
+.bar .t{font-size:0.75rem;color:#888}.bar .t span{color:#4ade80;font-weight:500}
+.bar button{padding:0.5rem 1.2rem;border-radius:100px;background:#4ade80;color:#000;font-size:0.75rem;font-weight:600;border:none;cursor:pointer}
+.bar button:disabled{background:#333;color:#666;cursor:not-allowed}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}.grid.wide{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<h1>画像セレクター v3</h1>
+<p class="sub">現在サイトで使用中のもの + 新規候補。タップして選択 → 番号を伝えてください。</p>
+
+<!-- 現在使用中 -->
+<div class="cat">
+<div class="cat-title">現在サイトで使用中</div>
+<div class="grid">
+  <div class="card" data-id="E3" onclick="t(this)"><div class="tag">E3</div><div class="use">使用中</div><img src="images/E3-macro.png"><div class="d">マクロ ディテール</div></div>
+  <div class="card" data-id="B1v2" onclick="t(this)"><div class="tag">B1v2</div><div class="use">使用中</div><img src="images/NEW-B1-palm-v2.png"><div class="d">手のひら 暖色光</div></div>
+  <div class="card" data-id="D1v2" onclick="t(this)"><div class="tag">D1v2</div><div class="use">使用中</div><img src="images/NEW-D1-run-v2.png"><div class="d">橋の上ランニング</div></div>
+  <div class="card" data-id="C2" onclick="t(this)"><div class="tag">C2</div><div class="use">使用中</div><img src="images/C2-festival-hands.png"><div class="d">フェス 手元LED</div></div>
+  <div class="card" data-id="E1" onclick="t(this)"><div class="tag">E1</div><div class="use">使用中</div><img src="images/E1-lineup-float.png"><div class="d">ラインナップ浮遊</div></div>
+  <div class="card" data-id="E2" onclick="t(this)"><div class="tag">E2</div><div class="use">使用中</div><img src="images/E2-accessories.png"><div class="d">アクセサリー一式</div></div>
+  <div class="card" data-id="N-pendant" onclick="t(this)"><div class="tag">N-pend</div><div class="use">使用中</div><img src="images/NEW-pendant.png"><div class="d">ペンダント装着</div></div>
+  <div class="card" data-id="N-meeting" onclick="t(this)"><div class="tag">N-meet</div><div class="use">使用中</div><img src="images/NEW-meeting.png"><div class="d">会議室STUDIO</div></div>
+  <div class="card" data-id="N-bar" onclick="t(this)"><div class="tag">N-bar</div><div class="use">使用中</div><img src="images/NEW-bar-night.png"><div class="d">バー ナイト</div></div>
+  <div class="card" data-id="V-speed" onclick="t(this)"><div class="tag">V-speed</div><div class="use">使用中</div><img src="images/VIS-speed-of-sound.png"><div class="d">音速vs電波</div></div>
+</div>
+</div>
+
+<!-- 前回の未使用候補 -->
+<div class="cat">
+<div class="cat-title">前回の未使用候補</div>
+<div class="grid">
+  <div class="card" data-id="E3v2" onclick="t(this)"><div class="tag">E3v2</div><img src="images/NEW-E3-macro-v2.png"><div class="d">マクロ v2</div></div>
+  <div class="card" data-id="C2v2" onclick="t(this)"><div class="tag">C2v2</div><img src="images/NEW-C2-fest-v2.png"><div class="d">フェス 紙吹雪</div></div>
+  <div class="card" data-id="V-wave" onclick="t(this)"><div class="tag">V-wave</div><img src="images/VIS-soundwave.png"><div class="d">音波アート</div></div>
+  <div class="card" data-id="V-mesh" onclick="t(this)"><div class="tag">V-mesh</div><img src="images/VIS-mesh-sync.png"><div class="d">メッシュ同期</div></div>
+  <div class="card" data-id="V-explode" onclick="t(this)"><div class="tag">V-explode</div><img src="images/VIS-exploded.png"><div class="d">内部爆発図</div></div>
+  <div class="card" data-id="V-size" onclick="t(this)"><div class="tag">V-size</div><img src="images/VIS-size-compare.png"><div class="d">サイズ比較</div></div>
+  <div class="card" data-id="A1" onclick="t(this)"><div class="tag">A1</div><img src="images/A1-ear-shibuya.png"><div class="d">渋谷 耳裏</div></div>
+  <div class="card" data-id="A3" onclick="t(this)"><div class="tag">A3</div><img src="images/A3-ear-white.png"><div class="d">白モデル 耳裏</div></div>
+  <div class="card" data-id="B2" onclick="t(this)"><div class="tag">B2</div><img src="images/B2-palm-coin.png"><div class="d">500円比較</div></div>
+  <div class="card" data-id="B3" onclick="t(this)"><div class="tag">B3</div><img src="images/B3-two-colors.png"><div class="d">2色並び</div></div>
+  <div class="card" data-id="C1" onclick="t(this)"><div class="tag">C1</div><img src="images/C1-festival-wide.png"><div class="d">フェス全景</div></div>
+  <div class="card" data-id="C3" onclick="t(this)"><div class="tag">C3</div><img src="images/C3-festival-aerial.png"><div class="d">ドローン空撮</div></div>
+  <div class="card" data-id="D2" onclick="t(this)"><div class="tag">D2</div><img src="images/D2-office-suit.png"><div class="d">スーツ ラペル</div></div>
+  <div class="card" data-id="D3" onclick="t(this)"><div class="tag">D3</div><img src="images/D3-sleep.png"><div class="d">ベッドサイド</div></div>
+</div>
+</div>
+
+<!-- 新規 -->
+<div class="sep"><h2>NEW</h2><p>今回新しく生成した12枚</p></div>
+
+<div class="cat">
+<div class="cat-title">日常シーン (新規)</div>
+<div class="grid">
+  <div class="card" data-id="F1" onclick="t(this)"><div class="tag">F1</div><img src="images/F1-train.png"><div class="d">山手線の中</div></div>
+  <div class="card" data-id="F2" onclick="t(this)"><div class="tag">F2</div><img src="images/F2-flatlay-desk.png"><div class="d">デスクフラットレイ</div></div>
+  <div class="card" data-id="F7" onclick="t(this)"><div class="tag">F7</div><img src="images/F7-parent-child.png"><div class="d">親子の公園</div></div>
+  <div class="card" data-id="F9" onclick="t(this)"><div class="tag">F9</div><img src="images/F9-yoga.png"><div class="d">ヨガ 朝の光</div></div>
+  <div class="card" data-id="F10" onclick="t(this)"><div class="tag">F10</div><img src="images/F10-cooking.png"><div class="d">料理中 ハンズフリー</div></div>
+</div>
+</div>
+
+<div class="cat">
+<div class="cat-title">フェス / イベント (新規)</div>
+<div class="grid">
+  <div class="card" data-id="F3" onclick="t(this)"><div class="tag">F3</div><img src="images/F3-beach-sunset.png"><div class="d">ビーチサンセット Soluna</div></div>
+  <div class="card" data-id="F4" onclick="t(this)"><div class="tag">F4</div><img src="images/F4-tent-friends.png"><div class="d">テント内 仲間と</div></div>
+</div>
+</div>
+
+<div class="cat">
+<div class="cat-title">クリエイティブ / プロフェッショナル (新規)</div>
+<div class="grid">
+  <div class="card" data-id="F8" onclick="t(this)"><div class="tag">F8</div><img src="images/F8-musician.png"><div class="d">ミュージシャン スタジオ</div></div>
+</div>
+</div>
+
+<div class="cat">
+<div class="cat-title">プロダクト (新規)</div>
+<div class="grid">
+  <div class="card" data-id="F5" onclick="t(this)"><div class="tag">F5</div><img src="images/F5-charging.png"><div class="d">充電中 ナイトスタンド</div></div>
+  <div class="card" data-id="F6" onclick="t(this)"><div class="tag">F6</div><img src="images/F6-unboxing.png"><div class="d">開封 プレミアムパッケージ</div></div>
+</div>
+</div>
+
+<div class="cat">
+<div class="cat-title">テクノロジービジュアル (新規)</div>
+<div class="grid">
+  <div class="card" data-id="V-wave2" onclick="t(this)"><div class="tag">V-wave2</div><img src="images/VIS-waveform.png"><div class="d">波形+同期マーカー</div></div>
+  <div class="card" data-id="V-4layer" onclick="t(this)"><div class="tag">V-4layer</div><img src="images/VIS-4layers.png"><div class="d">4層同期リング</div></div>
+</div>
+</div>
+
+<div class="bar">
+  <div class="t">選択: <span id="s">なし</span></div>
+  <button id="b" disabled onclick="c()">番号をコピー</button>
+</div>
+
+<script>
+const sel=new Set();
+function t(c){const id=c.dataset.id;sel.has(id)?(sel.delete(id),c.classList.remove('selected')):(sel.add(id),c.classList.add('selected'));u()}
+function u(){const d=document.getElementById('s'),b=document.getElementById('b');if(!sel.size){d.textContent='なし';b.disabled=true}else{d.textContent=[...sel].sort().join(', ');b.disabled=false}}
+function c(){navigator.clipboard.writeText([...sel].sort().join(', ')).then(()=>{document.getElementById('b').textContent='OK!';setTimeout(()=>document.getElementById('b').textContent='番号をコピー',1500)})}
+</script>
+</body>
+</html>
