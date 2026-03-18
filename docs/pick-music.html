@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — 楽器×デバイス イメージセレクター</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;padding:1.5rem 1.5rem 5rem}
+h1{font-size:1.5rem;font-weight:200;text-align:center;margin-bottom:0.3rem}
+.sub{text-align:center;color:#666;font-size:0.85rem;margin-bottom:2rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem}
+.card{position:relative;border-radius:12px;overflow:hidden;border:2px solid #1a1a1a;cursor:pointer;transition:all 0.2s}
+.card:hover{border-color:#555;transform:scale(1.01)}
+.card.selected{border-color:#f97316;box-shadow:0 0 20px rgba(249,115,22,0.2)}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.card .tag{position:absolute;top:0.4rem;left:0.4rem;background:rgba(0,0,0,0.8);color:#fff;font-size:0.7rem;font-weight:600;padding:0.15rem 0.6rem;border-radius:100px}
+.card.selected .tag{background:#f97316;color:#000}
+.card .info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:2rem 0.8rem 0.6rem}
+.card .name{font-size:0.9rem;font-weight:500;margin-bottom:0.2rem}
+.card .desc{font-size:0.7rem;color:#999;line-height:1.4}
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-top:1px solid #1a1a1a;padding:0.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:100}
+.bar .t{font-size:0.8rem;color:#888}.bar .t span{color:#f97316;font-weight:500}
+.bar button{padding:0.6rem 1.5rem;border-radius:100px;background:#f97316;color:#000;font-size:0.8rem;font-weight:600;border:none;cursor:pointer}
+.bar button:disabled{background:#333;color:#666;cursor:not-allowed}
+@media(max-width:500px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<h1>楽器 × Koe イメージ</h1>
+<p class="sub">ギター→iPhone→Koeデバイス群の超低遅延配信 & ハーモニー合成</p>
+
+<div class="grid">
+  <div class="card" data-id="H1" onclick="t(this)">
+    <div class="tag">H1</div>
+    <img src="images/H1-guitar-to-devices.png">
+    <div class="info">
+      <div class="name">Guitar → 4デバイスに配信</div>
+      <div class="desc">ギターシールド→iPhone→WiFi→部屋中のKoeデバイス。30ms表示。オレンジの光の軌跡</div>
+    </div>
+  </div>
+
+  <div class="card" data-id="H2" onclick="t(this)">
+    <div class="tag">H2</div>
+    <img src="images/H2-band-multi-channel.png">
+    <div class="info">
+      <div class="name">バンド全体 → マルチチャンネル</div>
+      <div class="desc">ギター/ベース/ドラム/ボーカル各iPhoneから、色分けされた4台のKoeへ。分散PAシステム</div>
+    </div>
+  </div>
+
+  <div class="card" data-id="H3" onclick="t(this)">
+    <div class="tag">H3</div>
+    <img src="images/H3-harmony-waves.png">
+    <div class="info">
+      <div class="name">ハーモニー波形</div>
+      <div class="desc">4つの楽器波形が完璧に同期して右側で1つのハーモニーに合流。データビジュアライゼーション</div>
+    </div>
+  </div>
+
+  <div class="card" data-id="H4" onclick="t(this)">
+    <div class="tag">H4</div>
+    <img src="images/H4-crowd-harmony.png">
+    <div class="info">
+      <div class="name">群衆ハーモニー</div>
+      <div class="desc">フェス空撮。観客がハミング→AIがハーモニー生成→空中に浮かぶ音波。SF的</div>
+    </div>
+  </div>
+
+  <div class="card" data-id="H5" onclick="t(this)">
+    <div class="tag">H5</div>
+    <img src="images/H5-app-screen.png">
+    <div class="info">
+      <div class="name">アプリUI + デバイス</div>
+      <div class="desc">iPhoneの画面に4chミキサーUI(28ms表示)。横にKoeデバイス。ギターケーブル接続</div>
+    </div>
+  </div>
+
+  <div class="card" data-id="H6" onclick="t(this)">
+    <div class="tag">H6</div>
+    <img src="images/H6-signal-flow.png">
+    <div class="info">
+      <div class="name">シグナルフロー図</div>
+      <div class="desc">ギター→iPhone→WiFi→5台のKoe。30msストップウォッチ。キーノート風インフォグラフィック</div>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="t">選択: <span id="s">なし</span></div>
+  <button id="b" disabled onclick="c()">番号をコピー</button>
+</div>
+
+<script>
+const sel=new Set();
+function t(c){const id=c.dataset.id;sel.has(id)?(sel.delete(id),c.classList.remove('selected')):(sel.add(id),c.classList.add('selected'));u()}
+function u(){const d=document.getElementById('s'),b=document.getElementById('b');if(!sel.size){d.textContent='なし';b.disabled=true}else{d.textContent=[...sel].sort().join(', ');b.disabled=false}}
+function c(){navigator.clipboard.writeText([...sel].sort().join(', ')).then(()=>{document.getElementById('b').textContent='OK!';setTimeout(()=>document.getElementById('b').textContent='番号をコピー',1500)})}
+</script>
+</body>
+</html>

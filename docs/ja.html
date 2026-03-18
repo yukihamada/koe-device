@@ -775,6 +775,7 @@ footer a:hover { color:#888; }
     <p style="color:#888;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
       フェスの観客1000人がハミングする。各デバイスがピッチを検出。AIがリアルタイムでハーモニーを計算し、足りないパートを全デバイスから補完再生する。<strong style="color:#ccc;">楽器を弾けなくても、全員で音楽が作れる。</strong>
     </p>
+    <img src="images/H3-harmony-waves.png" alt="4つの楽器波形が同期してハーモニーに合流" style="width:100%;border-radius:12px;margin-bottom:1rem;border:1px solid #1a1a1a;">
     <p style="color:#444;font-size:0.8rem;line-height:1.6;">
       デバイス上でピッチ検出(ESP32 DSP) → UDPでピッチデータ共有(音声の1/100の帯域) → STAGEでハーモニー計算 → GPS同期で全デバイス同時再生
     </p>
@@ -802,6 +803,21 @@ footer a:hover { color:#888; }
     <p style="color:#444;font-size:0.8rem;line-height:1.6;">
       各デバイスのGPS座標 + マイク入力 → STAGEで3Dオーディオマップ合成 → 空間音響レンダリング → ヘッドホンで360度再生
     </p>
+  </div>
+</section>
+
+<!-- INSTRUMENT CONNECTION -->
+<section class="fade-in-section" style="padding:3rem 2rem;max-width:900px;margin:0 auto;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center;">
+    <div>
+      <img src="images/H1-guitar-to-devices.png" alt="ギターからiPhone経由で複数Koeデバイスに30ms配信" style="width:100%;border-radius:16px;border:1px solid #1a1a1a;">
+    </div>
+    <div>
+      <div style="font-size:0.65rem;letter-spacing:0.15em;color:#f97316;margin-bottom:0.5rem;">30ms ULTRA LOW LATENCY</div>
+      <h3 style="font-size:1.3rem;font-weight:200;margin-bottom:0.8rem;">ギターを弾く。<br>部屋中のKoeが鳴る。</h3>
+      <p style="color:#666;font-size:0.9rem;line-height:1.7;margin-bottom:1rem;">iPhoneにシールドを挿す。WiFi経由で周りのKoeデバイスに30msで音が届く。リハーサルスタジオが不要になる。リビングがステージになる。</p>
+      <img src="images/H6-signal-flow.png" alt="シグナルフロー: ギター→iPhone→WiFi→Koe群" style="width:100%;border-radius:12px;border:1px solid #1a1a1a;">
+    </div>
   </div>
 </section>
 
