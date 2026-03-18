@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Soluna Edition — Event Management Dashboard</title>
+<style>
+/* ============================================================
+   Koe Soluna Edition — Event Management Dashboard
+   Dark pro-audio theme, orange accent #f97316
+   ============================================================ */
+:root {
+  --bg: #0a0a0c;
+  --panel: #111114;
+  --panel-border: #1e1e24;
+  --text: #d4d4d8;
+  --text-dim: #6b6b76;
+  --text-bright: #fafafa;
+  --accent: #f97316;
+  --accent-dim: rgba(249,115,22,0.15);
+  --accent-glow: rgba(249,115,22,0.4);
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --radius: 8px;
+  --font: -apple-system, 'Helvetica Neue', 'Hiragino Sans', 'Inter', sans-serif;
+  --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 3px; }
+
+/* ---- Top Bar ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  background: rgba(10,10,12,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--panel-border);
+}
+.topbar-logo {
+  font-size: 1rem; font-weight: 200; letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+.topbar-logo span { color: var(--accent); font-weight: 400; }
+.topbar-event {
+  background: var(--accent-dim); color: var(--accent);
+  padding: 0.25rem 0.8rem; border-radius: 100px;
+  font-size: 0.75rem; letter-spacing: 0.05em; white-space: nowrap;
+}
+.topbar-sep { width: 1px; height: 24px; background: var(--panel-border); }
+.topbar-stats {
+  display: flex; gap: 1.5rem; font-size: 0.78rem; color: var(--text-dim);
+  flex: 1; overflow-x: auto;
+}
+.topbar-stats .ts-item { display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+.topbar-stats .ts-val { color: var(--text-bright); font-family: var(--mono); font-size: 0.82rem; }
+.topbar-stats .ts-dot { width: 6px; height: 6px; border-radius: 50%; }
+.topbar-stats .ts-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+/* Master controls */
+.master-controls {
+  display: flex; align-items: center; gap: 0.8rem;
+  margin-left: auto;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem; border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.78rem; cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+.btn:hover { border-color: #3a3a44; background: #1a1a1f; }
+.btn-accent {
+  background: var(--accent); border-color: var(--accent); color: #000;
+  font-weight: 600;
+}
+.btn-accent:hover { background: #fb923c; }
+.btn-danger { border-color: var(--red); color: var(--red); }
+.btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+.master-vol {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.75rem; color: var(--text-dim);
+}
+.master-vol input[type=range] {
+  -webkit-appearance: none; width: 100px; height: 4px;
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) 78%, #2a2a30 78%);
+  border-radius: 2px; outline: none;
+}
+.master-vol input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--accent);
+  border: 2px solid #000; cursor: pointer;
+  box-shadow: 0 0 6px var(--accent-glow);
+}
+.master-vol .vol-val {
+  font-family: var(--mono); color: var(--text-bright);
+  min-width: 3ch; text-align: right;
+}
+
+/* ---- Layout ---- */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  grid-template-rows: auto auto 1fr;
+  gap: 1px;
+  background: var(--panel-border);
+  min-height: calc(100vh - 50px);
+}
+
+.panel {
+  background: var(--panel);
+  padding: 1rem 1.2rem;
+}
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+.panel-title {
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.panel-badge {
+  font-size: 0.65rem; padding: 0.15rem 0.5rem;
+  border-radius: 4px; background: var(--accent-dim);
+  color: var(--accent); font-family: var(--mono);
+}
+
+/* ---- Stats Bar ---- */
+.stats-bar {
+  grid-column: 1 / -1;
+  display: flex; gap: 1px; background: var(--panel-border);
+}
+.stat-card {
+  flex: 1; background: var(--panel); padding: 0.8rem 1.2rem;
+  text-align: center;
+}
+.stat-card .sc-val {
+  font-size: 1.6rem; font-weight: 200; font-family: var(--mono);
+  color: var(--text-bright); line-height: 1;
+}
+.stat-card .sc-val.accent { color: var(--accent); }
+.stat-card .sc-label {
+  font-size: 0.65rem; color: var(--text-dim);
+  letter-spacing: 0.08em; margin-top: 0.3rem;
+}
+.stat-card .sc-sub {
+  font-size: 0.65rem; color: var(--text-dim);
+  font-family: var(--mono); margin-top: 0.15rem;
+}
+
+/* ---- Device Grid ---- */
+.device-grid-area { grid-column: 1; grid-row: 2 / 4; overflow-y: auto; max-height: calc(100vh - 160px); }
+.device-section-label {
+  font-size: 0.65rem; letter-spacing: 0.15em; color: var(--text-dim);
+  padding: 0.6rem 0 0.4rem; border-bottom: 1px solid var(--panel-border);
+  margin-bottom: 0.6rem; font-weight: 600;
+}
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.device-card {
+  background: #16161a;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+.device-card:hover {
+  border-color: #3a3a44;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.device-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 20px var(--accent-dim);
+}
+.device-card.offline { opacity: 0.4; }
+
+.dc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.dc-name { font-size: 0.85rem; font-weight: 600; color: var(--text-bright); font-family: var(--mono); }
+.dc-type {
+  font-size: 0.6rem; padding: 0.12rem 0.45rem;
+  border-radius: 3px; letter-spacing: 0.08em; font-weight: 600;
+}
+.dc-type.stage { background: rgba(249,115,22,0.15); color: var(--accent); }
+.dc-type.crowd { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+.dc-meters { display: flex; gap: 3px; margin-bottom: 0.5rem; height: 32px; align-items: flex-end; }
+.vu-bar-wrap {
+  flex: 1; height: 100%; background: #0e0e12; border-radius: 2px;
+  position: relative; overflow: hidden;
+}
+.vu-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  border-radius: 2px;
+  transition: height 0.08s linear;
+}
+.vu-bar.left { background: linear-gradient(to top, var(--green) 0%, var(--green) 60%, var(--yellow) 80%, var(--red) 100%); }
+.vu-bar.right { background: linear-gradient(to top, var(--green) 0%, var(--green) 60%, var(--yellow) 80%, var(--red) 100%); }
+
+.dc-info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 0.8rem; font-size: 0.7rem; }
+.dc-info-item { display: flex; justify-content: space-between; }
+.dc-info-label { color: var(--text-dim); }
+.dc-info-val { font-family: var(--mono); color: var(--text); }
+.dc-info-val.good { color: var(--green); }
+.dc-info-val.warn { color: var(--yellow); }
+.dc-info-val.bad { color: var(--red); }
+
+/* Battery icon */
+.batt { display: inline-flex; align-items: center; gap: 3px; }
+.batt-icon {
+  width: 18px; height: 9px; border: 1px solid currentColor;
+  border-radius: 2px; position: relative; display: inline-block;
+}
+.batt-icon::after {
+  content: ''; position: absolute; right: -3px; top: 2px;
+  width: 2px; height: 4px; background: currentColor; border-radius: 0 1px 1px 0;
+}
+.batt-fill {
+  position: absolute; left: 1px; top: 1px; bottom: 1px;
+  border-radius: 1px;
+}
+
+/* Volume slider per device */
+.dc-vol {
+  margin-top: 0.4rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.dc-vol input[type=range] {
+  -webkit-appearance: none; flex: 1; height: 3px;
+  background: #2a2a30; border-radius: 2px; outline: none;
+}
+.dc-vol input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--text); cursor: pointer;
+}
+.dc-vol .dv-label { font-size: 0.6rem; color: var(--text-dim); width: 24px; }
+.dc-vol .dv-val { font-size: 0.65rem; font-family: var(--mono); color: var(--text-dim); width: 30px; text-align: right; }
+
+/* Sync indicator dot */
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  display: inline-block; margin-right: 2px;
+}
+.sync-dot.synced { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.sync-dot.syncing { background: var(--yellow); animation: blink 1s infinite; }
+.sync-dot.lost { background: var(--red); }
+
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ---- Right Side Panels ---- */
+.right-panels {
+  grid-column: 2; grid-row: 2 / 4;
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--panel-border);
+  overflow-y: auto; max-height: calc(100vh - 160px);
+}
+
+/* ---- Map View ---- */
+.map-container {
+  position: relative;
+  width: 100%; aspect-ratio: 4/3;
+  background: #0c0c10;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.map-grid-line {
+  position: absolute; background: rgba(255,255,255,0.03);
+}
+.map-grid-line.h { left: 0; right: 0; height: 1px; }
+.map-grid-line.v { top: 0; bottom: 0; width: 1px; }
+
+.map-device {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 700; font-family: var(--mono);
+  cursor: pointer; transition: all 0.2s;
+  z-index: 2;
+}
+.map-device.stage-dev {
+  background: rgba(249,115,22,0.2);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-dim);
+}
+.map-device.crowd-dev {
+  background: rgba(59,130,246,0.15);
+  border: 1.5px solid rgba(59,130,246,0.5);
+  color: var(--blue);
+  width: 24px; height: 24px; font-size: 0.5rem;
+}
+.map-device:hover { transform: translate(-50%, -50%) scale(1.3); z-index: 10; }
+.map-device .map-label {
+  position: absolute; top: 100%; margin-top: 3px;
+  font-size: 0.5rem; white-space: nowrap; color: var(--text-dim);
+  font-weight: 400; pointer-events: none;
+}
+.map-stage-zone {
+  position: absolute;
+  border: 1px dashed rgba(249,115,22,0.15);
+  border-radius: 8px;
+  background: rgba(249,115,22,0.02);
+}
+.map-stage-label {
+  position: absolute; font-size: 0.55rem; color: rgba(249,115,22,0.3);
+  letter-spacing: 0.15em; font-weight: 600;
+}
+
+/* ---- Audio Panel ---- */
+.eq-display {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 60px; padding: 4px 0;
+}
+.eq-band {
+  flex: 1; background: var(--accent-dim);
+  border-radius: 2px 2px 0 0;
+  position: relative;
+  transition: height 0.3s;
+}
+.eq-band::after {
+  content: attr(data-freq);
+  position: absolute; bottom: -14px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem; color: var(--text-dim);
+  font-family: var(--mono); white-space: nowrap;
+}
+
+.meter-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-top: 0.6rem;
+  font-size: 0.7rem;
+}
+.meter-label { color: var(--text-dim); width: 80px; font-size: 0.65rem; }
+.meter-track {
+  flex: 1; height: 6px; background: #1a1a1f;
+  border-radius: 3px; overflow: hidden; position: relative;
+}
+.meter-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.15s;
+}
+.meter-val { font-family: var(--mono); color: var(--text); min-width: 40px; text-align: right; font-size: 0.7rem; }
+
+.limiter-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-top: 0.5rem; font-size: 0.7rem;
+}
+.limiter-indicator {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #2a2a30; transition: all 0.1s;
+}
+.limiter-indicator.active {
+  background: var(--red); box-shadow: 0 0 8px var(--red);
+}
+
+/* ---- Channel List ---- */
+.channel-list { display: flex; flex-direction: column; gap: 4px; }
+.channel-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.4rem 0.6rem; border-radius: 4px;
+  background: #16161a; cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.75rem;
+}
+.channel-item:hover { background: #1c1c22; }
+.channel-item.active { background: var(--accent-dim); border: 1px solid rgba(249,115,22,0.3); }
+.ch-num { font-family: var(--mono); color: var(--text-dim); width: 28px; }
+.ch-name { flex: 1; color: var(--text); }
+.ch-count { font-family: var(--mono); color: var(--text-dim); font-size: 0.65rem; }
+
+/* ---- Event Log ---- */
+.log-list {
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 0.7rem; font-family: var(--mono);
+  max-height: 200px; overflow-y: auto;
+}
+.log-entry {
+  display: flex; gap: 0.6rem; padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.log-time { color: var(--text-dim); white-space: nowrap; }
+.log-icon { width: 14px; text-align: center; }
+.log-msg { color: var(--text); flex: 1; }
+
+/* ---- Tabs ---- */
+.tab-bar {
+  display: flex; gap: 0; border-bottom: 1px solid var(--panel-border);
+  margin-bottom: 0.8rem;
+}
+.tab-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.7rem; color: var(--text-dim);
+  background: none; border: none; border-bottom: 2px solid transparent;
+  cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .right-panels { grid-column: 1; grid-row: auto; max-height: none; }
+  .device-grid-area { max-height: none; }
+  .topbar { flex-wrap: wrap; }
+  .master-controls { margin-left: 0; flex-basis: 100%; justify-content: flex-end; margin-top: 0.4rem; }
+}
+
+/* ---- Master VU ---- */
+.master-vu {
+  display: flex; gap: 2px; align-items: flex-end; height: 24px; margin: 0 0.5rem;
+}
+.master-vu-bar {
+  width: 3px; border-radius: 1px;
+  background: var(--green);
+  transition: height 0.08s;
+}
+
+/* Latency chart */
+.latency-chart {
+  display: flex; align-items: flex-end; gap: 1px;
+  height: 40px; margin-top: 0.5rem;
+}
+.latency-bar {
+  flex: 1; background: var(--accent-dim); border-radius: 1px 1px 0 0;
+  min-height: 2px; transition: height 0.3s;
+}
+
+/* Network health */
+.health-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; font-family: var(--mono);
+  margin: 0 auto;
+}
+</style>
+</head>
+<body>
+
+<!-- ====== TOP BAR ====== -->
+<div class="topbar">
+  <div class="topbar-logo">KOE <span>SOLUNA</span></div>
+  <div class="topbar-event">SOLUNA FEST 2026 TOKYO</div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-stats">
+    <div class="ts-item"><span class="ts-dot green"></span> LIVE <span class="ts-val" id="uptime">02:34:18</span></div>
+    <div class="ts-item">Devices <span class="ts-val" id="deviceCount">16/16</span></div>
+    <div class="ts-item">Sync <span class="ts-val" id="avgSync">1.4ms</span></div>
+    <div class="ts-item">Ch <span class="ts-val">A-01</span></div>
+  </div>
+  <div class="master-controls">
+    <div class="master-vu" id="masterVu"></div>
+    <div class="master-vol">
+      <span>MASTER</span>
+      <input type="range" min="0" max="100" value="78" id="masterVol" oninput="document.getElementById('masterVolVal').textContent=this.value+'%'">
+      <span class="vol-val" id="masterVolVal">78%</span>
+    </div>
+    <button class="btn btn-accent" id="streamBtn" onclick="toggleStream()">&#9654; STREAMING</button>
+    <button class="btn btn-danger" onclick="alert('Emergency mute triggered')">MUTE ALL</button>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD GRID ====== -->
+<div class="dashboard">
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="sc-val accent">16</div>
+      <div class="sc-label">接続デバイス</div>
+      <div class="sc-sub">4 STAGE / 12 CROWD</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val">1.4<span style="font-size:0.8rem;color:var(--text-dim)">ms</span></div>
+      <div class="sc-label">平均同期オフセット</div>
+      <div class="sc-sub">target &lt; 5ms</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val" style="color:var(--green)">98.7<span style="font-size:0.8rem">%</span></div>
+      <div class="sc-label">ネットワーク健全性</div>
+      <div class="sc-sub">packet loss: 0.02%</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val">48<span style="font-size:0.8rem;color:var(--text-dim)">kHz</span></div>
+      <div class="sc-label">サンプルレート</div>
+      <div class="sc-sub">24bit / AAC-ELD</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val">02:34:18</div>
+      <div class="sc-label">稼働時間</div>
+      <div class="sc-sub">started 14:30 JST</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val" style="color:var(--green)">OK</div>
+      <div class="sc-label">GPS時刻同期</div>
+      <div class="sc-sub">PPS lock: all</div>
+    </div>
+  </div>
+
+  <!-- Device Grid Area -->
+  <div class="device-grid-area panel">
+    <div class="panel-header">
+      <span class="panel-title">&#x1F50A; デバイス一覧 / Device List</span>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="btn" style="font-size:0.65rem;padding:0.2rem 0.6rem;" onclick="sortDevices('name')">Name</button>
+        <button class="btn" style="font-size:0.65rem;padding:0.2rem 0.6rem;" onclick="sortDevices('sync')">Sync</button>
+        <button class="btn" style="font-size:0.65rem;padding:0.2rem 0.6rem;" onclick="sortDevices('battery')">Battery</button>
+      </div>
+    </div>
+
+    <div class="device-section-label">STAGE DEVICES (4)</div>
+    <div class="device-grid" id="stageGrid"></div>
+
+    <div class="device-section-label">CROWD DEVICES (12)</div>
+    <div class="device-grid" id="crowdGrid"></div>
+  </div>
+
+  <!-- Right Panels -->
+  <div class="right-panels">
+
+    <!-- Map -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#x1F4CD; フロアマップ / Floor Map</span>
+        <span class="panel-badge">LIVE</span>
+      </div>
+      <div class="map-container" id="floorMap">
+        <div class="map-stage-zone" style="left:25%;top:5%;width:50%;height:18%;"></div>
+        <div class="map-stage-label" style="left:50%;top:12%;transform:translateX(-50%);">STAGE</div>
+      </div>
+    </div>
+
+    <!-- Audio Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#x1F3B5; オーディオ / Audio</span>
+      </div>
+      <div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:0.3rem;">MASTER EQ (10-band)</div>
+      <div class="eq-display" id="eqDisplay"></div>
+      <div style="height:18px;"></div>
+
+      <div class="meter-row">
+        <span class="meter-label">Compressor</span>
+        <div class="meter-track">
+          <div class="meter-fill" id="compMeter" style="width:35%;background:var(--accent);"></div>
+        </div>
+        <span class="meter-val" id="compVal">-3.2dB</span>
+      </div>
+      <div class="meter-row">
+        <span class="meter-label">Gate</span>
+        <div class="meter-track">
+          <div class="meter-fill" id="gateMeter" style="width:10%;background:var(--blue);"></div>
+        </div>
+        <span class="meter-val" id="gateVal">-42dB</span>
+      </div>
+      <div class="limiter-row">
+        <span class="meter-label">Limiter</span>
+        <div class="limiter-indicator" id="limiterInd"></div>
+        <span style="font-size:0.65rem;color:var(--text-dim);" id="limiterLabel">INACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Channel Selector -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#x1F4E1; チャンネル / Channels</span>
+      </div>
+      <div class="channel-list">
+        <div class="channel-item active" onclick="selectChannel(this)">
+          <span class="ch-num">A-01</span>
+          <span class="ch-name">メインステージ Main Stage</span>
+          <span class="ch-count">16 dev</span>
+        </div>
+        <div class="channel-item" onclick="selectChannel(this)">
+          <span class="ch-num">A-02</span>
+          <span class="ch-name">サブステージ Sub Stage</span>
+          <span class="ch-count">0 dev</span>
+        </div>
+        <div class="channel-item" onclick="selectChannel(this)">
+          <span class="ch-num">B-01</span>
+          <span class="ch-name">VIPエリア VIP Area</span>
+          <span class="ch-count">0 dev</span>
+        </div>
+        <div class="channel-item" onclick="selectChannel(this)">
+          <span class="ch-num">M-01</span>
+          <span class="ch-name">モニター Monitor</span>
+          <span class="ch-count">0 dev</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latency Stats -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#x23F1; レイテンシ / Latency</span>
+        <span class="panel-badge" id="latAvg">avg 1.4ms</span>
+      </div>
+      <div class="latency-chart" id="latencyChart"></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.55rem;color:var(--text-dim);margin-top:0.2rem;font-family:var(--mono);">
+        <span>-60s</span><span>-30s</span><span>now</span>
+      </div>
+    </div>
+
+    <!-- Event Log -->
+    <div class="panel" style="flex:1;">
+      <div class="panel-header">
+        <span class="panel-title">&#x1F4CB; イベントログ / Event Log</span>
+        <button class="btn" style="font-size:0.6rem;padding:0.15rem 0.4rem;">Clear</button>
+      </div>
+      <div class="log-list" id="logList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Mock Data & Real-time Simulation
+   ============================================================ */
+
+const DEVICES = [
+  // STAGE devices
+  { id:'STAGE-A', type:'STAGE', battery:95, signal:-32, sync:0.3, vol:82, x:35, y:12, status:'synced' },
+  { id:'STAGE-B', type:'STAGE', battery:88, signal:-35, sync:0.5, vol:78, x:50, y:10, status:'synced' },
+  { id:'STAGE-C', type:'STAGE', battery:72, signal:-38, sync:0.8, vol:80, x:65, y:12, status:'synced' },
+  { id:'STAGE-D', type:'STAGE', battery:60, signal:-41, sync:1.1, vol:75, x:50, y:20, status:'syncing' },
+  // CROWD devices
+  { id:'CROWD-001', type:'CROWD', battery:91, signal:-45, sync:1.2, vol:65, x:20, y:40, status:'synced' },
+  { id:'CROWD-002', type:'CROWD', battery:84, signal:-48, sync:1.5, vol:60, x:35, y:38, status:'synced' },
+  { id:'CROWD-003', type:'CROWD', battery:77, signal:-52, sync:1.8, vol:70, x:50, y:42, status:'synced' },
+  { id:'CROWD-004', type:'CROWD', battery:68, signal:-55, sync:2.1, vol:62, x:65, y:38, status:'synced' },
+  { id:'CROWD-005', type:'CROWD', battery:55, signal:-58, sync:2.4, vol:58, x:80, y:40, status:'synced' },
+  { id:'CROWD-006', type:'CROWD', battery:43, signal:-61, sync:2.8, vol:55, x:25, y:58, status:'synced' },
+  { id:'CROWD-007', type:'CROWD', battery:96, signal:-42, sync:0.9, vol:68, x:40, y:55, status:'synced' },
+  { id:'CROWD-008', type:'CROWD', battery:33, signal:-65, sync:3.5, vol:50, x:55, y:60, status:'syncing' },
+  { id:'CROWD-009', type:'CROWD', battery:81, signal:-50, sync:1.6, vol:63, x:70, y:55, status:'synced' },
+  { id:'CROWD-010', type:'CROWD', battery:15, signal:-72, sync:4.2, vol:45, x:30, y:75, status:'syncing' },
+  { id:'CROWD-011', type:'CROWD', battery:89, signal:-44, sync:1.0, vol:66, x:50, y:78, status:'synced' },
+  { id:'CROWD-012', type:'CROWD', battery:62, signal:-57, sync:2.6, vol:57, x:72, y:72, status:'synced' },
+];
+
+const LOGS = [
+  { time:'17:04:15', icon:'green', msg:'CROWD-011 同期完了 sync achieved (1.0ms)' },
+  { time:'17:03:58', icon:'accent', msg:'Master volume → 78%' },
+  { time:'17:03:42', icon:'green', msg:'CROWD-007 接続 device joined Ch A-01' },
+  { time:'17:02:30', icon:'yellow', msg:'CROWD-010 バッテリー低下 battery low (15%)' },
+  { time:'17:01:15', icon:'yellow', msg:'CROWD-008 同期再調整中 re-syncing (3.5ms)' },
+  { time:'17:00:02', icon:'green', msg:'全デバイス同期完了 all devices synced' },
+  { time:'16:58:44', icon:'blue', msg:'チャンネル A-01 選択 channel selected' },
+  { time:'16:55:10', icon:'green', msg:'STAGE-D 接続 device joined Ch A-01' },
+  { time:'16:54:30', icon:'accent', msg:'ストリーミング開始 streaming started' },
+  { time:'16:52:00', icon:'green', msg:'GPS PPS ロック完了 GPS lock achieved' },
+  { time:'16:50:15', icon:'blue', msg:'システム起動 system initialized' },
+];
+
+let streaming = true;
+let latencyHistory = [];
+for (let i = 0; i < 60; i++) latencyHistory.push(0.8 + Math.random() * 2.5);
+
+// ---- Render Functions ----
+
+function batteryColor(pct) {
+  if (pct > 50) return 'var(--green)';
+  if (pct > 20) return 'var(--yellow)';
+  return 'var(--red)';
+}
+function batteryClass(pct) {
+  if (pct > 50) return 'good';
+  if (pct > 20) return 'warn';
+  return 'bad';
+}
+function signalBars(dbm) {
+  const bars = dbm > -40 ? 4 : dbm > -50 ? 3 : dbm > -60 ? 2 : dbm > -70 ? 1 : 0;
+  let s = '';
+  for (let i = 0; i < 4; i++) s += `<span style="display:inline-block;width:3px;height:${4+i*3}px;margin-right:1px;border-radius:1px;background:${i<bars?(bars>2?'var(--green)':bars>1?'var(--yellow)':'var(--red)'):'#2a2a30'};vertical-align:bottom;"></span>`;
+  return s;
+}
+
+function syncClass(ms) {
+  if (ms < 2) return 'good';
+  if (ms < 3.5) return 'warn';
+  return 'bad';
+}
+
+function renderDeviceCard(d) {
+  const vuL = 30 + Math.random() * 55;
+  const vuR = 30 + Math.random() * 50;
+  return `
+  <div class="device-card" id="card-${d.id}" onclick="selectDevice('${d.id}')">
+    <div class="dc-top">
+      <span class="dc-name"><span class="sync-dot ${d.status}"></span>${d.id}</span>
+      <span class="dc-type ${d.type.toLowerCase()}">${d.type}</span>
+    </div>
+    <div class="dc-meters">
+      <div class="vu-bar-wrap"><div class="vu-bar left" data-device="${d.id}" data-ch="L" style="height:${vuL}%"></div></div>
+      <div class="vu-bar-wrap"><div class="vu-bar right" data-device="${d.id}" data-ch="R" style="height:${vuR}%"></div></div>
+    </div>
+    <div class="dc-info">
+      <div class="dc-info-item">
+        <span class="dc-info-label">Battery</span>
+        <span class="dc-info-val ${batteryClass(d.battery)}">
+          <span class="batt">
+            <span class="batt-icon" style="color:${batteryColor(d.battery)}"><span class="batt-fill" style="width:${d.battery}%;background:${batteryColor(d.battery)};"></span></span>
+            ${d.battery}%
+          </span>
+        </span>
+      </div>
+      <div class="dc-info-item">
+        <span class="dc-info-label">Signal</span>
+        <span class="dc-info-val">${signalBars(d.signal)} ${d.signal}dBm</span>
+      </div>
+      <div class="dc-info-item">
+        <span class="dc-info-label">Sync</span>
+        <span class="dc-info-val ${syncClass(d.sync)}">${d.sync.toFixed(1)}ms</span>
+      </div>
+      <div class="dc-info-item">
+        <span class="dc-info-label">Latency</span>
+        <span class="dc-info-val">${(d.sync + 0.5 + Math.random()*0.5).toFixed(1)}ms</span>
+      </div>
+    </div>
+    <div class="dc-vol">
+      <span class="dv-label">VOL</span>
+      <input type="range" min="0" max="100" value="${d.vol}" oninput="this.nextElementSibling.textContent=this.value+'%'">
+      <span class="dv-val">${d.vol}%</span>
+    </div>
+  </div>`;
+}
+
+function renderDevices() {
+  const stages = DEVICES.filter(d => d.type === 'STAGE');
+  const crowds = DEVICES.filter(d => d.type === 'CROWD');
+  document.getElementById('stageGrid').innerHTML = stages.map(renderDeviceCard).join('');
+  document.getElementById('crowdGrid').innerHTML = crowds.map(renderDeviceCard).join('');
+}
+
+function renderMap() {
+  const map = document.getElementById('floorMap');
+  // Grid lines
+  for (let i = 1; i < 5; i++) {
+    const h = document.createElement('div');
+    h.className = 'map-grid-line h';
+    h.style.top = (i * 20) + '%';
+    map.appendChild(h);
+  }
+  for (let i = 1; i < 5; i++) {
+    const v = document.createElement('div');
+    v.className = 'map-grid-line v';
+    v.style.left = (i * 20) + '%';
+    map.appendChild(v);
+  }
+  // Devices
+  DEVICES.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'map-device ' + (d.type === 'STAGE' ? 'stage-dev' : 'crowd-dev');
+    el.style.left = d.x + '%';
+    el.style.top = d.y + '%';
+    el.innerHTML = d.id.replace('CROWD-','C').replace('STAGE-','S') + `<span class="map-label">${d.id}</span>`;
+    el.title = `${d.id} | ${d.battery}% | ${d.sync}ms`;
+    el.onclick = () => selectDevice(d.id);
+    map.appendChild(el);
+  });
+}
+
+function renderEQ() {
+  const freqs = ['31', '62', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
+  const gains = [35, 40, 55, 65, 70, 75, 68, 60, 50, 38]; // height %
+  const container = document.getElementById('eqDisplay');
+  container.innerHTML = freqs.map((f, i) =>
+    `<div class="eq-band" data-freq="${f}" style="height:${gains[i]}%;"></div>`
+  ).join('');
+}
+
+function renderLatencyChart() {
+  const container = document.getElementById('latencyChart');
+  container.innerHTML = latencyHistory.map(v =>
+    `<div class="latency-bar" style="height:${(v / 5) * 100}%;"></div>`
+  ).join('');
+}
+
+function renderLogs() {
+  const colors = { green:'var(--green)', yellow:'var(--yellow)', accent:'var(--accent)', blue:'var(--blue)', red:'var(--red)' };
+  document.getElementById('logList').innerHTML = LOGS.map(l =>
+    `<div class="log-entry">
+      <span class="log-time">${l.time}</span>
+      <span class="log-icon" style="color:${colors[l.icon] || 'var(--text-dim)'};">&#9679;</span>
+      <span class="log-msg">${l.msg}</span>
+    </div>`
+  ).join('');
+}
+
+function renderMasterVu() {
+  const container = document.getElementById('masterVu');
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    const h = 4 + Math.random() * 18;
+    const color = h > 18 ? 'var(--red)' : h > 14 ? 'var(--yellow)' : 'var(--green)';
+    html += `<div class="master-vu-bar" style="height:${h}px;background:${color};"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ---- Interactions ----
+
+let selectedDevice = null;
+function selectDevice(id) {
+  document.querySelectorAll('.device-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.add('selected');
+  selectedDevice = id;
+}
+
+function selectChannel(el) {
+  document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleStream() {
+  streaming = !streaming;
+  const btn = document.getElementById('streamBtn');
+  if (streaming) {
+    btn.innerHTML = '&#9654; STREAMING';
+    btn.className = 'btn btn-accent';
+  } else {
+    btn.innerHTML = '&#9724; STOPPED';
+    btn.className = 'btn btn-danger';
+  }
+}
+
+function sortDevices(by) {
+  // Simple sort feedback
+  const stageDevs = DEVICES.filter(d => d.type === 'STAGE');
+  const crowdDevs = DEVICES.filter(d => d.type === 'CROWD');
+  const sortFn = by === 'sync' ? (a,b) => a.sync - b.sync
+    : by === 'battery' ? (a,b) => a.battery - b.battery
+    : (a,b) => a.id.localeCompare(b.id);
+  stageDevs.sort(sortFn);
+  crowdDevs.sort(sortFn);
+  document.getElementById('stageGrid').innerHTML = stageDevs.map(renderDeviceCard).join('');
+  document.getElementById('crowdGrid').innerHTML = crowdDevs.map(renderDeviceCard).join('');
+}
+
+// ---- Real-time Simulation ----
+
+function animateVU() {
+  document.querySelectorAll('.vu-bar').forEach(bar => {
+    const base = bar.dataset.ch === 'L' ? 35 : 30;
+    const jitter = Math.random() * 50;
+    const peak = Math.min(98, base + jitter);
+    bar.style.height = peak + '%';
+  });
+}
+
+function animateCompressor() {
+  const v = 15 + Math.random() * 40;
+  document.getElementById('compMeter').style.width = v + '%';
+  document.getElementById('compVal').textContent = (-1 - Math.random() * 8).toFixed(1) + 'dB';
+
+  const g = 5 + Math.random() * 20;
+  document.getElementById('gateMeter').style.width = g + '%';
+  document.getElementById('gateVal').textContent = (-30 - Math.random() * 25).toFixed(0) + 'dB';
+
+  const limiterActive = Math.random() > 0.92;
+  document.getElementById('limiterInd').className = 'limiter-indicator' + (limiterActive ? ' active' : '');
+  document.getElementById('limiterLabel').textContent = limiterActive ? 'ACTIVE -0.3dB' : 'INACTIVE';
+}
+
+function updateLatency() {
+  latencyHistory.shift();
+  latencyHistory.push(0.8 + Math.random() * 2.8);
+  renderLatencyChart();
+
+  const avg = latencyHistory.reduce((a,b) => a+b, 0) / latencyHistory.length;
+  document.getElementById('latAvg').textContent = 'avg ' + avg.toFixed(1) + 'ms';
+  document.getElementById('avgSync').textContent = avg.toFixed(1) + 'ms';
+}
+
+function updateUptime() {
+  const el = document.getElementById('uptime');
+  const parts = el.textContent.split(':').map(Number);
+  let secs = parts[0]*3600 + parts[1]*60 + parts[2] + 1;
+  const h = String(Math.floor(secs/3600)).padStart(2,'0');
+  const m = String(Math.floor((secs%3600)/60)).padStart(2,'0');
+  const s = String(secs%60).padStart(2,'0');
+  el.textContent = `${h}:${m}:${s}`;
+}
+
+function addRandomLog() {
+  if (Math.random() > 0.3) return;
+  const msgs = [
+    { icon:'green', msg:'CROWD-' + String(1+Math.floor(Math.random()*12)).padStart(3,'0') + ' 同期確認 sync OK' },
+    { icon:'yellow', msg:'CROWD-008 パケットロス packet loss detected' },
+    { icon:'green', msg:'GPS PPS 再ロック re-lock' },
+    { icon:'accent', msg:'EQ パラメータ更新 EQ updated' },
+    { icon:'blue', msg:'レイテンシ最適化 latency optimized' },
+  ];
+  const m = msgs[Math.floor(Math.random() * msgs.length)];
+  const now = new Date();
+  const t = [now.getHours(), now.getMinutes(), now.getSeconds()].map(v => String(v).padStart(2,'0')).join(':');
+  LOGS.unshift({ time: t, ...m });
+  if (LOGS.length > 30) LOGS.pop();
+  renderLogs();
+}
+
+// ---- Init ----
+renderDevices();
+renderMap();
+renderEQ();
+renderLatencyChart();
+renderLogs();
+renderMasterVu();
+
+// Animation loops
+setInterval(animateVU, 100);
+setInterval(renderMasterVu, 120);
+setInterval(animateCompressor, 200);
+setInterval(updateLatency, 1000);
+setInterval(updateUptime, 1000);
+setInterval(addRandomLog, 3000);
+
+// Slowly drain batteries for realism
+setInterval(() => {
+  DEVICES.forEach(d => {
+    if (Math.random() > 0.7 && d.battery > 5) {
+      d.battery = Math.max(5, d.battery - 1);
+    }
+  });
+}, 30000);
+</script>
+</body>
+</html>

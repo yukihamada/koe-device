@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe</title>
+<meta name="description" content="A tiny AI companion that listens to your life and talks back. Open hardware, open source.">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: #0a0a0a;
+  color: #e8e8e8;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---- NAV ---- */
+nav {
+  position: fixed; top:0; width:100%; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 1.2rem 2rem;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size:1.2rem; font-weight:200; letter-spacing:0.3em; }
+nav .nav-links { display:flex; gap:2rem; }
+nav .nav-links a { color:#888; text-decoration:none; font-size:0.85rem; letter-spacing:0.05em; transition:color 0.2s; }
+nav .nav-links a:hover { color:#fff; }
+.nav-cta {
+  padding:0.5rem 1.5rem; border-radius:100px;
+  background:#fff; color:#000; font-size:0.8rem; font-weight:500;
+  text-decoration:none; transition:all 0.2s;
+}
+.nav-cta:hover { background:#e0e0e0; transform:scale(1.03); }
+
+/* ---- HERO ---- */
+.hero {
+  min-height: 100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:6rem 2rem 4rem;
+  position:relative;
+}
+.hero::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:200px;
+  background:linear-gradient(transparent, #0a0a0a);
+  pointer-events:none;
+}
+
+/* Device 3D-ish render */
+.hero-render {
+  position:relative; width:200px; height:260px; margin-bottom:3rem;
+}
+.device-body {
+  width:140px; height:185px; margin:0 auto;
+  background: linear-gradient(165deg, #2a2a2a 0%, #151515 40%, #0d0d0d 100%);
+  border-radius: 70px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 20px 60px rgba(0,0,0,0.6),
+    0 0 80px rgba(74,222,128,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  cursor:default;
+}
+.device-body:hover {
+  transform: translateY(-8px) rotateX(2deg);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 30px 80px rgba(0,0,0,0.5),
+    0 0 120px rgba(74,222,128,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.d-mic {
+  width:14px; height:14px; border-radius:50%;
+  background: radial-gradient(circle at 40% 40%, #1a1a1a, #080808);
+  border: 1px solid #222;
+}
+.d-led {
+  width:8px; height:8px; border-radius:50%;
+  background: #4ade80;
+  box-shadow: 0 0 12px #4ade80, 0 0 40px rgba(74,222,128,0.25);
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { opacity:0.3; box-shadow: 0 0 8px #4ade80, 0 0 20px rgba(74,222,128,0.1); }
+  50% { opacity:1; box-shadow: 0 0 16px #4ade80, 0 0 50px rgba(74,222,128,0.3); }
+}
+.d-usb {
+  width:22px; height:6px; border-radius:3px;
+  background: #111; border:1px solid #222;
+}
+.d-mark {
+  font-size:11px; color:#333; font-weight:200; letter-spacing:0.3em;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 100;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+.hero h1 em { font-style:normal; color:#4ade80; }
+
+.hero-p {
+  font-size: 1.15rem; color:#777; font-weight:300;
+  max-width:480px; line-height:1.7; margin-bottom:2.5rem;
+}
+
+.hero-stats {
+  display:flex; gap:3rem; margin-bottom:3rem;
+}
+.stat { text-align:center; }
+.stat-num { font-size:1.6rem; font-weight:200; letter-spacing:-0.02em; }
+.stat-label { font-size:0.7rem; color:#555; letter-spacing:0.1em; margin-top:0.2rem; }
+
+.btn-row { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+.btn-primary {
+  padding:0.9rem 2.5rem; border-radius:100px;
+  background:#fff; color:#000; font-size:0.9rem; font-weight:500;
+  text-decoration:none; border:none; cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-primary:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 4px 20px rgba(255,255,255,0.1); }
+.btn-ghost {
+  padding:0.9rem 2.5rem; border-radius:100px;
+  background:transparent; color:#888; font-size:0.9rem;
+  text-decoration:none; border:1px solid #333;
+  transition:all 0.2s;
+}
+.btn-ghost:hover { color:#fff; border-color:#555; }
+
+/* ---- STATUS ---- */
+.status-section {
+  padding:3rem 2rem 4rem;
+  max-width:700px; margin:0 auto;
+}
+.status-card {
+  background:#111; border:1px solid #1f1f1f; border-radius:16px;
+  padding:2.5rem;
+}
+.status-card h2 {
+  font-size:1.4rem; font-weight:200; margin-bottom:0.5rem; text-align:center;
+}
+.status-card .status-subtitle {
+  font-size:0.85rem; color:#555; text-align:center; margin-bottom:2rem;
+}
+.status-item {
+  display:flex; align-items:baseline; gap:1rem;
+  padding:0.7rem 0;
+  border-bottom:1px solid #1a1a1a;
+}
+.status-item:last-child { border-bottom:none; }
+.status-dot {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
+  position:relative; top:2px;
+}
+.status-dot.done { background:#4ade80; box-shadow:0 0 8px rgba(74,222,128,0.3); }
+.status-dot.wip { background:#facc15; box-shadow:0 0 8px rgba(250,204,21,0.3); }
+.status-dot.available { background:#60a5fa; box-shadow:0 0 8px rgba(96,165,250,0.3); }
+.status-label { font-size:0.85rem; color:#888; min-width:90px; flex-shrink:0; }
+.status-desc { font-size:0.9rem; color:#ccc; }
+.status-desc a { color:#4ade80; text-decoration:none; }
+.status-desc a:hover { text-decoration:underline; }
+
+/* ---- SCENARIO ---- */
+.scenarios {
+  padding:0 2rem;
+  max-width:1000px; margin:0 auto;
+}
+.scenarios-note {
+  text-align:center; padding:2rem 0 0;
+  font-size:0.8rem; color:#555; letter-spacing:0.05em;
+  font-style:italic;
+}
+.scenario {
+  display:grid; grid-template-columns:1fr 1fr; gap:4rem;
+  align-items:center;
+  padding: 6rem 0;
+  border-bottom: 1px solid #151515;
+}
+.scenario:nth-child(even) { direction:rtl; }
+.scenario:nth-child(even) > * { direction:ltr; }
+.scenario-visual {
+  aspect-ratio:4/3; border-radius:20px;
+  background:#141414;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.scenario-visual::before {
+  content:''; position:absolute; inset:0;
+  border:1px solid rgba(255,255,255,0.04); border-radius:20px;
+  pointer-events:none;
+}
+.sc-label {
+  font-size:0.65rem; letter-spacing:0.2em; color:#4ade80;
+  text-transform:uppercase; margin-bottom:0.5rem;
+}
+.sc-title {
+  font-size:clamp(1.5rem, 3vw, 2.2rem); font-weight:200;
+  line-height:1.3; margin-bottom:1rem;
+}
+.sc-desc {
+  font-size:0.95rem; color:#666; line-height:1.7; margin-bottom:1.5rem;
+}
+.sc-spec {
+  font-size:0.8rem; color:#444; line-height:1.8;
+}
+.sc-spec strong { color:#888; font-weight:400; }
+
+/* Scene illustrations (CSS-only) */
+.scene-ear {
+  position:relative; width:100%; height:100%;
+}
+.ear-shape {
+  position:absolute; right:30%; top:50%; transform:translateY(-50%);
+  width:80px; height:120px;
+  border:3px solid #2a2a2a; border-radius:40% 60% 55% 45%;
+  background:#181818;
+}
+.ear-device {
+  position:absolute; right:calc(30% - 35px); top:calc(50% - 30px);
+  width:22px; height:34px; border-radius:11px;
+  background:linear-gradient(165deg, #2a2a2a, #111);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.ear-device::after {
+  content:''; position:absolute; left:50%; top:60%; transform:translate(-50%,-50%);
+  width:4px; height:4px; border-radius:50%;
+  background:#4ade80; box-shadow:0 0 8px #4ade80;
+  animation:breathe 3s ease-in-out infinite;
+}
+.ear-hair {
+  position:absolute; right:20%; top:15%; width:150px; height:180px;
+  background:#1a1a1a; border-radius:60% 40% 50% 50%;
+}
+
+.scene-desk {
+  position:relative; width:100%; height:100%;
+}
+.desk-surface {
+  position:absolute; bottom:0; left:0; right:0; height:45%;
+  background: linear-gradient(180deg, #1e1810, #181210);
+  border-top:1px solid #2a2218;
+}
+.desk-device {
+  position:absolute; bottom:45%; left:50%; transform:translate(-50%, 50%);
+  width:60px; height:80px; border-radius:18px;
+  background:linear-gradient(165deg, #2a2a2a, #111);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+}
+.desk-device .d-speaker {
+  width:32px; height:32px; border-radius:50%;
+  background: radial-gradient(circle, #1a1a1a, #0a0a0a);
+  border:1px solid #222;
+}
+.desk-waves {
+  position:absolute; bottom:calc(45% + 10px); left:50%; transform:translateX(-50%);
+}
+.desk-waves span {
+  display:block; margin:0 auto;
+  border:1px solid rgba(74,222,128,0.15);
+  border-radius:50%; animation: wave 2s ease-out infinite;
+}
+.desk-waves span:nth-child(1) { width:80px; height:80px; animation-delay:0s; }
+.desk-waves span:nth-child(2) { width:120px; height:120px; animation-delay:0.4s; position:absolute; top:-20px; left:-20px; }
+.desk-waves span:nth-child(3) { width:160px; height:160px; animation-delay:0.8s; position:absolute; top:-40px; left:-40px; }
+@keyframes wave {
+  0% { opacity:0.4; transform:scale(0.8); }
+  100% { opacity:0; transform:scale(1.3); }
+}
+
+.scene-palm {
+  position:relative; width:100%; height:100%;
+}
+.palm-shape {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-45%);
+  width:140px; height:170px; border-radius:50% 50% 45% 45%;
+  background: linear-gradient(180deg, #c8a880, #b89870);
+  opacity:0.15;
+}
+.palm-device {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:50px; height:65px; border-radius:25px;
+  background:linear-gradient(165deg, #2a2a2a, #111);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+}
+.palm-device .d-mic { width:10px; height:10px; }
+.palm-device .d-led { width:6px; height:6px; }
+.size-ref {
+  position:absolute; bottom:15%; left:50%; transform:translateX(-50%);
+  font-size:0.65rem; color:#333; letter-spacing:0.1em;
+  border:1px solid #222; border-radius:100px; padding:0.3rem 1rem;
+}
+
+/* Soluna Mode scene */
+.scene-soluna {
+  position:relative; width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+}
+.soluna-mesh {
+  position:relative; width:220px; height:180px;
+}
+.soluna-node {
+  position:absolute; width:36px; height:48px; border-radius:18px;
+  background:linear-gradient(165deg, #2a2a2a, #111);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+  display:flex; align-items:center; justify-content:center;
+}
+.soluna-node .sol-led {
+  width:6px; height:6px; border-radius:50%;
+  background:#f97316;
+  box-shadow: 0 0 10px #f97316, 0 0 30px rgba(249,115,22,0.25);
+  animation: soluna-pulse 2s ease-in-out infinite;
+}
+.soluna-node:nth-child(1) { top:10%; left:10%; }
+.soluna-node:nth-child(2) { top:5%; right:15%; animation-delay:0.3s; }
+.soluna-node:nth-child(3) { bottom:15%; left:35%; animation-delay:0.6s; }
+.soluna-node:nth-child(4) { bottom:10%; right:10%; animation-delay:0.9s; }
+.soluna-node:nth-child(2) .sol-led { animation-delay:0.3s; }
+.soluna-node:nth-child(3) .sol-led { animation-delay:0.6s; }
+.soluna-node:nth-child(4) .sol-led { animation-delay:0.9s; }
+.soluna-link {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  pointer-events:none;
+}
+.soluna-link line {
+  stroke: rgba(249,115,22,0.15);
+  stroke-width:1;
+  stroke-dasharray:4 4;
+  animation: soluna-dash 3s linear infinite;
+}
+@keyframes soluna-pulse {
+  0%,100% { opacity:0.4; box-shadow: 0 0 6px #f97316, 0 0 15px rgba(249,115,22,0.1); }
+  50% { opacity:1; box-shadow: 0 0 14px #f97316, 0 0 40px rgba(249,115,22,0.3); }
+}
+@keyframes soluna-dash {
+  0% { stroke-dashoffset:0; }
+  100% { stroke-dashoffset:-24; }
+}
+.soluna-badge {
+  position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+  font-size:0.6rem; color:#f97316; letter-spacing:0.15em;
+  border:1px solid rgba(249,115,22,0.25); border-radius:100px; padding:0.25rem 0.8rem;
+  background:rgba(249,115,22,0.05);
+}
+
+/* ---- SPECS ---- */
+.specs-section {
+  padding:6rem 2rem;
+  max-width:1000px; margin:0 auto;
+}
+.specs-header {
+  text-align:center; margin-bottom:4rem;
+}
+.specs-header h2 {
+  font-size:clamp(2rem, 4vw, 3rem); font-weight:100; margin-bottom:0.5rem;
+}
+.specs-header p { color:#555; font-size:1rem; }
+.specs-header .target-note {
+  display:inline-block; margin-top:0.8rem;
+  font-size:0.75rem; color:#facc15; letter-spacing:0.05em;
+  border:1px solid rgba(250,204,21,0.2); border-radius:100px;
+  padding:0.3rem 1rem;
+}
+
+.specs-table {
+  width:100%; border-collapse:collapse;
+}
+.specs-table th {
+  padding:1.2rem 1rem; text-align:center;
+  font-weight:300; font-size:1rem; letter-spacing:0.05em;
+  border-bottom:1px solid #1a1a1a;
+  color:#888;
+}
+.specs-table th:first-child { text-align:left; color:#555; font-size:0.8rem; }
+.specs-table td {
+  padding:0.8rem 1rem; text-align:center;
+  border-bottom:1px solid #111;
+  font-size:0.9rem; color:#666;
+}
+.specs-table td:first-child { text-align:left; color:#444; font-size:0.8rem; letter-spacing:0.03em; }
+.specs-table .best { color:#4ade80; }
+.specs-table .model-head {
+  font-size:1.1rem; color:#ccc; font-weight:300; letter-spacing:0.1em;
+}
+.specs-table .price-row td { padding-top:1.5rem; font-size:1.3rem; color:#ccc; font-weight:200; border:none; }
+
+/* ---- HOW IT WORKS ---- */
+.how-section {
+  padding:6rem 2rem;
+  max-width:800px; margin:0 auto;
+  text-align:center;
+}
+.how-section h2 {
+  font-size:clamp(2rem, 4vw, 3rem); font-weight:100; margin-bottom:1rem;
+}
+.how-section > p { color:#555; margin-bottom:4rem; }
+
+.how-steps {
+  display:flex; flex-direction:column; gap:0;
+  text-align:left;
+}
+.how-step {
+  display:grid; grid-template-columns:60px 1fr; gap:1.5rem;
+  padding:2rem 0;
+  border-bottom:1px solid #141414;
+}
+.step-num {
+  width:48px; height:48px; border-radius:50%;
+  border:1px solid #222;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; font-weight:200; color:#555;
+}
+.step-title { font-size:1.1rem; font-weight:400; margin-bottom:0.3rem; }
+.step-desc { font-size:0.9rem; color:#555; line-height:1.6; }
+
+/* ---- OPEN SOURCE ---- */
+.open-section {
+  padding:6rem 2rem;
+  text-align:center;
+}
+.open-section h2 {
+  font-size:clamp(1.8rem, 3.5vw, 2.5rem); font-weight:100; margin-bottom:1rem;
+}
+.open-section > p { color:#555; max-width:500px; margin:0 auto 3rem; font-size:0.95rem; line-height:1.7; }
+.open-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:1px; max-width:800px; margin:0 auto;
+  background:#151515; border-radius:16px; overflow:hidden;
+  border:1px solid #1a1a1a;
+}
+.open-item {
+  padding:2rem; background:#0e0e0e; text-align:center;
+}
+.open-item .oi-num { font-size:1.8rem; font-weight:100; color:#4ade80; margin-bottom:0.3rem; }
+.open-item .oi-label { font-size:0.75rem; color:#555; letter-spacing:0.1em; }
+
+/* ---- CONTACT ---- */
+.contact-section {
+  padding:8rem 2rem;
+  text-align:center;
+  position:relative;
+}
+.contact-section::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:1px; height:80px; background:linear-gradient(transparent, #222);
+}
+.contact-section h2 {
+  font-size:clamp(2rem, 5vw, 3.5rem); font-weight:100; margin-bottom:1rem;
+}
+.contact-section > p { color:#555; margin-bottom:2.5rem; font-size:1rem; max-width:480px; margin-left:auto; margin-right:auto; line-height:1.7; }
+.contact-links {
+  display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;
+  margin-bottom:1.5rem;
+}
+
+/* ---- FOOTER ---- */
+footer {
+  padding:4rem 2rem; text-align:center;
+  border-top:1px solid #141414;
+}
+footer .f-logo { font-size:2rem; font-weight:100; margin-bottom:1rem; letter-spacing:0.3em; }
+footer p { font-size:0.8rem; color:#333; line-height:2; }
+footer a { color:#555; text-decoration:none; }
+footer a:hover { color:#888; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width:768px) {
+  nav .nav-links { display:none; }
+  .scenario { grid-template-columns:1fr; gap:2rem; }
+  .scenario:nth-child(even) { direction:ltr; }
+  .hero-stats { gap:1.5rem; }
+  .contact-links { flex-direction:column; align-items:center; }
+  .specs-table { font-size:0.8rem; }
+  .specs-table th, .specs-table td { padding:0.5rem 0.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">声 Koe</div>
+  <div class="nav-links">
+    <a href="#status">Status</a>
+    <a href="#scenarios">How it works</a>
+    <a href="#specs">Specs</a>
+    <a href="#open">Open source</a>
+  </div>
+  <a href="ja.html" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #333;padding:0.3rem 0.8rem;border-radius:100px;transition:all 0.2s;">JA</a>
+  <a href="https://github.com/yukihamada/koe-device" class="nav-cta" target="_blank">View on GitHub</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-render">
+    <div class="device-body">
+      <div class="d-mic"></div>
+      <div class="d-led"></div>
+      <div class="d-mark">声</div>
+      <div class="d-usb"></div>
+    </div>
+  </div>
+
+  <h1>A pebble that<br><em>remembers</em><br>everything.</h1>
+  <p class="hero-p">
+    Koe is a tiny device that listens to your day, understands context, and talks back through your earbuds.
+    5 grams. No screen. Just voice.
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">~5g</div><div class="stat-label">TARGET WEIGHT</div></div>
+    <div class="stat"><div class="stat-num">~9h</div><div class="stat-label">ESTIMATED BATTERY</div></div>
+    <div class="stat"><div class="stat-num">Open</div><div class="stat-label">HARDWARE</div></div>
+  </div>
+
+  <div class="btn-row">
+    <a href="#status" class="btn-primary">See project status</a>
+    <a href="#specs" class="btn-ghost">Target specs</a>
+  </div>
+</section>
+
+<!-- PROJECT STATUS -->
+<section class="status-section" id="status">
+  <div class="status-card">
+    <h2>Project Status</h2>
+    <p class="status-subtitle">Koe is an open-source project in active development</p>
+
+    <div class="status-item">
+      <div class="status-dot done"></div>
+      <div class="status-label">Hardware</div>
+      <div class="status-desc">Schematic designed, components being ordered</div>
+    </div>
+    <div class="status-item">
+      <div class="status-dot wip"></div>
+      <div class="status-label">Firmware</div>
+      <div class="status-desc">In development (ESP32-S3 + Rust)</div>
+    </div>
+    <div class="status-item">
+      <div class="status-dot available"></div>
+      <div class="status-label">Software</div>
+      <div class="status-desc">Koe voice app available for macOS/Windows &mdash; <a href="https://koe.elio.love">koe.elio.love</a></div>
+    </div>
+    <div class="status-item">
+      <div class="status-dot wip"></div>
+      <div class="status-label">Prototype</div>
+      <div class="status-desc">We're designing the first prototype</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIOS -->
+<div class="scenarios" id="scenarios">
+
+  <p class="scenarios-note">Concept renders &mdash; prototype in progress</p>
+
+  <!-- 1 -->
+  <div class="scenario">
+    <div class="scenario-visual">
+      <div class="scene-ear">
+        <div class="ear-hair"></div>
+        <div class="ear-shape"></div>
+        <div class="ear-device"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sc-label">Wear it</div>
+      <h3 class="sc-title">Tuck it behind your ear. Forget it's there.</h3>
+      <p class="sc-desc">
+        At 25 x 30mm and just 5 grams, Koe is smaller than an AirTag. Clip it, pin it, or hang it from a chain. It records everything you say and hear. No buttons to push. No screen to check.
+      </p>
+      <div class="sc-spec">
+        <strong>Microphone:</strong> INMP441 MEMS, 61dB SNR, I2S digital<br>
+        <strong>Voice detection:</strong> On-device VAD, triggers only on speech
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="scenario">
+    <div class="scenario-visual">
+      <div class="scene-palm">
+        <div class="palm-shape"></div>
+        <div class="palm-device">
+          <div class="d-mic"></div>
+          <div class="d-led"></div>
+        </div>
+        <div class="size-ref">Target size: 25 x 30mm</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc-label">Hold it</div>
+      <h3 class="sc-title">Feels like a smooth river stone.</h3>
+      <p class="sc-desc">
+        Matte ceramic finish. Rounded edges that fit naturally between your fingers.
+        One LED that breathes softly. No logos. No labels. Just a quiet piece of tech that feels like jewelry.
+      </p>
+      <div class="sc-spec">
+        <strong>Body:</strong> PC/ABS matte with ceramic-feel coating<br>
+        <strong>LED:</strong> Single RGB, 7 states, ambient breathing animation<br>
+        <strong>Button:</strong> Recessed side button for mute / manual trigger
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="scenario">
+    <div class="scenario-visual">
+      <div class="scene-desk">
+        <div class="desk-surface"></div>
+        <div class="desk-device">
+          <div class="d-mic" style="width:8px;height:8px;"></div>
+          <div class="d-speaker"></div>
+          <div class="d-led" style="width:5px;height:5px;"></div>
+        </div>
+        <div class="desk-waves" style="position:relative;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sc-label">Listen to it</div>
+      <h3 class="sc-title">When it talks back, you want to hear it.</h3>
+      <p class="sc-desc">
+        Koe STUDIO adds a 28mm full-range driver. Place it on your desk for meetings, or clip it to your bag for outdoor conversations.
+      </p>
+      <div class="sc-spec">
+        <strong>Driver:</strong> 28mm full-range, 4ohm, 3W (target)<br>
+        <strong>Volume:</strong> ~85dB @ 1m estimated, with DSP echo cancellation<br>
+        <strong>Battery:</strong> 2000mAh target, ~24h recording estimated
+      </div>
+    </div>
+  </div>
+
+  <!-- 4: Soluna Mode -->
+  <div class="scenario">
+    <div class="scenario-visual">
+      <div class="scene-soluna">
+        <div class="soluna-mesh">
+          <svg class="soluna-link" viewBox="0 0 220 180">
+            <line x1="28" y1="35" x2="175" y2="25" />
+            <line x1="28" y1="35" x2="95" y2="140" />
+            <line x1="175" y1="25" x2="185" y2="140" />
+            <line x1="95" y1="140" x2="185" y2="140" />
+            <line x1="28" y1="35" x2="185" y2="140" />
+            <line x1="175" y1="25" x2="95" y2="140" />
+          </svg>
+          <div class="soluna-node"><div class="sol-led"></div></div>
+          <div class="soluna-node"><div class="sol-led"></div></div>
+          <div class="soluna-node"><div class="sol-led"></div></div>
+          <div class="soluna-node"><div class="sol-led"></div></div>
+        </div>
+        <div class="soluna-badge">MESH ACTIVE</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc-label" style="color:#f97316;"><a href="https://solun.art/soluna" target="_blank" style="color:#f97316;text-decoration:none;">Soluna</a> Mode</div>
+      <h3 class="sc-title">Speak into one. Everyone hears it.</h3>
+      <p class="sc-desc">
+        Medium-press the button to switch from Koe mode (AI assistant) to <a href="https://solun.art/soluna" target="_blank" style="color:#f97316;text-decoration:none;">Soluna</a> mode (P2P audio mesh).
+        At a festival, conference, or any event, multiple Koe devices on the same WiFi form an instant audio channel.
+        No server. No app. No setup. Just speak.
+      </p>
+      <p class="sc-desc" style="margin-bottom:0.8rem;">
+        This is something no other AI wearable can do. Humane Pin, Rabbit R1, Friend pendant -- none of them talk to each other. Koe devices do.
+      </p>
+      <div class="sc-spec">
+        <strong>Soluna:</strong> <a href="https://solun.art/soluna" target="_blank" style="color:#f97316;text-decoration:none;">solun.art</a><br>
+        <strong>Protocol:</strong> UDP multicast 239.42.42.1:4242 -- zero infrastructure<br>
+        <strong>Discovery:</strong> mDNS auto-discovery on local WiFi<br>
+        <strong>LED:</strong> Orange pulse when synced with peers<br>
+        <strong>Latency:</strong> &lt;50ms on local network<br>
+        <strong>Switch:</strong> Medium press button to toggle Koe / Soluna mode
+      </div>
+      <div style="margin-top:1.5rem;">
+        <a href="soluna-edition.html" style="display:inline-block;padding:0.6rem 1.5rem;border-radius:100px;background:rgba(249,115,22,0.1);color:#f97316;font-size:0.85rem;text-decoration:none;border:1px solid rgba(249,115,22,0.25);transition:all 0.2s;">Soluna Edition (Festival-grade audio) &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <h2>How Koe thinks.</h2>
+  <p>Five AI agents work together in the cloud. Your device is the ear and the mouth.</p>
+
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Always listening, never uploading</div>
+        <div class="step-desc">A 30-second ring buffer on the device. Voice Activity Detection runs locally. Only actual speech gets sent to the cloud.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Transcribed and understood</div>
+        <div class="step-desc">Speech-to-text in the cloud. Context from your past conversations is pulled in. The AI knows what you were talking about 3 hours ago.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Thinks, researches, responds</div>
+        <div class="step-desc">Reasoning, web search, and memory agents collaborate to form an answer. Not a chatbot reply - a considered response that knows your preferences.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Speaks through your earbuds or its own speaker</div>
+        <div class="step-desc">TTS audio streams back. MINI plays through BLE earbuds. STUDIO plays through its built-in 28mm driver. Sub-second latency on WiFi.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section class="specs-section" id="specs">
+  <div class="specs-header">
+    <h2>Every detail.</h2>
+    <p>Three models. Same AI brain. Pick the body that fits your life.</p>
+    <div class="target-note">All specifications are target specs &mdash; subject to change during prototyping</div>
+  </div>
+
+  <table class="specs-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="model-head">MINI</th>
+        <th class="model-head">BAND</th>
+        <th class="model-head">STUDIO</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Size</td><td class="best">25 x 30 x 9mm</td><td>42 x 18 x 11mm</td><td>50 x 70 x 20mm</td></tr>
+      <tr><td>Weight</td><td class="best">~5g</td><td>~25g</td><td>~65g</td></tr>
+      <tr><td>Wear style</td><td>Pendant / Clip / Pin</td><td>Wristband</td><td>Clip / Stand</td></tr>
+      <tr><td colspan="4" style="height:8px;border:none;"></td></tr>
+      <tr><td>MCU</td><td colspan="3" style="color:#555;">ESP32-S3 dual-core 240MHz, 8MB Flash, 2MB PSRAM</td></tr>
+      <tr><td>Wireless</td><td colspan="3" style="color:#555;">WiFi 802.11 b/g/n + Bluetooth LE 5.0</td></tr>
+      <tr><td colspan="4" style="height:8px;border:none;"></td></tr>
+      <tr><td>Microphone</td><td>1x MEMS</td><td>2x MEMS stereo</td><td class="best">2x MEMS wide (40mm spacing)</td></tr>
+      <tr><td>Mic SNR</td><td colspan="3" style="color:#555;">61dB (INMP441, I2S digital output)</td></tr>
+      <tr><td>Speaker</td><td>-- (BLE out)</td><td>10 x 8mm</td><td class="best">28mm full-range</td></tr>
+      <tr><td>Frequency range</td><td>--</td><td>300Hz - 8kHz</td><td class="best">TBD (pending measurement)</td></tr>
+      <tr><td>Max SPL</td><td>--</td><td>~70dB</td><td class="best">~85dB @ 1m est.</td></tr>
+      <tr><td>DSP</td><td>VAD only</td><td>VAD</td><td class="best">VAD + AEC + EQ</td></tr>
+      <tr><td colspan="4" style="height:8px;border:none;"></td></tr>
+      <tr><td>Battery</td><td>200mAh</td><td>120mAh</td><td class="best">2000mAh</td></tr>
+      <tr><td>Recording time</td><td>~9h est.</td><td>~5h est.</td><td class="best">~24h est.</td></tr>
+      <tr><td>Active streaming</td><td>~3h est.</td><td>~2h est.</td><td class="best">~6h est.</td></tr>
+      <tr><td>Charging</td><td>USB-C</td><td>Magnetic pogo</td><td>USB-C</td></tr>
+      <tr><td>Charge time</td><td>~30 min</td><td>~20 min</td><td>~90 min</td></tr>
+      <tr><td colspan="4" style="height:8px;border:none;"></td></tr>
+      <tr><td>LED</td><td>1x RGB</td><td>5x RGB strip</td><td>5x RGB strip</td></tr>
+      <tr><td>Input</td><td>Side button</td><td>Capacitive touch</td><td>Button</td></tr>
+      <tr><td>Water resistance</td><td>TBD</td><td>TBD</td><td>TBD</td></tr>
+      <tr><td>Color</td><td>Obsidian / Ceramic White</td><td>Black / White / Green</td><td>Obsidian</td></tr>
+      <tr class="price-row">
+        <td style="color:#555;font-size:0.8rem;">Price (target)</td>
+        <td>TBD</td>
+        <td>TBD</td>
+        <td>TBD</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- OPEN SOURCE -->
+<section class="open-section" id="open">
+  <h2>Open everything.</h2>
+  <p>Koe is open-source hardware. Download the schematics, print the case, flash your own firmware. We sell the device for people who don't want to solder.</p>
+
+  <div class="open-grid">
+    <div class="open-item">
+      <div class="oi-num">~$12</div>
+      <div class="oi-label">EST. BOM COST</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-num">27</div>
+      <div class="oi-label">COMPONENTS</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-num">2</div>
+      <div class="oi-label">LAYER PCB</div>
+    </div>
+    <div class="open-item">
+      <div class="oi-num">Rust</div>
+      <div class="oi-label">FIRMWARE</div>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+    <a href="https://github.com/yukihamada/koe-device" class="btn-ghost" target="_blank">GitHub repo</a>
+    <a href="https://github.com/yukihamada/koe-device/tree/main/hardware/kicad" class="btn-ghost" target="_blank">KiCad files</a>
+    <a href="https://github.com/yukihamada/koe-device/tree/main/hardware/bom" class="btn-ghost" target="_blank">BOM</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <h2>Follow the build.</h2>
+  <p>
+    We're designing the first prototype. Follow the GitHub repo for updates, or get in touch if you want to contribute.
+  </p>
+
+  <div class="contact-links">
+    <a href="https://github.com/yukihamada/koe-device" class="btn-primary" target="_blank">Star on GitHub</a>
+    <a href="mailto:info@enablerdao.com?subject=Koe%20device%20%E2%80%94%20interested" class="btn-ghost">Get in touch</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">声</div>
+  <p>
+    An <a href="https://github.com/enablerdao">EnablerDAO</a> project<br>
+    <a href="https://github.com/yukihamada/koe-device">Source</a> &middot;
+    <a href="https://koe.elio.love">Koe software</a> &middot;
+    <a href="https://github.com/yukihamada/koe-device/tree/main/hardware/docs">Design docs</a>
+  </p>
+  <p style="margin-top:1.5rem; color:#222;">
+    ESP32-S3 &middot; Rust &middot; KiCad &middot; Open Hardware &middot; Made in Tokyo
+  </p>
+</footer>
+
+</body>
+</html>

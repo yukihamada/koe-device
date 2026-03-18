@@ -1,0 +1,267 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bandBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#222"/>
+      <stop offset="30%" stop-color="#1a1a1a"/>
+      <stop offset="70%" stop-color="#151515"/>
+      <stop offset="100%" stop-color="#111"/>
+    </linearGradient>
+    <linearGradient id="bandChrome" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#888"/>
+      <stop offset="20%" stop-color="#ccc"/>
+      <stop offset="50%" stop-color="#fff"/>
+      <stop offset="80%" stop-color="#ccc"/>
+      <stop offset="100%" stop-color="#888"/>
+    </linearGradient>
+    <linearGradient id="strapGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#1a1a1a"/>
+    </linearGradient>
+    <linearGradient id="ledBar1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0af" stop-opacity="0.2"/>
+      <stop offset="20%" stop-color="#0af"/>
+      <stop offset="50%" stop-color="#0df"/>
+      <stop offset="80%" stop-color="#0af"/>
+      <stop offset="100%" stop-color="#0af" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="shadow2">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="1000" fill="#f5f5f0"/>
+
+  <!-- Title -->
+  <text x="400" y="45" text-anchor="middle" font-size="28" font-weight="700" fill="#111" letter-spacing="8">KOE BAND</text>
+  <text x="400" y="70" text-anchor="middle" font-size="13" fill="#888" letter-spacing="3">AI VOICE WRISTBAND</text>
+  <text x="400" y="90" text-anchor="middle" font-size="11" fill="#aaa">42 x 18 x 11mm / 25g — Inspired by Xiaomi Smart Band</text>
+
+  <!-- ============ FRONT VIEW (capsule on wrist) ============ -->
+  <text x="400" y="130" text-anchor="middle" font-size="12" fill="#666" letter-spacing="2">FRONT VIEW</text>
+
+  <!-- Strap (top) -->
+  <rect x="310" y="145" width="180" height="40" rx="4" fill="url(#strapGrad)"/>
+  <!-- Strap texture lines -->
+  <line x1="320" y1="155" x2="480" y2="155" stroke="#252525" stroke-width="0.3"/>
+  <line x1="320" y1="165" x2="480" y2="165" stroke="#252525" stroke-width="0.3"/>
+  <line x1="320" y1="175" x2="480" y2="175" stroke="#252525" stroke-width="0.3"/>
+
+  <!-- Main capsule body -->
+  <rect x="280" y="185" width="240" height="100" rx="50" ry="50" fill="url(#bandBody)" filter="url(#shadow2)"/>
+  <!-- Chrome bezel ring -->
+  <rect x="278" y="183" width="244" height="104" rx="52" ry="52" fill="none" stroke="url(#bandChrome)" stroke-width="1.5"/>
+
+  <!-- Top surface highlight -->
+  <ellipse cx="400" cy="210" rx="90" ry="15" fill="#2a2a2a" opacity="0.4"/>
+
+  <!-- Dual mic holes (left side) -->
+  <circle cx="320" cy="230" r="4" fill="#0a0a0a" stroke="#333" stroke-width="0.5"/>
+  <circle cx="320" cy="230" r="1" fill="#222"/>
+  <circle cx="340" cy="230" r="4" fill="#0a0a0a" stroke="#333" stroke-width="0.5"/>
+  <circle cx="340" cy="230" r="1" fill="#222"/>
+  <!-- Mic grille pattern -->
+  <circle cx="318" cy="228" r="0.5" fill="#1a1a1a"/>
+  <circle cx="320" cy="226" r="0.5" fill="#1a1a1a"/>
+  <circle cx="322" cy="228" r="0.5" fill="#1a1a1a"/>
+  <circle cx="338" cy="228" r="0.5" fill="#1a1a1a"/>
+  <circle cx="340" cy="226" r="0.5" fill="#1a1a1a"/>
+  <circle cx="342" cy="228" r="0.5" fill="#1a1a1a"/>
+
+  <!-- LED strip (5 LEDs across center) -->
+  <rect x="365" y="227" width="70" height="6" rx="3" fill="#111" stroke="#333" stroke-width="0.3"/>
+  <!-- LED dots -->
+  <circle cx="375" cy="230" r="2" fill="#0af" filter="url(#glow)"/>
+  <circle cx="387" cy="230" r="2.3" fill="#0df" filter="url(#glow)"/>
+  <circle cx="400" cy="230" r="2.8" fill="#0ff" filter="url(#glow)"/>
+  <circle cx="413" cy="230" r="2.3" fill="#0df" filter="url(#glow)"/>
+  <circle cx="425" cy="230" r="2" fill="#0af" filter="url(#glow)"/>
+  <!-- LED glow bar -->
+  <rect x="368" y="228" width="64" height="4" rx="2" fill="url(#ledBar1)" opacity="0.4" filter="url(#glow)"/>
+
+  <!-- Speaker grille (right side) -->
+  <g transform="translate(450, 218)">
+    <!-- Grille pattern -->
+    <rect x="0" y="0" width="40" height="24" rx="4" fill="#0a0a0a" stroke="#333" stroke-width="0.3"/>
+    <line x1="5" y1="4" x2="35" y2="4" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5" y1="8" x2="35" y2="8" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5" y1="12" x2="35" y2="12" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5" y1="16" x2="35" y2="16" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5" y1="20" x2="35" y2="20" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Strap (bottom) -->
+  <rect x="310" y="285" width="180" height="40" rx="4" fill="url(#strapGrad)"/>
+  <line x1="320" y1="295" x2="480" y2="295" stroke="#252525" stroke-width="0.3"/>
+  <line x1="320" y1="305" x2="480" y2="305" stroke="#252525" stroke-width="0.3"/>
+  <line x1="320" y1="315" x2="480" y2="315" stroke="#252525" stroke-width="0.3"/>
+
+  <!-- Strap buckle hint -->
+  <rect x="385" y="325" width="30" height="8" rx="2" fill="#333" stroke="#555" stroke-width="0.5"/>
+
+  <!-- Labels -->
+  <line x1="320" y1="250" x2="260" y2="270" stroke="#999" stroke-width="0.5"/>
+  <text x="215" y="275" font-size="9" fill="#888">Dual MEMS Mic</text>
+  <line x1="400" y1="240" x2="400" y2="270" stroke="#999" stroke-width="0.5"/>
+  <text x="400" y="278" text-anchor="middle" font-size="9" fill="#888">LED Strip x5</text>
+  <line x1="470" y1="245" x2="530" y2="265" stroke="#999" stroke-width="0.5"/>
+  <text x="535" y="270" font-size="9" fill="#888">Speaker Grille</text>
+
+  <!-- ============ SIDE VIEW ============ -->
+  <text x="400" y="365" text-anchor="middle" font-size="12" fill="#666" letter-spacing="2">SIDE VIEW</text>
+
+  <!-- Strap -->
+  <rect x="150" y="385" width="200" height="14" rx="3" fill="url(#strapGrad)"/>
+  <rect x="450" y="385" width="200" height="14" rx="3" fill="url(#strapGrad)"/>
+
+  <!-- Capsule side profile -->
+  <rect x="340" y="375" width="120" height="35" rx="17" ry="17" fill="url(#bandBody)" filter="url(#shadow2)"/>
+  <rect x="339" y="374" width="122" height="37" rx="18" ry="18" fill="none" stroke="url(#bandChrome)" stroke-width="1"/>
+
+  <!-- Side button (touch sensor area) -->
+  <rect x="395" y="409" width="15" height="3" rx="1.5" fill="#333" stroke="#555" stroke-width="0.3"/>
+
+  <!-- Dimensions -->
+  <line x1="340" y1="420" x2="340" y2="435" stroke="#c66" stroke-width="0.5"/>
+  <line x1="460" y1="420" x2="460" y2="435" stroke="#c66" stroke-width="0.5"/>
+  <line x1="340" y1="430" x2="460" y2="430" stroke="#c66" stroke-width="0.5"/>
+  <text x="400" y="445" text-anchor="middle" font-size="10" fill="#c66">42mm</text>
+
+  <line x1="470" y1="375" x2="485" y2="375" stroke="#c66" stroke-width="0.5"/>
+  <line x1="470" y1="410" x2="485" y2="410" stroke="#c66" stroke-width="0.5"/>
+  <line x1="480" y1="375" x2="480" y2="410" stroke="#c66" stroke-width="0.5"/>
+  <text x="495" y="396" font-size="10" fill="#c66">11mm</text>
+
+  <!-- USB-C (bottom) -->
+  <rect x="393" y="410" width="14" height="4" rx="2" fill="#0a0a0a" stroke="#333" stroke-width="0.3"/>
+  <text x="420" y="416" font-size="7" fill="#888">USB-C</text>
+
+  <!-- ============ LED ANIMATIONS ============ -->
+  <text x="400" y="490" text-anchor="middle" font-size="12" fill="#666" letter-spacing="2">LED STATES</text>
+
+  <!-- Listening (green breathing) -->
+  <g transform="translate(80, 510)">
+    <rect x="0" y="0" width="130" height="40" rx="20" fill="#1a1a1a"/>
+    <circle cx="30" cy="20" r="3" fill="#0a0" opacity="0.3"/>
+    <circle cx="45" cy="20" r="3" fill="#0c0" opacity="0.5"/>
+    <circle cx="65" cy="20" r="4" fill="#0f0" opacity="0.8" filter="url(#glow)"/>
+    <circle cx="85" cy="20" r="3" fill="#0c0" opacity="0.5"/>
+    <circle cx="100" cy="20" r="3" fill="#0a0" opacity="0.3"/>
+    <text x="65" y="58" text-anchor="middle" font-size="9" fill="#888">Listening</text>
+  </g>
+
+  <!-- Processing (purple wave) -->
+  <g transform="translate(240, 510)">
+    <rect x="0" y="0" width="130" height="40" rx="20" fill="#1a1a1a"/>
+    <circle cx="25" cy="20" r="3" fill="#a0f" opacity="0.8"/>
+    <circle cx="42" cy="15" r="3.5" fill="#c0f" filter="url(#glow)"/>
+    <circle cx="60" cy="12" r="4" fill="#d0f" filter="url(#glow)"/>
+    <circle cx="78" cy="18" r="3" fill="#b0f" filter="url(#glow)"/>
+    <circle cx="95" cy="22" r="2.5" fill="#90f" opacity="0.6"/>
+    <text x="65" y="58" text-anchor="middle" font-size="9" fill="#888">Processing</text>
+  </g>
+
+  <!-- Speaking (cyan pulse) -->
+  <g transform="translate(400, 510)">
+    <rect x="0" y="0" width="130" height="40" rx="20" fill="#1a1a1a"/>
+    <circle cx="25" cy="20" r="4" fill="#0ff" filter="url(#glow)"/>
+    <circle cx="42" cy="20" r="4" fill="#0ff" filter="url(#glow)"/>
+    <circle cx="60" cy="20" r="4" fill="#0ff" filter="url(#glow)"/>
+    <circle cx="78" cy="20" r="4" fill="#0ff" filter="url(#glow)"/>
+    <circle cx="95" cy="20" r="4" fill="#0ff" filter="url(#glow)"/>
+    <text x="65" y="58" text-anchor="middle" font-size="9" fill="#888">Speaking</text>
+  </g>
+
+  <!-- Error (red blink) -->
+  <g transform="translate(560, 510)">
+    <rect x="0" y="0" width="130" height="40" rx="20" fill="#1a1a1a"/>
+    <circle cx="45" cy="20" r="4" fill="#f00" filter="url(#glow)"/>
+    <circle cx="65" cy="20" r="5" fill="#f22" filter="url(#glow)"/>
+    <circle cx="85" cy="20" r="4" fill="#f00" filter="url(#glow)"/>
+    <text x="65" y="58" text-anchor="middle" font-size="9" fill="#888">Error</text>
+  </g>
+
+  <!-- ============ COLOR VARIANTS ============ -->
+  <text x="400" y="615" text-anchor="middle" font-size="12" fill="#666" letter-spacing="2">COLOR VARIANTS</text>
+
+  <!-- Obsidian Black -->
+  <g transform="translate(100, 635)">
+    <rect x="0" y="5" width="150" height="60" rx="30" fill="#1a1a1a" filter="url(#shadow2)"/>
+    <rect x="-1" y="4" width="152" height="62" rx="31" fill="none" stroke="#555" stroke-width="1"/>
+    <circle cx="40" cy="33" r="3" fill="#222"/>
+    <circle cx="55" cy="33" r="3" fill="#222"/>
+    <rect x="70" y="30" width="40" height="6" rx="3" fill="#111"/>
+    <circle cx="80" cy="33" r="2" fill="#0af"/>
+    <circle cx="90" cy="33" r="2" fill="#0af"/>
+    <circle cx="100" cy="33" r="2" fill="#0af"/>
+    <rect x="115" y="25" width="25" height="16" rx="3" fill="#0f0f0f"/>
+    <text x="75" y="85" text-anchor="middle" font-size="10" fill="#666">Obsidian Black</text>
+  </g>
+
+  <!-- Lunar White -->
+  <g transform="translate(325, 635)">
+    <rect x="0" y="5" width="150" height="60" rx="30" fill="#e8e8e8" filter="url(#shadow2)"/>
+    <rect x="-1" y="4" width="152" height="62" rx="31" fill="none" stroke="#ccc" stroke-width="1"/>
+    <circle cx="40" cy="33" r="3" fill="#bbb"/>
+    <circle cx="55" cy="33" r="3" fill="#bbb"/>
+    <rect x="70" y="30" width="40" height="6" rx="3" fill="#ddd"/>
+    <circle cx="80" cy="33" r="2" fill="#09f"/>
+    <circle cx="90" cy="33" r="2" fill="#09f"/>
+    <circle cx="100" cy="33" r="2" fill="#09f"/>
+    <rect x="115" y="25" width="25" height="16" rx="3" fill="#d0d0d0"/>
+    <text x="75" y="85" text-anchor="middle" font-size="10" fill="#666">Lunar White</text>
+  </g>
+
+  <!-- Forest Green -->
+  <g transform="translate(550, 635)">
+    <rect x="0" y="5" width="150" height="60" rx="30" fill="#1a2a1a" filter="url(#shadow2)"/>
+    <rect x="-1" y="4" width="152" height="62" rx="31" fill="none" stroke="#997733" stroke-width="1"/>
+    <circle cx="40" cy="33" r="3" fill="#0f1f0f"/>
+    <circle cx="55" cy="33" r="3" fill="#0f1f0f"/>
+    <rect x="70" y="30" width="40" height="6" rx="3" fill="#152515"/>
+    <circle cx="80" cy="33" r="2" fill="#0f0"/>
+    <circle cx="90" cy="33" r="2" fill="#0f0"/>
+    <circle cx="100" cy="33" r="2" fill="#0f0"/>
+    <rect x="115" y="25" width="25" height="16" rx="3" fill="#0f1f0f"/>
+    <text x="75" y="85" text-anchor="middle" font-size="10" fill="#666">Forest Green</text>
+  </g>
+
+  <!-- ============ ON WRIST ============ -->
+  <text x="400" y="770" text-anchor="middle" font-size="12" fill="#666" letter-spacing="2">ON WRIST</text>
+
+  <!-- Wrist outline -->
+  <g transform="translate(250, 780)">
+    <!-- Arm -->
+    <rect x="50" y="30" width="200" height="80" rx="40" fill="#e8d4c0" stroke="#d4c0a8" stroke-width="1"/>
+    <!-- Top strap -->
+    <path d="M120,25 Q150,10 180,25" fill="url(#strapGrad)" stroke="#333" stroke-width="0.5"/>
+    <!-- Band on top of wrist -->
+    <rect x="110" y="15" width="80" height="30" rx="15" fill="url(#bandBody)" stroke="#555" stroke-width="0.8"/>
+    <!-- LEDs on band -->
+    <circle cx="135" cy="30" r="1.5" fill="#0af" filter="url(#glow)"/>
+    <circle cx="145" cy="30" r="2" fill="#0df" filter="url(#glow)"/>
+    <circle cx="155" cy="30" r="2.5" fill="#0ff" filter="url(#glow)"/>
+    <circle cx="165" cy="30" r="2" fill="#0df" filter="url(#glow)"/>
+    <circle cx="175" cy="30" r="1.5" fill="#0af" filter="url(#glow)"/>
+    <!-- Mic dots -->
+    <circle cx="120" cy="30" r="1.5" fill="#222"/>
+    <circle cx="126" cy="30" r="1.5" fill="#222"/>
+    <!-- Bottom strap -->
+    <path d="M120,115 Q150,130 180,115" fill="url(#strapGrad)" stroke="#333" stroke-width="0.5"/>
+  </g>
+
+  <!-- ============ SPECS ============ -->
+  <rect x="50" y="900" width="700" height="80" rx="8" fill="#f0f0ed" stroke="#ddd"/>
+  <text x="100" y="925" font-size="11" fill="#333" font-weight="600">Mic: INMP441 x2 (stereo)</text>
+  <text x="100" y="942" font-size="11" fill="#333" font-weight="600">Speaker: 10x8mm elliptical</text>
+  <text x="100" y="959" font-size="11" fill="#333" font-weight="600">LED: WS2812B x5 strip</text>
+  <text x="100" y="976" font-size="11" fill="#333" font-weight="600">Touch: ESP32 capacitive</text>
+  <text x="450" y="925" font-size="11" fill="#333" font-weight="600">Battery: 120mAh / 5h active</text>
+  <text x="450" y="942" font-size="11" fill="#333" font-weight="600">Charge: Magnetic pogo pins</text>
+  <text x="450" y="959" font-size="11" fill="#333" font-weight="600">Strap: Silicone, tool-free</text>
+  <text x="450" y="976" font-size="11" fill="#333" font-weight="600">BOM: ~$15 USD</text>
+</svg>

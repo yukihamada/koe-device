@@ -1,0 +1,541 @@
+(kicad_sch (version 20231120) (generator "eeschema") (generator_version "8.0")
+  (uuid "a1000000-0000-0000-0000-000000000001")
+  (paper "A3")
+
+  (title_block
+    (title "Koe Device - AI Voice Companion")
+    (date "2026-03-18")
+    (rev "0.1")
+    (company "EnablerDAO")
+    (comment 1 "ESP32-S3 + Dual MEMS Mic + I2S Speaker")
+    (comment 2 "35x40x12mm target size")
+  )
+
+  ;; ============================================================
+  ;; Power Symbols
+  ;; ============================================================
+
+  (symbol (lib_id "power:+3V3") (at 50.8 25.4 0) (unit 1)
+    (in_bom no) (on_board yes) (dnp no)
+    (uuid "pw-3v3-01")
+    (property "Reference" "#PWR01" (at 50.8 22.86 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+3V3" (at 50.8 22.86 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol (lib_id "power:+5V") (at 25.4 25.4 0) (unit 1)
+    (in_bom no) (on_board yes) (dnp no)
+    (uuid "pw-5v-01")
+    (property "Reference" "#PWR02" (at 25.4 22.86 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+5V" (at 25.4 22.86 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol (lib_id "power:GND") (at 50.8 177.8 0) (unit 1)
+    (in_bom no) (on_board yes) (dnp no)
+    (uuid "pw-gnd-01")
+    (property "Reference" "#PWR03" (at 50.8 180.34 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 50.8 180.34 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol (lib_id "power:VBAT") (at 38.1 25.4 0) (unit 1)
+    (in_bom no) (on_board yes) (dnp no)
+    (uuid "pw-vbat-01")
+    (property "Reference" "#PWR04" (at 38.1 22.86 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "VBAT" (at 38.1 22.86 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ;; ============================================================
+  ;; U1: ESP32-S3-MINI-1-N8R2 (Main MCU)
+  ;; Position: Center of schematic
+  ;; ============================================================
+
+  (symbol (lib_id "RF_Module:ESP32-S3-MINI-1") (at 127 88.9 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u1-esp32")
+    (property "Reference" "U1" (at 127 55.88 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "ESP32-S3-MINI-1-N8R2" (at 127 58.42 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "RF_Module:ESP32-S3-MINI-1" (at 127 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.espressif.com/sites/default/files/documentation/esp32-s3-mini-1_mini-1u_datasheet_en.pdf" (at 127 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C2913196" (at 127 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin assignments (active pins only):
+    ;; Pin 1  (3V3)    → +3V3
+    ;; Pin 2  (EN)     → R_EN pull-up to 3V3 + C_EN to GND
+    ;; Pin 4  (GPIO4)  → I2S_BCLK
+    ;; Pin 5  (GPIO5)  → I2S_WS
+    ;; Pin 6  (GPIO6)  → I2S_DIN (from mics)
+    ;; Pin 7  (GPIO7)  → I2S_DOUT (to amp)
+    ;; Pin 8  (GPIO8)  → AMP_SD (enable)
+    ;; Pin 9  (GPIO1)  → VBAT_ADC
+    ;; Pin 15 (GPIO15) → BUTTON
+    ;; Pin 16 (GPIO16) → WS2812B_DIN
+    ;; Pin 19 (GPIO19) → USB_DN
+    ;; Pin 20 (GPIO20) → USB_DP
+    ;; Pin GND         → GND
+  )
+
+  ;; ============================================================
+  ;; U2: INMP441 - Left Microphone
+  ;; ============================================================
+
+  (symbol (lib_id "Audio:INMP441") (at 45.72 88.9 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u2-mic-l")
+    (property "Reference" "U2" (at 45.72 78.74 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "INMP441 (Left)" (at 45.72 81.28 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_LGA:Knowles_LGA-6_3.76x4.72mm" (at 45.72 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C110326" (at 45.72 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 (VDD)  → +3V3
+    ;; Pin 2 (GND)  → GND
+    ;; Pin 3 (SCK)  → I2S_BCLK
+    ;; Pin 4 (WS)   → I2S_WS
+    ;; Pin 5 (SD)   → I2S_DIN
+    ;; Pin 6 (L/R)  → GND (Left channel select)
+  )
+
+  ;; ============================================================
+  ;; U3: INMP441 - Right Microphone
+  ;; ============================================================
+
+  (symbol (lib_id "Audio:INMP441") (at 45.72 116.84 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u3-mic-r")
+    (property "Reference" "U3" (at 45.72 106.68 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "INMP441 (Right)" (at 45.72 109.22 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_LGA:Knowles_LGA-6_3.76x4.72mm" (at 45.72 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C110326" (at 45.72 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 (VDD)  → +3V3
+    ;; Pin 2 (GND)  → GND
+    ;; Pin 3 (SCK)  → I2S_BCLK
+    ;; Pin 4 (WS)   → I2S_WS
+    ;; Pin 5 (SD)   → I2S_DIN
+    ;; Pin 6 (L/R)  → +3V3 (Right channel select)
+  )
+
+  ;; ============================================================
+  ;; U4: MAX98357AETE+T - I2S Class-D Amplifier
+  ;; ============================================================
+
+  (symbol (lib_id "Audio:MAX98357A") (at 210.82 88.9 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u4-amp")
+    (property "Reference" "U4" (at 210.82 76.2 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MAX98357AETE+T" (at 210.82 78.74 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm" (at 210.82 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C2682619" (at 210.82 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin VDD     → +3V3
+    ;; Pin GND     → GND
+    ;; Pin BCLK    → I2S_BCLK
+    ;; Pin LRCLK   → I2S_WS
+    ;; Pin DIN     → I2S_DOUT
+    ;; Pin SD_MODE → AMP_SD (GPIO8)
+    ;; Pin GAIN    → +3V3 (15dB gain)
+    ;; Pin OUTP    → SPK1+
+    ;; Pin OUTN    → SPK1-
+  )
+
+  ;; ============================================================
+  ;; U5: MCP73831T-2ACI/OT - LiPo Battery Charger
+  ;; ============================================================
+
+  (symbol (lib_id "Battery_Management:MCP73831-2-OT") (at 38.1 40.64 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u5-charger")
+    (property "Reference" "U5" (at 38.1 30.48 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MCP73831T-2ACI/OT" (at 38.1 33.02 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 38.1 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C424093" (at 38.1 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 (STAT) → NC or optional LED
+    ;; Pin 2 (VSS)  → GND
+    ;; Pin 3 (VBAT) → VBAT (to battery + and LDO input)
+    ;; Pin 4 (VDD)  → +5V (USB VBUS)
+    ;; Pin 5 (PROG) → R6 (2K) → GND  [I_charge = 1000/R = 500mA]
+  )
+
+  ;; ============================================================
+  ;; U6: AP2112K-3.3TRG1 - 3.3V LDO Regulator
+  ;; ============================================================
+
+  (symbol (lib_id "Regulator_Linear:AP2112K-3.3") (at 63.5 40.64 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "u6-ldo")
+    (property "Reference" "U6" (at 63.5 30.48 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "AP2112K-3.3TRG1" (at 63.5 33.02 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 63.5 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C51118" (at 63.5 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 (VIN)  → VBAT
+    ;; Pin 2 (GND)  → GND
+    ;; Pin 3 (EN)   → VBAT (always enabled)
+    ;; Pin 4 (NC)   → NC
+    ;; Pin 5 (VOUT) → +3V3
+  )
+
+  ;; ============================================================
+  ;; J1: USB Type-C Connector (16-pin, power + USB 2.0 data)
+  ;; ============================================================
+
+  (symbol (lib_id "Connector:USB_C_Receptacle_USB2.0") (at 15.24 40.64 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "j1-usbc")
+    (property "Reference" "J1" (at 15.24 25.4 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "USB_C_16P" (at 15.24 27.94 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (at 15.24 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C168688" (at 15.24 40.64 0) (effects (font (size 1.27 1.27)) hide))
+    ;; VBUS   → +5V (through F1 polyfuse)
+    ;; CC1    → R3 (5.1K) → GND
+    ;; CC2    → R4 (5.1K) → GND
+    ;; D-     → USB_DN (GPIO19)
+    ;; D+     → USB_DP (GPIO20)
+    ;; GND    → GND
+    ;; SHIELD → GND
+  )
+
+  ;; ============================================================
+  ;; BT1: LiPo Battery 802535 800mAh
+  ;; ============================================================
+
+  (symbol (lib_id "Device:Battery_Cell") (at 38.1 60.96 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "bt1-lipo")
+    (property "Reference" "BT1" (at 43.18 60.96 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "LiPo 800mAh 802535" (at 43.18 63.5 0) (effects (font (size 1.27 1.27))))
+    ;; (+) → VBAT
+    ;; (-) → GND
+  )
+
+  ;; ============================================================
+  ;; SPK1: Micro Speaker 15x10mm 8ohm
+  ;; ============================================================
+
+  (symbol (lib_id "Device:Speaker") (at 241.3 88.9 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "spk1")
+    (property "Reference" "SPK1" (at 241.3 78.74 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "Speaker 8R 0.5W 1510" (at 241.3 81.28 0) (effects (font (size 1.27 1.27))))
+    ;; Pin 1 → OUTP (from MAX98357A)
+    ;; Pin 2 → OUTN (from MAX98357A)
+  )
+
+  ;; ============================================================
+  ;; LED1: WS2812B-2020 RGB LED
+  ;; ============================================================
+
+  (symbol (lib_id "LED:WS2812B") (at 210.82 119.38 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "led1-ws2812")
+    (property "Reference" "LED1" (at 210.82 109.22 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "WS2812B-2020" (at 210.82 111.76 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm" (at 210.82 119.38 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C2976072" (at 210.82 119.38 0) (effects (font (size 1.27 1.27)) hide))
+    ;; VDD → +3V3
+    ;; GND → GND
+    ;; DIN → GPIO16
+    ;; DOUT → NC
+  )
+
+  ;; ============================================================
+  ;; SW1: Tact Switch (Button)
+  ;; ============================================================
+
+  (symbol (lib_id "Switch:SW_Push") (at 210.82 139.7 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "sw1-button")
+    (property "Reference" "SW1" (at 210.82 132.08 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "Tact 3x4x2mm" (at 210.82 134.62 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342" (at 210.82 139.7 0) (effects (font (size 1.27 1.27)) hide))
+    (property "LCSC" "C318884" (at 210.82 139.7 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → GPIO15 (BUTTON net)
+    ;; Pin 2 → GND
+  )
+
+  ;; ============================================================
+  ;; Resistors
+  ;; ============================================================
+
+  ;; R1: 100K - VBAT ADC divider (top)
+  (symbol (lib_id "Device:R") (at 172.72 55.88 90) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r1-vbat-top")
+    (property "Reference" "R1" (at 172.72 50.8 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100K" (at 172.72 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 172.72 55.88 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → VBAT
+    ;; Pin 2 → VBAT_ADC (midpoint)
+  )
+
+  ;; R2: 100K - VBAT ADC divider (bottom)
+  (symbol (lib_id "Device:R") (at 187.96 55.88 90) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r2-vbat-bot")
+    (property "Reference" "R2" (at 187.96 50.8 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100K" (at 187.96 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 187.96 55.88 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → VBAT_ADC (midpoint)
+    ;; Pin 2 → GND
+  )
+
+  ;; R3: 5.1K - USB CC1 pulldown
+  (symbol (lib_id "Device:R") (at 22.86 55.88 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r3-cc1")
+    (property "Reference" "R3" (at 17.78 55.88 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "5.1K" (at 17.78 58.42 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 22.86 55.88 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → CC1 (from USB-C)
+    ;; Pin 2 → GND
+  )
+
+  ;; R4: 5.1K - USB CC2 pulldown
+  (symbol (lib_id "Device:R") (at 27.94 55.88 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r4-cc2")
+    (property "Reference" "R4" (at 33.02 55.88 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "5.1K" (at 33.02 58.42 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 27.94 55.88 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → CC2 (from USB-C)
+    ;; Pin 2 → GND
+  )
+
+  ;; R5: 10K - Button pull-up
+  (symbol (lib_id "Device:R") (at 200.66 132.08 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r5-btn-pullup")
+    (property "Reference" "R5" (at 195.58 132.08 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10K" (at 195.58 134.62 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 200.66 132.08 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → +3V3
+    ;; Pin 2 → BUTTON (GPIO15)
+  )
+
+  ;; R6: 2K - MCP73831 PROG (charge current = 1000/2000 = 500mA)
+  (symbol (lib_id "Device:R") (at 30.48 50.8 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r6-prog")
+    (property "Reference" "R6" (at 25.4 50.8 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "2K" (at 25.4 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 30.48 50.8 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → MCP73831 PROG
+    ;; Pin 2 → GND
+  )
+
+  ;; R7: 10K - ESP32 EN pull-up
+  (symbol (lib_id "Device:R") (at 106.68 66.04 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "r7-en-pullup")
+    (property "Reference" "R7" (at 101.6 66.04 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10K" (at 101.6 68.58 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 106.68 66.04 0) (effects (font (size 1.27 1.27)) hide))
+    ;; Pin 1 → +3V3
+    ;; Pin 2 → ESP32 EN pin
+  )
+
+  ;; ============================================================
+  ;; Capacitors
+  ;; ============================================================
+
+  ;; C1: 10uF - ESP32 VDDA decoupling
+  (symbol (lib_id "Device:C") (at 88.9 35.56 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c1-esp-vdda")
+    (property "Reference" "C1" (at 91.44 33.02 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10uF" (at 91.44 35.56 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 88.9 35.56 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C2: 100nF - ESP32 decoupling
+  (symbol (lib_id "Device:C") (at 96.52 35.56 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c2-esp-dec")
+    (property "Reference" "C2" (at 99.06 33.02 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100nF" (at 99.06 35.56 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 96.52 35.56 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C3: 10uF - LDO output
+  (symbol (lib_id "Device:C") (at 76.2 48.26 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c3-ldo-out")
+    (property "Reference" "C3" (at 78.74 45.72 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10uF" (at 78.74 48.26 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 76.2 48.26 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C4: 10uF - LDO input
+  (symbol (lib_id "Device:C") (at 55.88 48.26 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c4-ldo-in")
+    (property "Reference" "C4" (at 58.42 45.72 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10uF" (at 58.42 48.26 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 55.88 48.26 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C5: 4.7uF - MCP73831 input
+  (symbol (lib_id "Device:C") (at 30.48 35.56 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c5-chrg-in")
+    (property "Reference" "C5" (at 33.02 33.02 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "4.7uF" (at 33.02 35.56 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 30.48 35.56 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C6: 4.7uF - MCP73831 output (VBAT)
+  (symbol (lib_id "Device:C") (at 45.72 48.26 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c6-chrg-out")
+    (property "Reference" "C6" (at 48.26 45.72 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "4.7uF" (at 48.26 48.26 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 45.72 48.26 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C7: 10uF - MAX98357A decoupling
+  (symbol (lib_id "Device:C") (at 198.12 76.2 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c7-amp-dec1")
+    (property "Reference" "C7" (at 200.66 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10uF" (at 200.66 76.2 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 198.12 76.2 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C8: 100nF - MAX98357A decoupling
+  (symbol (lib_id "Device:C") (at 205.74 76.2 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c8-amp-dec2")
+    (property "Reference" "C8" (at 208.28 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100nF" (at 208.28 76.2 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 205.74 76.2 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; C9: 100nF - ESP32 EN pin (power-on reset delay)
+  (symbol (lib_id "Device:C") (at 106.68 73.66 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid "c9-en-reset")
+    (property "Reference" "C9" (at 109.22 71.12 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100nF" (at 109.22 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 106.68 73.66 0) (effects (font (size 1.27 1.27)) hide))
+  )
+
+  ;; ============================================================
+  ;; Net Labels (define signal names for wiring)
+  ;; ============================================================
+
+  ;; I2S Bus
+  (net_label "I2S_BCLK" (at 83.82 83.82 0) (effects (font (size 1.27 1.27))))
+  (net_label "I2S_WS" (at 83.82 86.36 0) (effects (font (size 1.27 1.27))))
+  (net_label "I2S_DIN" (at 83.82 88.9 0) (effects (font (size 1.27 1.27))))
+  (net_label "I2S_DOUT" (at 160.02 88.9 0) (effects (font (size 1.27 1.27))))
+
+  ;; Control
+  (net_label "AMP_SD" (at 160.02 91.44 0) (effects (font (size 1.27 1.27))))
+  (net_label "BUTTON" (at 160.02 101.6 0) (effects (font (size 1.27 1.27))))
+  (net_label "WS2812_DIN" (at 160.02 104.14 0) (effects (font (size 1.27 1.27))))
+  (net_label "VBAT_ADC" (at 160.02 68.58 0) (effects (font (size 1.27 1.27))))
+
+  ;; USB
+  (net_label "USB_DP" (at 160.02 106.68 0) (effects (font (size 1.27 1.27))))
+  (net_label "USB_DN" (at 160.02 109.22 0) (effects (font (size 1.27 1.27))))
+
+  ;; ============================================================
+  ;; Wires (connections between components)
+  ;; ============================================================
+
+  ;; --- Power: USB → Charger → Battery → LDO → 3V3 ---
+  ;; J1.VBUS → U5.VDD
+  (wire (pts (xy 22.86 33.02) (xy 30.48 33.02)))
+  ;; U5.VBAT → VBAT net → BT1(+) → U6.VIN
+  (wire (pts (xy 45.72 40.64) (xy 50.8 40.64)))
+  (wire (pts (xy 50.8 40.64) (xy 55.88 40.64)))
+  ;; U6.VOUT → +3V3
+  (wire (pts (xy 71.12 40.64) (xy 76.2 40.64)))
+
+  ;; --- I2S Bus: Mics → ESP32 → Amp ---
+  ;; U2.SCK → I2S_BCLK
+  (wire (pts (xy 58.42 86.36) (xy 83.82 83.82)))
+  ;; U2.WS → I2S_WS
+  (wire (pts (xy 58.42 88.9) (xy 83.82 86.36)))
+  ;; U2.SD → I2S_DIN
+  (wire (pts (xy 58.42 91.44) (xy 83.82 88.9)))
+  ;; U3.SCK → I2S_BCLK (shared)
+  (wire (pts (xy 58.42 114.3) (xy 83.82 83.82)))
+  ;; U3.WS → I2S_WS (shared)
+  (wire (pts (xy 58.42 116.84) (xy 83.82 86.36)))
+  ;; U3.SD → I2S_DIN (shared, wired-OR with L/R select)
+  (wire (pts (xy 58.42 119.38) (xy 83.82 88.9)))
+
+  ;; ESP32 GPIO4 → I2S_BCLK
+  (wire (pts (xy 109.22 83.82) (xy 83.82 83.82)))
+  ;; ESP32 GPIO5 → I2S_WS
+  (wire (pts (xy 109.22 86.36) (xy 83.82 86.36)))
+  ;; ESP32 GPIO6 → I2S_DIN
+  (wire (pts (xy 109.22 88.9) (xy 83.82 88.9)))
+  ;; ESP32 GPIO7 → I2S_DOUT → U4.DIN
+  (wire (pts (xy 144.78 88.9) (xy 160.02 88.9)))
+  (wire (pts (xy 160.02 88.9) (xy 198.12 88.9)))
+
+  ;; I2S_BCLK → U4.BCLK
+  (wire (pts (xy 83.82 83.82) (xy 198.12 83.82)))
+  ;; I2S_WS → U4.LRCLK
+  (wire (pts (xy 83.82 86.36) (xy 198.12 86.36)))
+
+  ;; --- Amp → Speaker ---
+  ;; U4.OUTP → SPK1+
+  (wire (pts (xy 223.52 86.36) (xy 236.22 86.36)))
+  ;; U4.OUTN → SPK1-
+  (wire (pts (xy 223.52 91.44) (xy 236.22 91.44)))
+
+  ;; --- AMP_SD: ESP32 GPIO8 → MAX98357A SD_MODE ---
+  (wire (pts (xy 144.78 91.44) (xy 198.12 91.44)))
+
+  ;; --- Button: GPIO15 → R5 pull-up + SW1 → GND ---
+  (wire (pts (xy 144.78 101.6) (xy 200.66 139.7)))
+  (wire (pts (xy 200.66 127.0) (xy 200.66 132.08)))   ;; R5 top → 3V3
+  (wire (pts (xy 200.66 137.16) (xy 200.66 139.7)))    ;; R5 bottom → BUTTON net
+  (wire (pts (xy 210.82 144.78) (xy 210.82 149.86)))   ;; SW1 → GND
+
+  ;; --- LED: GPIO16 → WS2812B DIN ---
+  (wire (pts (xy 144.78 104.14) (xy 200.66 119.38)))
+
+  ;; --- VBAT ADC: GPIO1 → R1/R2 divider midpoint ---
+  (wire (pts (xy 144.78 68.58) (xy 180.34 55.88)))
+  ;; R1 top → VBAT
+  (wire (pts (xy 167.64 55.88) (xy 162.56 55.88)))     ;; → VBAT label
+  ;; R2 bottom → GND
+  (wire (pts (xy 193.04 55.88) (xy 198.12 55.88)))     ;; → GND
+
+  ;; --- USB Data: GPIO19/20 → USB-C D-/D+ ---
+  (wire (pts (xy 109.22 106.68) (xy 22.86 43.18)))     ;; GPIO19 → USB D-
+  (wire (pts (xy 109.22 109.22) (xy 22.86 45.72)))     ;; GPIO20 → USB D+
+
+  ;; --- ESP32 EN: R7 pull-up + C9 reset delay ---
+  (wire (pts (xy 106.68 60.96) (xy 109.22 66.04)))     ;; R7 top → 3V3
+  (wire (pts (xy 106.68 71.12) (xy 109.22 71.12)))     ;; R7 bottom → EN
+  (wire (pts (xy 106.68 76.2) (xy 106.68 78.74)))      ;; C9 bottom → GND
+
+  ;; ============================================================
+  ;; Text Annotations (section labels on schematic)
+  ;; ============================================================
+
+  (text "POWER SUPPLY\nUSB-C → MCP73831 (Charger) → LiPo → AP2112K (LDO) → 3.3V"
+    (at 15.24 17.78 0) (effects (font (size 2.54 2.54) bold)))
+
+  (text "MCU\nESP32-S3-MINI-1 (8MB Flash, 2MB PSRAM, WiFi+BLE)"
+    (at 109.22 17.78 0) (effects (font (size 2.54 2.54) bold)))
+
+  (text "AUDIO INPUT\nDual INMP441 MEMS Microphones (I2S, L+R)"
+    (at 30.48 73.66 0) (effects (font (size 2.54 2.54) bold)))
+
+  (text "AUDIO OUTPUT\nMAX98357A I2S Amp → 8ohm Speaker"
+    (at 198.12 68.58 0) (effects (font (size 2.54 2.54) bold)))
+
+  (text "USER INTERFACE\nWS2812B RGB LED + Tact Button"
+    (at 198.12 109.22 0) (effects (font (size 2.54 2.54) bold)))
+
+  (text "BATTERY MONITOR\n100K/100K divider → ADC (GPIO1)\nFull: 2.1V | Empty: 1.5V"
+    (at 162.56 45.72 0) (effects (font (size 1.524 1.524))))
+
+  ;; ============================================================
+  ;; Sheet info
+  ;; ============================================================
+  ;; Total components: 6 ICs + 1 LED + 1 Switch + 1 Connector + 1 Speaker + 1 Battery
+  ;; Total passives: 7 Resistors + 9 Capacitors
+  ;; Total unique parts: 13 (excl passives)
+  ;; Estimated BOM cost: ~$12 USD
+
+)

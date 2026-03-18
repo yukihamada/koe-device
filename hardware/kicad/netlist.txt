@@ -1,0 +1,114 @@
+# Koe Device Netlist (human-readable, for KiCad import reference)
+# ================================================================
+
+## Power Rails
+VIN (USB 5V) → MCP73831.VIN
+VBUS_OUT     → D1 (SS14 Schottky anode=VBUS, cathode=VBUS_OUT) → AP2112K.VIN
+VBAT (3.7V)  → MCP73831.VBAT → AP2112K.VIN (through ideal diode path)
+# NOTE: Power path design — VBUS feeds MCP73831 directly for charging,
+#   AND feeds AP2112K through Schottky diode D1 so the device operates
+#   while charging. When USB is disconnected, VBAT feeds AP2112K directly.
+#   This load-sharing topology prevents battery drain during USB operation.
+VCC (3.3V)   → AP2112K.OUT → ESP32.3V3, INMP441x2.VDD, MAX98357A.VDD, WS2812B.VDD
+
+## USB-C (J1)
+J1.VBUS → VIN (through polyfuse)
+J1.VBUS → D1 (SS14) → VBUS_OUT → AP2112K.VIN
+J1.CC1  → R3 (5.1K) → GND
+J1.CC2  → R4 (5.1K) → GND
+J1.D-   → ESP32.GPIO19 (USB_D-)
+J1.D+   → ESP32.GPIO20 (USB_D+)
+J1.GND  → GND
+J1.SHIELD → GND
+
+## Battery Charger (MCP73831 - U5)
+U5.VDD  → VIN
+U5.VBAT → BT1+ (LiPo positive)
+U5.VSS  → GND, BT1- (LiPo negative)
+U5.STAT → (optional: charge status LED)
+U5.PROG → R6 (2K) → GND  [Sets charge current: 1000/2000 = 500mA]
+
+## Schottky Diode (SS14 - D1)
+D1.Anode  → VIN (USB 5V)
+D1.Cathode → VBUS_OUT
+# VBUS_OUT is OR'd with VBAT at AP2112K.VIN input.
+# When USB present: VBUS_OUT (~4.7V) powers LDO, VBAT charges.
+# When USB absent: VBAT powers LDO directly.
+
+## LDO (AP2112K-3.3 - U6)
+U6.VIN  → VBUS_OUT / VBAT (highest voltage wins via diode OR)
+U6.VOUT → VCC (3.3V rail)
+U6.EN   → U6.VIN (always enabled)
+U6.GND  → GND
+C3 (10uF 0603) across VCC-GND
+C4 (10uF 0603) across VIN-GND
+
+## ESP32-S3-MINI-1 (U1)
+U1.3V3   → VCC
+U1.GND   → GND
+# I2S0 — Microphone bus (input)
+U1.GPIO4 → I2S0_BCLK (mic bit clock)
+U1.GPIO5 → I2S0_WS   (mic word select)
+U1.GPIO6 → I2S0_DIN  (mic data in)
+# I2S1 — Speaker bus (output)
+U1.GPIO14 → I2S1_BCLK (speaker bit clock)
+U1.GPIO21 → I2S1_WS   (speaker word select)
+U1.GPIO7  → I2S1_DOUT (speaker data out)
+U1.GPIO8  → MAX98357A.SD_MODE
+U1.GPIO15 → SW1 → GND (with R5 10K pull-up to VCC)
+U1.GPIO16 → WS2812B.DIN
+U1.GPIO1  → R1/R2 midpoint (VBAT ADC)
+U1.GPIO19 → USB D-
+U1.GPIO20 → USB D+
+U1.EN    → VCC (through 10K pull-up, with 0.1uF to GND for power-on reset)
+
+## VBAT ADC Divider
+VBAT → R1 (10K) → ADC_POINT → R2 (10K) → GND
+ADC_POINT → ESP32.GPIO1
+# 10K/10K divider: low enough impedance for ESP32 ADC (recommended <10K source).
+# At 4.2V: ADC reads 2.1V. At 3.0V: ADC reads 1.5V.
+# Quiescent current: 4.2V / 20K = 0.21mA (acceptable for battery life).
+
+## Microphone Left (INMP441 - U2)  [I2S0 bus]
+U2.VDD  → VCC
+U2.GND  → GND
+U2.SCK  → I2S0_BCLK
+U2.WS   → I2S0_WS
+U2.SD   → I2S0_DIN
+U2.L/R  → GND (Left channel)
+
+## Microphone Right (INMP441 - U3)  [I2S0 bus]
+U3.VDD  → VCC
+U3.GND  → GND
+U3.SCK  → I2S0_BCLK
+U3.WS   → I2S0_WS
+U3.SD   → I2S0_DIN
+U3.L/R  → VCC (Right channel)
+
+## Amplifier (MAX98357A - U4)  [I2S1 bus]
+U4.VDD   → VCC
+U4.GND   → GND
+U4.BCLK  → I2S1_BCLK
+U4.LRCLK → I2S1_WS
+U4.DIN   → I2S1_DOUT
+U4.SD_MODE → ESP32.GPIO8 (HIGH=enabled, LOW=shutdown)
+U4.GAIN  → VCC (15dB gain, or leave floating for 9dB)
+U4.OUTP  → SPK1+
+U4.OUTN  → SPK1-
+
+## RGB LED (WS2812B-2020 - LED1)
+LED1.VDD → VCC
+LED1.GND → GND
+LED1.DIN → ESP32.GPIO16
+LED1.DOUT → NC
+
+## Button (SW1)
+SW1.1 → ESP32.GPIO15
+SW1.2 → GND
+R5 (10K) from GPIO15 to VCC (pull-up)
+
+## Decoupling (place close to each IC)
+C1 (10uF 0805) + C2 (0.1uF) → ESP32 power pins
+C5 (4.7uF) → MCP73831 VDD
+C6 (4.7uF) → MCP73831 VBAT
+C7 (10uF 0805) + C8 (0.1uF) → MAX98357A power

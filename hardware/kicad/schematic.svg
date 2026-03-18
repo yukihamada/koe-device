@@ -1,0 +1,343 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" font-family="monospace" font-size="11">
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <path d="M0,0 L6,2 L0,4 Z" fill="#333"/>
+    </marker>
+    <style>
+      .wire { stroke: #2a7; stroke-width: 1.5; fill: none; }
+      .power-wire { stroke: #c22; stroke-width: 2; fill: none; }
+      .gnd-wire { stroke: #333; stroke-width: 1.5; fill: none; }
+      .comp-box { fill: #f8f8ff; stroke: #334; stroke-width: 1.5; rx: 4; }
+      .comp-label { font-weight: bold; font-size: 12px; fill: #222; }
+      .pin-label { font-size: 9px; fill: #666; }
+      .net-label { font-size: 10px; fill: #c22; font-weight: bold; }
+      .section-label { font-size: 14px; fill: #006; font-weight: bold; }
+      .section-bg { fill: #f0f4ff; stroke: #aac; stroke-width: 1; stroke-dasharray: 4,2; rx: 8; }
+      .title { font-size: 18px; font-weight: bold; fill: #222; }
+      .subtitle { font-size: 12px; fill: #666; }
+      .power-sym { font-size: 11px; font-weight: bold; }
+      .vcc { fill: #c22; }
+      .gnd { fill: #333; }
+      .vbat { fill: #c80; }
+    </style>
+  </defs>
+
+  <!-- Title Block -->
+  <rect x="0" y="0" width="1200" height="700" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="600" y="28" text-anchor="middle" class="title">Koe Device - AI Voice Companion Schematic v0.1</text>
+  <text x="600" y="44" text-anchor="middle" class="subtitle">EnablerDAO | ESP32-S3 + Dual MEMS Mic + I2S Amp | 35x40x12mm | 2026-03-18</text>
+
+  <!-- ==================== SECTION: POWER SUPPLY ==================== -->
+  <rect x="15" y="55" width="430" height="260" class="section-bg"/>
+  <text x="25" y="72" class="section-label">POWER SUPPLY</text>
+
+  <!-- USB-C Connector (J1) -->
+  <rect x="30" y="85" width="80" height="110" class="comp-box"/>
+  <text x="70" y="100" text-anchor="middle" class="comp-label">J1</text>
+  <text x="70" y="113" text-anchor="middle" font-size="10">USB-C</text>
+  <text x="115" y="103" class="pin-label">VBUS (5V)</text>
+  <text x="115" y="118" class="pin-label">D-</text>
+  <text x="115" y="133" class="pin-label">D+</text>
+  <text x="115" y="148" class="pin-label">CC1</text>
+  <text x="115" y="163" class="pin-label">CC2</text>
+  <text x="115" y="183" class="pin-label">GND</text>
+  <!-- pins -->
+  <line x1="110" y1="100" x2="135" y2="100" class="power-wire"/>
+  <line x1="110" y1="115" x2="135" y2="115" class="wire"/>
+  <line x1="110" y1="130" x2="135" y2="130" class="wire"/>
+  <line x1="110" y1="145" x2="135" y2="145" class="wire"/>
+  <line x1="110" y1="160" x2="135" y2="160" class="wire"/>
+  <line x1="110" y1="180" x2="135" y2="180" class="gnd-wire"/>
+
+  <!-- CC1 → R3 5.1K → GND -->
+  <line x1="135" y1="145" x2="155" y2="145" class="wire"/>
+  <rect x="155" y="139" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="170" y="149" text-anchor="middle" font-size="8">5.1K R3</text>
+  <line x1="185" y1="145" x2="200" y2="145" class="gnd-wire"/>
+  <text x="202" y="149" class="gnd" font-size="9">GND</text>
+
+  <!-- CC2 → R4 5.1K → GND -->
+  <line x1="135" y1="160" x2="155" y2="160" class="wire"/>
+  <rect x="155" y="154" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="170" y="164" text-anchor="middle" font-size="8">5.1K R4</text>
+  <line x1="185" y1="160" x2="200" y2="160" class="gnd-wire"/>
+  <text x="202" y="164" class="gnd" font-size="9">GND</text>
+
+  <!-- VBUS → +5V label -->
+  <text x="140" y="98" class="power-sym vcc">+5V</text>
+
+  <!-- MCP73831 (U5) - Battery Charger -->
+  <rect x="200" y="85" width="90" height="85" class="comp-box"/>
+  <text x="245" y="100" text-anchor="middle" class="comp-label">U5</text>
+  <text x="245" y="113" text-anchor="middle" font-size="10">MCP73831</text>
+  <text x="245" y="126" text-anchor="middle" font-size="9" fill="#888">LiPo Charger</text>
+  <!-- Pins -->
+  <text x="205" y="140" class="pin-label">VDD</text>
+  <text x="205" y="155" class="pin-label">PROG</text>
+  <text x="260" y="140" class="pin-label">VBAT</text>
+  <text x="260" y="155" class="pin-label">VSS</text>
+
+  <!-- +5V → U5.VDD -->
+  <line x1="150" y1="100" x2="200" y2="100" class="power-wire"/>
+  <line x1="200" y1="100" x2="200" y2="137" class="power-wire"/>
+
+  <!-- C5 4.7uF on VDD -->
+  <rect x="160" y="103" width="25" height="10" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="172" y="111" text-anchor="middle" font-size="7">4.7u C5</text>
+
+  <!-- U5.PROG → R6 2K → GND -->
+  <line x1="200" y1="152" x2="180" y2="152" class="wire"/>
+  <rect x="155" y="200" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="170" y="210" text-anchor="middle" font-size="8">2K R6</text>
+  <line x1="170" y1="152" x2="170" y2="200" class="wire"/>
+  <line x1="170" y1="212" x2="170" y2="225" class="gnd-wire"/>
+  <text x="172" y="235" class="gnd" font-size="9">GND</text>
+
+  <!-- U5.VBAT → VBAT -->
+  <line x1="290" y1="137" x2="310" y2="137" class="power-wire"/>
+  <text x="300" y="133" class="power-sym vbat">VBAT</text>
+
+  <!-- Battery (BT1) -->
+  <rect x="290" y="180" width="70" height="50" class="comp-box" fill="#fff8f0"/>
+  <text x="325" y="198" text-anchor="middle" class="comp-label">BT1</text>
+  <text x="325" y="213" text-anchor="middle" font-size="9">LiPo 800mAh</text>
+  <text x="325" y="225" text-anchor="middle" font-size="8" fill="#888">802535 3.7V</text>
+  <!-- VBAT → BT1+ -->
+  <line x1="310" y1="137" x2="310" y2="180" class="power-wire"/>
+  <!-- BT1- → GND -->
+  <line x1="325" y1="230" x2="325" y2="250" class="gnd-wire"/>
+  <text x="327" y="260" class="gnd" font-size="9">GND</text>
+
+  <!-- C6 4.7uF on VBAT -->
+  <rect x="340" y="155" width="25" height="10" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="352" y="163" text-anchor="middle" font-size="7">4.7u C6</text>
+  <line x1="352" y1="137" x2="352" y2="155" class="wire"/>
+  <line x1="352" y1="165" x2="352" y2="175" class="gnd-wire"/>
+
+  <!-- AP2112K-3.3 (U6) - LDO -->
+  <rect x="370" y="85" width="70" height="85" class="comp-box"/>
+  <text x="405" y="100" text-anchor="middle" class="comp-label">U6</text>
+  <text x="405" y="113" text-anchor="middle" font-size="10">AP2112K</text>
+  <text x="405" y="126" text-anchor="middle" font-size="9" fill="#888">3.3V LDO</text>
+  <text x="375" y="145" class="pin-label">VIN</text>
+  <text x="375" y="158" class="pin-label">EN</text>
+  <text x="415" y="145" class="pin-label">VOUT</text>
+
+  <!-- VBAT → U6 -->
+  <line x1="310" y1="137" x2="370" y2="137" class="power-wire"/>
+  <line x1="370" y1="137" x2="370" y2="142" class="power-wire"/>
+  <!-- EN tied to VIN -->
+  <line x1="370" y1="155" x2="365" y2="155" class="wire"/>
+  <line x1="365" y1="142" x2="365" y2="155" class="wire"/>
+
+  <!-- C4 10uF on VIN -->
+  <rect x="350" y="97" width="20" height="10" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="360" y="105" text-anchor="middle" font-size="7">10u C4</text>
+
+  <!-- U6.VOUT → +3V3 -->
+  <line x1="440" y1="142" x2="460" y2="142" class="power-wire"/>
+  <text x="447" y="138" class="power-sym vcc">+3V3</text>
+
+  <!-- C3 10uF on VOUT -->
+  <rect x="445" y="150" width="20" height="10" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="455" y="158" text-anchor="middle" font-size="7">10u C3</text>
+
+  <!-- ==================== SECTION: MCU ==================== -->
+  <rect x="455" y="55" width="300" height="320" class="section-bg"/>
+  <text x="465" y="72" class="section-label">MCU — ESP32-S3-MINI-1-N8R2</text>
+
+  <!-- ESP32-S3 (U1) -->
+  <rect x="510" y="90" width="190" height="250" class="comp-box" fill="#f0fff0"/>
+  <text x="605" y="110" text-anchor="middle" class="comp-label" font-size="14">U1</text>
+  <text x="605" y="128" text-anchor="middle" font-size="11">ESP32-S3-MINI-1</text>
+  <text x="605" y="143" text-anchor="middle" font-size="9" fill="#888">8MB Flash + 2MB PSRAM</text>
+  <text x="605" y="155" text-anchor="middle" font-size="9" fill="#888">WiFi 802.11n + BLE 5.0</text>
+  <text x="605" y="167" text-anchor="middle" font-size="9" fill="#888">240MHz Dual-Core LX7</text>
+
+  <!-- Left pins (inputs) -->
+  <text x="515" y="192" class="pin-label" font-size="10">3V3 ←</text>
+  <text x="515" y="207" class="pin-label" font-size="10">EN ←</text>
+  <text x="515" y="227" class="pin-label" font-size="10">GPIO4 ← I2S_BCLK</text>
+  <text x="515" y="242" class="pin-label" font-size="10">GPIO5 ← I2S_WS</text>
+  <text x="515" y="257" class="pin-label" font-size="10">GPIO6 ← I2S_DIN</text>
+  <text x="515" y="277" class="pin-label" font-size="10">GPIO1 ← VBAT_ADC</text>
+  <text x="515" y="297" class="pin-label" font-size="10">GPIO19 ← USB D-</text>
+  <text x="515" y="312" class="pin-label" font-size="10">GPIO20 ← USB D+</text>
+  <text x="515" y="330" class="pin-label" font-size="10">GND</text>
+
+  <!-- Right pins (outputs) -->
+  <text x="630" y="227" class="pin-label" font-size="10">GPIO7 → I2S_DOUT</text>
+  <text x="630" y="242" class="pin-label" font-size="10">GPIO8 → AMP_SD</text>
+  <text x="630" y="262" class="pin-label" font-size="10">GPIO15 → BUTTON</text>
+  <text x="630" y="277" class="pin-label" font-size="10">GPIO16 → WS2812_DIN</text>
+
+  <!-- EN pull-up R7 + C9 -->
+  <rect x="470" y="197" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="485" y="207" text-anchor="middle" font-size="8">10K R7</text>
+  <line x1="470" y1="203" x2="460" y2="203" class="power-wire"/>
+  <text x="458" y="200" class="power-sym vcc" font-size="9">+3V3</text>
+  <line x1="500" y1="203" x2="510" y2="203" class="wire"/>
+
+  <!-- Decoupling C1+C2 -->
+  <rect x="470" y="180" width="25" height="10" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="482" y="188" text-anchor="middle" font-size="7">10u+0.1u</text>
+  <text x="468" y="188" font-size="7" fill="#888">C1,C2</text>
+
+  <!-- Power connections to ESP32 -->
+  <line x1="460" y1="142" x2="460" y2="189" class="power-wire"/>
+  <line x1="460" y1="189" x2="510" y2="189" class="power-wire"/>
+
+  <!-- ==================== SECTION: AUDIO INPUT ==================== -->
+  <rect x="15" y="325" width="430" height="180" class="section-bg"/>
+  <text x="25" y="342" class="section-label">AUDIO INPUT — Dual MEMS Microphones</text>
+
+  <!-- INMP441 Left (U2) -->
+  <rect x="30" y="355" width="120" height="65" class="comp-box" fill="#fff0f0"/>
+  <text x="90" y="372" text-anchor="middle" class="comp-label">U2 — INMP441 (Left)</text>
+  <text x="90" y="387" text-anchor="middle" font-size="9" fill="#888">I2S MEMS Mic, SNR 61dB</text>
+  <text x="155" y="372" class="pin-label">SCK →</text>
+  <text x="155" y="387" class="pin-label">WS →</text>
+  <text x="155" y="402" class="pin-label">SD →</text>
+  <text x="35" y="402" class="pin-label">L/R=GND</text>
+  <!-- Power -->
+  <text x="35" y="372" class="power-sym vcc" font-size="9">+3V3</text>
+
+  <!-- INMP441 Right (U3) -->
+  <rect x="30" y="430" width="120" height="65" class="comp-box" fill="#fff0f0"/>
+  <text x="90" y="447" text-anchor="middle" class="comp-label">U3 — INMP441 (Right)</text>
+  <text x="90" y="462" text-anchor="middle" font-size="9" fill="#888">I2S MEMS Mic, SNR 61dB</text>
+  <text x="155" y="447" class="pin-label">SCK →</text>
+  <text x="155" y="462" class="pin-label">WS →</text>
+  <text x="155" y="477" class="pin-label">SD →</text>
+  <text x="35" y="477" class="pin-label">L/R=VCC</text>
+  <text x="35" y="447" class="power-sym vcc" font-size="9">+3V3</text>
+
+  <!-- I2S Bus lines from mics to ESP32 -->
+  <line x1="190" y1="369" x2="300" y2="369" class="wire" stroke="#27a"/>
+  <line x1="190" y1="384" x2="300" y2="384" class="wire" stroke="#2a7"/>
+  <line x1="190" y1="399" x2="300" y2="399" class="wire" stroke="#a72"/>
+  <line x1="190" y1="444" x2="300" y2="369" class="wire" stroke="#27a" stroke-dasharray="4,2"/>
+  <line x1="190" y1="459" x2="300" y2="384" class="wire" stroke="#2a7" stroke-dasharray="4,2"/>
+  <line x1="190" y1="474" x2="300" y2="399" class="wire" stroke="#a72" stroke-dasharray="4,2"/>
+
+  <!-- Net labels on I2S bus -->
+  <text x="305" y="367" class="net-label">I2S_BCLK → GPIO4</text>
+  <text x="305" y="382" class="net-label">I2S_WS → GPIO5</text>
+  <text x="305" y="397" class="net-label">I2S_DIN → GPIO6</text>
+
+  <!-- ==================== SECTION: AUDIO OUTPUT ==================== -->
+  <rect x="765" y="55" width="420" height="220" class="section-bg"/>
+  <text x="775" y="72" class="section-label">AUDIO OUTPUT — I2S Class-D Amplifier</text>
+
+  <!-- MAX98357A (U4) -->
+  <rect x="790" y="90" width="140" height="130" class="comp-box" fill="#f0f0ff"/>
+  <text x="860" y="108" text-anchor="middle" class="comp-label">U4 — MAX98357A</text>
+  <text x="860" y="123" text-anchor="middle" font-size="9" fill="#888">I2S 3.2W Class-D Amp</text>
+  <!-- Left pins -->
+  <text x="795" y="143" class="pin-label">BCLK ←</text>
+  <text x="795" y="158" class="pin-label">LRCLK ←</text>
+  <text x="795" y="173" class="pin-label">DIN ←</text>
+  <text x="795" y="193" class="pin-label">SD_MODE ←</text>
+  <text x="795" y="208" class="pin-label">GAIN = VCC</text>
+  <!-- Right pins -->
+  <text x="890" y="155" class="pin-label">OUTP →</text>
+  <text x="890" y="175" class="pin-label">OUTN →</text>
+  <!-- Power -->
+  <text x="858" y="85" class="power-sym vcc" font-size="9">+3V3</text>
+
+  <!-- I2S from ESP32 -->
+  <line x1="700" y1="224" x2="790" y2="140" class="wire" stroke="#27a"/>
+  <line x1="700" y1="239" x2="790" y2="155" class="wire" stroke="#2a7"/>
+  <line x1="700" y1="224" x2="790" y2="170" class="wire" stroke="#a72"/>
+  <text x="720" y="220" class="net-label" font-size="9">GPIO7 → I2S_DOUT</text>
+  <text x="720" y="240" class="net-label" font-size="9">GPIO8 → AMP_SD</text>
+  <line x1="700" y1="239" x2="790" y2="190" class="wire"/>
+
+  <!-- Decoupling C7+C8 -->
+  <rect x="940" y="88" width="30" height="12" fill="#eef" stroke="#66a" stroke-width="1" rx="2"/>
+  <text x="955" y="98" text-anchor="middle" font-size="7">10u+0.1u C7,C8</text>
+
+  <!-- Speaker (SPK1) -->
+  <rect x="990" y="130" width="90" height="70" class="comp-box" fill="#fffff0"/>
+  <text x="1035" y="152" text-anchor="middle" class="comp-label">SPK1</text>
+  <text x="1035" y="168" text-anchor="middle" font-size="10">8ohm 0.5W</text>
+  <text x="1035" y="183" text-anchor="middle" font-size="9" fill="#888">15x10x3mm</text>
+  <!-- Amp → Speaker -->
+  <line x1="935" y1="152" x2="990" y2="152" class="wire" stroke-width="2"/>
+  <line x1="935" y1="172" x2="990" y2="172" class="wire" stroke-width="2"/>
+  <text x="950" y="148" class="pin-label">OUTP</text>
+  <text x="950" y="168" class="pin-label">OUTN</text>
+
+  <!-- ==================== SECTION: UI ==================== -->
+  <rect x="765" y="285" width="420" height="200" class="section-bg"/>
+  <text x="775" y="302" class="section-label">USER INTERFACE</text>
+
+  <!-- WS2812B (LED1) -->
+  <rect x="790" y="315" width="120" height="55" class="comp-box" fill="#fff0ff"/>
+  <text x="850" y="333" text-anchor="middle" class="comp-label">LED1 — WS2812B-2020</text>
+  <text x="850" y="348" text-anchor="middle" font-size="9" fill="#888">RGB LED, 2x2mm</text>
+  <text x="795" y="362" class="pin-label">DIN ← GPIO16</text>
+  <text x="850" y="308" class="power-sym vcc" font-size="9">+3V3</text>
+  <line x1="850" y1="370" x2="850" y2="380" class="gnd-wire"/>
+  <text x="852" y="390" class="gnd" font-size="9">GND</text>
+
+  <!-- Button (SW1) -->
+  <rect x="790" y="400" width="120" height="55" class="comp-box" fill="#fffff0"/>
+  <text x="850" y="418" text-anchor="middle" class="comp-label">SW1 — Tact Switch</text>
+  <text x="850" y="433" text-anchor="middle" font-size="9" fill="#888">3x4x2mm, low profile</text>
+  <text x="795" y="447" class="pin-label">Pin1 ← GPIO15</text>
+  <text x="870" y="447" class="pin-label">Pin2 → GND</text>
+
+  <!-- R5 pull-up -->
+  <rect x="940" y="400" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="955" y="410" text-anchor="middle" font-size="8">10K R5</text>
+  <line x1="970" y1="406" x2="985" y2="406" class="power-wire"/>
+  <text x="987" y="410" class="power-sym vcc" font-size="9">+3V3</text>
+  <line x1="940" y1="406" x2="920" y2="440" class="wire"/>
+
+  <!-- ==================== SECTION: BATTERY MONITOR ==================== -->
+  <rect x="455" y="385" width="300" height="120" class="section-bg"/>
+  <text x="465" y="402" class="section-label">BATTERY MONITOR</text>
+
+  <!-- Voltage divider -->
+  <text x="470" y="425" class="power-sym vbat">VBAT</text>
+  <line x1="500" y1="422" x2="520" y2="422" class="power-wire"/>
+  <rect x="520" y="416" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="535" y="426" text-anchor="middle" font-size="8">100K R1</text>
+  <line x1="550" y1="422" x2="580" y2="422" class="wire"/>
+  <!-- Junction -->
+  <circle cx="580" cy="422" r="3" fill="#c22"/>
+  <text x="575" y="415" class="net-label" font-size="9">VBAT_ADC</text>
+  <text x="575" y="445" font-size="9" fill="#888">→ GPIO1</text>
+  <line x1="580" y1="422" x2="610" y2="422" class="wire"/>
+  <rect x="610" y="416" width="30" height="12" fill="#ffe" stroke="#664" stroke-width="1" rx="2"/>
+  <text x="625" y="426" text-anchor="middle" font-size="8">100K R2</text>
+  <line x1="640" y1="422" x2="660" y2="422" class="gnd-wire"/>
+  <text x="662" y="426" class="gnd" font-size="9">GND</text>
+
+  <text x="470" y="470" font-size="9" fill="#888">Full: 4.2V → ADC 2.1V</text>
+  <text x="470" y="485" font-size="9" fill="#888">Empty: 3.0V → ADC 1.5V</text>
+
+  <!-- ==================== SECTION: USB DATA ==================== -->
+  <text x="170" y="295" class="section-label" font-size="11">USB DATA</text>
+  <text x="170" y="310" font-size="9" fill="#888">J1.D- → GPIO19</text>
+  <text x="170" y="322" font-size="9" fill="#888">J1.D+ → GPIO20</text>
+
+  <!-- ==================== POWER RAIL SUMMARY ==================== -->
+  <rect x="15" y="520" width="1170" height="80" fill="#f8f8f8" stroke="#ccc" stroke-width="1" rx="4"/>
+  <text x="25" y="540" class="section-label" font-size="12">POWER RAILS &amp; CURRENT BUDGET</text>
+  <text x="30" y="558" font-size="10" fill="#c22" font-weight="bold">+5V (USB VBUS) → MCP73831 → charges LiPo</text>
+  <text x="30" y="573" font-size="10" fill="#c80" font-weight="bold">VBAT (3.0-4.2V) → AP2112K LDO → +3V3</text>
+  <text x="30" y="588" font-size="10" fill="#2a2" font-weight="bold">+3V3 → ESP32 + INMP441x2 + MAX98357A + WS2812B</text>
+  <text x="500" y="558" font-size="10">Recording: ~45mA (17h on 800mAh)</text>
+  <text x="500" y="573" font-size="10">WiFi Active: ~165mA (4.8h)</text>
+  <text x="500" y="588" font-size="10">Mixed (80/20): ~12h battery life</text>
+
+  <!-- ==================== GPIO SUMMARY ==================== -->
+  <rect x="15" y="610" width="1170" height="80" fill="#f0f8f0" stroke="#aca" stroke-width="1" rx="4"/>
+  <text x="25" y="630" class="section-label" font-size="12">GPIO ASSIGNMENT</text>
+  <text x="30" y="648" font-size="9">GPIO1: VBAT_ADC | GPIO4: I2S_BCLK | GPIO5: I2S_WS | GPIO6: I2S_DIN (mic) | GPIO7: I2S_DOUT (spk)</text>
+  <text x="30" y="663" font-size="9">GPIO8: AMP_SD | GPIO15: BUTTON | GPIO16: WS2812B_DIN | GPIO19: USB_D- | GPIO20: USB_D+</text>
+  <text x="30" y="678" font-size="9" fill="#888">Total GPIO used: 10 | Free GPIO: ~20 (for future: LTE-M, camera, IMU, etc.)</text>
+
+</svg>

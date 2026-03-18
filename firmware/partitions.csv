@@ -1,0 +1,8 @@
+# ESP32-S3 Partition Table for Koe Device (8MB Flash)
+# Name,     Type, SubType,  Offset,   Size,     Flags
+nvs,        data, nvs,      0x9000,   0x4000,
+nvs_key,    data, nvs_keys, 0xd000,   0x1000,   encrypted
+phy_init,   data, phy,      0xe000,   0x1000,
+ota_0,      app,  ota_0,    0x10000,  0x1F0000, # ~2MB app (slot 1)
+ota_1,      app,  ota_1,    0x200000, 0x1F0000, # ~2MB app (slot 2, OTA)
+storage,    data, spiffs,   0x3F0000, 0x10000,  # 64KB config

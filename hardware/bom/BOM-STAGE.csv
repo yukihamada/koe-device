@@ -1,0 +1,45 @@
+Category,Ref,Part,Description,Qty,Unit USD,Subtotal USD,Source
+Audio,SPK1,130mm coaxial driver,"Peerless by Tymphany / SB Acoustics 5inch coaxial, TS params matched for 6L sealed Qtc=0.7",1,22.00,22.00,Mouser/Parts Express
+Audio,SPK1-TW,25mm compression tweeter,"Integrated in coaxial unit (included in SPK1 price)",0,0.00,0.00,—
+Audio,U-AMP,TPA3116D2 module,"Class-D 2ch 50W+50W, pre-built module with heatsink",1,4.50,4.50,AliExpress/LCSC
+Audio,U-DAC,PCM5102A,"I2S DAC 32bit/48kHz, breakout board",1,2.00,2.00,LCSC
+Audio,INMP441,INMP441 x2,"MEMS mic for AEC reference + voice input",2,1.20,2.40,LCSC
+Audio,XLR,Neutrik NC3FD-LX,"XLR female panel mount, balanced input",1,2.50,2.50,Mouser
+Audio,J-AUX,3.5mm jack,"Stereo audio input",1,0.30,0.30,LCSC
+,,,,,,,,
+MCU,U1,ESP32-S3-WROOM-2,"32MB Flash, 8MB PSRAM, WiFi 2.4GHz",1,6.00,6.00,LCSC
+,,,,,,,,
+GPS/Clock,U-GPS,u-blox NEO-M9N,"Multi-band GPS, 1PPS output, <100ns accuracy",1,18.00,18.00,Mouser/DigiKey
+GPS/Clock,Y1,TCXO 0.5ppm,"26MHz TCXO for GPS holdover",1,3.00,3.00,LCSC
+GPS/Clock,ANT-GPS,Active GPS antenna,"Ceramic patch 25x25mm + LNA",1,3.50,3.50,AliExpress
+,,,,,,,,
+Cellular,U-4G,SIM7600G-H,"4G LTE Cat-4, 150Mbps DL, global bands",1,22.00,22.00,AliExpress
+Cellular,ANT-4G,4G antenna,"PCB antenna or external SMA",1,2.50,2.50,AliExpress
+Cellular,SIM,SIM card holder,"Nano SIM push-push",1,0.30,0.30,LCSC
+,,,,,,,,
+Power,BAT,6S Li-ion pack,"25.9V nominal, 5000mAh (18650 x6), with BMS",1,30.00,30.00,AliExpress
+Power,U-BMS,6S BMS board,"Balance charge + discharge protection 20A",1,4.00,4.00,AliExpress
+Power,U-PD,USB-C PD controller,"65W PD sink + 24V output (HUSB238 or IP2721)",1,2.00,2.00,LCSC
+Power,PSU,DC jack 24V,"5.5x2.1mm barrel jack for AC adapter",1,0.30,0.30,LCSC
+Power,Passives,LDO + regulators,"3.3V (ESP32) + 5V (DAC/amp logic) + passives",1,3.00,3.00,LCSC
+,,,,,,,,
+Enclosure,CASE,Aluminum die-cast,"200x200x280mm, tooling amortized @100 units",1,18.00,18.00,Custom
+Enclosure,GASKET,Silicone gasket,"IP55 sealing",1,1.50,1.50,Custom
+Enclosure,GRILLE,Steel speaker grille,"Powder-coated perforated steel",1,3.00,3.00,Custom
+,,,,,,,,
+PCB,PCB,Main PCB,"4-layer 100x80mm, ENIG",1,5.00,5.00,JLCPCB
+PCB,PCBA,Assembly,"SMT assembly + QC",1,12.00,12.00,JLCPCB
+PCB,Passives,R+C+connector misc,"Decoupling caps, resistors, connectors, LED",1,5.00,5.00,LCSC
+,,,,,,,,
+Misc,USB-C,USB-C connector,"16pin receptacle",1,0.25,0.25,LCSC
+Misc,SW1,Power switch,"Rocker switch with LED",1,0.50,0.50,LCSC
+Misc,LED,WS2812B x5,"Status LED strip",5,0.08,0.40,LCSC
+Misc,CABLE,Internal wiring,"Speaker cable + power cable + antenna cable",1,2.00,2.00,—
+,,,,,,,,
+TOTAL,,,,,,173.95,
+,,,,,,,,
+,,,TOTAL BOM (per unit @100台),,,$174,
+,,,PCB + Assembly,,,$17,
+,,,Enclosure (tooling amortized),,,$22.50,
+,,,GRAND TOTAL PER UNIT,,,$174,
+,,,Suggested retail (3x markup),,,$520,

@@ -1,0 +1,520 @@
+{
+  "project": "koe-device",
+  "version": "0.1",
+  "components": {
+    "J1": {
+      "lib": "Connector:USB_C_Receptacle_USB2.0",
+      "value": "USB-C",
+      "footprint": "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+      "x": 30,
+      "y": 40,
+      "lcsc": "C168688"
+    },
+    "U5": {
+      "lib": "Battery_Management:MCP73831-2-OT",
+      "value": "MCP73831",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "x": 65,
+      "y": 35,
+      "lcsc": "C424093"
+    },
+    "BT1": {
+      "lib": "Device:Battery_Cell",
+      "value": "LiPo 800mAh",
+      "footprint": "",
+      "x": 65,
+      "y": 55
+    },
+    "U6": {
+      "lib": "Regulator_Linear:AP2112K-3.3",
+      "value": "AP2112K-3.3",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "x": 95,
+      "y": 35,
+      "lcsc": "C51118"
+    },
+    "U1": {
+      "lib": "RF_Module:ESP32-S3-MINI-1",
+      "value": "ESP32-S3-MINI-1-N8R2",
+      "footprint": "RF_Module:ESP32-S3-MINI-1",
+      "x": 150,
+      "y": 80,
+      "lcsc": "C2913196"
+    },
+    "U2": {
+      "lib": "Audio:INMP441",
+      "value": "INMP441 (L)",
+      "footprint": "Package_LGA:Knowles_LGA-6_3.76x4.72mm",
+      "x": 55,
+      "y": 80,
+      "lcsc": "C110326"
+    },
+    "U3": {
+      "lib": "Audio:INMP441",
+      "value": "INMP441 (R)",
+      "footprint": "Package_LGA:Knowles_LGA-6_3.76x4.72mm",
+      "x": 55,
+      "y": 105,
+      "lcsc": "C110326"
+    },
+    "U4": {
+      "lib": "Audio:MAX98357A",
+      "value": "MAX98357A",
+      "footprint": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
+      "x": 230,
+      "y": 80,
+      "lcsc": "C2682619"
+    },
+    "SPK1": {
+      "lib": "Device:Speaker",
+      "value": "8R 0.5W",
+      "footprint": "",
+      "x": 260,
+      "y": 80
+    },
+    "LED1": {
+      "lib": "LED:WS2812B",
+      "value": "WS2812B-2020",
+      "footprint": "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm",
+      "x": 230,
+      "y": 110,
+      "lcsc": "C2976072"
+    },
+    "SW1": {
+      "lib": "Switch:SW_Push",
+      "value": "Tact 3x4x2",
+      "footprint": "Button_Switch_SMD:SW_SPST_TL3342",
+      "x": 230,
+      "y": 130,
+      "lcsc": "C318884"
+    }
+  },
+  "passives": {
+    "R1": {
+      "value": "100K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 195,
+      "y": 50,
+      "note": "VBAT divider top"
+    },
+    "R2": {
+      "value": "100K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 210,
+      "y": 50,
+      "note": "VBAT divider bot"
+    },
+    "R3": {
+      "value": "5.1K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 35,
+      "y": 55,
+      "note": "USB CC1"
+    },
+    "R4": {
+      "value": "5.1K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 40,
+      "y": 55,
+      "note": "USB CC2"
+    },
+    "R5": {
+      "value": "10K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 220,
+      "y": 125,
+      "note": "BTN pull-up"
+    },
+    "R6": {
+      "value": "2K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 65,
+      "y": 45,
+      "note": "PROG 500mA"
+    },
+    "R7": {
+      "value": "10K",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "x": 130,
+      "y": 55,
+      "note": "EN pull-up"
+    },
+    "C1": {
+      "value": "10uF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 130,
+      "y": 65,
+      "note": "ESP32 VDDA"
+    },
+    "C2": {
+      "value": "100nF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 135,
+      "y": 65,
+      "note": "ESP32 bypass"
+    },
+    "C3": {
+      "value": "10uF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 105,
+      "y": 42,
+      "note": "LDO out"
+    },
+    "C4": {
+      "value": "10uF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 85,
+      "y": 42,
+      "note": "LDO in"
+    },
+    "C5": {
+      "value": "4.7uF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 55,
+      "y": 30,
+      "note": "Charger in"
+    },
+    "C6": {
+      "value": "4.7uF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 75,
+      "y": 42,
+      "note": "Charger out"
+    },
+    "C7": {
+      "value": "10uF",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "x": 220,
+      "y": 70,
+      "note": "Amp bypass"
+    },
+    "C8": {
+      "value": "100nF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 225,
+      "y": 70,
+      "note": "Amp bypass"
+    },
+    "C9": {
+      "value": "100nF",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "x": 130,
+      "y": 60,
+      "note": "EN reset"
+    }
+  },
+  "nets": [
+    [
+      "J1:VBUS",
+      "+5V"
+    ],
+    [
+      "J1:CC1",
+      "R3:1"
+    ],
+    [
+      "R3:2",
+      "GND"
+    ],
+    [
+      "J1:CC2",
+      "R4:1"
+    ],
+    [
+      "R4:2",
+      "GND"
+    ],
+    [
+      "J1:D-",
+      "U1:GPIO19"
+    ],
+    [
+      "J1:D+",
+      "U1:GPIO20"
+    ],
+    [
+      "+5V",
+      "U5:VDD"
+    ],
+    [
+      "+5V",
+      "C5:1"
+    ],
+    [
+      "C5:2",
+      "GND"
+    ],
+    [
+      "U5:VSS",
+      "GND"
+    ],
+    [
+      "U5:PROG",
+      "R6:1"
+    ],
+    [
+      "R6:2",
+      "GND"
+    ],
+    [
+      "U5:VBAT",
+      "VBAT"
+    ],
+    [
+      "VBAT",
+      "BT1:+"
+    ],
+    [
+      "BT1:-",
+      "GND"
+    ],
+    [
+      "VBAT",
+      "C6:1"
+    ],
+    [
+      "C6:2",
+      "GND"
+    ],
+    [
+      "VBAT",
+      "U6:VIN"
+    ],
+    [
+      "VBAT",
+      "U6:EN"
+    ],
+    [
+      "VBAT",
+      "C4:1"
+    ],
+    [
+      "C4:2",
+      "GND"
+    ],
+    [
+      "U6:GND",
+      "GND"
+    ],
+    [
+      "U6:VOUT",
+      "+3V3"
+    ],
+    [
+      "+3V3",
+      "C3:1"
+    ],
+    [
+      "C3:2",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "U1:3V3"
+    ],
+    [
+      "U1:GND",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "C1:1"
+    ],
+    [
+      "C1:2",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "C2:1"
+    ],
+    [
+      "C2:2",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "R7:1"
+    ],
+    [
+      "R7:2",
+      "U1:EN"
+    ],
+    [
+      "U1:EN",
+      "C9:1"
+    ],
+    [
+      "C9:2",
+      "GND"
+    ],
+    [
+      "VBAT",
+      "R1:1"
+    ],
+    [
+      "R1:2",
+      "VBAT_ADC"
+    ],
+    [
+      "VBAT_ADC",
+      "R2:1"
+    ],
+    [
+      "R2:2",
+      "GND"
+    ],
+    [
+      "VBAT_ADC",
+      "U1:GPIO1"
+    ],
+    [
+      "+3V3",
+      "U2:VDD"
+    ],
+    [
+      "U2:GND",
+      "GND"
+    ],
+    [
+      "U2:SCK",
+      "I2S_BCLK"
+    ],
+    [
+      "U2:WS",
+      "I2S_WS"
+    ],
+    [
+      "U2:SD",
+      "I2S_DIN"
+    ],
+    [
+      "U2:L/R",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "U3:VDD"
+    ],
+    [
+      "U3:GND",
+      "GND"
+    ],
+    [
+      "U3:SCK",
+      "I2S_BCLK"
+    ],
+    [
+      "U3:WS",
+      "I2S_WS"
+    ],
+    [
+      "U3:SD",
+      "I2S_DIN"
+    ],
+    [
+      "U3:L/R",
+      "+3V3"
+    ],
+    [
+      "U1:GPIO4",
+      "I2S_BCLK"
+    ],
+    [
+      "U1:GPIO5",
+      "I2S_WS"
+    ],
+    [
+      "U1:GPIO6",
+      "I2S_DIN"
+    ],
+    [
+      "U1:GPIO7",
+      "I2S_DOUT"
+    ],
+    [
+      "+3V3",
+      "U4:VDD"
+    ],
+    [
+      "U4:GND",
+      "GND"
+    ],
+    [
+      "I2S_BCLK",
+      "U4:BCLK"
+    ],
+    [
+      "I2S_WS",
+      "U4:LRCLK"
+    ],
+    [
+      "I2S_DOUT",
+      "U4:DIN"
+    ],
+    [
+      "U1:GPIO8",
+      "U4:SD_MODE"
+    ],
+    [
+      "+3V3",
+      "U4:GAIN"
+    ],
+    [
+      "U4:OUTP",
+      "SPK1:+"
+    ],
+    [
+      "U4:OUTN",
+      "SPK1:-"
+    ],
+    [
+      "+3V3",
+      "C7:1"
+    ],
+    [
+      "C7:2",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "C8:1"
+    ],
+    [
+      "C8:2",
+      "GND"
+    ],
+    [
+      "+3V3",
+      "LED1:VDD"
+    ],
+    [
+      "LED1:GND",
+      "GND"
+    ],
+    [
+      "U1:GPIO16",
+      "LED1:DIN"
+    ],
+    [
+      "+3V3",
+      "R5:1"
+    ],
+    [
+      "R5:2",
+      "BUTTON"
+    ],
+    [
+      "BUTTON",
+      "U1:GPIO15"
+    ],
+    [
+      "BUTTON",
+      "SW1:1"
+    ],
+    [
+      "SW1:2",
+      "GND"
+    ]
+  ]
+}

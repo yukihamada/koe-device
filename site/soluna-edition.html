@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Soluna Edition — Festival-Grade Synchronized Audio</title>
+<meta name="description" content="同軸ドライバー、GPS時刻同期、音速補正。フェスティバルの音を物理法則から再設計するデバイス。">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: #050505; color: #e8e8e8;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+
+nav {
+  position:fixed; top:0; width:100%; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.2rem 2rem; background:rgba(5,5,5,0.85);
+  backdrop-filter:blur(20px); border-bottom:1px solid rgba(249,115,22,0.08);
+}
+nav .logo { font-size:1.1rem; font-weight:200; letter-spacing:0.2em; }
+nav .logo span { color:#f97316; }
+nav .nav-links { display:flex; gap:2rem; }
+nav .nav-links a { color:#666; text-decoration:none; font-size:0.85rem; transition:color 0.2s; }
+nav .nav-links a:hover { color:#f97316; }
+.nav-back { color:#555; text-decoration:none; font-size:0.8rem; border:1px solid #333; padding:0.3rem 1rem; border-radius:100px; transition:all 0.2s; }
+.nav-back:hover { color:#fff; border-color:#555; }
+
+.hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:6rem 2rem 4rem;
+  background:radial-gradient(ellipse at 50% 80%, rgba(249,115,22,0.04) 0%, transparent 60%);
+}
+.hero-badge {
+  display:inline-block; padding:0.4rem 1.2rem; border-radius:100px;
+  border:1px solid rgba(249,115,22,0.3); color:#f97316;
+  font-size:0.7rem; letter-spacing:0.2em; margin-bottom:2rem;
+  background:rgba(249,115,22,0.05);
+}
+.hero h1 {
+  font-size:clamp(2.5rem, 6vw, 5rem); font-weight:100;
+  letter-spacing:-0.03em; line-height:1.1; margin-bottom:1.5rem;
+}
+.hero h1 em { font-style:normal; color:#f97316; }
+.hero-p { font-size:1.1rem; color:#666; font-weight:300; max-width:600px; line-height:1.8; margin-bottom:3rem; }
+
+.hero-stats { display:flex; gap:2.5rem; margin-bottom:3rem; flex-wrap:wrap; justify-content:center; }
+.stat { text-align:center; }
+.stat-num { font-size:1.5rem; font-weight:200; color:#f97316; }
+.stat-label { font-size:0.6rem; color:#555; letter-spacing:0.1em; margin-top:0.2rem; }
+
+/* Devices */
+.hero-devices { display:flex; align-items:center; gap:0; margin-bottom:3rem; flex-wrap:wrap; justify-content:center; }
+.hero-device-wrap { text-align:center; }
+.hero-device-label { font-size:0.7rem; color:#555; letter-spacing:0.15em; margin-top:1rem; }
+.device-stage {
+  width:120px; height:160px; border-radius:24px;
+  background:linear-gradient(165deg, #1a1a1a, #0a0a0a);
+  box-shadow: 0 0 0 1px rgba(249,115,22,0.1), 0 20px 60px rgba(0,0,0,0.6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  transition:transform 0.4s;
+}
+.device-stage:hover { transform:translateY(-6px); }
+.device-stage .spk-coax {
+  width:64px; height:64px; border-radius:50%; position:relative;
+  background:radial-gradient(circle, #111 30%, #0a0a0a 60%, #080808 100%);
+  border:1px solid #1a1a1a;
+}
+.device-stage .spk-coax::after {
+  content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:20px; height:20px; border-radius:50%;
+  background:radial-gradient(circle, #181818, #0f0f0f);
+  border:1px solid #222;
+}
+.led-bar { display:flex; gap:3px; }
+.led-bar span {
+  width:5px; height:5px; border-radius:50%; background:#f97316;
+  box-shadow:0 0 8px #f97316; animation:opulse 2s ease-in-out infinite;
+}
+.led-bar span:nth-child(2) { animation-delay:0.15s; }
+.led-bar span:nth-child(3) { animation-delay:0.3s; }
+.led-bar span:nth-child(4) { animation-delay:0.45s; }
+.led-bar span:nth-child(5) { animation-delay:0.6s; }
+@keyframes opulse { 0%,100% { opacity:0.3; } 50% { opacity:1; box-shadow:0 0 12px #f97316; } }
+
+.device-crowd {
+  width:60px; height:78px; border-radius:30px;
+  background:linear-gradient(165deg, #222, #111);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.05), 0 12px 30px rgba(0,0,0,0.5);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  transition:transform 0.4s;
+}
+.device-crowd:hover { transform:translateY(-4px); }
+.d-mic { width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 40% 40%, #1a1a1a, #080808); border:1px solid #222; }
+.d-led { width:5px; height:5px; border-radius:50%; background:#f97316; box-shadow:0 0 8px #f97316; animation:opulse 2s ease-in-out infinite; }
+
+.btn-row { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+.btn-primary {
+  padding:0.9rem 2.5rem; border-radius:100px;
+  background:#f97316; color:#000; font-size:0.9rem; font-weight:600;
+  text-decoration:none; transition:all 0.2s;
+}
+.btn-primary:hover { background:#fb923c; transform:translateY(-1px); box-shadow:0 4px 30px rgba(249,115,22,0.3); }
+.btn-ghost {
+  padding:0.9rem 2.5rem; border-radius:100px;
+  background:transparent; color:#888; font-size:0.9rem;
+  text-decoration:none; border:1px solid #333; transition:all 0.2s;
+}
+.btn-ghost:hover { color:#fff; border-color:#555; }
+
+section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
+.sec-label { font-size:0.65rem; letter-spacing:0.2em; color:#f97316; text-transform:uppercase; margin-bottom:0.5rem; }
+.sec-title { font-size:clamp(1.8rem, 4vw, 2.8rem); font-weight:100; line-height:1.3; margin-bottom:1rem; }
+.sec-desc { font-size:1rem; color:#555; line-height:1.7; max-width:650px; margin-bottom:3rem; }
+
+/* Problem section */
+.problem-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin:2rem 0; }
+.problem-card { padding:2rem; border-radius:16px; border:1px solid #1a1a1a; }
+.problem-card.bad { background:rgba(239,68,68,0.03); border-color:rgba(239,68,68,0.15); }
+.problem-card.good { background:rgba(74,222,128,0.03); border-color:rgba(74,222,128,0.15); }
+.problem-card h4 { font-size:0.9rem; font-weight:400; margin-bottom:0.8rem; }
+.problem-card.bad h4 { color:#ef4444; }
+.problem-card.good h4 { color:#4ade80; }
+.problem-card p { font-size:0.85rem; color:#666; line-height:1.7; }
+.problem-card .num { font-size:2rem; font-weight:100; margin-bottom:0.5rem; }
+.problem-card.bad .num { color:#ef4444; }
+.problem-card.good .num { color:#4ade80; }
+
+/* Models */
+.models { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+.model-card {
+  background:#0a0a0a; border:1px solid #1a1a1a; border-radius:24px;
+  padding:2.5rem; transition:all 0.3s;
+}
+.model-card:hover { border-color:rgba(249,115,22,0.2); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.mc-badge { display:inline-block; padding:0.25rem 0.8rem; border-radius:100px; font-size:0.65rem; letter-spacing:0.1em; margin-bottom:1.5rem; }
+.mc-badge.stage { background:rgba(249,115,22,0.1); color:#f97316; border:1px solid rgba(249,115,22,0.2); }
+.mc-badge.crowd { background:rgba(96,165,250,0.1); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
+.model-card h3 { font-size:1.4rem; font-weight:300; margin-bottom:0.3rem; }
+.model-card .mc-sub { font-size:0.9rem; color:#555; margin-bottom:1rem; }
+.model-card .mc-why { font-size:0.8rem; color:#444; line-height:1.7; margin-bottom:1.5rem; padding:1rem; background:#080808; border-radius:8px; border-left:2px solid #f97316; }
+.model-card .mc-why strong { color:#888; }
+
+.spec-list { list-style:none; }
+.spec-list li { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid #111; font-size:0.85rem; }
+.spec-list .sl-label { color:#555; }
+.spec-list .sl-value { color:#ccc; font-weight:400; text-align:right; max-width:55%; }
+.spec-list .sl-value.accent { color:#f97316; }
+.spec-list .sl-note { color:#444; font-size:0.75rem; font-style:italic; }
+
+/* Sync */
+.sync-section { text-align:center; }
+.sync-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:1px; background:#151515; border-radius:16px; overflow:hidden;
+  border:1px solid #1a1a1a; margin-top:2rem;
+}
+.sync-item { padding:2rem; background:#0a0a0a; }
+.sync-item .si-icon { font-size:1.5rem; margin-bottom:0.8rem; }
+.sync-item .si-title { font-size:0.95rem; font-weight:500; margin-bottom:0.4rem; }
+.sync-item .si-desc { font-size:0.8rem; color:#555; line-height:1.6; }
+.si-title .orange { color:#f97316; }
+
+/* Diagram */
+.diagram-box {
+  background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px;
+  padding:2.5rem; font-family:'SF Mono','Fira Code',monospace;
+  font-size:0.72rem; line-height:2; overflow-x:auto; margin-top:2rem; color:#666;
+}
+.diagram-box .o { color:#f97316; }
+.diagram-box .g { color:#4ade80; }
+.diagram-box .b { color:#60a5fa; }
+.diagram-box .d { color:#333; }
+.diagram-box .r { color:#ef4444; }
+
+/* Cases */
+.cases-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-top:2rem; }
+.case-card { background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px; padding:2rem; transition:border-color 0.2s; }
+.case-card:hover { border-color:rgba(249,115,22,0.15); }
+.case-card .cc-title { font-size:1.1rem; font-weight:400; margin-bottom:0.5rem; }
+.case-card .cc-desc { font-size:0.85rem; color:#555; line-height:1.6; }
+.case-card .cc-config { font-size:0.75rem; color:#444; margin-top:1rem; line-height:1.8; }
+.case-card .cc-config strong { color:#666; font-weight:400; }
+
+footer { padding:4rem 2rem; text-align:center; border-top:1px solid #111; }
+footer .f-logo { font-size:1.5rem; font-weight:100; margin-bottom:1rem; letter-spacing:0.2em; }
+footer .f-logo span { color:#f97316; }
+footer p { font-size:0.8rem; color:#333; line-height:2; }
+footer a { color:#555; text-decoration:none; }
+footer a:hover { color:#f97316; }
+
+@media (max-width:768px) {
+  nav .nav-links { display:none; }
+  .models, .problem-grid { grid-template-columns:1fr; }
+  .hero-devices { flex-direction:column; gap:2rem; }
+  .hero-stats { gap:1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">声 Koe <span>Soluna Edition</span></div>
+  <div class="nav-links">
+    <a href="#problem">なぜ必要か</a>
+    <a href="#models">モデル</a>
+    <a href="#sync">同期技術</a>
+    <a href="#cases">ユースケース</a>
+  </div>
+  <a href="ja.html" class="nav-back">Koe 通常モデル</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">PHYSICS-FIRST AUDIO DESIGN</div>
+
+  <h1>音速を<em>超える</em><br>同期。</h1>
+  <p class="hero-p">
+    ステージから100m離れると、音は0.3秒遅れて届く。これが野外フェスの「音の壁」。Koe Soluna Editionは、GPSの原子時計で全スピーカーを同期し、各デバイスがリスナーの位置に合わせた遅延補正をかける。物理法則を味方につけた、分散オーディオシステム。
+  </p>
+
+  <div class="hero-devices">
+    <div class="hero-device-wrap">
+      <div class="device-stage">
+        <div style="display:flex;gap:12px"><div class="d-mic" style="width:8px;height:8px;"></div><div class="d-mic" style="width:8px;height:8px;"></div></div>
+        <div class="spk-coax"></div>
+        <div class="led-bar"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="hero-device-label">STAGE</div>
+    </div>
+
+    <div style="width:100px;position:relative;height:40px;margin:0 1rem;">
+      <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.4),transparent);"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:#f97316;box-shadow:0 0 10px #f97316;animation:opulse 1.5s ease-in-out infinite;"></div>
+      <div style="position:absolute;top:calc(50% + 12px);left:50%;transform:translateX(-50%);font-size:0.5rem;color:#f97316;letter-spacing:0.1em;opacity:0.5;white-space:nowrap;">GPS SYNC</div>
+    </div>
+
+    <div class="hero-device-wrap">
+      <div class="device-crowd"><div class="d-mic"></div><div class="d-led"></div></div>
+      <div class="hero-device-label">CROWD</div>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">&lt;100&mu;s</div><div class="stat-label">GPS時刻精度</div></div>
+    <div class="stat"><div class="stat-num">~20ms</div><div class="stat-label">E2E音声同期 (目標)</div></div>
+    <div class="stat"><div class="stat-num">同軸</div><div class="stat-label">点音源ドライバー</div></div>
+    <div class="stat"><div class="stat-num">音速補正</div><div class="stat-label">距離連動ディレイ</div></div>
+  </div>
+
+  <div class="btn-row">
+    <a href="mailto:info@enablerdao.com?subject=Koe%20Soluna%20Edition" class="btn-primary">導入のお問い合わせ</a>
+    <a href="#problem" class="btn-ghost">なぜこれが必要か</a>
+  </div>
+</section>
+
+<!-- THE PROBLEM -->
+<section id="problem">
+  <div class="sec-label">問題</div>
+  <h2 class="sec-title">なぜ野外フェスの音は「遠い席」がダメなのか。</h2>
+  <p class="sec-desc">
+    これは音響機材の問題ではなく、物理法則の問題。音速は343m/s。電波は300,000,000m/s。この87万倍の速度差が、分散スピーカーを実現する鍵になる。
+  </p>
+
+  <div class="problem-grid">
+    <div class="problem-card bad">
+      <div class="num">291ms</div>
+      <h4>100m離れたリスナーへの音の到達時間</h4>
+      <p>ステージのPAスピーカーから100m離れると、音が約0.3秒遅れて届く。さらに反射・残響で明瞭度が激減する。後方の観客は「音の粥」を聞いている。</p>
+    </div>
+    <div class="problem-card good">
+      <div class="num">&lt;1ms</div>
+      <h4>100m離れたCROWDへの電波の到達時間</h4>
+      <p>WiFi/4Gの電波は光速で伝播。100m先のCROWDデバイスにも1ms以下で音声データが届く。音がスピーカーの前30cmを飛ぶ時間より短い。</p>
+    </div>
+    <div class="problem-card bad">
+      <div class="num">10ms</div>
+      <h4>人間が「ずれ」を知覚する閾値</h4>
+      <p>2つの音源が10ms以上ずれると、人間の耳はそれを別の音として知覚する（先行音効果 / ハース効果）。Bluetoothの50-200ms遅延は論外。</p>
+    </div>
+    <div class="problem-card good">
+      <div class="num">音速補正</div>
+      <h4>Koeの答え: 距離に応じた再生ディレイ</h4>
+      <p>各CROWDデバイスがGPS座標を持つ。STAGEからの距離を計算し、「STAGEの直接音がリスナーに届くタイミング」に合わせて再生を遅延させる。CROWDは直接音を補強する増幅器になる。</p>
+    </div>
+  </div>
+</section>
+
+<!-- TWO MODELS -->
+<section id="models">
+  <div class="sec-label">2つのモデル</div>
+  <h2 class="sec-title">ステージの音源と、観客の増幅器。</h2>
+  <p class="sec-desc">STAGEは同軸点音源で完璧な位相特性を持つマスターノード。CROWDは手のひらサイズの分散スピーカーで、100台が協調して音場を作る。</p>
+
+  <div class="models">
+
+    <!-- STAGE -->
+    <div class="model-card">
+      <div class="mc-badge stage">STAGE</div>
+      <h3>Koe Soluna STAGE</h3>
+      <p class="mc-sub">同軸点音源マスターノード</p>
+
+      <div class="mc-why">
+        <strong>なぜ同軸ドライバーか:</strong> 通常の2wayスピーカーはウーファーとツイーターの物理的距離がリスナーへの到達時間差を生む。同軸(コアキシャル)配置は高音と低音が同一の点から放射されるため、全周波数で位相が揃う。分散同期システムでは、音源の位相精度が全体の同期精度の上限を決めるため、これは妥協できない。
+      </div>
+
+      <ul class="spec-list">
+        <li>
+          <span class="sl-label">ドライバー</span>
+          <span class="sl-value accent">130mm 同軸 (ウーファー + 25mm コンプレッション・ツイーター)</span>
+        </li>
+        <li>
+          <span class="sl-label">なぜ130mm</span>
+          <span class="sl-value sl-note">T/Sパラメータ上、6Lの密閉箱でQtc=0.7(バタワース特性)にするには Vas~4L / fs~65Hz のドライバーが必要。130mmクラスがこの条件を満たす</span>
+        </li>
+        <li><span class="sl-label">エンクロージャ</span><span class="sl-value">密閉型 6L (吸音材充填)</span></li>
+        <li>
+          <span class="sl-label">なぜ密閉型</span>
+          <span class="sl-value sl-note">バスレフはポート共振で群遅延が増大し位相が乱れる。同期システムでは位相精度が最優先。密閉型は群遅延が最小</span>
+        </li>
+        <li><span class="sl-label">-3dB低域</span><span class="sl-value accent">65Hz (密閉Qtc=0.7)</span></li>
+        <li>
+          <span class="sl-label">なぜ40Hzではないか</span>
+          <span class="sl-value sl-note">6L筐体で40Hzは物理的に不可能。DSPで40Hz以下をブーストすると歪みが増大しXmaxを超える。65Hzは正直で実用的な数字</span>
+        </li>
+        <li><span class="sl-label">アンプ</span><span class="sl-value">TPA3255 Class-D Bi-amp (175W LF + 50W HF)</span></li>
+        <li>
+          <span class="sl-label">なぜBi-amp</span>
+          <span class="sl-value sl-note">DSPクロスオーバー後にLF/HFを別チャンネルで増幅。パッシブネットワークのロスがゼロ。ドライバーを直接駆動しダンピングファクターが最大化。Pi CM5のCPUパワーでFIRクロスオーバーも可能</span>
+        </li>
+        <li><span class="sl-label">クロスオーバー</span><span class="sl-value accent">DSP (IIR 4次 Linkwitz-Riley @ 2.5kHz)</span></li>
+        <li>
+          <span class="sl-label">なぜDSPクロスオーバー</span>
+          <span class="sl-value sl-note">パッシブクロスオーバーでは位相補正・ディレイ調整・EQが不可能。DSPならドライバーの個体差もキャリブレーション可能</span>
+        </li>
+        <li><span class="sl-label">最大音圧</span><span class="sl-value accent">~108dB SPL @ 1m (計算値)</span></li>
+        <li>
+          <span class="sl-label">計算根拠</span>
+          <span class="sl-value sl-note">130mmドライバー感度 ~84dB/W/m + 175W(22.4dB) = 106.4dB。Bi-ampでHFも加算し実効~108dB。リミッターで歪み防止</span>
+        </li>
+        <li><span class="sl-label">DAC</span><span class="sl-value accent">HiFiBerry DAC+ Pro (PCM5122, 32bit/192kHz, SNR -112dB)</span></li>
+        <li>
+          <span class="sl-label">なぜ192kHzか</span>
+          <span class="sl-value sl-note">Pi CM5のI2Sは192kHz対応。実用上48kHzで十分だが、XLR入力のプロ音源をロスレスで処理するため192kHz対応DACを選択。内部処理は48kHz、必要時に192kHzにアップサンプル</span>
+        </li>
+        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS 1PPS + IEEE 1588 PTP (linuxptp)</span></li>
+        <li><span class="sl-label">GPS 1PPS精度</span><span class="sl-value">&lt;100ns (電子的)</span></li>
+        <li><span class="sl-label">PTP精度</span><span class="sl-value accent">&lt;1μs (Linux kernel ptp4l、ハードウェアタイムスタンプ)</span></li>
+        <li><span class="sl-label">E2E音声同期</span><span class="sl-value accent">~15ms 目標 (PTP + DAC + amp)</span></li>
+        <li>
+          <span class="sl-label">なぜ15ms</span>
+          <span class="sl-value sl-note">Pi CM5のRT_PREEMPTカーネル+PipeWire低遅延パイプラインでDSP処理1ms+DACバッファ0.5ms+ジッターバッファ10ms。ESP32版より5ms改善。デバイス間相対ずれは&lt;2ms目標</span>
+        </li>
+        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi 5GHz 802.11ac 2x2 + 4G Cat-4 (Quectel EC25-J USB)</span></li>
+        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi CM5 (Cortex-A76 x4 2.4GHz, 4GB RAM, 32GB eMMC)</span></li>
+        <li><span class="sl-label">マイク</span><span class="sl-value">2x INMP441 (ステレオ / AEC参照用)</span></li>
+        <li><span class="sl-label">入力</span><span class="sl-value">XLR (バランス) / 3.5mm / USB-C UAC</span></li>
+        <li><span class="sl-label">DSP</span><span class="sl-value">AEC + AGC + PEQ(7バンド) + リミッター + 音速補正ディレイ</span></li>
+        <li><span class="sl-label">電源</span><span class="sl-value">DC 24V / USB-C PD 65W / 内蔵 25.9V 6S Li-ion 5000mAh</span></li>
+        <li><span class="sl-label">バッテリー駆動</span><span class="sl-value">~4時間 @ 中音量 (推定)</span></li>
+        <li><span class="sl-label">筐体</span><span class="sl-value">アルミダイキャスト + ゴムガスケット</span></li>
+        <li><span class="sl-label">防塵防水</span><span class="sl-value">IP55 目標 (屋外フェス対応)</span></li>
+        <li><span class="sl-label">サイズ</span><span class="sl-value">200 x 200 x 280mm</span></li>
+        <li><span class="sl-label">重量</span><span class="sl-value">~4.5kg</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value">TBD</span></li>
+      </ul>
+    </div>
+
+    <!-- CROWD -->
+    <div class="model-card">
+      <div class="mc-badge crowd">CROWD</div>
+      <h3>Koe Soluna CROWD</h3>
+      <p class="mc-sub">手のひらサイズ分散スピーカー</p>
+
+      <div class="mc-why">
+        <strong>なぜ40mmフルレンジか:</strong> 28mmでは低域の物理的限界が120Hz程度。40mmにすると振動板面積が2倍になり、同じXmaxで2倍の空気を動かせる。40cc密閉箱で約100Hzまで再生可能。低音が「聴こえる」と「感じる」の境界線を超える。フルレンジ1発なので位相は完璧に揃う。
+      </div>
+
+      <ul class="spec-list">
+        <li><span class="sl-label">ドライバー</span><span class="sl-value accent">40mm フルレンジ ネオジム</span></li>
+        <li>
+          <span class="sl-label">なぜパッシブラジエーターなし</span>
+          <span class="sl-value sl-note">パッシブラジエーターは共振周波数でQ値が高くなり群遅延が増大する。同期精度を優先して密閉型を採用。DSPでEQブーストして低域を補償</span>
+        </li>
+        <li><span class="sl-label">エンクロージャ</span><span class="sl-value">密閉型 ~45cc (吸音材充填)</span></li>
+        <li><span class="sl-label">-3dB低域</span><span class="sl-value">~100Hz (密閉 + DSP EQブースト)</span></li>
+        <li><span class="sl-label">アンプ</span><span class="sl-value">MAX98357A Class-D 3W</span></li>
+        <li><span class="sl-label">最大音圧</span><span class="sl-value">~82dB SPL @ 1m (計算値)</span></li>
+        <li>
+          <span class="sl-label">計算根拠</span>
+          <span class="sl-value sl-note">40mm感度 ~76dB/W/m + 3W(4.8dB) = ~81dB。100台が同位相で鳴ると+20dBで101dBの壁を形成</span>
+        </li>
+        <li><span class="sl-label">100台同位相合算</span><span class="sl-value accent">~101dB (理論値、6dBマージン含まず)</span></li>
+        <li><span class="sl-label">DAC</span><span class="sl-value">内蔵 (MAX98357A、I2S入力)</span></li>
+        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">u-blox MAX-M10S GPS + NTP補正</span></li>
+        <li><span class="sl-label">E2E同期精度</span><span class="sl-value">~20ms (デバイス間相対ずれ &lt;5ms 目標)</span></li>
+        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi (ESP32-S3) + LTE-M (SIM7080G)</span></li>
+        <li><span class="sl-label">音速補正</span><span class="sl-value accent">GPS座標ベースの自動ディレイ調整</span></li>
+        <li>
+          <span class="sl-label">音速補正の仕組み</span>
+          <span class="sl-value sl-note">STAGEのGPS座標と自分のGPS座標から距離dを計算。気温T(BME280)から音速v=331.3+0.606*Tを算出。d/v秒のディレイをバッファに追加。STAGEの直接音と同時にCROWDが鳴る</span>
+        </li>
+        <li><span class="sl-label">温度補正</span><span class="sl-value accent">BME280 (温度→音速リアルタイム補正)</span></li>
+        <li>
+          <span class="sl-label">なぜ温度補正</span>
+          <span class="sl-value sl-note">音速は20°Cで343m/s、35°Cで352m/s。100m先で最大8msの誤差。知覚閾値(10ms)に迫るため、温度補正は必須</span>
+        </li>
+        <li><span class="sl-label">触覚フィードバック</span><span class="sl-value accent">LRAモーター + DRV2605L (40-100Hz体感)</span></li>
+        <li>
+          <span class="sl-label">なぜ触覚</span>
+          <span class="sl-value sl-note">40mmドライバーの物理限界で100Hz以下は再生困難。低音は「聴く」と「体で感じる」の2つ。LRAモーターで40-100Hzのサブベースを触覚に変換し、フェスの体感を補完</span>
+        </li>
+        <li><span class="sl-label">近接干渉防止</span><span class="sl-value">BLE RSSI測距 → 自動音量調整</span></li>
+        <li><span class="sl-label">MCU</span><span class="sl-value">ESP32-S3-MINI-1 (8MB/2MB)</span></li>
+        <li><span class="sl-label">マイク</span><span class="sl-value">1x INMP441 (双方向通信 / ボイスコマンド)</span></li>
+        <li><span class="sl-label">コーデック</span><span class="sl-value">適応型: WiFi=FLAC(ロスレス) / 4G=Opus 128kbps</span></li>
+        <li><span class="sl-label">バッテリー</span><span class="sl-value">2500mAh (~6時間 推定)</span></li>
+        <li><span class="sl-label">充電</span><span class="sl-value">USB-C (5V/2A)</span></li>
+        <li><span class="sl-label">筐体</span><span class="sl-value">PC/ABS + TPUバンパー</span></li>
+        <li><span class="sl-label">防塵防水</span><span class="sl-value">IP54 目標</span></li>
+        <li><span class="sl-label">サイズ</span><span class="sl-value">60 x 80 x 28mm</span></li>
+        <li><span class="sl-label">重量</span><span class="sl-value">~85g</span></li>
+        <li><span class="sl-label">装着</span><span class="sl-value">カラビナ / ストラップ / 自立</span></li>
+        <li><span class="sl-label">LED</span><span class="sl-value">5x RGB リング (同期アニメーション)</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value">TBD</span></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- SYNC TECHNOLOGY -->
+<section class="sync-section" id="sync">
+  <div class="sec-label">同期技術</div>
+  <h2 class="sec-title" style="text-align:center;">同期の4つのレイヤー。</h2>
+  <p class="sec-desc" style="text-align:center;margin:0 auto 2rem;">
+    「完璧な同期」は1つの技術では実現できない。時刻の同期、音声の同期、音速の補正、そして位相の整合。4つのレイヤーすべてが揃って初めて、分散スピーカーは1つの音源として機能する。
+  </p>
+
+  <div class="sync-grid">
+    <div class="sync-item">
+      <div class="si-icon">Layer 1</div>
+      <div class="si-title"><span class="orange">絶対時刻同期 (GPS 1PPS)</span></div>
+      <div class="si-desc">
+        全デバイスがGPS衛星の原子時計から1PPS(Pulse Per Second)信号を受信。各デバイスのローカルクロックをUTCに同期。精度&lt;100ns。これが全レイヤーの基盤。STAGEはTCXO(0.5ppm)でGPSロスト時も数分間精度を維持。屋内ではNTP + IEEE 1588 PTPでSTAGEからCROWDに時刻配信(精度~1ms)。
+      </div>
+    </div>
+    <div class="sync-item">
+      <div class="si-icon">Layer 2</div>
+      <div class="si-title"><span class="orange">音声ストリーム同期 (タイムスタンプ再生)</span></div>
+      <div class="si-desc">
+        各オーディオパケットにGPSタイムスタンプを付与。受信側はジッターバッファにパケットを溜め、指定タイムスタンプの瞬間に再生を開始。ジッターバッファは15ms(WiFi) / 50ms(4G)で、ネットワーク遅延の揺らぎを吸収しつつレイテンシを最小化。Opusの2.5msフレームサイズが最小単位。
+      </div>
+    </div>
+    <div class="sync-item">
+      <div class="si-icon">Layer 3</div>
+      <div class="si-title"><span class="orange">音速補正 (距離連動ディレイ)</span></div>
+      <div class="si-desc">
+        これが他のどの製品にもない核心技術。各CROWDがGPS座標でSTAGEとの距離dを計算。再生タイミングに d/343秒のディレイを追加。例:STAGEから50m離れたCROWDは146msのディレイを追加し、STAGEの直接音とCROWDの再生音が同じ瞬間にリスナーの耳に届く。CROWDはリスナーの至近距離(30cm-2m)にあるため、明瞭度はSTAGEの直接音より遥かに高い。
+      </div>
+    </div>
+    <div class="sync-item">
+      <div class="si-icon">Layer 4</div>
+      <div class="si-title"><span class="orange">位相整合 (音響設計)</span></div>
+      <div class="si-desc">
+        同期が完璧でも、各スピーカーの位相特性がバラバラだと打ち消し合いが起きる。STAGEの同軸ドライバーとCROWDのフルレンジ1発は、どちらも点音源に近く全帯域で位相が揃う。密閉型エンクロージャは群遅延が最小。DSPクロスオーバーはLinkwitz-Riley(直線位相に最も近い)を採用。バスレフポートの位相回転がないため、低域でも正確な同期が可能。
+      </div>
+    </div>
+  </div>
+
+  <!-- Timing diagram -->
+  <div class="diagram-box">
+    <span class="d">// 音速補正タイミング図 — STAGEから50m離れたリスナー</span><br><br>
+    <span class="o">STAGE</span> が音を出す&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t = 0ms<br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音速(343m/s) ──> 50m先のリスナーに到達: </span><span class="r">t = 146ms</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── WiFi(光速) ──> CROWDにデータ到達:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="b">t = ~20ms</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;</span><br>
+    <span class="b">CROWD</span> (リスナーの手元、距離1m)<br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── データ受信:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t = 20ms</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音速補正ディレイ:&nbsp;+126ms (= 146ms - 20ms)</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 再生開始:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="g">t = 146ms</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音がリスナーに到達: t = 146ms + 3ms (1m/343m/s)</span><br>
+    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;</span><br>
+    <span class="g">結果: STAGEの直接音(146ms) と CROWDの音(149ms) の差 = 3ms</span><br>
+    <span class="g">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 人間の知覚閾値(10ms)以下 → 「同じ音」に聞こえる</span><br>
+    <span class="g">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ CROWDは至近距離なので明瞭度が高く、STAGEの直接音を補強する</span>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="cases">
+  <div class="sec-label">ユースケース</div>
+  <h2 class="sec-title">あらゆるイベントに。</h2>
+
+  <div class="cases-grid">
+    <div class="case-card">
+      <div class="cc-title">野外フェスティバル</div>
+      <div class="cc-desc">メインステージにSTAGE x4。観客がCROWDを持ち込み、各デバイスがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x4 + CROWD xN<br><strong>同期:</strong> GPS(屋外)<br><strong>音速補正:</strong> 各CROWD自動計算</div>
+    </div>
+    <div class="case-card">
+      <div class="cc-title">屋内カンファレンス</div>
+      <div class="cc-desc">メイン会場にSTAGE x2。サテライト会場やロビーにCROWDを配置。XLR入力で既存PA系統と接続。PTP同期で屋内でも精密な同期を実現。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD x50<br><strong>同期:</strong> NTP + PTP(屋内)<br><strong>音速補正:</strong> 手動距離設定 or BLE測距</div>
+    </div>
+    <div class="case-card">
+      <div class="cc-title">サイレントディスコ</div>
+      <div class="cc-desc">DJブースにSTAGE x3(配信のみ、スピーカーミュート)。参加者はCROWDのイヤホン出力で聴く。3チャンネル切替。LEDの色がチャンネルを示す。全員の体験が完全に同期。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x3(各DJ) + CROWD xN<br><strong>特殊:</strong> 3ch切替、LEDチャンネル同期<br><strong>Opus:</strong> 3ストリーム同時配信</div>
+    </div>
+    <div class="case-card">
+      <div class="cc-title">ストリートパフォーマンス</div>
+      <div class="cc-desc">パフォーマーがSTAGE x1をバッテリー駆動で設置。通りすがりの人がCROWDまたはスマホWebアプリで参加。4G経由でリモートリスナーにも配信。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x不定<br><strong>通信:</strong> WiFi + 4G fallback<br><strong>バッテリー:</strong> ~4時間</div>
+    </div>
+    <div class="case-card">
+      <div class="cc-title">美術館・インスタレーション</div>
+      <div class="cc-desc">展示室ごとにCROWDを配置。来場者の位置に応じて異なるチャンネルの音を再生。空間全体がインタラクティブな音響体験になる。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x20<br><strong>特殊:</strong> マルチチャンネル空間音響<br><strong>通信:</strong> WiFi</div>
+    </div>
+    <div class="case-card">
+      <div class="cc-title">スポーツ観戦</div>
+      <div class="cc-desc">実況音声をSTAGEで配信。スタンドの各席でCROWDからクリアな実況を聴ける。多言語チャンネル切替対応。歓声チャンネルとの分離も可能。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD xN<br><strong>特殊:</strong> 多言語ch、実況/環境音分離<br><strong>通信:</strong> WiFi + 5G</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="text-align:center;padding:6rem 2rem;">
+  <div class="sec-label">お問い合わせ</div>
+  <h2 class="sec-title" style="text-align:center;">あなたのイベントに導入する。</h2>
+  <p class="sec-desc" style="text-align:center;margin:0 auto 2rem;">
+    Soluna Editionはイベント規模に合わせた構成をご提案します。すべてオープンソース。自分で作ることもできます。
+  </p>
+  <div class="btn-row">
+    <a href="mailto:info@enablerdao.com?subject=Koe%20Soluna%20Edition" class="btn-primary">導入相談する</a>
+    <a href="dashboard.html" class="btn-ghost">管理ダッシュボード (デモ)</a>
+    <a href="https://solun.art/soluna" target="_blank" class="btn-ghost">Solunaプロジェクト</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" class="btn-ghost">GitHub</a>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">声 <span>Soluna Edition</span></div>
+  <p>
+    <a href="https://github.com/enablerdao">EnablerDAO</a> プロジェクト<br>
+    <a href="ja.html">Koe 通常モデル</a> &middot;
+    <a href="https://solun.art/soluna">Soluna</a> &middot;
+    <a href="https://koe.elio.love">Koeソフトウェア</a> &middot;
+    <a href="https://github.com/yukihamada/koe-device">ソースコード</a>
+  </p>
+  <p style="margin-top:1.5rem;color:#222;">
+    同軸ドライバー &middot; GPS原子時計 &middot; 音速補正 &middot; 密閉型 &middot; Opus &middot; ESP32-S3 &middot; Rust &middot; 東京で開発
+  </p>
+</footer>
+
+</body>
+</html>
