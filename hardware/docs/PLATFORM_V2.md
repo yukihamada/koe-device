@@ -1,30 +1,45 @@
-# Soluna Edition v2 — プラットフォーム再設計
+# Soluna Edition v2 — 確定仕様
 
-## ESP32の限界（なぜ変える必要があるか）
+## アーキテクチャ (確定 2026-03-18)
 
-| 問題 | 影響 | 深刻度 |
-|------|------|--------|
-| 2.4GHz WiFiのみ | 1000人規模のフェスで帯域飽和 | 致命的 |
-| I2S 48kHz上限 | ハイレゾ不可（実用上は問題ないが、スペック競争で負ける） | 低 |
-| RAM 8MB PSRAM | ジッターバッファ+DSP処理で逼迫 | 中 |
-| FPU弱い | 高度なDSP（FIR EQ、AEC）がリアルタイムで回しきれない | 中 |
-| PTPプロトコル | 自前実装が必要。Linuxならカーネルレベルでptp4l対応 | 高 |
-| Web管理画面 | ESP32でHTTPサーバーは貧弱 | 中 |
+- **STAGE:** Raspberry Pi 5 + Intel BE200 (WiFi 7) + HiFiBerry DAC + GPS
+- **CROWD:** ESP32-S3 (WiFi 4) — コスト最適、音声帯域には十分
 
-## 新アーキテクチャ
+### なぜこの組み合わせか
+
+| | STAGE (Pi 5) | CROWD (ESP32-S3) |
+|---|---|---|
+| **WiFi** | WiFi 7 (BE200, 2.4Gbps) | WiFi 4 (2.4GHz, 150Mbps) |
+| **なぜ** | 500台のCROWDを捌く | 音声128kbpsに150Mbpsは十分 |
+| **CPU** | Cortex-A76 x4 2.4GHz | Xtensa LX7 x2 240MHz |
+| **RAM** | 4GB DDR4 | 8MB PSRAM |
+| **価格** | ~$60 (Pi5) + $20 (BE200) | $3.50 |
+| **台数** | 1-4台 / イベント | 100-1000台 |
+
+### 音声に必要な帯域
+
+| データ | 帯域 |
+|--------|------|
+| PCM 48kHz/16bit mono | 768 kbps |
+| Opus 128kbps | 128 kbps |
+| UDP multicast → 何台でも同じ | 128 kbps |
+
+→ WiFi 4 (150Mbps) でも1000倍以上の余裕。WiFi 7はCROWDには不要。
+
+## アーキテクチャ図
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  STAGE (Raspberry Pi Compute Module 5)              │
+│  STAGE (Raspberry Pi 5)                             │
 │                                                     │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
-│  │ CM5      │  │ HiFiBerry│  │ GPS HAT          │  │
-│  │ 2.4GHz   │  │ DAC+ Pro │  │ u-blox NEO-M9N   │  │
-│  │ 5GHz WiFi│  │ PCM5122  │  │ 1PPS → GPIO      │  │
-│  │ GbE      │  │ 192kHz   │  │ TCXO 0.5ppm      │  │
-│  │ BLE 5.0  │  │ -112dB   │  └──────────────────┘  │
+│  │ Pi 5     │  │ HiFiBerry│  │ GPS HAT          │  │
+│  │ WiFi 7   │  │ DAC+ Pro │  │ u-blox NEO-M9N   │  │
+│  │(BE200    │  │ PCM5122  │  │ 1PPS → GPIO      │  │
+│  │ M.2 HAT) │  │ 192kHz   │  │ TCXO 0.5ppm      │  │
+│  │ GbE      │  │ -112dB   │  └──────────────────┘  │
 │  │ 4GB RAM  │  │ SNR      │                         │
-│  │ 32GB eMMC│  └──────────┘  ┌──────────────────┐  │
+│  │ 32GB SD  │  └──────────┘  ┌──────────────────┐  │
 │  └──────────┘                │ Quectel EC25-J    │  │
 │                              │ 4G LTE Cat-4      │  │
 │  OS: Linux (Raspberry Pi OS) │ USB接続            │  │

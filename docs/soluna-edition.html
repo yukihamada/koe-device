@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Koe Soluna Edition — Festival-Grade Synchronized Audio</title>
-<meta name="description" content="同軸ドライバー、GPS原子時計同期、音速補正。Raspberry Pi CM5 + ESP32。物理法則から再設計したフェスティバル用分散オーディオシステム。">
+<meta name="description" content="同軸ドライバー、GPS原子時計同期、音速補正。Raspberry Pi 5 + ESP32。物理法則から再設計したフェスティバル用分散オーディオシステム。">
 <meta name="keywords" content="Koe, Soluna, festival audio, synchronized speakers, GPS sync, coaxial driver, ESP32, Raspberry Pi, distributed audio, EnablerDAO">
 <meta name="author" content="EnablerDAO">
 <meta name="theme-color" content="#050505">
@@ -575,7 +575,7 @@ footer a:hover { color:#f97316; }
         <li><span class="sl-label">アンプ</span><span class="sl-value">TPA3255 Class-D Bi-amp (175W LF + 50W HF)</span></li>
         <li>
           <span class="sl-label">なぜBi-amp</span>
-          <span class="sl-value sl-note">DSPクロスオーバー後にLF/HFを別チャンネルで増幅。パッシブネットワークのロスがゼロ。ドライバーを直接駆動しダンピングファクターが最大化。Pi CM5のCPUパワーでFIRクロスオーバーも可能</span>
+          <span class="sl-value sl-note">DSPクロスオーバー後にLF/HFを別チャンネルで増幅。パッシブネットワークのロスがゼロ。ドライバーを直接駆動しダンピングファクターが最大化。Pi 5のCPUパワーでFIRクロスオーバーも可能</span>
         </li>
         <li><span class="sl-label">クロスオーバー</span><span class="sl-value accent">DSP (IIR 4次 Linkwitz-Riley @ 2.5kHz)</span></li>
         <li>
@@ -590,7 +590,7 @@ footer a:hover { color:#f97316; }
         <li><span class="sl-label">DAC</span><span class="sl-value accent">HiFiBerry DAC+ Pro (PCM5122, 32bit/192kHz, SNR -112dB)</span></li>
         <li>
           <span class="sl-label">なぜ192kHzか</span>
-          <span class="sl-value sl-note">Pi CM5のI2Sは192kHz対応。実用上48kHzで十分だが、XLR入力のプロ音源をロスレスで処理するため192kHz対応DACを選択。内部処理は48kHz、必要時に192kHzにアップサンプル</span>
+          <span class="sl-value sl-note">Pi 5のI2Sは192kHz対応。実用上48kHzで十分だが、XLR入力のプロ音源をロスレスで処理するため192kHz対応DACを選択。内部処理は48kHz、必要時に192kHzにアップサンプル</span>
         </li>
         <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS 1PPS + IEEE 1588 PTP (linuxptp)</span></li>
         <li><span class="sl-label">GPS 1PPS精度</span><span class="sl-value">&lt;100ns (電子的)</span></li>
@@ -598,10 +598,10 @@ footer a:hover { color:#f97316; }
         <li><span class="sl-label">E2E音声同期</span><span class="sl-value accent">~15ms 目標 (PTP + DAC + amp)</span></li>
         <li>
           <span class="sl-label">なぜ15ms</span>
-          <span class="sl-value sl-note">Pi CM5のRT_PREEMPTカーネル+PipeWire低遅延パイプラインでDSP処理1ms+DACバッファ0.5ms+ジッターバッファ10ms。ESP32版より5ms改善。デバイス間相対ずれは&lt;2ms目標</span>
+          <span class="sl-value sl-note">Pi 5のRT_PREEMPTカーネル+PipeWire低遅延パイプラインでDSP処理1ms+DACバッファ0.5ms+ジッターバッファ10ms。ESP32版より5ms改善。デバイス間相対ずれは&lt;2ms目標</span>
         </li>
-        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi 5GHz 802.11ac 2x2 + 4G Cat-4 (Quectel EC25-J USB)</span></li>
-        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi CM5 (Cortex-A76 x4 2.4GHz, 4GB RAM, 32GB eMMC)</span></li>
+        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi 7 (Intel BE200, 2.4Gbps MLO) + 4G Cat-4 (Quectel EC25-J USB)</span></li>
+        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi 5 (Cortex-A76 x4 2.4GHz, 4GB RAM, 32GB SD)</span></li>
         <li><span class="sl-label">マイク</span><span class="sl-value">2x INMP441 (ステレオ / AEC参照用)</span></li>
         <li><span class="sl-label">入力</span><span class="sl-value">XLR (バランス) / 3.5mm / USB-C UAC</span></li>
         <li><span class="sl-label">DSP</span><span class="sl-value">AEC + AGC + PEQ(7バンド) + リミッター + 音速補正ディレイ</span></li>
