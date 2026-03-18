@@ -1089,16 +1089,76 @@ footer a:hover { color:#888; }
   </div>
 </section>
 
-<!-- CONTACT -->
+<!-- FAQ -->
+<section class="fade-in-section" style="padding:6rem 2rem;max-width:800px;margin:0 auto;" id="faq">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="font-size:0.65rem;letter-spacing:0.2em;color:#4ade80;margin-bottom:0.5rem;">FAQ</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;">よくある質問</h2>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:0;">
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">これは何ですか？<span style="color:#555;font-size:1.2rem;transition:transform 0.2s;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Koeは、常に周りの音を聞いていて、あなたが必要なときに情報を引き出せる超小型AIデバイスです。1台ではAIアシスタントとして使え、複数台集まるとデバイス同士が音声で繋がり、フェスティバルの群衆全体を1つの楽器に変えます。</p>
+    </details>
+
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">いつ買えますか？<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">現在プロトタイプを開発中です。ハードウェアはオープンソースなので、回路図とBOMをダウンロードして自分で作ることもできます。完成品の販売時期は未定です。GitHubリポジトリをスターしておくと、進捗をフォローできます。</p>
+    </details>
+
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">常に録音していて大丈夫？プライバシーは？<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Koeはデバイス上で音声活動検出(VAD)を行い、あなたが話したときだけクラウドに送信します。待機中の音声はデバイス上の30秒リングバッファに留まり、外部には送信されません。ファームウェアはオープンソースなので、何が送信されているか誰でも検証できます。</p>
+    </details>
+
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">Solunaモードって何？<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">同じWiFiネットワーク上にある複数のKoeデバイスが、自動でP2P音声メッシュを形成するモードです。1台に話しかけると、全員のデバイスから同期された音が出ます。フェスティバルでは、ステージのSTAGEユニットから観客のCROWDデバイスに音を配信し、GPS原子時計で完璧に同期します。サーバー不要、アプリ不要。</p>
+    </details>
+
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">他のAIウェアラブル(Humane Pin, Rabbit R1等)と何が違う？<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">他のAIウェアラブルは「小さくしたスマホ」です。1台で完結し、人が増えても何も変わりません。Koeは人が集まるほど強くなるデバイスです。100台のKoeが同期して鳴ると、群衆全体がオーケストラになります。デバイス間通信ができるのはKoeだけです。さらにオープンハードウェアなので、誰でも改造・拡張できます。</p>
+    </details>
+
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">自分で作れますか？<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">はい。KiCad回路図、BOM(部品表)、ファームウェア(Rust)、3Dプリント用ケースデータ、全てオープンソースです。ESP32-S3開発ボード + INMP441マイク + MAX98357Aアンプをブレッドボードに挿すだけでプロトタイプが作れます。部品代は約¥5,700です。<a href="https://github.com/yukihamada/koe-device/blob/master/BUY_NOW.md" style="color:#4ade80;text-decoration:none;">→ 部品リスト</a></p>
+    </details>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="fade-in-section" style="padding:4rem 2rem;max-width:800px;margin:0 auto;text-align:center;">
+  <div style="font-size:0.65rem;letter-spacing:0.2em;color:#4ade80;margin-bottom:0.5rem;">TEAM</div>
+  <h2 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:100;margin-bottom:2rem;">作っている人</h2>
+  <div style="display:inline-block;text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#1a1a1a;border:1px solid #222;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#555;">Y</div>
+    <div style="font-size:1.1rem;font-weight:400;">Yuki Hamada</div>
+    <div style="font-size:0.8rem;color:#555;margin-top:0.3rem;">EnablerDAO / Tokyo</div>
+    <div style="font-size:0.8rem;color:#666;margin-top:0.5rem;line-height:1.6;max-width:400px;">
+      Elio (P2P AI), Soluna (フェス音響), chatweb.ai を開発。<br>
+      Koeはこれらを繋ぐデバイス — AIの耳と口。
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;">
+      <a href="https://github.com/yukihamada" target="_blank" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #222;padding:0.3rem 0.8rem;border-radius:100px;">GitHub</a>
+      <a href="https://yukihamada.jp" target="_blank" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #222;padding:0.3rem 0.8rem;border-radius:100px;">Web</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
 <section class="contact-section fade-in-section" id="contact">
-  <h2>開発を追いかける。</h2>
+  <h2>一緒に作りませんか。</h2>
   <p>
-    初号機のプロトタイプを設計中です。GitHubリポジトリをフォローして進捗を追うか、コントリビュートしたい方はご連絡ください。
+    Koeはオープンソースプロジェクトです。ハードウェア設計、ファームウェア、音響、デザイン — あらゆる貢献を歓迎します。
   </p>
 
   <div class="contact-links">
-    <a href="https://github.com/yukihamada/koe-device" class="btn-primary" target="_blank">GitHubでスター</a>
-    <a href="mailto:info@enablerdao.com?subject=Koe%20device%20%E2%80%94%20%E8%88%88%E5%91%B3%E3%81%82%E3%82%8A" class="btn-ghost">連絡する</a>
+    <a href="https://github.com/yukihamada/koe-device" class="btn-primary" target="_blank">GitHubでスターする</a>
+    <a href="mailto:info@enablerdao.com?subject=Koe%20%E2%80%94%20%E8%B2%A2%E7%8C%AE%E3%81%97%E3%81%9F%E3%81%84" class="btn-ghost">コントリビュートする</a>
+    <a href="docs.html" class="btn-ghost">ドキュメントを読む</a>
   </div>
 </section>
 

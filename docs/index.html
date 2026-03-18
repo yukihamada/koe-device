@@ -1211,16 +1211,66 @@ footer a:hover { color:#888; }
   </div>
 </section>
 
-<!-- CONTACT -->
+<!-- FAQ -->
+<section class="fade-in-section" style="padding:6rem 2rem;max-width:800px;margin:0 auto;" id="faq">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="font-size:0.65rem;letter-spacing:0.2em;color:#4ade80;margin-bottom:0.5rem;">FAQ</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;">Frequently asked questions</h2>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0;">
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">What is this?<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Koe is a tiny AI device that always listens to your surroundings and lets you recall information when you need it. One device is an AI assistant. When many devices come together, they form a synchronized audio mesh — turning a festival crowd into an orchestra.</p>
+    </details>
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">When can I buy one?<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">We're building the prototype now. The hardware is open source, so you can download the schematics and BOM to build your own today. A retail product is not yet available. Star the GitHub repo to follow progress.</p>
+    </details>
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">Always recording — what about privacy?<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Koe runs Voice Activity Detection on-device. Only actual speech is sent to the cloud. Idle audio stays in a 30-second local ring buffer and is never transmitted. The firmware is open source — anyone can verify exactly what is sent.</p>
+    </details>
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">How is this different from Humane Pin / Rabbit R1?<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Other AI wearables are shrunken smartphones — one device, one user. Koe gets better when more people use it. 100 Koe devices in sync become a distributed speaker system. No other wearable can do device-to-device audio. And it's open hardware.</p>
+    </details>
+    <details style="border-bottom:1px solid #151515;padding:1.5rem 0;">
+      <summary style="font-size:1rem;font-weight:400;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">Can I build one myself?<span style="color:#555;font-size:1.2rem;">+</span></summary>
+      <p style="color:#888;font-size:0.9rem;line-height:1.8;margin-top:1rem;">Yes. KiCad schematics, BOM, Rust firmware, and 3D-printable case files are all open source. An ESP32-S3 dev board + INMP441 mic + MAX98357A amp on a breadboard gets you a working prototype for ~$40. <a href="https://github.com/yukihamada/koe-device/blob/master/BUY_NOW.md" style="color:#4ade80;text-decoration:none;">See parts list →</a></p>
+    </details>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="fade-in-section" style="padding:4rem 2rem;max-width:800px;margin:0 auto;text-align:center;">
+  <div style="font-size:0.65rem;letter-spacing:0.2em;color:#4ade80;margin-bottom:0.5rem;">TEAM</div>
+  <h2 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:100;margin-bottom:2rem;">Who's building this</h2>
+  <div style="display:inline-block;text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#1a1a1a;border:1px solid #222;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#555;">Y</div>
+    <div style="font-size:1.1rem;font-weight:400;">Yuki Hamada</div>
+    <div style="font-size:0.8rem;color:#555;margin-top:0.3rem;">EnablerDAO / Tokyo</div>
+    <div style="font-size:0.8rem;color:#666;margin-top:0.5rem;line-height:1.6;max-width:400px;">
+      Building Elio (P2P AI), Soluna (festival audio), and chatweb.ai.<br>
+      Koe is the device that connects them — AI's ear and mouth.
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;">
+      <a href="https://github.com/yukihamada" target="_blank" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #222;padding:0.3rem 0.8rem;border-radius:100px;">GitHub</a>
+      <a href="https://yukihamada.jp" target="_blank" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #222;padding:0.3rem 0.8rem;border-radius:100px;">Web</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
 <section class="contact-section fade-in-section" id="contact">
-  <h2>Follow the build.</h2>
+  <h2>Build it with us.</h2>
   <p>
-    We're designing the first prototype. Follow the GitHub repo for updates, or get in touch if you want to contribute.
+    Koe is open source. Hardware design, firmware, acoustics, product design — all contributions welcome.
   </p>
 
   <div class="contact-links">
     <a href="https://github.com/yukihamada/koe-device" class="btn-primary" target="_blank">Star on GitHub</a>
-    <a href="mailto:info@enablerdao.com?subject=Koe%20device%20%E2%80%94%20interested" class="btn-ghost">Get in touch</a>
+    <a href="mailto:info@enablerdao.com?subject=Koe%20%E2%80%94%20contribute" class="btn-ghost">Contribute</a>
+    <a href="docs.html" class="btn-ghost">Read the docs</a>
   </div>
 </section>
 
