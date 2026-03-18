@@ -68,18 +68,138 @@ pub fn init_rmt() {
     }
 }
 
+/// Solunaパターンから色を計算
+fn compute_soluna_pattern(cmd: &soluna::LedCommand, tick: u32) -> [u8; 3] {
+    let intensity = cmd.intensity as u16;
+    // speed → 周期制御: speed=0 → 遅い(period大), speed=255 → 速い(period小)
+    let period = 512u32.saturating_sub(cmd.speed as u32 * 2).max(4);
+
+    match cmd.pattern {
+        soluna::LedPattern::Off => [0, 0, 0],
+
+        soluna::LedPattern::Solid => {
+            // GRB順、intensity適用
+            let g = ((cmd.g as u16 * intensity) / 255) as u8;
+            let r = ((cmd.r as u16 * intensity) / 255) as u8;
+            let b = ((cmd.b as u16 * intensity) / 255) as u8;
+            [g, r, b]
+        }
+
+        soluna::LedPattern::Pulse => {
+            // 三角波パルス
+            let phase = (tick % period) as u16;
+            let half = (period / 2) as u16;
+            let bright = if phase < half {
+                (phase * 255 / half) as u8
+            } else {
+                ((half * 2 - phase) * 255 / half) as u8
+            };
+            let scale = (bright as u16 * intensity) / 255;
+            let g = ((cmd.g as u16 * scale) / 255) as u8;
+            let r = ((cmd.r as u16 * scale) / 255) as u8;
+            let b = ((cmd.b as u16 * scale) / 255) as u8;
+            [g, r, b]
+        }
+
+        soluna::LedPattern::Rainbow => {
+            // HSV hue cycle
+            let hue = ((tick % period) * 360 / period) as u16;
+            let (r, g, b) = hsv_to_rgb(hue, 255, intensity as u8);
+            [g, r, b] // GRB
+        }
+
+        soluna::LedPattern::WaveLR | soluna::LedPattern::WaveRL => {
+            // 5 LED位置をシミュレート: LED 0 のみ表示 (単LED デバイス)
+            // 波が通過する瞬間だけ点灯
+            let wave_pos = (tick % period) * 5 / period; // 0-4
+            let target = if cmd.pattern == soluna::LedPattern::WaveLR { 0 } else { 4 };
+            let dist = if wave_pos as i32 - target as i32 >= 0 {
+                (wave_pos as i32 - target as i32) as u32
+            } else {
+                (target as i32 - wave_pos as i32) as u32
+            };
+            let bright = if dist == 0 { intensity as u8 } else if dist == 1 { (intensity / 3) as u8 } else { 0 };
+            let g = ((cmd.g as u16 * bright as u16) / 255) as u8;
+            let r = ((cmd.r as u16 * bright as u16) / 255) as u8;
+            let b = ((cmd.b as u16 * bright as u16) / 255) as u8;
+            [g, r, b]
+        }
+
+        soluna::LedPattern::Strobe => {
+            // 高速点滅 — speedで周期変更
+            let strobe_period = (256u32.saturating_sub(cmd.speed as u32)).max(2);
+            let on = (tick / (strobe_period / 2)) % 2 == 0;
+            if on {
+                let g = ((cmd.g as u16 * intensity) / 255) as u8;
+                let r = ((cmd.r as u16 * intensity) / 255) as u8;
+                let b = ((cmd.b as u16 * intensity) / 255) as u8;
+                [g, r, b]
+            } else {
+                [0, 0, 0]
+            }
+        }
+
+        soluna::LedPattern::Breathe => {
+            // サイン波近似 (テーブルレス): 二次関数で近似
+            let phase = (tick % period) as i32;
+            let half = (period / 2) as i32;
+            // 0→1→0 をパラボラで: y = 1 - ((x - half) / half)^2
+            let x = phase - half;
+            let bright = (255i32 - (x * x * 255 / (half * half))).max(0) as u16;
+            let scale = (bright * intensity) / 255;
+            let g = ((cmd.g as u16 * scale) / 255) as u8;
+            let r = ((cmd.r as u16 * scale) / 255) as u8;
+            let b = ((cmd.b as u16 * scale) / 255) as u8;
+            [g, r, b]
+        }
+    }
+}
+
+/// HSV → RGB (h: 0-359, s/v: 0-255)
+fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
+    if s == 0 { return (v, v, v); }
+    let region = h / 60;
+    let remainder = ((h % 60) * 255 / 60) as u16;
+    let p = (v as u16 * (255 - s as u16) / 255) as u8;
+    let q = (v as u16 * (255 - (s as u16 * remainder / 255)) / 255) as u8;
+    let t = (v as u16 * (255 - (s as u16 * (255 - remainder) / 255)) / 255) as u8;
+    match region {
+        0 => (v, t, p),
+        1 => (q, v, p),
+        2 => (p, v, t),
+        3 => (p, q, v),
+        4 => (t, p, v),
+        _ => (v, p, q),
+    }
+}
+
 pub fn run_led_task() {
     init_rmt();
 
     let mut brightness: u8 = 0;
     let mut rising = true;
     let mut blink_on = true;
+    let mut tick: u32 = 0;
 
     loop {
         let state = get_state();
         let mode = get_mode();
         let peers = soluna::peer_count();
 
+        // Soluna LEDコマンドが有効ならパターン実行
+        if mode == DeviceMode::Soluna {
+            if let Some(cmd) = soluna::get_led_command() {
+                if cmd.pattern != soluna::LedPattern::Off {
+                    let color = compute_soluna_pattern(&cmd, tick);
+                    unsafe { ws2812_write(color); }
+                    tick = tick.wrapping_add(1);
+                    thread::sleep(Duration::from_millis(20));
+                    continue;
+                }
+            }
+        }
+
+        // フォールバック: 既存のデバイス状態LED
         // パルスエフェクト
         if rising {
             brightness = brightness.saturating_add(8);
@@ -119,6 +239,7 @@ pub fn run_led_task() {
         };
 
         unsafe { ws2812_write(color); }
+        tick = tick.wrapping_add(1);
 
         thread::sleep(Duration::from_millis(50));
     }

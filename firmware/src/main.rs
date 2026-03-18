@@ -21,6 +21,9 @@ mod battery;
 const SAMPLE_RATE: u32 = 16_000;
 const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * 5;
 const MCAST_DEST: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(239, 42, 42, 1), 4242);
+// LED制御送信先 (STAGE側で使用)
+#[allow(dead_code)]
+const MCAST_LED: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(239, 42, 42, 1), soluna::LED_MULTICAST_PORT);
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[repr(u8)]
@@ -186,8 +189,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     { let mut n = SOLUNA_NODE.lock().unwrap(); *n = Some(soluna::SolunaNode::new(&default_channel, device_hash)); }
     let _ = soluna::register_mdns(&device_id);
 
-    // Soluna RX + Heartbeat
+    // Soluna RX + Heartbeat + LED RX
     thread::Builder::new().stack_size(4096).spawn(|| soluna_rx_loop())?;
+    thread::Builder::new().stack_size(3072).spawn(|| soluna_led_rx_loop())?;
     let tx_socket = UdpSocket::bind("0.0.0.0:0")?;
     let hb_socket = UdpSocket::bind("0.0.0.0:0")?;
     thread::Builder::new().stack_size(2048).spawn(move || {
@@ -372,6 +376,49 @@ fn soluna_rx_loop() {
                 }
             }
             Err(_) => {}
+        }
+    }
+}
+
+fn soluna_led_rx_loop() {
+    let socket = match UdpSocket::bind(format!("0.0.0.0:{}", soluna::LED_MULTICAST_PORT)) {
+        Ok(s) => s,
+        Err(e) => { error!("LED RX: {:?}", e); return; }
+    };
+    let _ = socket.join_multicast_v4(&Ipv4Addr::new(239, 42, 42, 1), &Ipv4Addr::UNSPECIFIED);
+    let _ = socket.set_read_timeout(Some(Duration::from_millis(200)));
+    let mut buf = [0u8; soluna::LED_PACKET_SIZE];
+
+    loop {
+        if !soluna::is_active() {
+            // Solunaオフ → LEDコマンドクリア
+            soluna::clear_led_command();
+            thread::sleep(Duration::from_millis(500));
+            continue;
+        }
+
+        match socket.recv_from(&mut buf) {
+            Ok((n, _)) => {
+                if let Some(cmd) = soluna::parse_led_packet(&buf[..n]) {
+                    // タイムスタンプ同期: 未来のコマンドなら実行時刻まで待つ
+                    // timestamp=0 は即時実行
+                    if cmd.timestamp > 0 {
+                        let ntp_now = soluna::ntp_now_ms_pub();
+                        let diff = cmd.timestamp.wrapping_sub(ntp_now);
+                        // 未来のイベント (< 5秒先) なら待つ
+                        if diff > 0 && diff < 5000 {
+                            thread::sleep(Duration::from_millis(diff as u64));
+                        }
+                    }
+
+                    if let Ok(mut g) = soluna::LED_COMMAND.lock() {
+                        *g = Some(cmd);
+                    }
+                    info!("LED cmd: pattern={:?} rgb=({},{},{}) spd={} int={}",
+                        cmd.pattern, cmd.r, cmd.g, cmd.b, cmd.speed, cmd.intensity);
+                }
+            }
+            Err(_) => {} // タイムアウト — 正常
         }
     }
 }

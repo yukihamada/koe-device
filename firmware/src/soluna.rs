@@ -7,6 +7,7 @@
 
 use log::*;
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU32, Ordering};
+use std::sync::Mutex;
 use std::net::SocketAddrV4;
 
 // --- プロトコル定数 ---
@@ -35,6 +36,98 @@ static DEST_ADDR: SocketAddrV4 = SocketAddrV4::new(
     std::net::Ipv4Addr::new(239, 42, 42, 1),
     MULTICAST_PORT,
 );
+
+// --- LED制御定数 ---
+pub const LED_MULTICAST_PORT: u16 = 4243;
+const LED_MAGIC: [u8; 2] = [0x4C, 0x45]; // "LE"
+pub const LED_PACKET_SIZE: usize = 12;
+
+// LED パターン
+#[repr(u8)]
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum LedPattern {
+    Off = 0,
+    Solid = 1,
+    Pulse = 2,
+    Rainbow = 3,
+    WaveLR = 4,
+    WaveRL = 5,
+    Strobe = 6,
+    Breathe = 7,
+}
+
+impl LedPattern {
+    fn from_u8(v: u8) -> Self {
+        match v {
+            1 => Self::Solid,
+            2 => Self::Pulse,
+            3 => Self::Rainbow,
+            4 => Self::WaveLR,
+            5 => Self::WaveRL,
+            6 => Self::Strobe,
+            7 => Self::Breathe,
+            _ => Self::Off,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct LedCommand {
+    pub timestamp: u32,  // NTP ms — いつ実行するか
+    pub pattern: LedPattern,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub speed: u8,       // 0=slow, 255=fast
+    pub intensity: u8,   // brightness 0-255
+}
+
+/// LED制御コマンド (led.rs が読み取る)
+pub static LED_COMMAND: Mutex<Option<LedCommand>> = Mutex::new(None);
+
+/// LEDパケットをパース (12バイト)
+pub fn parse_led_packet(data: &[u8]) -> Option<LedCommand> {
+    if data.len() < LED_PACKET_SIZE { return None; }
+    if data[0] != LED_MAGIC[0] || data[1] != LED_MAGIC[1] { return None; }
+    Some(LedCommand {
+        timestamp: u32::from_le_bytes([data[2], data[3], data[4], data[5]]),
+        pattern: LedPattern::from_u8(data[6]),
+        r: data[7],
+        g: data[8],
+        b: data[9],
+        speed: data[10],
+        intensity: data[11],
+    })
+}
+
+/// LEDパケット構築 (STAGE側から送信用)
+pub fn build_led_packet(cmd: &LedCommand, out: &mut [u8; LED_PACKET_SIZE]) {
+    out[0] = LED_MAGIC[0];
+    out[1] = LED_MAGIC[1];
+    out[2..6].copy_from_slice(&cmd.timestamp.to_le_bytes());
+    out[6] = cmd.pattern as u8;
+    out[7] = cmd.r;
+    out[8] = cmd.g;
+    out[9] = cmd.b;
+    out[10] = cmd.speed;
+    out[11] = cmd.intensity;
+}
+
+/// 現在アクティブなLEDコマンドを取得
+pub fn get_led_command() -> Option<LedCommand> {
+    if let Ok(g) = LED_COMMAND.lock() {
+        *g
+    } else {
+        None
+    }
+}
+
+/// LEDコマンドをクリア
+pub fn clear_led_command() {
+    if let Ok(mut g) = LED_COMMAND.lock() {
+        *g = None;
+    }
+}
 
 // グローバル状態
 static SOLUNA_ACTIVE: AtomicBool = AtomicBool::new(false);
@@ -71,6 +164,12 @@ pub fn set_ntp_offset(offset_ms: u32) {
 fn ntp_now_ms() -> u32 {
     let local_ms = unsafe { (esp_idf_sys::esp_timer_get_time() / 1000) as u32 };
     local_ms.wrapping_add(NTP_OFFSET_MS.load(Ordering::Relaxed))
+}
+
+/// 公開版 ntp_now_ms (main.rs の LED RX ループから使用)
+#[inline]
+pub fn ntp_now_ms_pub() -> u32 {
+    ntp_now_ms()
 }
 
 /// FNV-1a 32bit ハッシュ

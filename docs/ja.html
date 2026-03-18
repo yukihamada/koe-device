@@ -918,6 +918,51 @@ footer a:hover { color:#888; }
 
 </div>
 
+<!-- AV SYNC -->
+<section class="fade-in-section" style="padding:5rem 2rem;max-width:900px;margin:0 auto;">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="font-size:0.65rem;letter-spacing:0.2em;color:#f97316;margin-bottom:0.5rem;">AV SYNC</div>
+    <h2 style="font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:100;">映像も、照明も、同じ時計で。</h2>
+    <p style="color:#555;font-size:0.9rem;margin-top:0.5rem;">GPSで音声を同期しているなら、映像もLEDも同じ精度で同期できる。</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+    <!-- Level 1 -->
+    <div style="padding:2rem;background:#0e0e0e;border:1px solid #1a1a1a;border-radius:16px;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">🎬</div>
+      <h4 style="font-size:1rem;font-weight:400;margin-bottom:0.5rem;">ステージ映像</h4>
+      <p style="font-size:0.8rem;color:#666;line-height:1.6;">Pi 5のHDMI → LED壁。音声と同じGStreamerパイプラインだから映像との<strong style="color:#ccc;">ずれゼロ</strong>。</p>
+      <p style="font-size:0.7rem;color:#444;margin-top:0.5rem;">追加コスト: ケーブル代のみ</p>
+    </div>
+    <!-- Level 2 -->
+    <div style="padding:2rem;background:#0e0e0e;border:1px solid rgba(249,115,22,0.2);border-radius:16px;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">💡</div>
+      <h4 style="font-size:1rem;font-weight:400;margin-bottom:0.5rem;color:#f97316;">群衆LEDショー</h4>
+      <p style="font-size:0.8rem;color:#666;line-height:1.6;">全CROWDのWS2812B LEDがGPS同期で<strong style="color:#ccc;">完璧に同時に光る</strong>。1000人のLEDが波打つ。Coldplayと同じ演出。</p>
+      <p style="font-size:0.7rem;color:#f97316;margin-top:0.5rem;">追加コスト: $0 (LED既搭載)</p>
+    </div>
+    <!-- Level 3 -->
+    <div style="padding:2rem;background:#0e0e0e;border:1px solid #1a1a1a;border-radius:16px;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
+      <h4 style="font-size:1rem;font-weight:400;margin-bottom:0.5rem;">スマホ連携</h4>
+      <p style="font-size:0.8rem;color:#666;line-height:1.6;">WebSocketで制御データを配信。歌詞表示、ビート同期フラッシュ、波形ビジュアライザをブラウザで。</p>
+      <p style="font-size:0.7rem;color:#444;margin-top:0.5rem;">映像は送らない。制御だけ</p>
+    </div>
+  </div>
+
+  <!-- Coldplay comparison -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
+    <div style="padding:1.5rem;background:#0e0e0e;border:1px solid rgba(239,68,68,0.15);border-radius:12px;text-align:center;">
+      <p style="font-size:0.7rem;color:#ef4444;letter-spacing:0.1em;margin-bottom:0.5rem;">COLDPLAY PIXMOB</p>
+      <p style="font-size:0.85rem;color:#888;line-height:1.6;">専用リストバンド $5-10/人<br>音響は別系統<br>専門チームで設営</p>
+    </div>
+    <div style="padding:1.5rem;background:#0e0e0e;border:1px solid rgba(74,222,128,0.2);border-radius:12px;text-align:center;">
+      <p style="font-size:0.7rem;color:#4ade80;letter-spacing:0.1em;margin-bottom:0.5rem;">KOE SOLUNA</p>
+      <p style="font-size:0.85rem;color:#888;line-height:1.6;">LED+音 同一デバイス<strong style="color:#ccc;"> $0追加</strong><br>GPS原子時計同期<br>電源入れるだけ</p>
+    </div>
+  </div>
+</section>
+
 <!-- TECH VISUAL (1枚だけ) -->
 <section class="fade-in-section" style="padding:3rem 2rem 4rem;max-width:700px;margin:0 auto;text-align:center;">
   <img src="images/VIS-speed-of-sound.png" alt="音速 vs 電波速度の可視化" style="width:100%;border-radius:16px;border:1px solid #1a1a1a;box-shadow:0 12px 40px rgba(0,0,0,0.3);">

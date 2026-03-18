@@ -426,6 +426,9 @@ footer a:hover { color:#f97316; }
   .cost-compare .cost-vs { flex-direction:column; gap:1rem; }
   .cost-vs-divider { transform:rotate(90deg); }
 
+  /* AV Sync comparison card mobile */
+  #av-sync .cases-grid + div { grid-template-columns:1fr; }
+
   .td-track-label { font-size:0.6rem; width:70px; }
   .td-track-line { left:80px; }
   .td-time-markers { left:80px; width:calc(100% - 80px); }
@@ -450,6 +453,7 @@ footer a:hover { color:#f97316; }
     <a href="#models">モデル</a>
     <a href="#sync">同期技術</a>
     <a href="#cases">ユースケース</a>
+    <a href="#av-sync">AV Sync</a>
   </div>
   <a href="ja.html" class="nav-back">Koe 通常モデル</a>
 </nav>
@@ -816,6 +820,64 @@ footer a:hover { color:#f97316; }
       <div class="cc-title">スポーツ観戦</div>
       <div class="cc-desc">実況音声をSTAGEで配信。スタンドの各席でCROWDからクリアな実況を聴ける。多言語チャンネル切替対応。歓声チャンネルとの分離も可能。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD xN<br><strong>特殊:</strong> 多言語ch、実況/環境音分離<br><strong>通信:</strong> WiFi + 5G</div>
+    </div>
+  </div>
+</section>
+
+<!-- AV SYNC -->
+<section id="av-sync" class="fade-section">
+  <div class="sec-label">AV Sync</div>
+  <h2 class="sec-title">映像も、照明も、同じ時計で。</h2>
+  <p class="sec-desc">
+    GPSで音声を同期しているなら、映像もLEDも同じ精度で同期できる。追加コストはほぼゼロ。
+  </p>
+
+  <div class="cases-grid">
+    <div class="case-card" style="border-top:2px solid #f97316;">
+      <div class="cc-icon" style="font-size:0.75rem;color:#f97316;letter-spacing:0.1em;font-weight:600;">LEVEL 1</div>
+      <div class="cc-title">ステージ映像</div>
+      <div class="cc-desc">
+        Pi 5のHDMI出力からLED壁/プロジェクターへ直接出力。音声と同じGStreamerパイプラインから映像が出るので、映像と音声のずれ = ゼロ。
+      </div>
+      <div class="cc-config"><strong>追加コスト:</strong> HDMIケーブル代のみ</div>
+    </div>
+
+    <div class="case-card" style="border-top:2px solid #f97316;">
+      <div class="cc-icon" style="font-size:0.75rem;color:#f97316;letter-spacing:0.1em;font-weight:600;">LEVEL 2</div>
+      <div class="cc-title">群衆LEDライトショー</div>
+      <div class="cc-desc">
+        全CROWDデバイスに搭載のWS2812B LEDが、GPSタイムスタンプで完璧に同期して光る。1000人のLEDが波打つ演出が、追加ハードウェアゼロで実現。
+      </div>
+      <div class="cc-config"><strong>ColdplayのPixMobリストバンド:</strong> $5-10/人<br><strong>Koe:</strong> 無料（LED搭載済み）</div>
+    </div>
+
+    <div class="case-card" style="border-top:2px solid #f97316;">
+      <div class="cc-icon" style="font-size:0.75rem;color:#f97316;letter-spacing:0.1em;font-weight:600;">LEVEL 3</div>
+      <div class="cc-title">観客スマホ連携</div>
+      <div class="cc-desc">
+        WebSocketで軽量制御データ（色、エフェクトID、タイムスタンプ）を配信。スマホブラウザが歌詞表示、ビートに合わせた画面フラッシュ、波形ビジュアライザをローカルレンダリング。映像ストリームではないので帯域問題なし。
+      </div>
+      <div class="cc-config"><strong>必要なもの:</strong> 観客自身のスマホのみ</div>
+    </div>
+  </div>
+
+  <!-- Comparison card -->
+  <div style="margin-top:2rem;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+    <div>
+      <div style="font-size:0.7rem;color:#555;letter-spacing:0.15em;margin-bottom:1rem;">COLDPLAY PIXMOB</div>
+      <ul style="list-style:none;font-size:0.85rem;color:#666;line-height:2;">
+        <li style="border-bottom:1px solid #111;padding:0.3rem 0;">専用リストバンド <span style="color:#ef4444;">$5-10/人</span></li>
+        <li style="border-bottom:1px solid #111;padding:0.3rem 0;">音のみ別系統</li>
+        <li style="padding:0.3rem 0;">専門チーム設営</li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size:0.7rem;color:#f97316;letter-spacing:0.15em;margin-bottom:1rem;">KOE SOLUNA</div>
+      <ul style="list-style:none;font-size:0.85rem;color:#ccc;line-height:2;">
+        <li style="border-bottom:1px solid #111;padding:0.3rem 0;">LEDも音も同一デバイス <span style="color:#4ade80;">$0追加</span></li>
+        <li style="border-bottom:1px solid #111;padding:0.3rem 0;">GPS同期</li>
+        <li style="padding:0.3rem 0;">電源入れるだけ</li>
+      </ul>
     </div>
   </div>
 </section>
