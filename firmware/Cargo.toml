@@ -6,13 +6,13 @@ authors = ["EnablerDAO"]
 description = "Koe+Soluna — Voice AI + Distributed Audio Sync"
 
 [dependencies]
-esp-idf-svc = "0.49"
-esp-idf-hal = "0.44"
-esp-idf-sys = { version = "0.35", features = ["binstart"] }
+esp-idf-svc = "0.50"
+esp-idf-hal = "0.45"
+esp-idf-sys = { version = "0.36", features = ["binstart"] }
 log = "0.4"
 
 [build-dependencies]
-embuild = "0.32"
+embuild = "0.33"
 
 [profile.release]
 opt-level = "z"
