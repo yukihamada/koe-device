@@ -130,7 +130,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // バッテリー (LED は WiFi後に起動、RAM節約)
+    // LED + バッテリー
+    thread::Builder::new().stack_size(2048).spawn(|| led::run_led_task())?;
     thread::Builder::new().stack_size(2048).spawn(|| battery::monitor_task())?;
 
     // WiFi — NVS未設定なら初期値を書き込み
@@ -138,9 +139,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         let mut ssid_buf = [0u8; 64];
         if nvs.get_str("wifi_ssid", &mut ssid_buf).ok().flatten().is_none() {
             println!("No WiFi config, writing defaults...");
-            let _ = nvs.set_str("wifi_ssid", "Hama-Fi-IoT");
+            let _ = nvs.set_str("wifi_ssid", "Hama-Fi");
             let _ = nvs.set_str("wifi_pass", "sushiramen");
-            println!("WiFi config saved: Hama-Fi-IoT");
+            println!("WiFi config saved: Hama-Fi");
         }
     }
 
@@ -149,16 +150,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let wifi = match connect_wifi(peripherals.modem, sysloop.clone(), nvs_partition.clone(), &nvs) {
         Ok(w) => w,
         Err(e) => {
-            println!("WiFi failed: {:?}, restarting...", e);
-            std::thread::sleep(Duration::from_secs(3));
+            println!("WiFi failed: {:?}", e);
+            // SSIDをHama-Fi-IoTに変えて再試行
+            println!("Trying Hama-Fi-IoT...");
+            let _ = nvs.set_str("wifi_ssid", "Hama-Fi-IoT");
             unsafe { esp_idf_sys::esp_restart(); }
             unreachable!()
         }
     };
-    println!("WiFi connected!");
+    info!("WiFi OK");
 
-    // WiFi接続後にLED + WDT起動
-    thread::Builder::new().stack_size(2048).spawn(|| led::run_led_task())?;
+    // WiFi接続後にWDTを有効化 (BLEペアリング中は無効)
     init_watchdog();
 
     thread::Builder::new().stack_size(3072).spawn(move || wifi_watchdog(wifi))?;

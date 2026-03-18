@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://yukihamada.github.io/koe-device/</loc>
+    <loc>https://koe.live/</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://yukihamada.github.io/koe-device/ja.html</loc>
+    <loc>https://koe.live/ja.html</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://yukihamada.github.io/koe-device/soluna-edition.html</loc>
+    <loc>https://koe.live/soluna-edition.html</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://yukihamada.github.io/koe-device/dashboard.html</loc>
+    <loc>https://koe.live/dashboard.html</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

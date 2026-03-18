@@ -56,14 +56,16 @@ pub fn init_mic_i2s<'d>(
 
 pub fn init_spk_i2s<'d>(
     i2s: impl Peripheral<P = impl esp_idf_hal::i2s::I2s> + 'd,
+    bclk: impl Peripheral<P = impl esp_idf_hal::gpio::OutputPin + esp_idf_hal::gpio::InputPin> + 'd,
     dout: impl Peripheral<P = impl esp_idf_hal::gpio::OutputPin> + 'd,
+    ws: impl Peripheral<P = impl esp_idf_hal::gpio::OutputPin + esp_idf_hal::gpio::InputPin> + 'd,
 ) -> Result<I2sDriver<'d, I2sTx>, Box<dyn std::error::Error>> {
     let rate = unsafe { SAMPLE_RATE };
     let config = StdConfig::philips(rate, DataBitWidth::Bits16);
     let i2s = I2sDriver::new_std_tx(
         i2s, &config,
-        None::<esp_idf_hal::gpio::AnyIOPin>, dout,
-        None::<esp_idf_hal::gpio::AnyIOPin>, None::<esp_idf_hal::gpio::AnyIOPin>,
+        bclk, dout,
+        Option::<esp_idf_hal::gpio::AnyIOPin>::None, ws,
     )?;
     Ok(i2s)
 }
@@ -224,8 +226,8 @@ pub fn generate_beep(freq_hz: u32, duration_ms: u32, out: &mut [u8]) -> usize {
 }
 
 pub fn play_audio<'d>(
-    i2s: &I2sDriver<'d, I2sTx>,
-    sd_pin: &PinDriver<'_, impl OutputPin, Output>,
+    i2s: &mut I2sDriver<'d, I2sTx>,
+    sd_pin: &mut PinDriver<'_, impl OutputPin, Output>,
     audio_data: &[u8],
 ) -> Result<(), Box<dyn std::error::Error>> {
     // AEC: 再生音を記録
@@ -238,7 +240,7 @@ pub fn play_audio<'d>(
         let written = i2s.write(&audio_data[offset..end], 100)?;
         offset += written;
     }
-    std::thread::sleep(Duration::from_millis(50));
+    std::thread::sleep(std::time::Duration::from_millis(50));
     sd_pin.set_low()?;
     Ok(())
 }

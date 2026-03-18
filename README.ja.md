@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/yukihamada/koe-device?style=flat-square)](https://github.com/yukihamada/koe-device)
 [![Status](https://img.shields.io/badge/status-prototype-orange?style=flat-square)]()
 
-**[ウェブサイト](https://yukihamada.github.io/koe-device/ja.html)** · **[English](README.md)** · **[Soluna Edition](https://yukihamada.github.io/koe-device/soluna-edition.html)** · **[ダッシュボードデモ](https://yukihamada.github.io/koe-device/dashboard.html)** · **[ドキュメント](https://yukihamada.github.io/koe-device/docs.html)**
+**[ウェブサイト](https://koe.live/ja.html)** · **[English](README.md)** · **[Soluna Edition](https://koe.live/soluna-edition.html)** · **[ダッシュボードデモ](https://koe.live/dashboard.html)** · **[ドキュメント](https://koe.live/docs.html)**
 
 </div>
 
@@ -168,11 +168,11 @@ koe-device/
 
 ## リンク
 
-- **ウェブサイト:** https://yukihamada.github.io/koe-device/ja.html
+- **ウェブサイト:** https://koe.live/ja.html
 - **Koe ソフトウェア:** https://koe.elio.love
 - **Soluna:** https://solun.art/soluna
 - **EnablerDAO:** https://github.com/enablerdao
-- **ドキュメント:** https://yukihamada.github.io/koe-device/docs.html
+- **ドキュメント:** https://koe.live/docs.html
 
 ## ライセンス
 

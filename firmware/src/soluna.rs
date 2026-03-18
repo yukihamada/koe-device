@@ -544,19 +544,9 @@ pub fn sntp_task() {
 // =====================================================
 
 pub fn register_mdns(device_id: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let mut mdns = esp_idf_svc::mdns::EspMdns::take()?;
-    mdns.set_hostname(device_id)?;
-    mdns.set_instance_name("Soluna Device")?;
-    mdns.add_service(
-        Some("Soluna Device"),
-        "_soluna",
-        "_udp",
-        MULTICAST_PORT,
-        &[],
-    )?;
-    // Keep mdns alive by leaking it (it needs to stay running)
-    core::mem::forget(mdns);
-    info!("mDNS: {}.local", device_id);
+    // mDNS component not available in current ESP-IDF build configuration.
+    // Device discovery relies on UDP multicast instead.
+    info!("mDNS not available, skipping registration for {}", device_id);
     Ok(())
 }
 

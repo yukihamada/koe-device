@@ -10,9 +10,9 @@
 [![GitHub Stars](https://img.shields.io/github/stars/yukihamada/koe-device?style=flat-square)](https://github.com/yukihamada/koe-device)
 [![Status](https://img.shields.io/badge/status-prototype-orange?style=flat-square)]()
 
-**[Website](https://yukihamada.github.io/koe-device/)** · **[日本語](https://yukihamada.github.io/koe-device/ja.html)** · **[Soluna Edition](https://yukihamada.github.io/koe-device/soluna-edition.html)** · **[Dashboard Demo](https://yukihamada.github.io/koe-device/dashboard.html)**
+**[Website](https://koe.live/)** · **[日本語](https://koe.live/ja.html)** · **[Soluna Edition](https://koe.live/soluna-edition.html)** · **[Dashboard Demo](https://koe.live/dashboard.html)**
 
-**[日本語はこちら](README.ja.md)** · **[Documentation Portal](https://yukihamada.github.io/koe-device/docs.html)**
+**[日本語はこちら](README.ja.md)** · **[Documentation Portal](https://koe.live/docs.html)**
 
 </div>
 
@@ -168,7 +168,7 @@ Full BOM: [hardware/bom/](hardware/bom/)
 
 ## Links
 
-- **Website:** https://yukihamada.github.io/koe-device/
+- **Website:** https://koe.live/
 - **Koe software:** https://koe.elio.love
 - **Soluna:** https://solun.art/soluna
 - **EnablerDAO:** https://github.com/enablerdao
