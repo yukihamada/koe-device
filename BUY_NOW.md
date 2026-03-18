@@ -1,81 +1,158 @@
-# 今すぐ買うもの — プロトタイプ部品リスト
+# 今すぐ買うもの
 
-## Step 1: Amazon.co.jp で今日注文 (翌日届く)
+## Phase 1: ブレッドボードで動作確認 (今日注文 → 明日届く)
 
-### 必須 (同期デモに最低限必要)
+### Amazon.co.jp
 
 | # | 品名 | 数量 | URL | 価格 |
 |---|------|------|-----|------|
-| 1 | ESP32-S3-DevKitC-1 (N8R2 or N16R8) | **2台** | [Espressif N8R2 ¥4,600](https://www.amazon.co.jp/Espressif-ESP32-S3-DevKitC-1-N8R2-%E9%96%8B%E7%99%BA%E3%83%9C%E3%83%BC%E3%83%89/dp/B09D3S7T3M) or [AITRIP 3個入 ¥3,000](https://www.amazon.co.jp/AITRI3PCS-ESP32-S3-DevKitC-1-N8R2-ESP32-S3-MCU%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB-%E5%AE%8C%E5%85%A8%E3%81%AAWi-Fi%E3%81%A8BLE%E6%A9%9F%E8%83%BD%E3%82%92%E7%B5%B1%E5%90%88%E3%80%82/dp/B0BX31WGQG) | ¥3,000-4,600 |
-| 2 | INMP441 I2Sマイクモジュール | **2個** | [ACEIRMC 2個入](https://www.amazon.co.jp/-/en/ACEIRMC-Omnidirectional-Microphone-Interface-Compatible/dp/B09222JFBX) | ~¥1,000 |
-| 3 | MAX98357A I2Sアンプモジュール | **2個** | [DAOKAI 2個入](https://www.amazon.co.jp/DAOKAI-MAX98357-%E3%83%96%E3%83%AC%E3%83%BC%E3%82%AF%E3%82%A2%E3%82%A6%E3%83%88-%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%82%A4%E3%82%B9-Arduino/dp/B0B2NSMV55) | ~¥1,200 |
-| 4 | 小型スピーカー 8Ω 0.5-1W | **2個** | Amazon「小型スピーカー 8Ω」で検索 | ~¥500 |
-| 5 | ブレッドボード + ジャンパワイヤ | **1セット** | 手持ちがあれば不要 | ~¥500 |
-| 6 | USB-Cケーブル | **2本** | 手持ちがあれば不要 | ~¥0 |
+| 1 | ESP32-S3-DevKitC-1 x3個入 | 1セット | [AITRIP 3個入](https://www.amazon.co.jp/AITRI3PCS-ESP32-S3-DevKitC-1-N8R2-ESP32-S3-MCU%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB-%E5%AE%8C%E5%85%A8%E3%81%AAWi-Fi%E3%81%A8BLE%E6%A9%9F%E8%83%BD%E3%82%92%E7%B5%B1%E5%90%88%E3%80%82/dp/B0BX31WGQG) | ~¥3,000 |
+| 2 | INMP441 I2Sマイクモジュール x2個入 | 1セット | [ACEIRMC 2個入](https://www.amazon.co.jp/-/en/ACEIRMC-Omnidirectional-Microphone-Interface-Compatible/dp/B09222JFBX) | ~¥1,000 |
+| 3 | MAX98357A I2Sアンプモジュール x2個入 | 1セット | [DAOKAI 2個入](https://www.amazon.co.jp/DAOKAI-MAX98357-%E3%83%96%E3%83%AC%E3%83%BC%E3%82%AF%E3%82%A2%E3%82%A6%E3%83%88-%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%82%A4%E3%82%B9-Arduino/dp/B0B2NSMV55) | ~¥1,200 |
+| 4 | 小型スピーカー 8Ω 20-23mm x2 | 2個 | Amazon「小型スピーカー 8Ω 20mm」検索 | ~¥500 |
+| 5 | ブレッドボード + ジャンパワイヤ | 1セット | (手持ちあれば不要) | ~¥500 |
 
-### 合計: **約¥5,200-6,800**
+**合計: ~¥6,200** (ESP32 x3、マイク x2、アンプ x2、スピーカー x2)
 
-> **推奨:** AITRIP 3個入(¥3,000)を買えばESP32が3台手に入る。1台予備。
+→ これで同期デモ(2台)が作れる。1台予備。
 
-## Step 2: 届いたらやること
-
-### Day 1: 配線 (30分)
+### 配線 (2台分)
 
 ```
-ボードA (送信側):                    ボードB (受信側):
+ボードA (送信):                     ボードB (受信):
 ESP32-S3     INMP441                ESP32-S3     MAX98357A    Speaker
- 3V3 ────── VDD                      3V3 ────── VIN
- GND ────── GND                      GND ────── GND
- GPIO4 ──── SCK                      GPIO14 ──── BCLK
- GPIO5 ──── WS                       GPIO21 ──── LRC
- GPIO6 ──── SD                       GPIO7 ───── DIN
-            L/R → GND                GPIO8 ───── SD (enable)
-                                                OUT+ ──── Speaker+
-                                                OUT- ──── Speaker-
+ 3V3 ─────── VDD                     3V3 ─────── VIN
+ GND ─────── GND                     GND ─────── GND
+ GPIO4 ───── SCK                     GPIO14 ──── BCLK
+ GPIO5 ───── WS                      GPIO21 ──── LRC
+ GPIO6 ───── SD                      GPIO7 ────── DIN
+             L/R → GND               GPIO8 ────── SD
+                                                 OUT+ ───── Speaker+
+                                                 OUT- ───── Speaker-
 ```
 
-### Day 1: フラッシュ (10分)
+### フラッシュ
 
 ```bash
-# ESP Rust ツールチェーンインストール (初回のみ)
 cargo install espup && espup install
 cargo install espflash ldproxy
 
-# ボードA (送信): GPIO15ボタンを押しながら起動
-cd /Users/yuki/workspace/koe-device/firmware/demo
-WIFI_SSID="あなたのWiFi" WIFI_PASS="パスワード" cargo espflash flash --monitor
-
-# ボードB (受信): ボタン押さずに起動
+cd firmware/demo
 WIFI_SSID="あなたのWiFi" WIFI_PASS="パスワード" cargo espflash flash --monitor
 ```
 
-### Day 1: テスト (5分)
+---
 
-1. ボードBの電源を入れる → LED: オレンジ (待機)
-2. ボードAの電源を入れる (GPIO15押しながら) → LED: 緑 (録音)
-3. ボードAのマイクに向かって話す
-4. ボードBのスピーカーから声が聞こえる → **成功!**
+## Phase 2: Coin プロトタイプ (Phase 1 が動いたら)
 
-### Day 1: デモ動画撮影 (15分)
+### JLCPCB 発注
 
-1. スマホで縦動画を撮る
-2. 2台のボードとスピーカーを映す
-3. 片方に話しかける → もう片方から聞こえる
-4. 「これが同期再生のデモです」と説明
-5. サイトに貼る / SNSに投稿
+| 項目 | 数量 | コスト |
+|------|------|--------|
+| カスタム丸基板 26mm + SMT実装 | 5枚 | ~$50 |
+| 手動部品 (バッテリー200mAh + スピーカー20mm) | 5セット | ~$15 |
+| 3Dプリントケース | 5個 | ~$25 |
+| **合計** | | **~$90 (~¥14,000)** |
 
-## Step 3: カスタムPCB発注 (翌週)
+→ `manufacturing/` フォルダの手順で発注
 
-プロトタイプが動いたら:
-→ `manufacturing/` フォルダの手順に従ってJLCPCBに発注
-→ 5枚+組立で約$100 (¥15,000)
-→ 2週間で届く
+### Coin BOM ($22/台)
+
+| 部品 | コスト |
+|------|--------|
+| ESP32-S3-MINI-1 | $3.50 |
+| INMP441 マイク | $1.20 |
+| MAX98357A アンプ | $1.80 |
+| スピーカー 20mm | $1.00 |
+| WS2812B LED | $0.08 |
+| MCP73831 充電IC | $0.45 |
+| AP2112K LDO | $0.15 |
+| LiPo 200mAh | $2.00 |
+| USB-C | $0.25 |
+| ボタン + BME280 | $1.02 |
+| パッシブ部品 | $1.00 |
+| PCB + 組立 | $8.00 |
+| ケース | $2.00 |
+| **合計** | **~$22** |
+
+GPS不要 — STAGEのNTPで時刻同期。
+
+---
+
+## Phase 3: Lantern STAGE (Coinが動いたら)
+
+### Amazon.co.jp / Pi Shop
+
+| # | 品名 | 価格 |
+|---|------|------|
+| 1 | Raspberry Pi 5 (4GB) | ~¥10,000 |
+| 2 | Intel BE200 WiFi 7 M.2カード | ~¥3,000 |
+| 3 | Pi 5 PCIe M.2 HAT | ~¥1,500 |
+| 4 | HiFiBerry DAC+ Pro | ~¥5,000 |
+| 5 | u-blox NEO-M9N GPS モジュール | ~¥3,000 |
+| 6 | TPA3255 アンプモジュール | ~¥2,000 |
+| 7 | 130mm 同軸ドライバー | ~¥3,500 |
+| 8 | 電源 24V + ケース | ~¥3,000 |
+| **合計** | | **~¥31,000** |
+
+### セットアップ
+
+```bash
+# Pi 5 に Raspberry Pi OS Lite をインストール後:
+cd stage/
+chmod +x setup.sh
+./setup.sh
+sudo reboot
+python3 soluna-server.py
+```
+
+---
+
+## Phase 4: ギター配信テスト (手持ちの機材で)
+
+Babyface Pro (手持ち) + Raspberry Pi (Phase 3で購入済み)
+
+```bash
+pip3 install sounddevice numpy
+python3 tools/guitar-stream.py
+# → Coin デバイスから音が出る (22ms遅延)
+```
+
+---
+
+## 全Phase合計
+
+| Phase | 何が手に入る | コスト |
+|-------|------------|--------|
+| 1 | ブレッドボード同期デモ 2台 + デモ動画 | ¥6,200 |
+| 2 | Coin プロトタイプ 5台 | ¥14,000 |
+| 3 | Lantern STAGE 1台 (GPS原子時計+WiFi 7) | ¥31,000 |
+| 4 | ギター配信 (手持ちBabyface Pro) | ¥0 |
+| **合計** | **Coin x5 + STAGE x1 + ギター配信** | **~¥51,200** |
+
+---
 
 ## 買い物チェックリスト
 
-- [ ] ESP32-S3-DevKitC x2 (or 3個入)
-- [ ] INMP441モジュール x2
-- [ ] MAX98357Aモジュール x2
+### Phase 1 (今日)
+- [ ] ESP32-S3-DevKitC x3個入
+- [ ] INMP441 x2個入
+- [ ] MAX98357A x2個入
 - [ ] 小型スピーカー x2
 - [ ] ブレッドボード (なければ)
-- [ ] ジャンパワイヤ (なければ)
+
+### Phase 2 (1週間後)
+- [ ] JLCPCB 丸基板発注 (manufacturing/ 参照)
+- [ ] AliExpress: LiPo 200mAh x5
+- [ ] AliExpress: 20mmスピーカー x5
+
+### Phase 3 (2週間後)
+- [ ] Raspberry Pi 5
+- [ ] Intel BE200 + M.2 HAT
+- [ ] HiFiBerry DAC+ Pro
+- [ ] GPS モジュール
+- [ ] アンプ + スピーカー + ケース
+
+### Phase 4 (Phase 3と同時)
+- [ ] Babyface Pro CC モード確認
+- [ ] guitar-stream.py テスト
