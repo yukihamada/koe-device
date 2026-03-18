@@ -16,6 +16,30 @@ body {
   overflow-x: hidden;
 }
 
+/* ---- BACKGROUND GRAIN ---- */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ---- SCROLL FADE-IN ---- */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ---- NAV ---- */
 nav {
   position: fixed; top:0; width:100%; z-index:100;
@@ -35,6 +59,54 @@ nav .nav-links a:hover { color:#fff; }
   text-decoration:none; transition:all 0.2s;
 }
 .nav-cta:hover { background:#e0e0e0; transform:scale(1.03); }
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+  z-index: 101;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #888;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(20px);
+  padding: 5rem 2rem 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 99;
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.mobile-nav.open {
+  transform: translateY(0);
+}
+.mobile-nav a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #1a1a1a;
+}
 
 /* ---- HERO ---- */
 .hero {
@@ -100,6 +172,7 @@ nav .nav-links a:hover { color:#fff; }
   font-size:11px; color:#333; font-weight:200; letter-spacing:0.3em;
 }
 
+/* ---- TYPEWRITER ---- */
 .hero h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 100;
@@ -108,6 +181,60 @@ nav .nav-links a:hover { color:#fff; }
   margin-bottom: 1.5rem;
 }
 .hero h1 em { font-style:normal; color:#4ade80; }
+
+.typewriter-line {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  border-right: 2px solid #4ade80;
+}
+
+.tw-line1 {
+  animation: type-line1 1.2s steps(14) 0.5s forwards, blink-caret 0.6s step-end 0.5s 3;
+  width: 0;
+  max-width: 14ch;
+}
+.tw-line2 {
+  animation: type-line2 1s steps(9) 1.9s forwards, blink-caret 0.6s step-end 1.9s 2;
+  width: 0;
+  max-width: 9ch;
+}
+.tw-line3 {
+  animation: type-line3 1.2s steps(11) 3.1s forwards, blink-caret-persist 0.6s step-end 3.1s infinite;
+  width: 0;
+  max-width: 11ch;
+}
+
+@keyframes type-line1 {
+  from { width: 0; }
+  to { width: 14ch; }
+}
+@keyframes type-line2 {
+  from { width: 0; }
+  to { width: 9ch; }
+}
+@keyframes type-line3 {
+  from { width: 0; }
+  to { width: 11ch; }
+}
+@keyframes blink-caret {
+  50% { border-color: transparent; }
+}
+@keyframes blink-caret-persist {
+  50% { border-color: transparent; }
+}
+
+/* Remove caret from lines 1 and 2 after typing */
+.tw-line1 {
+  animation: type-line1 1.2s steps(14) 0.5s forwards, caret-hide 0s 1.7s forwards;
+}
+.tw-line2 {
+  animation: type-line2 1s steps(9) 1.9s forwards, caret-hide 0s 2.9s forwards;
+}
+@keyframes caret-hide {
+  to { border-color: transparent; }
+}
 
 .hero-p {
   font-size: 1.15rem; color:#777; font-weight:300;
@@ -153,22 +280,52 @@ nav .nav-links a:hover { color:#fff; }
   font-size:0.85rem; color:#555; text-align:center; margin-bottom:2rem;
 }
 .status-item {
-  display:flex; align-items:baseline; gap:1rem;
+  display:flex; align-items:center; gap:1rem;
   padding:0.7rem 0;
   border-bottom:1px solid #1a1a1a;
 }
 .status-item:last-child { border-bottom:none; }
 .status-dot {
   width:8px; height:8px; border-radius:50%; flex-shrink:0;
-  position:relative; top:2px;
 }
 .status-dot.done { background:#4ade80; box-shadow:0 0 8px rgba(74,222,128,0.3); }
 .status-dot.wip { background:#facc15; box-shadow:0 0 8px rgba(250,204,21,0.3); }
 .status-dot.available { background:#60a5fa; box-shadow:0 0 8px rgba(96,165,250,0.3); }
 .status-label { font-size:0.85rem; color:#888; min-width:90px; flex-shrink:0; }
-.status-desc { font-size:0.9rem; color:#ccc; }
+.status-desc { font-size:0.9rem; color:#ccc; flex:1; }
 .status-desc a { color:#4ade80; text-decoration:none; }
 .status-desc a:hover { text-decoration:underline; }
+
+/* ---- STATUS PROGRESS BARS ---- */
+.status-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.progress-bar {
+  width: 60px;
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0;
+  transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+}
+.progress-bar-fill.green { background: #4ade80; }
+.progress-bar-fill.yellow { background: #facc15; }
+.progress-bar-fill.blue { background: #60a5fa; }
+.progress-pct {
+  font-size: 0.7rem;
+  color: #555;
+  min-width: 28px;
+  text-align: right;
+}
 
 /* ---- SCENARIO ---- */
 .scenarios {
@@ -354,6 +511,48 @@ nav .nav-links a:hover { color:#fff; }
   background:rgba(249,115,22,0.05);
 }
 
+/* ---- SOLUNA EDITION GLOW BUTTON ---- */
+.btn-soluna-glow {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  border-radius: 100px;
+  background: rgba(249,115,22,0.1);
+  color: #f97316;
+  font-size: 0.85rem;
+  text-decoration: none;
+  border: none;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+}
+.btn-soluna-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #f97316, #fb923c, #f59e0b, #f97316);
+  background-size: 300% 100%;
+  z-index: -1;
+  animation: glow-border 3s linear infinite;
+  opacity: 0.7;
+}
+.btn-soluna-glow::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 100px;
+  background: rgba(10,10,10,0.92);
+  z-index: -1;
+}
+.btn-soluna-glow:hover {
+  color: #fb923c;
+  box-shadow: 0 0 30px rgba(249,115,22,0.2);
+}
+@keyframes glow-border {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
 /* ---- SPECS ---- */
 .specs-section {
   padding:6rem 2rem;
@@ -387,6 +586,7 @@ nav .nav-links a:hover { color:#fff; }
   padding:0.8rem 1rem; text-align:center;
   border-bottom:1px solid #111;
   font-size:0.9rem; color:#666;
+  transition: background 0.2s, color 0.2s;
 }
 .specs-table td:first-child { text-align:left; color:#444; font-size:0.8rem; letter-spacing:0.03em; }
 .specs-table .best { color:#4ade80; }
@@ -394,6 +594,15 @@ nav .nav-links a:hover { color:#fff; }
   font-size:1.1rem; color:#ccc; font-weight:300; letter-spacing:0.1em;
 }
 .specs-table .price-row td { padding-top:1.5rem; font-size:1.3rem; color:#ccc; font-weight:200; border:none; }
+
+/* Specs table hover: highlight best values */
+.specs-table tbody tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+.specs-table tbody tr:hover td.best {
+  background: rgba(74,222,128,0.08);
+  color: #6ee7a0;
+}
 
 /* ---- HOW IT WORKS ---- */
 .how-section {
@@ -423,6 +632,67 @@ nav .nav-links a:hover { color:#fff; }
 }
 .step-title { font-size:1.1rem; font-weight:400; margin-bottom:0.3rem; }
 .step-desc { font-size:0.9rem; color:#555; line-height:1.6; }
+
+/* ---- DASHBOARD SECTION ---- */
+.dashboard-section {
+  padding: 6rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+.dashboard-section h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 100;
+  margin-bottom: 1rem;
+}
+.dashboard-section > p {
+  color: #555;
+  margin-bottom: 3rem;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.dashboard-frame-wrapper {
+  perspective: 1200px;
+  margin-bottom: 2rem;
+}
+.dashboard-frame {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  overflow: hidden;
+  transform: rotateY(-5deg) rotateX(2deg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.dashboard-frame:hover {
+  transform: rotateY(0deg) rotateX(0deg);
+}
+.dashboard-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #111;
+}
+.dashboard-caption {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.dashboard-link {
+  color: #4ade80;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.dashboard-link:hover {
+  color: #6ee7a0;
+  text-decoration: underline;
+}
 
 /* ---- OPEN SOURCE ---- */
 .open-section {
@@ -474,19 +744,52 @@ footer p { font-size:0.8rem; color:#333; line-height:2; }
 footer a { color:#555; text-decoration:none; }
 footer a:hover { color:#888; }
 
+/* Footer pulse */
+.footer-love {
+  animation: footer-pulse 3s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes footer-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; color: #4ade80; }
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width:768px) {
   nav .nav-links { display:none; }
+  .hamburger { display: flex; }
+  .mobile-nav { display: flex; }
   .scenario { grid-template-columns:1fr; gap:2rem; }
   .scenario:nth-child(even) { direction:ltr; }
   .hero-stats { gap:1.5rem; }
   .contact-links { flex-direction:column; align-items:center; }
   .specs-table { font-size:0.8rem; }
   .specs-table th, .specs-table td { padding:0.5rem 0.4rem; }
+  .dashboard-frame { height: 300px; transform: rotateY(-2deg) rotateX(1deg); }
+  .status-progress { display: none; }
+}
+
+@media (max-width:375px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  .tw-line1, .tw-line2, .tw-line3 {
+    white-space: nowrap;
+  }
 }
 </style>
 </head>
 <body>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#status" onclick="closeMobileNav()">Status</a>
+  <a href="#scenarios" onclick="closeMobileNav()">How it works</a>
+  <a href="#specs" onclick="closeMobileNav()">Specs</a>
+  <a href="#open" onclick="closeMobileNav()">Open source</a>
+  <a href="ja.html" onclick="closeMobileNav()">Japanese</a>
+  <a href="https://github.com/yukihamada/koe-device" target="_blank" onclick="closeMobileNav()">GitHub</a>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -498,6 +801,9 @@ footer a:hover { color:#888; }
     <a href="#open">Open source</a>
   </div>
   <a href="ja.html" style="color:#555;text-decoration:none;font-size:0.8rem;border:1px solid #333;padding:0.3rem 0.8rem;border-radius:100px;transition:all 0.2s;">JA</a>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
   <a href="https://github.com/yukihamada/koe-device" class="nav-cta" target="_blank">View on GitHub</a>
 </nav>
 
@@ -512,15 +818,19 @@ footer a:hover { color:#888; }
     </div>
   </div>
 
-  <h1>A pebble that<br><em>remembers</em><br>everything.</h1>
+  <h1>
+    <span class="typewriter-line tw-line1">A pebble that</span>
+    <em><span class="typewriter-line tw-line2">remembers</span></em>
+    <span class="typewriter-line tw-line3">everything.</span>
+  </h1>
   <p class="hero-p">
-    Koe is a tiny device that listens to your day, understands context, and talks back through your earbuds.
-    5 grams. No screen. Just voice.
+    It remembers the conversation you had at breakfast and reminds you before your afternoon meeting.
+    5 grams. No screen. Your memory, backed up.
   </p>
 
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">~5g</div><div class="stat-label">TARGET WEIGHT</div></div>
-    <div class="stat"><div class="stat-num">~9h</div><div class="stat-label">ESTIMATED BATTERY</div></div>
+    <div class="stat"><div class="stat-num" data-count="5" data-prefix="~" data-suffix="g">~0g</div><div class="stat-label">TARGET WEIGHT</div></div>
+    <div class="stat"><div class="stat-num" data-count="9" data-prefix="~" data-suffix="h">~0h</div><div class="stat-label">ESTIMATED BATTERY</div></div>
     <div class="stat"><div class="stat-num">Open</div><div class="stat-label">HARDWARE</div></div>
   </div>
 
@@ -531,7 +841,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- PROJECT STATUS -->
-<section class="status-section" id="status">
+<section class="status-section fade-in-section" id="status">
   <div class="status-card">
     <h2>Project Status</h2>
     <p class="status-subtitle">Koe is an open-source project in active development</p>
@@ -540,21 +850,37 @@ footer a:hover { color:#888; }
       <div class="status-dot done"></div>
       <div class="status-label">Hardware</div>
       <div class="status-desc">Schematic designed, components being ordered</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-bar-fill green" data-width="70"></div></div>
+        <span class="progress-pct">70%</span>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot wip"></div>
       <div class="status-label">Firmware</div>
       <div class="status-desc">In development (ESP32-S3 + Rust)</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-bar-fill yellow" data-width="40"></div></div>
+        <span class="progress-pct">40%</span>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot available"></div>
       <div class="status-label">Software</div>
       <div class="status-desc">Koe voice app available for macOS/Windows &mdash; <a href="https://koe.elio.love">koe.elio.love</a></div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-bar-fill blue" data-width="100"></div></div>
+        <span class="progress-pct">100%</span>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot wip"></div>
       <div class="status-label">Prototype</div>
       <div class="status-desc">We're designing the first prototype</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-bar-fill yellow" data-width="20"></div></div>
+        <span class="progress-pct">20%</span>
+      </div>
     </div>
   </div>
 </section>
@@ -565,7 +891,7 @@ footer a:hover { color:#888; }
   <p class="scenarios-note">Concept renders &mdash; prototype in progress</p>
 
   <!-- 1 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-ear">
         <div class="ear-hair"></div>
@@ -587,7 +913,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 2 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-palm">
         <div class="palm-shape"></div>
@@ -614,7 +940,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 3 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-desk">
         <div class="desk-surface"></div>
@@ -643,7 +969,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 4: Soluna Mode -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-soluna">
         <div class="soluna-mesh">
@@ -683,7 +1009,7 @@ footer a:hover { color:#888; }
         <strong>Switch:</strong> Medium press button to toggle Koe / Soluna mode
       </div>
       <div style="margin-top:1.5rem;">
-        <a href="soluna-edition.html" style="display:inline-block;padding:0.6rem 1.5rem;border-radius:100px;background:rgba(249,115,22,0.1);color:#f97316;font-size:0.85rem;text-decoration:none;border:1px solid rgba(249,115,22,0.25);transition:all 0.2s;">Soluna Edition (Festival-grade audio) &rarr;</a>
+        <a href="soluna-edition.html" class="btn-soluna-glow">Soluna Edition (Festival-grade audio) &rarr;</a>
       </div>
     </div>
   </div>
@@ -691,7 +1017,7 @@ footer a:hover { color:#888; }
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="how-section" id="how">
+<section class="how-section fade-in-section" id="how">
   <h2>How Koe thinks.</h2>
   <p>Five AI agents work together in the cloud. Your device is the ear and the mouth.</p>
 
@@ -727,8 +1053,22 @@ footer a:hover { color:#888; }
   </div>
 </section>
 
+<!-- MANAGEMENT DASHBOARD -->
+<section class="dashboard-section fade-in-section" id="dashboard">
+  <h2>Management Dashboard</h2>
+  <p>Monitor and control every device in real-time. Sync status, battery, volume — all from your browser.</p>
+
+  <div class="dashboard-frame-wrapper">
+    <div class="dashboard-frame">
+      <iframe src="dashboard.html" loading="lazy" title="Koe Management Dashboard"></iframe>
+    </div>
+  </div>
+  <p class="dashboard-caption">Monitor and control every device in real-time. Sync status, battery, volume &mdash; all from your browser.</p>
+  <a href="dashboard.html" class="dashboard-link">Try the dashboard &rarr;</a>
+</section>
+
 <!-- SPECS -->
-<section class="specs-section" id="specs">
+<section class="specs-section fade-in-section" id="specs">
   <div class="specs-header">
     <h2>Every detail.</h2>
     <p>Three models. Same AI brain. Pick the body that fits your life.</p>
@@ -780,7 +1120,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- OPEN SOURCE -->
-<section class="open-section" id="open">
+<section class="open-section fade-in-section" id="open">
   <h2>Open everything.</h2>
   <p>Koe is open-source hardware. Download the schematics, print the case, flash your own firmware. We sell the device for people who don't want to solder.</p>
 
@@ -811,7 +1151,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- CONTACT -->
-<section class="contact-section" id="contact">
+<section class="contact-section fade-in-section" id="contact">
   <h2>Follow the build.</h2>
   <p>
     We're designing the first prototype. Follow the GitHub repo for updates, or get in touch if you want to contribute.
@@ -833,9 +1173,90 @@ footer a:hover { color:#888; }
     <a href="https://github.com/yukihamada/koe-device/tree/main/hardware/docs">Design docs</a>
   </p>
   <p style="margin-top:1.5rem; color:#222;">
-    ESP32-S3 &middot; Rust &middot; KiCad &middot; Open Hardware &middot; Made in Tokyo
+    ESP32-S3 &middot; Rust &middot; KiCad &middot; Open Hardware &middot; <span class="footer-love">Made with love in Tokyo</span>
   </p>
 </footer>
+
+<script>
+// ---- HAMBURGER NAV ----
+const hamburger = document.getElementById('hamburgerBtn');
+const mobileNav = document.getElementById('mobileNav');
+
+hamburger.addEventListener('click', function() {
+  hamburger.classList.toggle('active');
+  mobileNav.classList.toggle('open');
+});
+
+function closeMobileNav() {
+  hamburger.classList.remove('active');
+  mobileNav.classList.remove('open');
+}
+
+// ---- INTERSECTION OBSERVER: FADE IN ----
+const fadeObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in-section').forEach(function(el) {
+  fadeObserver.observe(el);
+});
+
+// ---- ANIMATED STAT COUNTERS ----
+const statCounterObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.getAttribute('data-count'));
+      const prefix = el.getAttribute('data-prefix') || '';
+      const suffix = el.getAttribute('data-suffix') || '';
+      if (isNaN(target)) return;
+
+      let current = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out quad
+        const eased = 1 - (1 - progress) * (1 - progress);
+        current = Math.round(eased * target);
+        el.textContent = prefix + current + suffix;
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+      requestAnimationFrame(animate);
+      statCounterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-num[data-count]').forEach(function(el) {
+  statCounterObserver.observe(el);
+});
+
+// ---- PROGRESS BAR ANIMATION ----
+const progressObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.progress-bar-fill').forEach(function(bar) {
+        const w = bar.getAttribute('data-width');
+        bar.style.width = w + '%';
+      });
+      progressObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.status-card').forEach(function(el) {
+  progressObserver.observe(el);
+});
+</script>
 
 </body>
 </html>

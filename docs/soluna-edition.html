@@ -13,6 +13,13 @@ body {
   -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
 
+/* Subtle radial gradient background */
+body::before {
+  content:''; position:fixed; bottom:0; left:0; width:100%; height:100%;
+  background:radial-gradient(ellipse at 50% 100%, rgba(249,115,22,0.04) 0%, transparent 55%);
+  pointer-events:none; z-index:0;
+}
+
 nav {
   position:fixed; top:0; width:100%; z-index:100;
   display:flex; justify-content:space-between; align-items:center;
@@ -27,11 +34,20 @@ nav .nav-links a:hover { color:#f97316; }
 .nav-back { color:#555; text-decoration:none; font-size:0.8rem; border:1px solid #333; padding:0.3rem 1rem; border-radius:100px; transition:all 0.2s; }
 .nav-back:hover { color:#fff; border-color:#555; }
 
+/* Scroll fade-in */
+.fade-section {
+  opacity:0; transform:translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-section.visible {
+  opacity:1; transform:translateY(0);
+}
+
 .hero {
   min-height:100vh; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   text-align:center; padding:6rem 2rem 4rem;
-  background:radial-gradient(ellipse at 50% 80%, rgba(249,115,22,0.04) 0%, transparent 60%);
+  position:relative; z-index:1;
 }
 .hero-badge {
   display:inline-block; padding:0.4rem 1.2rem; border-radius:100px;
@@ -44,7 +60,23 @@ nav .nav-links a:hover { color:#f97316; }
   letter-spacing:-0.03em; line-height:1.1; margin-bottom:1.5rem;
 }
 .hero h1 em { font-style:normal; color:#f97316; }
-.hero-p { font-size:1.1rem; color:#666; font-weight:300; max-width:600px; line-height:1.8; margin-bottom:3rem; }
+
+/* Typewriter */
+.typewriter-wrap {
+  display:inline-block; position:relative;
+}
+.typewriter-cursor {
+  display:inline-block; width:2px; height:1em;
+  background:#f97316; margin-left:2px;
+  animation: blink-cursor 0.8s steps(1) infinite;
+  vertical-align:text-bottom;
+}
+@keyframes blink-cursor {
+  0%, 100% { opacity:1; }
+  50% { opacity:0; }
+}
+
+.hero-p { font-size:1.05rem; color:#666; font-weight:300; max-width:640px; line-height:1.9; margin-bottom:3rem; }
 
 .hero-stats { display:flex; gap:2.5rem; margin-bottom:3rem; flex-wrap:wrap; justify-content:center; }
 .stat { text-align:center; }
@@ -110,7 +142,7 @@ nav .nav-links a:hover { color:#f97316; }
 }
 .btn-ghost:hover { color:#fff; border-color:#555; }
 
-section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
+section { padding:6rem 2rem; max-width:1000px; margin:0 auto; position:relative; z-index:1; }
 .sec-label { font-size:0.65rem; letter-spacing:0.2em; color:#f97316; text-transform:uppercase; margin-bottom:0.5rem; }
 .sec-title { font-size:clamp(1.8rem, 4vw, 2.8rem); font-weight:100; line-height:1.3; margin-bottom:1rem; }
 .sec-desc { font-size:1rem; color:#555; line-height:1.7; max-width:650px; margin-bottom:3rem; }
@@ -132,9 +164,14 @@ section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
 .models { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
 .model-card {
   background:#0a0a0a; border:1px solid #1a1a1a; border-radius:24px;
-  padding:2.5rem; transition:all 0.3s;
+  padding:2.5rem; transition:all 0.4s ease;
 }
-.model-card:hover { border-color:rgba(249,115,22,0.2); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.model-card:hover { border-color:rgba(249,115,22,0.2); transform:translateY(-4px) scale(1.01); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+
+/* Model card comparison hover */
+.models:hover .model-card { opacity:0.6; }
+.models:hover .model-card:hover { opacity:1; }
+
 .mc-badge { display:inline-block; padding:0.25rem 0.8rem; border-radius:100px; font-size:0.65rem; letter-spacing:0.1em; margin-bottom:1.5rem; }
 .mc-badge.stage { background:rgba(249,115,22,0.1); color:#f97316; border:1px solid rgba(249,115,22,0.2); }
 .mc-badge.crowd { background:rgba(96,165,250,0.1); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
@@ -145,7 +182,7 @@ section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
 
 .spec-list { list-style:none; }
 .spec-list li { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid #111; font-size:0.85rem; }
-.spec-list .sl-label { color:#555; }
+.spec-list .sl-label { color:#555; flex-shrink:0; }
 .spec-list .sl-value { color:#ccc; font-weight:400; text-align:right; max-width:55%; }
 .spec-list .sl-value.accent { color:#f97316; }
 .spec-list .sl-note { color:#444; font-size:0.75rem; font-style:italic; }
@@ -163,39 +200,226 @@ section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
 .sync-item .si-desc { font-size:0.8rem; color:#555; line-height:1.6; }
 .si-title .orange { color:#f97316; }
 
-/* Diagram */
-.diagram-box {
-  background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px;
-  padding:2.5rem; font-family:'SF Mono','Fira Code',monospace;
-  font-size:0.72rem; line-height:2; overflow-x:auto; margin-top:2rem; color:#666;
+/* Dashboard embed */
+.dashboard-embed-wrap {
+  margin-top:3rem; text-align:center;
 }
-.diagram-box .o { color:#f97316; }
-.diagram-box .g { color:#4ade80; }
-.diagram-box .b { color:#60a5fa; }
-.diagram-box .d { color:#333; }
-.diagram-box .r { color:#ef4444; }
+.dashboard-iframe-container {
+  perspective: 1200px;
+  display:inline-block; width:100%; max-width:900px;
+}
+.dashboard-iframe-inner {
+  transform: rotateX(4deg) rotateY(-2deg);
+  border-radius:16px; overflow:hidden;
+  box-shadow: 0 30px 80px rgba(249,115,22,0.08), 0 0 0 1px rgba(249,115,22,0.1);
+  transition: transform 0.5s ease;
+}
+.dashboard-iframe-inner:hover {
+  transform: rotateX(0deg) rotateY(0deg);
+}
+.dashboard-iframe-inner iframe {
+  width:100%; height:500px; border:none; display:block;
+  background:#0a0a0a;
+}
+.dashboard-caption {
+  margin-top:1.5rem; font-size:0.9rem; color:#555; line-height:1.7;
+  max-width:600px; margin-left:auto; margin-right:auto;
+}
+.dashboard-link {
+  display:inline-block; margin-top:1rem;
+  color:#f97316; text-decoration:none; font-size:0.9rem;
+  transition:color 0.2s;
+}
+.dashboard-link:hover { color:#fb923c; }
+
+/* Animated timing diagram */
+.timing-diagram {
+  background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px;
+  padding:2.5rem; margin-top:2rem; overflow:hidden; position:relative;
+}
+.timing-diagram h4 {
+  font-size:0.75rem; color:#555; letter-spacing:0.1em; margin-bottom:2rem;
+  text-transform:uppercase;
+}
+.td-timeline {
+  position:relative; height:200px; margin:0 auto; max-width:700px;
+}
+.td-labels {
+  display:flex; justify-content:space-between; font-size:0.65rem; color:#444;
+  margin-bottom:0.5rem; font-family:'SF Mono','Fira Code',monospace;
+}
+.td-track {
+  position:relative; height:50px; margin-bottom:1.5rem;
+}
+.td-track-label {
+  position:absolute; left:0; top:50%; transform:translateY(-50%);
+  font-size:0.72rem; color:#666; width:90px; font-weight:500;
+}
+.td-track-line {
+  position:absolute; left:100px; right:0; top:50%; height:2px;
+  background:#1a1a1a; transform:translateY(-50%);
+}
+.td-track-line::before {
+  content:''; position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:8px; height:8px; border-radius:50%; background:#333;
+}
+.td-dot {
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  width:10px; height:10px; border-radius:50%;
+  left:100px;
+}
+.td-dot-radio {
+  background:#f97316; box-shadow:0 0 12px rgba(249,115,22,0.6);
+  animation: dot-radio 4s ease-in-out infinite;
+}
+.td-dot-sound {
+  background:#60a5fa; box-shadow:0 0 12px rgba(96,165,250,0.6);
+  animation: dot-sound 4s ease-in-out infinite;
+}
+.td-result {
+  text-align:center; margin-top:1rem;
+  font-size:0.8rem; line-height:1.8;
+}
+.td-result .g { color:#4ade80; }
+.td-arrival-marker {
+  position:absolute; right:0; top:0; bottom:0; width:2px;
+  border-left:2px dashed rgba(74,222,128,0.3);
+}
+.td-arrival-label {
+  position:absolute; right:-10px; top:-18px; font-size:0.6rem; color:#4ade80;
+  white-space:nowrap; transform:translateX(-50%);
+}
+.td-time-markers {
+  display:flex; justify-content:space-between; font-size:0.6rem; color:#333;
+  font-family:'SF Mono','Fira Code',monospace;
+  position:relative; left:100px; width:calc(100% - 100px);
+  margin-bottom:0.8rem;
+}
+
+@keyframes dot-radio {
+  0%, 5% { left:100px; opacity:0; }
+  8% { opacity:1; }
+  /* radio arrives fast: 20ms out of 150ms = ~13% of track */
+  18% { left:calc(100px + (100% - 100px) * 0.137); opacity:1; }
+  19% { opacity:0; }
+  /* wait, then flash at arrival line at same time as sound */
+  95% { left:calc(100%); opacity:0; }
+  100% { left:100px; opacity:0; }
+}
+@keyframes dot-sound {
+  0%, 5% { left:100px; opacity:0; }
+  8% { opacity:1; }
+  /* sound takes full time: 146ms out of 150ms = ~97% of track */
+  75% { left:calc(100%); opacity:1; }
+  76% { opacity:0; }
+  100% { left:100px; opacity:0; }
+}
+
+/* Sync flash at arrival */
+.td-track-line .td-arrival-flash {
+  position:absolute; right:-4px; top:50%; transform:translateY(-50%);
+  width:12px; height:12px; border-radius:50%;
+  animation: arrival-flash 4s ease-in-out infinite;
+}
+.td-arrival-flash.radio-flash {
+  background:rgba(249,115,22,0.6);
+}
+.td-arrival-flash.sound-flash {
+  background:rgba(96,165,250,0.6);
+}
+@keyframes arrival-flash {
+  0%, 74% { opacity:0; transform:translateY(-50%) scale(0); }
+  75% { opacity:1; transform:translateY(-50%) scale(1.5); }
+  85% { opacity:0; transform:translateY(-50%) scale(2); }
+  100% { opacity:0; transform:translateY(-50%) scale(0); }
+}
 
 /* Cases */
 .cases-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-top:2rem; }
-.case-card { background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px; padding:2rem; transition:border-color 0.2s; }
-.case-card:hover { border-color:rgba(249,115,22,0.15); }
+.case-card {
+  background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px; padding:2rem;
+  transition:all 0.3s ease; border-left:3px solid transparent;
+}
+.case-card:hover {
+  border-color:rgba(249,115,22,0.15);
+  border-left-color:#f97316;
+  box-shadow: -4px 0 20px rgba(249,115,22,0.08);
+  transform:translateY(-2px);
+}
+.case-card .cc-icon { font-size:1.4rem; margin-bottom:0.6rem; }
 .case-card .cc-title { font-size:1.1rem; font-weight:400; margin-bottom:0.5rem; }
 .case-card .cc-desc { font-size:0.85rem; color:#555; line-height:1.6; }
 .case-card .cc-config { font-size:0.75rem; color:#444; margin-top:1rem; line-height:1.8; }
 .case-card .cc-config strong { color:#666; font-weight:400; }
 
-footer { padding:4rem 2rem; text-align:center; border-top:1px solid #111; }
+/* Cost comparison callout */
+.cost-compare {
+  text-align:center; padding:4rem 2rem; margin:0 auto;
+  max-width:800px; position:relative; z-index:1;
+}
+.cost-compare .cost-vs {
+  display:flex; align-items:center; justify-content:center; gap:2rem;
+  flex-wrap:wrap; margin-top:2rem;
+}
+.cost-item { text-align:center; }
+.cost-item .cost-label { font-size:0.75rem; color:#555; letter-spacing:0.1em; margin-bottom:0.5rem; }
+.cost-item .cost-price { font-weight:100; }
+.cost-item.expensive .cost-price {
+  font-size:clamp(1rem, 2vw, 1.3rem); color:#555; text-decoration:line-through;
+  text-decoration-color:rgba(239,68,68,0.5);
+}
+.cost-item.affordable .cost-price {
+  font-size:clamp(2.5rem, 5vw, 4rem); color:#f97316; font-weight:200;
+}
+.cost-vs-divider {
+  font-size:1.5rem; color:#333;
+}
+.cost-note {
+  font-size:0.8rem; color:#444; margin-top:1.5rem; line-height:1.7;
+}
+
+footer { padding:4rem 2rem; text-align:center; border-top:1px solid #111; position:relative; z-index:1; }
 footer .f-logo { font-size:1.5rem; font-weight:100; margin-bottom:1rem; letter-spacing:0.2em; }
 footer .f-logo span { color:#f97316; }
 footer p { font-size:0.8rem; color:#333; line-height:2; }
 footer a { color:#555; text-decoration:none; }
 footer a:hover { color:#f97316; }
 
+/* Mobile */
 @media (max-width:768px) {
   nav .nav-links { display:none; }
   .models, .problem-grid { grid-template-columns:1fr; }
   .hero-devices { flex-direction:column; gap:2rem; }
   .hero-stats { gap:1.5rem; }
+
+  /* Mobile spec list: stack vertically */
+  .spec-list li {
+    flex-direction:column; gap:0.25rem;
+  }
+  .spec-list .sl-value {
+    text-align:left; max-width:100%;
+  }
+
+  .dashboard-iframe-inner iframe { height:300px; }
+  .dashboard-iframe-inner {
+    transform:rotateX(2deg) rotateY(0deg);
+  }
+
+  .cost-compare .cost-vs { flex-direction:column; gap:1rem; }
+  .cost-vs-divider { transform:rotate(90deg); }
+
+  .td-track-label { font-size:0.6rem; width:70px; }
+  .td-track-line { left:80px; }
+  .td-time-markers { left:80px; width:calc(100% - 80px); }
+}
+
+/* Prevent awkward line breaks on small screens */
+@media (max-width:400px) {
+  .hero h1 { word-break:keep-all; overflow-wrap:normal; }
+  .sec-title { word-break:keep-all; overflow-wrap:normal; }
+  .problem-card .num { word-break:keep-all; }
+  .hero-p { word-break:keep-all; }
+  .cost-item .cost-price { white-space:nowrap; }
 }
 </style>
 </head>
@@ -216,9 +440,9 @@ footer a:hover { color:#f97316; }
 <section class="hero">
   <div class="hero-badge">PHYSICS-FIRST AUDIO DESIGN</div>
 
-  <h1>音速を<em>超える</em><br>同期。</h1>
+  <h1><span class="typewriter-wrap" id="typewriter-target"></span><span class="typewriter-cursor"></span></h1>
   <p class="hero-p">
-    ステージから100m離れると、音は0.3秒遅れて届く。これが野外フェスの「音の壁」。Koe Soluna Editionは、GPSの原子時計で全スピーカーを同期し、各デバイスがリスナーの位置に合わせた遅延補正をかける。物理法則を味方につけた、分散オーディオシステム。
+    ステージから100m離れると、音は0.3秒遅れて届く。あなたの手元のデバイスは、GPSの原子時計で0.3秒先の未来を知っている。だから、音が同時に届く。
   </p>
 
   <div class="hero-devices">
@@ -257,7 +481,7 @@ footer a:hover { color:#f97316; }
 </section>
 
 <!-- THE PROBLEM -->
-<section id="problem">
+<section id="problem" class="fade-section">
   <div class="sec-label">問題</div>
   <h2 class="sec-title">なぜ野外フェスの音は「遠い席」がダメなのか。</h2>
   <p class="sec-desc">
@@ -266,17 +490,17 @@ footer a:hover { color:#f97316; }
 
   <div class="problem-grid">
     <div class="problem-card bad">
-      <div class="num">291ms</div>
+      <div class="num" data-count-target="291" data-count-suffix="ms">0ms</div>
       <h4>100m離れたリスナーへの音の到達時間</h4>
       <p>ステージのPAスピーカーから100m離れると、音が約0.3秒遅れて届く。さらに反射・残響で明瞭度が激減する。後方の観客は「音の粥」を聞いている。</p>
     </div>
     <div class="problem-card good">
-      <div class="num">&lt;1ms</div>
+      <div class="num" data-count-target="1" data-count-prefix="<" data-count-suffix="ms">0ms</div>
       <h4>100m離れたCROWDへの電波の到達時間</h4>
       <p>WiFi/4Gの電波は光速で伝播。100m先のCROWDデバイスにも1ms以下で音声データが届く。音がスピーカーの前30cmを飛ぶ時間より短い。</p>
     </div>
     <div class="problem-card bad">
-      <div class="num">10ms</div>
+      <div class="num" data-count-target="10" data-count-suffix="ms">0ms</div>
       <h4>人間が「ずれ」を知覚する閾値</h4>
       <p>2つの音源が10ms以上ずれると、人間の耳はそれを別の音として知覚する（先行音効果 / ハース効果）。Bluetoothの50-200ms遅延は論外。</p>
     </div>
@@ -289,7 +513,7 @@ footer a:hover { color:#f97316; }
 </section>
 
 <!-- TWO MODELS -->
-<section id="models">
+<section id="models" class="fade-section">
   <div class="sec-label">2つのモデル</div>
   <h2 class="sec-title">ステージの音源と、観客の増幅器。</h2>
   <p class="sec-desc">STAGEは同軸点音源で完璧な位相特性を持つマスターノード。CROWDは手のひらサイズの分散スピーカーで、100台が協調して音場を作る。</p>
@@ -432,7 +656,7 @@ footer a:hover { color:#f97316; }
 </section>
 
 <!-- SYNC TECHNOLOGY -->
-<section class="sync-section" id="sync">
+<section class="sync-section fade-section" id="sync">
   <div class="sec-label">同期技術</div>
   <h2 class="sec-title" style="text-align:center;">同期の4つのレイヤー。</h2>
   <p class="sec-desc" style="text-align:center;margin:0 auto 2rem;">
@@ -470,60 +694,102 @@ footer a:hover { color:#f97316; }
     </div>
   </div>
 
-  <!-- Timing diagram -->
-  <div class="diagram-box">
-    <span class="d">// 音速補正タイミング図 — STAGEから50m離れたリスナー</span><br><br>
-    <span class="o">STAGE</span> が音を出す&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t = 0ms<br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音速(343m/s) ──> 50m先のリスナーに到達: </span><span class="r">t = 146ms</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── WiFi(光速) ──> CROWDにデータ到達:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="b">t = ~20ms</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;</span><br>
-    <span class="b">CROWD</span> (リスナーの手元、距離1m)<br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── データ受信:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t = 20ms</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音速補正ディレイ:&nbsp;+126ms (= 146ms - 20ms)</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 再生開始:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="g">t = 146ms</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;|── 音がリスナーに到達: t = 146ms + 3ms (1m/343m/s)</span><br>
-    <span class="d">&nbsp;&nbsp;&nbsp;&nbsp;</span><br>
-    <span class="g">結果: STAGEの直接音(146ms) と CROWDの音(149ms) の差 = 3ms</span><br>
-    <span class="g">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 人間の知覚閾値(10ms)以下 → 「同じ音」に聞こえる</span><br>
-    <span class="g">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ CROWDは至近距離なので明瞭度が高く、STAGEの直接音を補強する</span>
+  <!-- Animated Timing Diagram -->
+  <div class="timing-diagram">
+    <h4>音速補正タイミング図 — STAGEから50m離れたリスナー</h4>
+
+    <div class="td-timeline">
+      <div class="td-time-markers">
+        <span>0ms</span>
+        <span>20ms</span>
+        <span>50ms</span>
+        <span>100ms</span>
+        <span style="color:#4ade80;">146ms</span>
+      </div>
+
+      <!-- Radio wave track -->
+      <div class="td-track">
+        <div class="td-track-label" style="color:#f97316;">電波 (WiFi)</div>
+        <div class="td-track-line">
+          <div class="td-arrival-flash radio-flash"></div>
+        </div>
+        <div class="td-dot td-dot-radio"></div>
+      </div>
+
+      <!-- Sound wave track -->
+      <div class="td-track">
+        <div class="td-track-label" style="color:#60a5fa;">音波 (空気)</div>
+        <div class="td-track-line">
+          <div class="td-arrival-flash sound-flash"></div>
+        </div>
+        <div class="td-dot td-dot-sound"></div>
+      </div>
+
+      <!-- Arrival marker -->
+      <div class="td-arrival-marker">
+        <div class="td-arrival-label">リスナーに同時到達</div>
+      </div>
+    </div>
+
+    <div class="td-result">
+      <span class="g">電波は20msで到達 → CROWDが126msのディレイを追加 → 146msに再生開始</span><br>
+      <span class="g">音波は146msで到達 → STAGEの直接音とCROWDの再生音の差 = わずか3ms</span><br>
+      <span class="g" style="opacity:0.7;">人間の知覚閾値(10ms)以下 = 「同じ音」に聞こえる</span>
+    </div>
+  </div>
+
+  <!-- Dashboard embed -->
+  <div class="dashboard-embed-wrap fade-section">
+    <div class="dashboard-iframe-container">
+      <div class="dashboard-iframe-inner">
+        <iframe src="dashboard.html" loading="lazy" title="Koe Soluna Dashboard"></iframe>
+      </div>
+    </div>
+    <p class="dashboard-caption">
+      全デバイスをリアルタイムで管理。VUメーター、同期ステータス、バッテリー残量を一画面で監視。
+    </p>
+    <a href="dashboard.html" class="dashboard-link">管理ダッシュボードを試す →</a>
   </div>
 </section>
 
 <!-- USE CASES -->
-<section id="cases">
+<section id="cases" class="fade-section">
   <div class="sec-label">ユースケース</div>
   <h2 class="sec-title">あらゆるイベントに。</h2>
 
   <div class="cases-grid">
     <div class="case-card">
+      <div class="cc-icon">🎪</div>
       <div class="cc-title">野外フェスティバル</div>
       <div class="cc-desc">メインステージにSTAGE x4。観客がCROWDを持ち込み、各デバイスがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x4 + CROWD xN<br><strong>同期:</strong> GPS(屋外)<br><strong>音速補正:</strong> 各CROWD自動計算</div>
     </div>
     <div class="case-card">
+      <div class="cc-icon">🎤</div>
       <div class="cc-title">屋内カンファレンス</div>
       <div class="cc-desc">メイン会場にSTAGE x2。サテライト会場やロビーにCROWDを配置。XLR入力で既存PA系統と接続。PTP同期で屋内でも精密な同期を実現。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD x50<br><strong>同期:</strong> NTP + PTP(屋内)<br><strong>音速補正:</strong> 手動距離設定 or BLE測距</div>
     </div>
     <div class="case-card">
+      <div class="cc-icon">🎧</div>
       <div class="cc-title">サイレントディスコ</div>
       <div class="cc-desc">DJブースにSTAGE x3(配信のみ、スピーカーミュート)。参加者はCROWDのイヤホン出力で聴く。3チャンネル切替。LEDの色がチャンネルを示す。全員の体験が完全に同期。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x3(各DJ) + CROWD xN<br><strong>特殊:</strong> 3ch切替、LEDチャンネル同期<br><strong>Opus:</strong> 3ストリーム同時配信</div>
     </div>
     <div class="case-card">
+      <div class="cc-icon">🎸</div>
       <div class="cc-title">ストリートパフォーマンス</div>
       <div class="cc-desc">パフォーマーがSTAGE x1をバッテリー駆動で設置。通りすがりの人がCROWDまたはスマホWebアプリで参加。4G経由でリモートリスナーにも配信。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x不定<br><strong>通信:</strong> WiFi + 4G fallback<br><strong>バッテリー:</strong> ~4時間</div>
     </div>
     <div class="case-card">
+      <div class="cc-icon">🎨</div>
       <div class="cc-title">美術館・インスタレーション</div>
       <div class="cc-desc">展示室ごとにCROWDを配置。来場者の位置に応じて異なるチャンネルの音を再生。空間全体がインタラクティブな音響体験になる。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x20<br><strong>特殊:</strong> マルチチャンネル空間音響<br><strong>通信:</strong> WiFi</div>
     </div>
     <div class="case-card">
+      <div class="cc-icon">🏟️</div>
       <div class="cc-title">スポーツ観戦</div>
       <div class="cc-desc">実況音声をSTAGEで配信。スタンドの各席でCROWDからクリアな実況を聴ける。多言語チャンネル切替対応。歓声チャンネルとの分離も可能。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD xN<br><strong>特殊:</strong> 多言語ch、実況/環境音分離<br><strong>通信:</strong> WiFi + 5G</div>
@@ -531,8 +797,33 @@ footer a:hover { color:#f97316; }
   </div>
 </section>
 
+<!-- COST COMPARISON -->
+<section class="fade-section">
+  <div class="cost-compare">
+    <div class="sec-label">コスト比較</div>
+    <h2 class="sec-title" style="text-align:center;">同じ問題を、1/5のコストで解く。</h2>
+
+    <div class="cost-vs">
+      <div class="cost-item expensive">
+        <div class="cost-label">d&amp;b audiotechnik DS100 + Soundscape</div>
+        <div class="cost-price">$150,000 - $300,000</div>
+      </div>
+      <div class="cost-vs-divider">vs</div>
+      <div class="cost-item affordable">
+        <div class="cost-label">Koe Soluna (STAGE x4 + CROWD x100)</div>
+        <div class="cost-price">~$35,000</div>
+      </div>
+    </div>
+
+    <p class="cost-note">
+      既存のハイエンド空間音響システムは、専用ハードウェア・専用ソフトウェア・専門オペレーターを前提とする。<br>
+      Koe SolunaはオープンソースのRaspberry Pi + ESP32ベース。誰でも構築でき、誰でも改良できる。
+    </p>
+  </div>
+</section>
+
 <!-- CTA -->
-<section style="text-align:center;padding:6rem 2rem;">
+<section style="text-align:center;padding:6rem 2rem;" class="fade-section">
   <div class="sec-label">お問い合わせ</div>
   <h2 class="sec-title" style="text-align:center;">あなたのイベントに導入する。</h2>
   <p class="sec-desc" style="text-align:center;margin:0 auto 2rem;">
@@ -559,6 +850,85 @@ footer a:hover { color:#f97316; }
     同軸ドライバー &middot; GPS原子時計 &middot; 音速補正 &middot; 密閉型 &middot; Opus &middot; ESP32-S3 &middot; Rust &middot; 東京で開発
   </p>
 </footer>
+
+<script>
+// 1. Typewriter effect
+(function() {
+  const text = '音速を超える同期。';
+  const target = document.getElementById('typewriter-target');
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      // Wrap "超える" in <em> tag
+      const char = text[i];
+      const pos = text.indexOf('超える');
+      if (i === pos) {
+        const em = document.createElement('em');
+        em.textContent = '';
+        target.appendChild(em);
+      }
+      if (i >= pos && i < pos + 3) {
+        const em = target.querySelector('em');
+        if (em) em.textContent += char;
+      } else {
+        target.appendChild(document.createTextNode(char));
+      }
+      i++;
+      setTimeout(type, 100 + Math.random() * 60);
+    }
+  }
+  // Small delay before starting
+  setTimeout(type, 600);
+})();
+
+// 2. Scroll-triggered fade-in (IntersectionObserver)
+(function() {
+  const sections = document.querySelectorAll('.fade-section');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(function(s) { observer.observe(s); });
+})();
+
+// 3. Counter animation for problem section numbers
+(function() {
+  const counters = document.querySelectorAll('[data-count-target]');
+  const counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.getAttribute('data-count-target'), 10);
+        const suffix = el.getAttribute('data-count-suffix') || '';
+        const prefix = el.getAttribute('data-count-prefix') || '';
+        const duration = 1200;
+        const start = performance.now();
+
+        function step(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(eased * target);
+          el.textContent = prefix + current + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = prefix + target + suffix;
+          }
+        }
+        requestAnimationFrame(step);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(function(c) { counterObserver.observe(c); });
+})();
+</script>
 
 </body>
 </html>

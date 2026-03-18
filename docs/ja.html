@@ -16,6 +16,30 @@ body {
   overflow-x: hidden;
 }
 
+/* ---- GRAIN TEXTURE ---- */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ---- SCROLL FADE-IN ---- */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ---- NAV ---- */
 nav {
   position: fixed; top:0; width:100%; z-index:100;
@@ -37,6 +61,69 @@ nav .nav-links a:hover { color:#fff; }
   text-decoration:none; transition:all 0.2s;
 }
 .nav-cta:hover { background:#e0e0e0; transform:scale(1.03); }
+
+/* ---- HAMBURGER ---- */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  z-index: 110;
+}
+.hamburger span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #888;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile nav overlay */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100vh;
+  background: rgba(10, 10, 10, 0.97);
+  backdrop-filter: blur(20px);
+  z-index: 99;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.mobile-nav.open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+.mobile-nav a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+.mobile-nav a:hover { color: #fff; }
 
 /* ---- HERO ---- */
 .hero {
@@ -101,6 +188,7 @@ nav .nav-links a:hover { color:#fff; }
   font-size:11px; color:#333; font-weight:200; letter-spacing:0.3em;
 }
 
+/* ---- TYPEWRITER ---- */
 .hero h1 {
   font-size: clamp(2.2rem, 5.5vw, 4rem);
   font-weight: 100;
@@ -109,6 +197,23 @@ nav .nav-links a:hover { color:#fff; }
   margin-bottom: 1.5rem;
 }
 .hero h1 em { font-style:normal; color:#4ade80; }
+
+.typewriter-line {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid #4ade80;
+  width: 0;
+  animation: typing 2s steps(10, end) 0.5s forwards, blink-caret 0.7s step-end infinite;
+}
+@keyframes typing {
+  from { width: 0; }
+  to { width: 10em; }
+}
+@keyframes blink-caret {
+  0%, 100% { border-color: #4ade80; }
+  50% { border-color: transparent; }
+}
 
 .hero-p {
   font-size: 1.1rem; color:#777; font-weight:300;
@@ -146,20 +251,51 @@ nav .nav-links a:hover { color:#fff; }
 .status-card h2 { font-size:1.4rem; font-weight:200; margin-bottom:0.5rem; text-align:center; }
 .status-card .status-subtitle { font-size:0.85rem; color:#555; text-align:center; margin-bottom:2rem; }
 .status-item {
-  display:flex; align-items:baseline; gap:1rem;
+  display:flex; align-items:center; gap:1rem;
   padding:0.7rem 0; border-bottom:1px solid #1a1a1a;
+  flex-wrap: wrap;
 }
 .status-item:last-child { border-bottom:none; }
 .status-dot {
-  width:8px; height:8px; border-radius:50%; flex-shrink:0; position:relative; top:2px;
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
 }
 .status-dot.done { background:#4ade80; box-shadow:0 0 8px rgba(74,222,128,0.3); }
 .status-dot.wip { background:#facc15; box-shadow:0 0 8px rgba(250,204,21,0.3); }
 .status-dot.available { background:#60a5fa; box-shadow:0 0 8px rgba(96,165,250,0.3); }
 .status-label { font-size:0.85rem; color:#888; min-width:100px; flex-shrink:0; }
-.status-desc { font-size:0.9rem; color:#ccc; }
+.status-desc { font-size:0.9rem; color:#ccc; flex: 1; }
 .status-desc a { color:#4ade80; text-decoration:none; }
 .status-desc a:hover { text-decoration:underline; }
+
+/* Progress bars */
+.status-progress {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding-left: calc(8px + 1rem + 100px + 1rem);
+}
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.5s ease-out;
+  width: 0;
+}
+.progress-fill.done { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.progress-fill.wip { background: linear-gradient(90deg, #facc15, #eab308); }
+.progress-fill.available { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
+.progress-percent {
+  font-size: 0.7rem;
+  color: #555;
+  margin-top: 0.2rem;
+  text-align: right;
+}
 
 /* ---- SCENARIO ---- */
 .scenarios { padding:0 2rem; max-width:1000px; margin:0 auto; }
@@ -262,6 +398,49 @@ nav .nav-links a:hover { color:#fff; }
 @keyframes soluna-dash { 0% { stroke-dashoffset:0; } 100% { stroke-dashoffset:-24; } }
 .soluna-badge { position:absolute; bottom:8%; left:50%; transform:translateX(-50%); font-size:0.6rem; color:#f97316; letter-spacing:0.15em; border:1px solid rgba(249,115,22,0.25); border-radius:100px; padding:0.25rem 0.8rem; background:rgba(249,115,22,0.05); }
 
+/* Soluna Edition CTA - gradient border animation */
+.soluna-edition-cta {
+  display: inline-block;
+  padding: 0.7rem 1.8rem;
+  border-radius: 100px;
+  background: rgba(249,115,22,0.1);
+  color: #f97316;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+.soluna-edition-cta::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #f97316, #f59e0b, #ef4444, #f97316);
+  background-size: 300% 100%;
+  animation: gradient-border 3s ease infinite;
+  z-index: -1;
+  opacity: 0.8;
+}
+.soluna-edition-cta::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 100px;
+  background: #0a0a0a;
+  z-index: -1;
+}
+.soluna-edition-cta:hover {
+  color: #fff;
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.3);
+}
+@keyframes gradient-border {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* ---- SPECS ---- */
 .specs-section { padding:6rem 2rem; max-width:1000px; margin:0 auto; }
 .specs-header { text-align:center; margin-bottom:4rem; }
@@ -271,11 +450,20 @@ nav .nav-links a:hover { color:#fff; }
 .specs-table { width:100%; border-collapse:collapse; }
 .specs-table th { padding:1.2rem 1rem; text-align:center; font-weight:300; font-size:1rem; letter-spacing:0.05em; border-bottom:1px solid #1a1a1a; color:#888; }
 .specs-table th:first-child { text-align:left; color:#555; font-size:0.8rem; }
-.specs-table td { padding:0.8rem 1rem; text-align:center; border-bottom:1px solid #111; font-size:0.9rem; color:#666; }
+.specs-table td { padding:0.8rem 1rem; text-align:center; border-bottom:1px solid #111; font-size:0.9rem; color:#666; transition: all 0.3s ease; }
 .specs-table td:first-child { text-align:left; color:#444; font-size:0.8rem; letter-spacing:0.03em; }
 .specs-table .best { color:#4ade80; }
 .specs-table .model-head { font-size:1.1rem; color:#ccc; font-weight:300; letter-spacing:0.1em; }
 .specs-table .price-row td { padding-top:1.5rem; font-size:1.3rem; color:#ccc; font-weight:200; border:none; }
+
+/* Specs table hover */
+.specs-table tbody tr:not([style]):hover td.best {
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+  background: rgba(74, 222, 128, 0.03);
+}
+.specs-table tbody tr:not([style]):hover {
+  background: rgba(255, 255, 255, 0.01);
+}
 
 /* ---- HOW ---- */
 .how-section { padding:6rem 2rem; max-width:800px; margin:0 auto; text-align:center; }
@@ -286,6 +474,73 @@ nav .nav-links a:hover { color:#fff; }
 .step-num { width:48px; height:48px; border-radius:50%; border:1px solid #222; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:200; color:#555; }
 .step-title { font-size:1.1rem; font-weight:400; margin-bottom:0.3rem; }
 .step-desc { font-size:0.9rem; color:#555; line-height:1.6; }
+
+/* ---- DASHBOARD ---- */
+.dashboard-section {
+  padding: 6rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+.dashboard-section h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 100;
+  margin-bottom: 1rem;
+}
+.dashboard-section > p {
+  color: #555;
+  margin-bottom: 3rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.dashboard-frame-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) scale(0.85);
+  transition: transform 0.5s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.dashboard-frame-wrapper:hover {
+  transform: perspective(1000px) rotateY(-2deg) rotateX(1deg) scale(0.88);
+}
+.dashboard-frame-wrapper iframe {
+  width: 100%;
+  height: 450px;
+  border: none;
+  pointer-events: none;
+  display: block;
+}
+.dashboard-caption {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.7;
+  max-width: 550px;
+  margin: 0 auto 2rem;
+}
+.btn-dashboard {
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  border-radius: 100px;
+  background: transparent;
+  color: #4ade80;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  transition: all 0.2s;
+}
+.btn-dashboard:hover {
+  background: rgba(74, 222, 128, 0.08);
+  border-color: #4ade80;
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.15);
+}
 
 /* ---- OPEN ---- */
 .open-section { padding:6rem 2rem; text-align:center; }
@@ -310,16 +565,61 @@ footer p { font-size:0.8rem; color:#333; line-height:2; }
 footer a { color:#555; text-decoration:none; }
 footer a:hover { color:#888; }
 
+.footer-social {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+.footer-social a {
+  color: #444;
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.footer-social a:hover { color: #888; }
+
+.footer-made {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: #2a2a2a;
+  letter-spacing: 0.1em;
+}
+.footer-made .heart {
+  display: inline-block;
+  color: #4ade80;
+  animation: heartbeat 2s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.2); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width:768px) {
   nav .nav-links { display:none; }
+  .hamburger { display: flex; }
   .scenario { grid-template-columns:1fr; gap:2rem; }
   .scenario:nth-child(even) { direction:ltr; }
   .hero-stats { gap:1.5rem; }
   .contact-links { flex-direction:column; align-items:center; }
   .specs-table { font-size:0.8rem; }
   .specs-table th, .specs-table td { padding:0.5rem 0.4rem; }
+  .status-progress { padding-left: 0; }
+  .dashboard-frame-wrapper {
+    transform: perspective(1000px) rotateY(0) rotateX(0) scale(0.95);
+  }
+  .dashboard-frame-wrapper:hover {
+    transform: perspective(1000px) rotateY(0) rotateX(0) scale(0.97);
+  }
 }
+
+/* No-break helper for mobile */
+.nowrap { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -335,7 +635,22 @@ footer a:hover { color:#888; }
   </div>
   <a href="index.html" class="lang-switch">EN</a>
   <a href="https://github.com/yukihamada/koe-device" class="nav-cta" target="_blank">GitHub</a>
+  <button class="hamburger" aria-label="メニュー" onclick="toggleMobileNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#status" onclick="closeMobileNav()">進捗</a>
+  <a href="#scenarios" onclick="closeMobileNav()">使い方</a>
+  <a href="#specs" onclick="closeMobileNav()">スペック</a>
+  <a href="#open" onclick="closeMobileNav()">オープンソース</a>
+  <a href="index.html">EN</a>
+  <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -348,15 +663,14 @@ footer a:hover { color:#888; }
     </div>
   </div>
 
-  <h1>すべてを<em>覚える</em><br>小石。</h1>
+  <h1><span class="typewriter-line"><span class="nowrap">すべてを<em>覚える</em>小石。</span></span></h1>
   <p class="hero-p">
-    あなたの一日を聞いて、文脈を理解して、イヤホン越しに話しかけてくる。
-    5グラム。画面なし。声だけ。
+    朝の通勤で聞いた会議の内容を、午後のミーティングで思い出させてくれる。<br class="nowrap">5グラム。画面なし。あなたの記憶のバックアップ。
   </p>
 
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num">~5g</div><div class="stat-label">目標重量</div></div>
-    <div class="stat"><div class="stat-num">~9h</div><div class="stat-label">バッテリー (推定)</div></div>
+  <div class="hero-stats" id="heroStats">
+    <div class="stat"><div class="stat-num" data-target="5" data-prefix="~" data-suffix="g">~0g</div><div class="stat-label">目標重量</div></div>
+    <div class="stat"><div class="stat-num" data-target="9" data-prefix="~" data-suffix="h">~0h</div><div class="stat-label">バッテリー (推定)</div></div>
     <div class="stat"><div class="stat-num">Open</div><div class="stat-label">ハードウェア</div></div>
   </div>
 
@@ -367,7 +681,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- STATUS -->
-<section class="status-section" id="status">
+<section class="status-section fade-in-section" id="status">
   <div class="status-card">
     <h2>プロジェクト進捗</h2>
     <p class="status-subtitle">Koeは開発中のオープンソースプロジェクトです</p>
@@ -376,21 +690,37 @@ footer a:hover { color:#888; }
       <div class="status-dot done"></div>
       <div class="status-label">ハードウェア</div>
       <div class="status-desc">回路設計完了、部品を発注中</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-fill done" data-width="70"></div></div>
+        <div class="progress-percent">70%</div>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot wip"></div>
       <div class="status-label">ファームウェア</div>
       <div class="status-desc">開発中 (ESP32-S3 + Rust)</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-fill wip" data-width="40"></div></div>
+        <div class="progress-percent">40%</div>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot available"></div>
       <div class="status-label">ソフトウェア</div>
       <div class="status-desc">Koe音声入力アプリ macOS/Windows版 公開中 &mdash; <a href="https://koe.elio.love">koe.elio.love</a></div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-fill available" data-width="100"></div></div>
+        <div class="progress-percent">100%</div>
+      </div>
     </div>
     <div class="status-item">
       <div class="status-dot wip"></div>
       <div class="status-label">プロトタイプ</div>
       <div class="status-desc">初号機を設計中</div>
+      <div class="status-progress">
+        <div class="progress-bar"><div class="progress-fill wip" data-width="20"></div></div>
+        <div class="progress-percent">20%</div>
+      </div>
     </div>
   </div>
 </section>
@@ -401,7 +731,7 @@ footer a:hover { color:#888; }
   <p class="scenarios-note">コンセプトレンダリング &mdash; プロトタイプ開発中</p>
 
   <!-- 1 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-ear">
         <div class="ear-hair"></div>
@@ -411,7 +741,7 @@ footer a:hover { color:#888; }
     </div>
     <div>
       <div class="sc-label">つける</div>
-      <h3 class="sc-title">耳の後ろに。つけていることを忘れる。</h3>
+      <h3 class="sc-title"><span class="nowrap">耳の後ろに。</span>つけていることを忘れる。</h3>
       <p class="sc-desc">
         25 x 30mm、たった5グラム。AirTagより小さい。クリップで留めても、ピンで付けても、チェーンで下げても。あなたの声と周りの音をすべて記録する。ボタンを押す必要なし。画面を見る必要なし。
       </p>
@@ -423,7 +753,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 2 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-palm">
         <div class="palm-shape"></div>
@@ -436,7 +766,7 @@ footer a:hover { color:#888; }
     </div>
     <div>
       <div class="sc-label">持つ</div>
-      <h3 class="sc-title">川で拾った滑らかな小石のような手触り。</h3>
+      <h3 class="sc-title"><span class="nowrap">川で拾った滑らかな小石</span>のような手触り。</h3>
       <p class="sc-desc">
         マットなセラミック質感の仕上げ。指の間に自然と収まる丸みを帯びたエッジ。静かに呼吸するLEDが1つ。ロゴなし。ラベルなし。ジュエリーのような静かなテクノロジー。
       </p>
@@ -449,7 +779,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 3 -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-desk">
         <div class="desk-surface"></div>
@@ -478,7 +808,7 @@ footer a:hover { color:#888; }
   </div>
 
   <!-- 4: Soluna Mode -->
-  <div class="scenario">
+  <div class="scenario fade-in-section">
     <div class="scenario-visual">
       <div class="scene-soluna">
         <div class="soluna-mesh">
@@ -500,7 +830,7 @@ footer a:hover { color:#888; }
     </div>
     <div>
       <div class="sc-label" style="color:#f97316;"><a href="https://solun.art/soluna" target="_blank" style="color:#f97316;text-decoration:none;">Soluna</a>モード</div>
-      <h3 class="sc-title">1台に話す。全員に届く。</h3>
+      <h3 class="sc-title"><span class="nowrap">1台に話す。全員に届く。</span></h3>
       <p class="sc-desc">
         ボタンを中押しでKoeモード（AIアシスタント）から<a href="https://solun.art/soluna" target="_blank" style="color:#f97316;text-decoration:none;">Soluna</a>モード（P2P音声メッシュ）に切替。フェスティバル、カンファレンス、あらゆるイベントで、同じWiFiに繋がった複数のKoeデバイスが即座に音声チャンネルを形成。サーバー不要。アプリ不要。設定不要。ただ話すだけ。
       </p>
@@ -516,7 +846,7 @@ footer a:hover { color:#888; }
         <strong>切替:</strong> ボタン中押しでKoe / Solunaモード切替
       </div>
       <div style="margin-top:1.5rem;">
-        <a href="soluna-edition.html" style="display:inline-block;padding:0.6rem 1.5rem;border-radius:100px;background:rgba(249,115,22,0.1);color:#f97316;font-size:0.85rem;text-decoration:none;border:1px solid rgba(249,115,22,0.25);transition:all 0.2s;">Soluna Edition (フェス用超高音質モデル) &rarr;</a>
+        <a href="soluna-edition.html" class="soluna-edition-cta">Soluna Edition (フェス用超高音質モデル) &rarr;</a>
       </div>
     </div>
   </div>
@@ -524,7 +854,7 @@ footer a:hover { color:#888; }
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="how-section" id="how">
+<section class="how-section fade-in-section" id="how">
   <h2>Koeの頭の中。</h2>
   <p>クラウドで5つのAIエージェントが協調して動く。デバイスは耳と口。</p>
 
@@ -560,8 +890,24 @@ footer a:hover { color:#888; }
   </div>
 </section>
 
+<!-- DASHBOARD -->
+<section class="dashboard-section fade-in-section" id="dashboard">
+  <h2>管理ダッシュボード</h2>
+  <p>イベント全体をリアルタイムで監視・制御。デバイスの同期状態、バッテリー、音量をブラウザから一括管理。</p>
+
+  <div class="dashboard-frame-wrapper">
+    <iframe src="dashboard.html" title="Koe管理ダッシュボード" loading="lazy"></iframe>
+  </div>
+
+  <p class="dashboard-caption">
+    イベント全体をリアルタイムで監視・制御。<br>デバイスの同期状態、バッテリー、音量をブラウザから一括管理。
+  </p>
+
+  <a href="dashboard.html" class="btn-dashboard">ダッシュボードを試す &rarr;</a>
+</section>
+
 <!-- SPECS -->
-<section class="specs-section" id="specs">
+<section class="specs-section fade-in-section" id="specs">
   <div class="specs-header">
     <h2>すべてのスペック。</h2>
     <p>3モデル。同じAIの頭脳。あなたの生活に合う形を選ぶ。</p>
@@ -613,7 +959,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- OPEN SOURCE -->
-<section class="open-section" id="open">
+<section class="open-section fade-in-section" id="open">
   <h2>すべてオープン。</h2>
   <p>Koeはオープンソースハードウェア。回路図をダウンロード、ケースを3Dプリント、自分でファームウェアを書き込める。はんだ付けしたくない人のためにデバイスも販売予定。</p>
 
@@ -644,7 +990,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- CONTACT -->
-<section class="contact-section" id="contact">
+<section class="contact-section fade-in-section" id="contact">
   <h2>開発を追いかける。</h2>
   <p>
     初号機のプロトタイプを設計中です。GitHubリポジトリをフォローして進捗を追うか、コントリビュートしたい方はご連絡ください。
@@ -657,7 +1003,7 @@ footer a:hover { color:#888; }
 </section>
 
 <!-- FOOTER -->
-<footer>
+<footer class="fade-in-section">
   <div class="f-logo">声</div>
   <p>
     <a href="https://github.com/enablerdao">EnablerDAO</a> プロジェクト<br>
@@ -665,10 +1011,115 @@ footer a:hover { color:#888; }
     <a href="https://koe.elio.love">Koeソフトウェア</a> &middot;
     <a href="https://github.com/yukihamada/koe-device/tree/main/hardware/docs">設計資料</a>
   </p>
-  <p style="margin-top:1.5rem; color:#222;">
+
+  <div class="footer-social">
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <a href="https://twitter.com/enablerdao" target="_blank">Twitter</a>
+    <a href="https://discord.gg/enablerdao" target="_blank">Discord</a>
+  </div>
+
+  <p style="color:#222;">
     ESP32-S3 &middot; Rust &middot; KiCad &middot; オープンハードウェア &middot; 東京で開発
   </p>
+
+  <div class="footer-made">Made with <span class="heart">&#9829;</span> in Tokyo</div>
 </footer>
+
+<script>
+// ---- Mobile Nav ----
+function toggleMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.querySelector('.hamburger');
+  const isOpen = nav.classList.contains('open');
+  if (isOpen) {
+    closeMobileNav();
+  } else {
+    nav.style.display = 'flex';
+    requestAnimationFrame(() => {
+      nav.classList.add('open');
+    });
+    btn.classList.add('active');
+  }
+}
+function closeMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.querySelector('.hamburger');
+  nav.classList.remove('open');
+  btn.classList.remove('active');
+  setTimeout(() => {
+    if (!nav.classList.contains('open')) nav.style.display = 'none';
+  }, 300);
+}
+
+// ---- Scroll Fade-In ----
+(function() {
+  const sections = document.querySelectorAll('.fade-in-section');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(function(s) { observer.observe(s); });
+})();
+
+// ---- Stat Counter Animation ----
+(function() {
+  const statsEl = document.getElementById('heroStats');
+  if (!statsEl) return;
+  let animated = false;
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !animated) {
+        animated = true;
+        animateCounters();
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  observer.observe(statsEl);
+
+  function animateCounters() {
+    const nums = statsEl.querySelectorAll('.stat-num[data-target]');
+    nums.forEach(function(el) {
+      const target = parseInt(el.getAttribute('data-target'));
+      const prefix = el.getAttribute('data-prefix') || '';
+      const suffix = el.getAttribute('data-suffix') || '';
+      const duration = 1500;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * target);
+        el.textContent = prefix + current + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+})();
+
+// ---- Progress Bar Animation ----
+(function() {
+  const fills = document.querySelectorAll('.progress-fill[data-width]');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const fill = entry.target;
+        const w = fill.getAttribute('data-width');
+        setTimeout(function() {
+          fill.style.width = w + '%';
+        }, 200);
+        observer.unobserve(fill);
+      }
+    });
+  }, { threshold: 0.3 });
+  fills.forEach(function(f) { observer.observe(f); });
+})();
+</script>
 
 </body>
 </html>
