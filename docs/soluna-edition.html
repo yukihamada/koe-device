@@ -749,14 +749,14 @@ footer a:hover { color:#f97316; }
     <div class="case-card">
       <div class="cc-icon">🎪</div>
       <div class="cc-title">野外フェスティバル</div>
-      <div class="cc-desc">メインステージにSTAGE x4。観客がCROWDを持ち込み、各デバイスがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x4 + CROWD xN<br><strong>同期:</strong> GPS(屋外)<br><strong>音速補正:</strong> 各CROWD自動計算</div>
+      <div class="cc-desc">メインステージにSTAGE x2 + SUB x4 + FILL x8。観客がCOINを持ち込み、各デバイスがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x2 + SUB x4 + FILL x8 + COIN xN<br><strong>同期:</strong> GPS(屋外)<br><strong>音速補正:</strong> 各FILL/COIN自動計算</div>
     </div>
     <div class="case-card">
       <div class="cc-icon">🎤</div>
       <div class="cc-title">屋内カンファレンス</div>
-      <div class="cc-desc">メイン会場にSTAGE x2。サテライト会場やロビーにCROWDを配置。XLR入力で既存PA系統と接続。PTP同期で屋内でも精密な同期を実現。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD x50<br><strong>同期:</strong> NTP + PTP(屋内)<br><strong>音速補正:</strong> 手動距離設定 or BLE測距</div>
+      <div class="cc-desc">メイン会場にSTAGE x1 + FILL x4。サテライト会場やロビーにFILLを配置。AES67/Dante入力で既存PA系統と接続。PTP同期で屋内でも精密な同期を実現。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x1 + FILL x4 + COIN x50<br><strong>同期:</strong> NTP + PTP(屋内)<br><strong>音速補正:</strong> 手動距離設定 or BLE測距</div>
     </div>
     <div class="case-card">
       <div class="cc-icon">🎧</div>
@@ -847,23 +847,26 @@ footer a:hover { color:#f97316; }
 <section class="fade-section">
   <div class="cost-compare">
     <div class="sec-label">コスト比較</div>
-    <h2 class="sec-title" style="text-align:center;">同じ問題を、1/5のコストで解く。</h2>
+    <h2 class="sec-title" style="text-align:center;">同じ1000人フェスを、1/18のコストで。</h2>
 
     <div class="cost-vs">
       <div class="cost-item expensive">
-        <div class="cost-label">d&amp;b audiotechnik DS100 + Soundscape</div>
-        <div class="cost-price">$150,000 - $300,000</div>
+        <div class="cost-label">L-Acoustics 1000人フェスティバル構成</div>
+        <div class="cost-price">$488,000</div>
       </div>
       <div class="cost-vs-divider">vs</div>
       <div class="cost-item affordable">
-        <div class="cost-label">Koe Soluna (STAGE x4 + CROWD x100)</div>
-        <div class="cost-price">~$35,000</div>
+        <div class="cost-label">Koe Soluna Festival System</div>
+        <div class="cost-price">$27,800</div>
       </div>
     </div>
 
     <p class="cost-note">
-      既存のハイエンド空間音響システムは、専用ハードウェア・専用ソフトウェア・専門オペレーターを前提とする。<br>
-      Koe SolunaはオープンソースのRaspberry Pi + ESP32ベース。誰でも構築でき、誰でも改良できる。
+      L-Acoustics構成: SB28サブ x8 ($64,000) + KARA x12 ($144,000) + LA-RAK + P1 + ケーブリング ($280,000)<br>
+      Koe Soluna構成: SUB x4 ($4,800) + FILL x8 ($12,000) + STAGE x2 ($1,600) + COIN x100 ($6,500) + 予備 ($2,900) = <strong style="color:#f97316;">$27,800</strong><br><br>
+      既存のハイエンド音響システムは、専用ハードウェア・専用ソフトウェア・専門オペレーターを前提とする。<br>
+      Koe SolunaはオープンソースのRaspberry Pi ベース。誰でも構築でき、誰でも改良できる。<br><br>
+      <strong style="color:#60a5fa;">サイレントディスコ対応:</strong> COIN のイヤホンジャック (3.5mm, PCM5102A DAC) にイヤホンを接続すれば、深夜の騒音規制下でもフェスティバル体験を提供できる。音漏れゼロで1000人が同じ音楽を共有 — COINのLEDだけが同期して光る幻想的な空間。
     </p>
   </div>
 </section>
