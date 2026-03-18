@@ -1,0 +1,57 @@
+Category,Ref,Part,Description,Qty,Unit USD,Subtotal USD,Source
+Woofer,SPK1,SB Acoustics SB20FRPC30-8,"8in paper cone woofer 8ohm, fs=42Hz Vas=17L Qts=0.38 sensitivity=91dB Xmax=6mm",1,35.00,35.00,Parts Express/Mouser
+HF Driver,SPK2,Celestion CDX1-1730,"1in exit compression driver, neodymium, 109dB sensitivity, 8ohm",1,40.00,40.00,Parts Express/Thomann
+Horn,HORN,90x50 CD horn,"Constant directivity horn, 90deg H x 50deg V, 1in throat, ABS molded",1,15.00,15.00,Parts Express/AliExpress
+,,,,,,,,
+Amplifier,U-AMP,ICEpower 125ASX2,"Class-D 2ch 125W+125W, integrated SMPS, bi-amp capable, THD<0.003%",1,80.00,80.00,ICEpower/eBay
+,,,,,,,,
+DAC,U-DAC,ES9038Q2M I2S DAC board,"Sabre ES9038Q2M dual-mono, -120dB SNR, I2S input, pre-built module",1,15.00,15.00,AliExpress/Amazon
+,,,,,,,,
+Compute,U1,Raspberry Pi 5 4GB,"Cortex-A76 x4 2.4GHz, 4GB RAM, PCIe, USB3",1,60.00,60.00,Amazon/Pi Shop
+Compute,U-WIFI7,Intel BE200,"WiFi 7 M.2 E-key, 2.4/5/6GHz, 2x2 MIMO, 2.4Gbps, MLO",1,20.00,20.00,Amazon
+Compute,U-HAT,PCIe M.2 E-key HAT,"Pi 5 PCIe to M.2 adapter for BE200, includes antenna pigtails",1,10.00,10.00,Amazon
+Compute,SD,microSD 32GB,"Raspberry Pi OS + Koe firmware + FIR coefficients",1,5.00,5.00,Amazon
+,,,,,,,,
+GPS/Clock,U-GPS,u-blox NEO-M9N,"Multi-band GNSS, 1PPS output <30ns accuracy",1,18.00,18.00,Mouser/DigiKey
+GPS/Clock,Y1,TCXO 0.5ppm,"26MHz temperature-compensated crystal for GPS holdover",1,3.00,3.00,LCSC
+GPS/Clock,ANT-GPS,Active GPS antenna,"Ceramic patch 25x25mm + LNA, SMA pigtail",1,3.50,3.50,AliExpress
+,,,,,,,,
+Cellular,U-4G,Quectel EC25-J,"4G LTE Cat-4, USB interface, Japan bands B1/3/8/18/19/26/28/41",1,18.00,18.00,AliExpress
+Cellular,ANT-4G,4G PCB antenna,"Flexible PCB antenna + U.FL pigtail",1,2.00,2.00,AliExpress
+Cellular,SIM,Nano SIM holder,"Push-push nano SIM card slot",1,0.30,0.30,LCSC
+,,,,,,,,
+Power,J-AC,IEC C14 inlet,"Fused IEC C14 panel mount, 250V 6A",1,2.00,2.00,LCSC/AliExpress
+Power,U-PSU24,DC-DC 24V/5A module,"AC-DC or DC-DC internal PSU, 24V 5A for ICEpower amp supply",1,8.00,8.00,AliExpress/Mean Well
+Power,U-PSU5,DC-DC 5V/3A module,"Buck converter 24V to 5V/3A for Pi 5 + DAC + GPS",1,2.50,2.50,AliExpress
+Power,Passives,LDO + regulators,"3.3V for ESP32/GPS + filtering caps + fuse",1,2.00,2.00,LCSC
+,,,,,,,,
+Enclosure,WOOD,15mm birch plywood,"Panels cut for 280x280x400mm external, ~15L net volume, sealed",1,15.00,15.00,Local lumber
+Enclosure,BRACE,Internal bracing,"15mm plywood shelf brace + corner blocks, divides woofer/electronics chambers",1,4.00,4.00,Local lumber
+Enclosure,DAMP,Acoustic damping,"Polyester fill 100g + bitumen pad on rear panel",1,4.00,4.00,Parts Express/AliExpress
+Enclosure,GRILLE,Perforated steel grille,"Powder-coated perforated steel, front panel, covers woofer+horn",1,4.00,4.00,Custom
+Enclosure,FINISH,Exterior coating,"Black textured spray coating (Duratex or equivalent)",1,5.00,5.00,Parts Express
+,,,,,,,,
+Connectors,J-XLR,Neutrik NC3FD-LX,"XLR female panel mount, balanced audio input",1,2.50,2.50,Mouser
+Connectors,J-SPK,Neutrik NL4MP,"Speakon NL4 panel mount, link output to next FILL",1,4.00,4.00,Mouser/Amazon
+Connectors,J-ETH,RJ45 panel mount,"Shielded Ethernet jack, for wired PTP sync or AES67",1,1.00,1.00,LCSC
+Connectors,J-USB,USB-C panel mount,"USB-C receptacle, for configuration + firmware update",1,0.50,0.50,LCSC
+,,,,,,,,
+LED,LED1,WS2812B strip,"Addressable RGB LED strip, 5 LEDs, status/logo ring",5,0.08,0.40,LCSC/AliExpress
+LED,LED-WIRE,LED extension cable,"3-pin JST connector + 200mm wire",1,0.30,0.30,AliExpress
+,,,,,,,,
+PCB,PCB,Interface PCB,"4-layer 80x60mm, I2S routing + power distribution + GPS + connectors",1,4.00,4.00,JLCPCB
+PCB,PCBA,SMT assembly,"Component placement + reflow + QC",1,8.00,8.00,JLCPCB
+,,,,,,,,
+Hardware,HANDLE,Side handle,"Powder-coated steel strap handle, top mount",1,2.50,2.50,AliExpress/Penn Elcom
+Hardware,RIGGING,Rigging point,"M10 threaded insert, flush mount, rated 50kg, top panel",1,2.00,2.00,AliExpress
+Hardware,POLE,Pole mount adapter,"35mm speaker stand adapter, bottom panel, steel flange",1,3.00,3.00,AliExpress
+Hardware,SCREWS,Fastener kit,"T-nuts, wood screws, machine screws, rubber bumpers",1,2.00,2.00,Local hardware
+Hardware,WIRE,Internal wiring,"16AWG speaker cable 0.5m + ribbon cable + solder terminals",1,2.00,2.00,Local/AliExpress
+Hardware,GASKET,Foam gasket tape,"Closed-cell foam 2mm x 15mm, seals driver + horn + connectors",1,1.00,1.00,AliExpress
+,,,,,,,,
+TOTAL,,,,,,~$497,,
+,,,,,,,,
+,,,TOTAL BOM (per unit @100),,,$497,,
+,,,Enclosure tooling amortized,,,$0 (plywood construction),,
+,,,GRAND TOTAL PER UNIT,,,$497,,
+,,,Suggested retail (3.0x markup),,,$1,500,,

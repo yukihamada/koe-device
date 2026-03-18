@@ -1,158 +1,219 @@
-# 今すぐ買うもの
+# 今すぐ買うもの — Koe Soluna Festival System
 
-## Phase 1: ブレッドボードで動作確認 (今日注文 → 明日届く)
+## 全体像
+
+```
+4プロダクト:
+  SUB   → 体で感じる低音 (15", 1000W, 130dB)
+  FILL  → メインPA (8"+1"ホーン, 118dB, WiFi 7)
+  COIN  → 近接+LED+マイク (20mm, 82dB)
+  STAGE → 制御ブレイン (Pi 5)
+```
+
+---
+
+## Phase 1: COIN 同期デモ — ¥6,200 (今日注文→明日届く)
+
+まず2台で同期再生が動くことを証明する。
 
 ### Amazon.co.jp
 
-| # | 品名 | 数量 | URL | 価格 |
-|---|------|------|-----|------|
-| 1 | ESP32-S3-DevKitC-1 x3個入 | 1セット | [AITRIP 3個入](https://www.amazon.co.jp/AITRI3PCS-ESP32-S3-DevKitC-1-N8R2-ESP32-S3-MCU%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB-%E5%AE%8C%E5%85%A8%E3%81%AAWi-Fi%E3%81%A8BLE%E6%A9%9F%E8%83%BD%E3%82%92%E7%B5%B1%E5%90%88%E3%80%82/dp/B0BX31WGQG) | ~¥3,000 |
-| 2 | INMP441 I2Sマイクモジュール x2個入 | 1セット | [ACEIRMC 2個入](https://www.amazon.co.jp/-/en/ACEIRMC-Omnidirectional-Microphone-Interface-Compatible/dp/B09222JFBX) | ~¥1,000 |
-| 3 | MAX98357A I2Sアンプモジュール x2個入 | 1セット | [DAOKAI 2個入](https://www.amazon.co.jp/DAOKAI-MAX98357-%E3%83%96%E3%83%AC%E3%83%BC%E3%82%AF%E3%82%A2%E3%82%A6%E3%83%88-%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%82%A4%E3%82%B9-Arduino/dp/B0B2NSMV55) | ~¥1,200 |
-| 4 | 小型スピーカー 8Ω 20-23mm x2 | 2個 | Amazon「小型スピーカー 8Ω 20mm」検索 | ~¥500 |
-| 5 | ブレッドボード + ジャンパワイヤ | 1セット | (手持ちあれば不要) | ~¥500 |
+| # | 品名 | URL | 価格 |
+|---|------|-----|------|
+| 1 | ESP32-S3-DevKitC-1 x3個入 | [AITRIP](https://www.amazon.co.jp/AITRI3PCS-ESP32-S3-DevKitC-1-N8R2-ESP32-S3-MCU%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB-%E5%AE%8C%E5%85%A8%E3%81%AAWi-Fi%E3%81%A8BLE%E6%A9%9F%E8%83%BD%E3%82%92%E7%B5%B1%E5%90%88%E3%80%82/dp/B0BX31WGQG) | ¥3,000 |
+| 2 | INMP441 マイク x2個入 | [ACEIRMC](https://www.amazon.co.jp/-/en/ACEIRMC-Omnidirectional-Microphone-Interface-Compatible/dp/B09222JFBX) | ¥1,000 |
+| 3 | MAX98357A アンプ x2個入 | [DAOKAI](https://www.amazon.co.jp/DAOKAI-MAX98357-%E3%83%96%E3%83%AC%E3%83%BC%E3%82%AF%E3%82%A2%E3%82%A6%E3%83%88-%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%82%A4%E3%82%B9-Arduino/dp/B0B2NSMV55) | ¥1,200 |
+| 4 | 小型スピーカー 8Ω 20mm x2 | Amazon検索 | ¥500 |
+| 5 | ブレッドボード + ジャンパワイヤ | (手持ちあれば不要) | ¥500 |
 
-**合計: ~¥6,200** (ESP32 x3、マイク x2、アンプ x2、スピーカー x2)
+**→ 同期デモ2台 + 予備1台。デモ動画撮影。**
 
-→ これで同期デモ(2台)が作れる。1台予備。
-
-### 配線 (2台分)
-
-```
-ボードA (送信):                     ボードB (受信):
-ESP32-S3     INMP441                ESP32-S3     MAX98357A    Speaker
- 3V3 ─────── VDD                     3V3 ─────── VIN
- GND ─────── GND                     GND ─────── GND
- GPIO4 ───── SCK                     GPIO14 ──── BCLK
- GPIO5 ───── WS                      GPIO21 ──── LRC
- GPIO6 ───── SD                      GPIO7 ────── DIN
-             L/R → GND               GPIO8 ────── SD
-                                                 OUT+ ───── Speaker+
-                                                 OUT- ───── Speaker-
-```
-
-### フラッシュ
+### やること
 
 ```bash
-cargo install espup && espup install
-cargo install espflash ldproxy
-
 cd firmware/demo
-WIFI_SSID="あなたのWiFi" WIFI_PASS="パスワード" cargo espflash flash --monitor
+WIFI_SSID="WiFi名" WIFI_PASS="パスワード" cargo espflash flash --monitor
 ```
 
 ---
 
-## Phase 2: Coin プロトタイプ (Phase 1 が動いたら)
+## Phase 2: COIN 量産基板 — ¥14,000 (Phase 1成功後)
 
-### JLCPCB 発注
+### JLCPCB
 
 | 項目 | 数量 | コスト |
 |------|------|--------|
-| カスタム丸基板 26mm + SMT実装 | 5枚 | ~$50 |
-| 手動部品 (バッテリー200mAh + スピーカー20mm) | 5セット | ~$15 |
-| 3Dプリントケース | 5個 | ~$25 |
-| **合計** | | **~$90 (~¥14,000)** |
+| 26mm丸基板 + SMT実装 | 10枚 | ~$60 |
+| LiPo 200mAh + スピーカー 20mm | 10セット | ~$30 |
+| 3Dプリントケース | 10個 | ~$25 |
+| **合計** | | **~$115 (¥17,000)** |
 
-→ `manufacturing/` フォルダの手順で発注
-
-### Coin BOM ($22/台)
-
-| 部品 | コスト |
-|------|--------|
-| ESP32-S3-MINI-1 | $3.50 |
-| INMP441 マイク | $1.20 |
-| MAX98357A アンプ | $1.80 |
-| スピーカー 20mm | $1.00 |
-| WS2812B LED | $0.08 |
-| MCP73831 充電IC | $0.45 |
-| AP2112K LDO | $0.15 |
-| LiPo 200mAh | $2.00 |
-| USB-C | $0.25 |
-| ボタン + BME280 | $1.02 |
-| パッシブ部品 | $1.00 |
-| PCB + 組立 | $8.00 |
-| ケース | $2.00 |
-| **合計** | **~$22** |
-
-GPS不要 — STAGEのNTPで時刻同期。
+BOM $22/台 × 10 = $220。基板+ケースで$115。
+→ `manufacturing/` 参照
 
 ---
 
-## Phase 3: Lantern STAGE (Coinが動いたら)
+## Phase 3: FILL プロトタイプ — ¥75,000 (Phase 2と並行)
 
-### Amazon.co.jp / Pi Shop
+メインPAの心臓。プロ音質の検証。
 
-| # | 品名 | 価格 |
-|---|------|------|
-| 1 | Raspberry Pi 5 (4GB) | ~¥10,000 |
-| 2 | Intel BE200 WiFi 7 M.2カード | ~¥3,000 |
-| 3 | Pi 5 PCIe M.2 HAT | ~¥1,500 |
-| 4 | HiFiBerry DAC+ Pro | ~¥5,000 |
-| 5 | u-blox NEO-M9N GPS モジュール | ~¥3,000 |
-| 6 | TPA3255 アンプモジュール | ~¥2,000 |
-| 7 | 130mm 同軸ドライバー | ~¥3,500 |
-| 8 | 電源 24V + ケース | ~¥3,000 |
-| **合計** | | **~¥31,000** |
+### 購入部品
+
+| # | 品名 | 購入先 | 価格 |
+|---|------|--------|------|
+| 1 | **Raspberry Pi 5 (4GB)** | Amazon/Pi Shop | ¥10,000 |
+| 2 | **Intel BE200 WiFi 7 M.2** | Amazon | ¥3,000 |
+| 3 | **PCIe M.2 HAT (Pi 5用)** | Amazon | ¥1,500 |
+| 4 | **ES9038Q2M DAC ボード** | AliExpress | ¥2,500 |
+| 5 | **ICEpower 125ASX2 アンプ** | eBay/AliExpress | ¥12,000 |
+| 6 | **SB Acoustics 8" ウーファー** | Parts Express/AliExpress | ¥5,000 |
+| 7 | **Celestion CDX1-1730 1" 圧縮ドライバー** | Parts Express | ¥6,000 |
+| 8 | **90x50 定指向性ホーン** | AliExpress / 3Dプリント | ¥2,000 |
+| 9 | **u-blox NEO-M9N GPS + アンテナ** | Mouser/DigiKey | ¥4,500 |
+| 10 | **Quectel EC25-J 4G モジュール** | AliExpress | ¥3,000 |
+| 11 | **AC電源 (24V 5A + 5V 3A)** | Amazon | ¥2,000 |
+| 12 | **エンクロージャ材 (合板15mm + 吸音材)** | ホームセンター | ¥3,000 |
+| 13 | **XLR + Speakon コネクタ** | Amazon | ¥1,500 |
+| 14 | **microSD 32GB** | Amazon | ¥700 |
+| 15 | **内部配線 + ファン + 金具** | Amazon | ¥1,500 |
+| | **合計** | | **~¥58,200** |
 
 ### セットアップ
 
 ```bash
-# Pi 5 に Raspberry Pi OS Lite をインストール後:
+# Pi 5セットアップ
 cd stage/
-chmod +x setup.sh
 ./setup.sh
 sudo reboot
+
+# Solunaサーバー起動
 python3 soluna-server.py
+
+# COIN群がFILLに同期して鳴る
 ```
 
 ---
 
-## Phase 4: ギター配信テスト (手持ちの機材で)
+## Phase 4: SUB プロトタイプ — ¥60,000 (Phase 3成功後)
 
-Babyface Pro (手持ち) + Raspberry Pi (Phase 3で購入済み)
+フェスの低音。体で感じるサブベース。
+
+### 購入部品
+
+| # | 品名 | 購入先 | 価格 |
+|---|------|--------|------|
+| 1 | **Dayton Audio RSS390HF-4 15" ウーファー** | Parts Express | ¥18,000 |
+| 2 | **ICEpower 1000ASP アンプモジュール** | eBay/ICEpower直販 | ¥28,000 |
+| 3 | **miniDSP 2x4 (またはADAU1701ボード)** | miniDSP / AliExpress | ¥4,000 |
+| 4 | **u-blox NEO-M9N GPS + アンテナ** | Mouser | ¥4,500 |
+| 5 | **ESP32-S3-MINI-1** | LCSC | ¥500 |
+| 6 | **エンクロージャ材 (18mm合板バーチ)** | ホームセンター | ¥5,000 |
+| 7 | **バスレフポート管 (100mm径 x200mm)** | Amazon/ホームセンター | ¥500 |
+| 8 | **Speakon NL4 x2 + XLR + IEC C14** | Amazon | ¥2,000 |
+| 9 | **取っ手 x2 + ゴム脚 x4 + M20ポールマウント** | Amazon | ¥1,500 |
+| 10 | **吸音材 + 内部配線** | Amazon | ¥1,500 |
+| | **合計** | | **~¥65,500** |
+
+### エンクロージャ製作
+
+```
+バスレフ 80L (内寸約430x430x430mm)
+材料: 18mmバーチ合板
+ポート: 100mm径 x 200mm (チューニング ~35Hz)
+内部: 吸音材充填 (背面+側面)
+仕上げ: 黒ペイント + 鬼目ナット
+```
+
+---
+
+## Phase 5: ギター配信テスト — ¥0
+
+手持ちのBabyface Proを使用。
 
 ```bash
-pip3 install sounddevice numpy
+# Phase 3のPi 5に接続
 python3 tools/guitar-stream.py
-# → Coin デバイスから音が出る (22ms遅延)
+# → 全COIN + FILLから音が出る (22ms)
 ```
+
+---
+
+## Phase 6: フィールドテスト — ¥10,000
+
+30-50人の小規模イベントで実地テスト。
+
+### 構成
+
+| 機材 | 台数 | 用途 |
+|------|------|------|
+| SUB | 1 | 低音 |
+| FILL | 2 | メインPA (ステレオ) |
+| COIN | 10 | 観客の近接+LED |
+| STAGE | 1 | 制御 (FILL内蔵) |
+
+### 計測
+
+- オシロスコープでSUB/FILL/COIN間の同期精度
+- RTA (リアルタイムアナライザ) で周波数特性
+- dBメーターで音圧分布マップ
+- バッテリー持続時間 (COIN)
+- WiFi接続安定性 (10台同時)
 
 ---
 
 ## 全Phase合計
 
-| Phase | 何が手に入る | コスト |
-|-------|------------|--------|
-| 1 | ブレッドボード同期デモ 2台 + デモ動画 | ¥6,200 |
-| 2 | Coin プロトタイプ 5台 | ¥14,000 |
-| 3 | Lantern STAGE 1台 (GPS原子時計+WiFi 7) | ¥31,000 |
-| 4 | ギター配信 (手持ちBabyface Pro) | ¥0 |
-| **合計** | **Coin x5 + STAGE x1 + ギター配信** | **~¥51,200** |
+| Phase | 内容 | コスト | 成果 |
+|-------|------|--------|------|
+| 1 | ブレッドボード同期デモ | **¥6,200** | デモ動画 |
+| 2 | COIN 10台 | **¥17,000** | LED同期ショー |
+| 3 | FILL 1台 (プロPA) | **¥58,200** | 本気の音 |
+| 4 | SUB 1台 (サブウーファー) | **¥65,500** | 体で感じる低音 |
+| 5 | ギター配信 | **¥0** | Babyface Pro活用 |
+| 6 | フィールドテスト | **¥10,000** | 実測データ |
+| **合計** | | **¥156,900** | フェス対応フルシステム |
+
+**¥157,000 (約$1,050) で、L-Acoustics $488,000 と同じ構成のプロトタイプが手に入る。**
 
 ---
 
 ## 買い物チェックリスト
 
-### Phase 1 (今日)
+### Phase 1 (今日) — ¥6,200
 - [ ] ESP32-S3-DevKitC x3個入
 - [ ] INMP441 x2個入
 - [ ] MAX98357A x2個入
-- [ ] 小型スピーカー x2
+- [ ] 小型スピーカー 20mm x2
 - [ ] ブレッドボード (なければ)
 
-### Phase 2 (1週間後)
-- [ ] JLCPCB 丸基板発注 (manufacturing/ 参照)
-- [ ] AliExpress: LiPo 200mAh x5
-- [ ] AliExpress: 20mmスピーカー x5
+### Phase 2 (1週後) — ¥17,000
+- [ ] JLCPCB: 26mm丸基板 + PCBA 10枚
+- [ ] AliExpress: LiPo 200mAh x10
+- [ ] AliExpress: 20mmスピーカー x10
+- [ ] JLCPCB: 3Dプリントケース x10
 
-### Phase 3 (2週間後)
-- [ ] Raspberry Pi 5
+### Phase 3 (2週後) — ¥58,200
+- [ ] Raspberry Pi 5 (4GB)
 - [ ] Intel BE200 + M.2 HAT
-- [ ] HiFiBerry DAC+ Pro
-- [ ] GPS モジュール
-- [ ] アンプ + スピーカー + ケース
+- [ ] ES9038Q2M DAC ボード
+- [ ] ICEpower 125ASX2
+- [ ] SB Acoustics 8" ウーファー
+- [ ] Celestion CDX1-1730 1" 圧縮ドライバー
+- [ ] 90x50 ホーン
+- [ ] u-blox NEO-M9N GPS + アンテナ
+- [ ] Quectel EC25-J 4G
+- [ ] AC電源 (24V+5V)
+- [ ] エンクロージャ材 (合板+吸音材)
+- [ ] コネクタ (XLR+Speakon)
 
-### Phase 4 (Phase 3と同時)
-- [ ] Babyface Pro CC モード確認
-- [ ] guitar-stream.py テスト
+### Phase 4 (1ヶ月後) — ¥65,500
+- [ ] Dayton Audio RSS390HF-4 15" ウーファー
+- [ ] ICEpower 1000ASP アンプ
+- [ ] miniDSP 2x4
+- [ ] u-blox NEO-M9N GPS + アンテナ
+- [ ] ESP32-S3-MINI-1
+- [ ] エンクロージャ材 (18mmバーチ合板)
+- [ ] バスレフポート管 100mm
+- [ ] コネクタ (Speakon+XLR+IEC)
+- [ ] 取っ手+ゴム脚+ポールマウント
+- [ ] 吸音材+内部配線

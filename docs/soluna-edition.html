@@ -191,8 +191,10 @@ section { padding:6rem 2rem; max-width:1000px; margin:0 auto; position:relative;
 .models:hover .model-card:hover { opacity:1; }
 
 .mc-badge { display:inline-block; padding:0.25rem 0.8rem; border-radius:100px; font-size:0.65rem; letter-spacing:0.1em; margin-bottom:1.5rem; }
-.mc-badge.stage { background:rgba(249,115,22,0.1); color:#f97316; border:1px solid rgba(249,115,22,0.2); }
-.mc-badge.crowd { background:rgba(96,165,250,0.1); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
+.mc-badge.sub { background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); }
+.mc-badge.fill { background:rgba(249,115,22,0.1); color:#f97316; border:1px solid rgba(249,115,22,0.2); }
+.mc-badge.coin { background:rgba(96,165,250,0.1); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
+.mc-badge.stage { background:rgba(74,222,128,0.1); color:#4ade80; border:1px solid rgba(74,222,128,0.2); }
 .model-card h3 { font-size:1.4rem; font-weight:300; margin-bottom:0.3rem; }
 .model-card .mc-sub { font-size:0.9rem; color:#555; margin-bottom:1rem; }
 .model-card .mc-why { font-size:0.8rem; color:#444; line-height:1.7; margin-bottom:1.5rem; padding:1rem; background:#080808; border-radius:8px; border-left:2px solid #f97316; }
@@ -539,143 +541,102 @@ footer a:hover { color:#f97316; }
   </div>
 </section>
 
-<!-- TWO MODELS -->
+<!-- FOUR PRODUCTS -->
 <section id="models" class="fade-section">
-  <div class="sec-label">2つのモデル</div>
-  <h2 class="sec-title">ステージの音源と、観客の増幅器。</h2>
-  <p class="sec-desc">STAGEは同軸点音源で完璧な位相特性を持つマスターノード。CROWDは手のひらサイズの分散スピーカーで、100台が協調して音場を作る。</p>
+  <div class="sec-label">4つのプロダクト</div>
+  <h2 class="sec-title">Festival System ラインナップ。</h2>
+  <p class="sec-desc">SUBが地を揺らし、FILLが音場を作り、COINが一人ひとりに届け、STAGEがすべてを統率する。4つが揃って初めてフェスティバルが完成する。</p>
 
   <div class="models">
+
+    <!-- SUB -->
+    <div class="model-card">
+      <div class="mc-badge sub">SUB</div>
+      <h3>Koe SUB</h3>
+      <p class="mc-sub">$1,200 — L-Acoustics SB28 ($8,000) の 1/7</p>
+
+      <div class="mc-why">
+        <strong>なぜ専用サブウーファーか:</strong> フェスティバルで「体で感じる低音」は不可欠。FILLの8インチでは30Hz帯域の再生は物理的に不可能。15インチウーファー + 80Lバスレフで30Hzまでフラットに再生し、ICEpower 1000Wが130dBの音圧を叩き出す。GPS同期により複数台のSUBが位相を揃え、打ち消し合いなく低音の壁を形成する。
+      </div>
+
+      <ul class="spec-list">
+        <li><span class="sl-label">ドライバー</span><span class="sl-value accent">15インチ ウーファー</span></li>
+        <li><span class="sl-label">アンプ</span><span class="sl-value accent">ICEpower 1000W Class-D</span></li>
+        <li><span class="sl-label">周波数帯域</span><span class="sl-value accent">30 - 80Hz</span></li>
+        <li><span class="sl-label">最大音圧</span><span class="sl-value accent">130dB SPL</span></li>
+        <li><span class="sl-label">エンクロージャ</span><span class="sl-value">バスレフ 80L</span></li>
+        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS同期 (STAGEから配信)</span></li>
+        <li><span class="sl-label">位相制御</span><span class="sl-value">GPS座標ベースの自動ディレイ + 位相整合</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value accent">$1,200</span></li>
+      </ul>
+    </div>
+
+    <!-- FILL -->
+    <div class="model-card">
+      <div class="mc-badge fill">FILL</div>
+      <h3>Koe FILL</h3>
+      <p class="mc-sub">$1,500 — L-Acoustics KARA ($12,000) の 1/8</p>
+
+      <div class="mc-why">
+        <strong>なぜ8インチ + 圧縮ドライバーか:</strong> フルレンジの音場を担うFILLには、中低域の量感と高域の指向性制御の両立が必要。8インチウーファーが80Hz-2kHzを支え、1インチ圧縮ドライバー + 90x50ホーンが2kHz以上を高効率かつ正確な指向性で放射。ICEpower 125W bi-ampとES9038Q2M DACにより、プロオーディオ品質の音をオープンソースで実現する。
+      </div>
+
+      <ul class="spec-list">
+        <li><span class="sl-label">ドライバー</span><span class="sl-value accent">8" ウーファー + 1" 圧縮ドライバー</span></li>
+        <li><span class="sl-label">ホーン</span><span class="sl-value accent">90&deg; x 50&deg; 定指向性ホーン</span></li>
+        <li><span class="sl-label">アンプ</span><span class="sl-value accent">ICEpower 125W bi-amp</span></li>
+        <li><span class="sl-label">DAC</span><span class="sl-value accent">ES9038Q2M (-120dB SNR)</span></li>
+        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi 5 + WiFi 7 + GPS + 4G</span></li>
+        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS 1PPS + IEEE 1588 PTP</span></li>
+        <li><span class="sl-label">音速補正</span><span class="sl-value">GPS座標ベースの自動ディレイ調整</span></li>
+        <li><span class="sl-label">入力</span><span class="sl-value">AES67 / Dante / XLR / USB-C UAC</span></li>
+        <li><span class="sl-label">DSP</span><span class="sl-value">FIR クロスオーバー + PEQ + リミッター + 音速補正ディレイ</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value accent">$1,500</span></li>
+      </ul>
+    </div>
+
+    <!-- COIN -->
+    <div class="model-card">
+      <div class="mc-badge coin">COIN</div>
+      <h3>Koe COIN</h3>
+      <p class="mc-sub">$65 — BOM $22 のオープンハードウェア</p>
+
+      <div class="mc-why">
+        <strong>なぜ手のひらサイズか:</strong> 観客一人ひとりが持つ近接スピーカー。20mmドライバーの小さな音でも、耳元30cmなら十分な音量になる。さらに3.5mmイヤホンジャック搭載で、イヤホン接続すればサイレントディスコに即対応。マイク内蔵で群衆オーケストラも実現 — 全員が演奏者になれる。LEDリングが音楽と同期して光り、会場全体が一つの生命体のように脈動する。
+      </div>
+
+      <ul class="spec-list">
+        <li><span class="sl-label">スピーカー</span><span class="sl-value accent">20mm ドライバー</span></li>
+        <li><span class="sl-label">イヤホン出力</span><span class="sl-value accent">3.5mm出力 (PCM5102A DAC, -93dB SNR) — イヤホン接続でサイレントディスコに対応</span></li>
+        <li><span class="sl-label">近接補強</span><span class="sl-value">耳元30cmで十分な音圧を確保</span></li>
+        <li><span class="sl-label">LED</span><span class="sl-value accent">RGB リング (同期アニメーション)</span></li>
+        <li><span class="sl-label">マイク</span><span class="sl-value accent">内蔵マイク (群衆オーケストラ対応)</span></li>
+        <li><span class="sl-label">時刻同期</span><span class="sl-value">NTP同期 (GPSはSTAGEから配信)</span></li>
+        <li><span class="sl-label">通信</span><span class="sl-value">WiFi + BLE</span></li>
+        <li><span class="sl-label">BOM</span><span class="sl-value accent">$22</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value accent">$65</span></li>
+      </ul>
+    </div>
 
     <!-- STAGE -->
     <div class="model-card">
       <div class="mc-badge stage">STAGE</div>
-      <h3>Koe Soluna STAGE</h3>
-      <p class="mc-sub">同軸点音源マスターノード</p>
+      <h3>Koe STAGE</h3>
+      <p class="mc-sub">$800 — 全体を統率する制御ブレイン</p>
 
       <div class="mc-why">
-        <strong>なぜ同軸ドライバーか:</strong> 通常の2wayスピーカーはウーファーとツイーターの物理的距離がリスナーへの到達時間差を生む。同軸(コアキシャル)配置は高音と低音が同一の点から放射されるため、全周波数で位相が揃う。分散同期システムでは、音源の位相精度が全体の同期精度の上限を決めるため、これは妥協できない。
+        <strong>なぜ独立した制御ノードか:</strong> STAGEはRaspberry Pi 5ベースの制御ブレインで、GPS マスタークロックとして全デバイスに絶対時刻を配信する。AES67/Dante入力で既存のプロオーディオ機材と接続し、音声ストリームにGPSタイムスタンプを付与して各デバイスに配信。FILLに内蔵することも可能だが、独立させることで冗長性と柔軟性が増す。
       </div>
 
       <ul class="spec-list">
-        <li>
-          <span class="sl-label">ドライバー</span>
-          <span class="sl-value accent">130mm 同軸 (ウーファー + 25mm コンプレッション・ツイーター)</span>
-        </li>
-        <li>
-          <span class="sl-label">なぜ130mm</span>
-          <span class="sl-value sl-note">T/Sパラメータ上、6Lの密閉箱でQtc=0.7(バタワース特性)にするには Vas~4L / fs~65Hz のドライバーが必要。130mmクラスがこの条件を満たす</span>
-        </li>
-        <li><span class="sl-label">エンクロージャ</span><span class="sl-value">密閉型 6L (吸音材充填)</span></li>
-        <li>
-          <span class="sl-label">なぜ密閉型</span>
-          <span class="sl-value sl-note">バスレフはポート共振で群遅延が増大し位相が乱れる。同期システムでは位相精度が最優先。密閉型は群遅延が最小</span>
-        </li>
-        <li><span class="sl-label">-3dB低域</span><span class="sl-value accent">65Hz (密閉Qtc=0.7)</span></li>
-        <li>
-          <span class="sl-label">なぜ40Hzではないか</span>
-          <span class="sl-value sl-note">6L筐体で40Hzは物理的に不可能。DSPで40Hz以下をブーストすると歪みが増大しXmaxを超える。65Hzは正直で実用的な数字</span>
-        </li>
-        <li><span class="sl-label">アンプ</span><span class="sl-value">TPA3255 Class-D Bi-amp (175W LF + 50W HF)</span></li>
-        <li>
-          <span class="sl-label">なぜBi-amp</span>
-          <span class="sl-value sl-note">DSPクロスオーバー後にLF/HFを別チャンネルで増幅。パッシブネットワークのロスがゼロ。ドライバーを直接駆動しダンピングファクターが最大化。Pi 5のCPUパワーでFIRクロスオーバーも可能</span>
-        </li>
-        <li><span class="sl-label">クロスオーバー</span><span class="sl-value accent">DSP (IIR 4次 Linkwitz-Riley @ 2.5kHz)</span></li>
-        <li>
-          <span class="sl-label">なぜDSPクロスオーバー</span>
-          <span class="sl-value sl-note">パッシブクロスオーバーでは位相補正・ディレイ調整・EQが不可能。DSPならドライバーの個体差もキャリブレーション可能</span>
-        </li>
-        <li><span class="sl-label">最大音圧</span><span class="sl-value accent">~108dB SPL @ 1m (計算値)</span></li>
-        <li>
-          <span class="sl-label">計算根拠</span>
-          <span class="sl-value sl-note">130mmドライバー感度 ~84dB/W/m + 175W(22.4dB) = 106.4dB。Bi-ampでHFも加算し実効~108dB。リミッターで歪み防止</span>
-        </li>
-        <li><span class="sl-label">DAC</span><span class="sl-value accent">HiFiBerry DAC+ Pro (PCM5122, 32bit/192kHz, SNR -112dB)</span></li>
-        <li>
-          <span class="sl-label">なぜ192kHzか</span>
-          <span class="sl-value sl-note">Pi 5のI2Sは192kHz対応。実用上48kHzで十分だが、XLR入力のプロ音源をロスレスで処理するため192kHz対応DACを選択。内部処理は48kHz、必要時に192kHzにアップサンプル</span>
-        </li>
-        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS 1PPS + IEEE 1588 PTP (linuxptp)</span></li>
-        <li><span class="sl-label">GPS 1PPS精度</span><span class="sl-value">&lt;100ns (電子的)</span></li>
-        <li><span class="sl-label">PTP精度</span><span class="sl-value accent">&lt;1μs (Linux kernel ptp4l、ハードウェアタイムスタンプ)</span></li>
-        <li><span class="sl-label">E2E音声同期</span><span class="sl-value accent">~15ms 目標 (PTP + DAC + amp)</span></li>
-        <li>
-          <span class="sl-label">なぜ15ms</span>
-          <span class="sl-value sl-note">Pi 5のRT_PREEMPTカーネル+PipeWire低遅延パイプラインでDSP処理1ms+DACバッファ0.5ms+ジッターバッファ10ms。ESP32版より5ms改善。デバイス間相対ずれは&lt;2ms目標</span>
-        </li>
-        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi 7 (Intel BE200, 2.4Gbps MLO) + 4G Cat-4 (Quectel EC25-J USB)</span></li>
-        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi 5 (Cortex-A76 x4 2.4GHz, 4GB RAM, 32GB SD)</span></li>
-        <li><span class="sl-label">マイク</span><span class="sl-value">2x INMP441 (ステレオ / AEC参照用)</span></li>
-        <li><span class="sl-label">入力</span><span class="sl-value">XLR (バランス) / 3.5mm / USB-C UAC</span></li>
-        <li><span class="sl-label">DSP</span><span class="sl-value">AEC + AGC + PEQ(7バンド) + リミッター + 音速補正ディレイ</span></li>
-        <li><span class="sl-label">電源</span><span class="sl-value">DC 24V / USB-C PD 65W / 内蔵 25.9V 6S Li-ion 5000mAh</span></li>
-        <li><span class="sl-label">バッテリー駆動</span><span class="sl-value">~4時間 @ 中音量 (推定)</span></li>
-        <li><span class="sl-label">筐体</span><span class="sl-value">アルミダイキャスト + ゴムガスケット</span></li>
-        <li><span class="sl-label">防塵防水</span><span class="sl-value">IP55 目標 (屋外フェス対応)</span></li>
-        <li><span class="sl-label">サイズ</span><span class="sl-value">200 x 200 x 280mm</span></li>
-        <li><span class="sl-label">重量</span><span class="sl-value">~4.5kg</span></li>
-        <li><span class="sl-label">価格</span><span class="sl-value">TBD</span></li>
-      </ul>
-    </div>
-
-    <!-- CROWD -->
-    <div class="model-card">
-      <div class="mc-badge crowd">CROWD</div>
-      <h3>Koe Soluna CROWD</h3>
-      <p class="mc-sub">手のひらサイズ分散スピーカー</p>
-
-      <div class="mc-why">
-        <strong>なぜ40mmフルレンジか:</strong> 28mmでは低域の物理的限界が120Hz程度。40mmにすると振動板面積が2倍になり、同じXmaxで2倍の空気を動かせる。40cc密閉箱で約100Hzまで再生可能。低音が「聴こえる」と「感じる」の境界線を超える。フルレンジ1発なので位相は完璧に揃う。
-      </div>
-
-      <ul class="spec-list">
-        <li><span class="sl-label">ドライバー</span><span class="sl-value accent">40mm フルレンジ ネオジム</span></li>
-        <li>
-          <span class="sl-label">なぜパッシブラジエーターなし</span>
-          <span class="sl-value sl-note">パッシブラジエーターは共振周波数でQ値が高くなり群遅延が増大する。同期精度を優先して密閉型を採用。DSPでEQブーストして低域を補償</span>
-        </li>
-        <li><span class="sl-label">エンクロージャ</span><span class="sl-value">密閉型 ~45cc (吸音材充填)</span></li>
-        <li><span class="sl-label">-3dB低域</span><span class="sl-value">~100Hz (密閉 + DSP EQブースト)</span></li>
-        <li><span class="sl-label">アンプ</span><span class="sl-value">MAX98357A Class-D 3W</span></li>
-        <li><span class="sl-label">最大音圧</span><span class="sl-value">~82dB SPL @ 1m (計算値)</span></li>
-        <li>
-          <span class="sl-label">計算根拠</span>
-          <span class="sl-value sl-note">40mm感度 ~76dB/W/m + 3W(4.8dB) = ~81dB。100台が同位相で鳴ると+20dBで101dBの壁を形成</span>
-        </li>
-        <li><span class="sl-label">100台同位相合算</span><span class="sl-value accent">~101dB (理論値、6dBマージン含まず)</span></li>
-        <li><span class="sl-label">DAC</span><span class="sl-value">内蔵 (MAX98357A、I2S入力)</span></li>
-        <li><span class="sl-label">時刻同期</span><span class="sl-value accent">u-blox MAX-M10S GPS + NTP補正</span></li>
-        <li><span class="sl-label">E2E同期精度</span><span class="sl-value">~20ms (デバイス間相対ずれ &lt;5ms 目標)</span></li>
-        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi (ESP32-S3) + LTE-M (SIM7080G)</span></li>
-        <li><span class="sl-label">音速補正</span><span class="sl-value accent">GPS座標ベースの自動ディレイ調整</span></li>
-        <li>
-          <span class="sl-label">音速補正の仕組み</span>
-          <span class="sl-value sl-note">STAGEのGPS座標と自分のGPS座標から距離dを計算。気温T(BME280)から音速v=331.3+0.606*Tを算出。d/v秒のディレイをバッファに追加。STAGEの直接音と同時にCROWDが鳴る</span>
-        </li>
-        <li><span class="sl-label">温度補正</span><span class="sl-value accent">BME280 (温度→音速リアルタイム補正)</span></li>
-        <li>
-          <span class="sl-label">なぜ温度補正</span>
-          <span class="sl-value sl-note">音速は20°Cで343m/s、35°Cで352m/s。100m先で最大8msの誤差。知覚閾値(10ms)に迫るため、温度補正は必須</span>
-        </li>
-        <li><span class="sl-label">触覚フィードバック</span><span class="sl-value accent">LRAモーター + DRV2605L (40-100Hz体感)</span></li>
-        <li>
-          <span class="sl-label">なぜ触覚</span>
-          <span class="sl-value sl-note">40mmドライバーの物理限界で100Hz以下は再生困難。低音は「聴く」と「体で感じる」の2つ。LRAモーターで40-100Hzのサブベースを触覚に変換し、フェスの体感を補完</span>
-        </li>
-        <li><span class="sl-label">近接干渉防止</span><span class="sl-value">BLE RSSI測距 → 自動音量調整</span></li>
-        <li><span class="sl-label">MCU</span><span class="sl-value">ESP32-S3-MINI-1 (8MB/2MB)</span></li>
-        <li><span class="sl-label">マイク</span><span class="sl-value">1x INMP441 (双方向通信 / ボイスコマンド)</span></li>
-        <li><span class="sl-label">コーデック</span><span class="sl-value">適応型: WiFi=FLAC(ロスレス) / 4G=Opus 128kbps</span></li>
-        <li><span class="sl-label">バッテリー</span><span class="sl-value">2500mAh (~6時間 推定)</span></li>
-        <li><span class="sl-label">充電</span><span class="sl-value">USB-C (5V/2A)</span></li>
-        <li><span class="sl-label">筐体</span><span class="sl-value">PC/ABS + TPUバンパー</span></li>
-        <li><span class="sl-label">防塵防水</span><span class="sl-value">IP54 目標</span></li>
-        <li><span class="sl-label">サイズ</span><span class="sl-value">60 x 80 x 28mm</span></li>
-        <li><span class="sl-label">重量</span><span class="sl-value">~85g</span></li>
-        <li><span class="sl-label">装着</span><span class="sl-value">カラビナ / ストラップ / 自立</span></li>
-        <li><span class="sl-label">LED</span><span class="sl-value">5x RGB リング (同期アニメーション)</span></li>
-        <li><span class="sl-label">価格</span><span class="sl-value">TBD</span></li>
+        <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi 5 (Cortex-A76 x4 2.4GHz)</span></li>
+        <li><span class="sl-label">入力</span><span class="sl-value accent">AES67 / Dante 対応</span></li>
+        <li><span class="sl-label">GPS</span><span class="sl-value accent">マスタークロック (1PPS, &lt;100ns精度)</span></li>
+        <li><span class="sl-label">時刻配信</span><span class="sl-value">IEEE 1588 PTP + NTP (全デバイスへ)</span></li>
+        <li><span class="sl-label">通信</span><span class="sl-value accent">WiFi 7 + 4G + Ethernet</span></li>
+        <li><span class="sl-label">DSP</span><span class="sl-value">音声ルーティング + タイムスタンプ付与 + 音速補正計算</span></li>
+        <li><span class="sl-label">備考</span><span class="sl-value">FILLに内蔵も可能 (統合モード)</span></li>
+        <li><span class="sl-label">価格</span><span class="sl-value accent">$800</span></li>
       </ul>
     </div>
 

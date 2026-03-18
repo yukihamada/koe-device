@@ -25,8 +25,12 @@ C5,4.7uF,0402,MCP73831 input,1,C23733,0.01,JLCPCB
 C6,4.7uF,0402,MCP73831 output,1,C23733,0.01,JLCPCB
 C7,10uF,0805,MAX98357A decoupling,1,C15850,0.01,JLCPCB
 C8,0.1uF,0402,MAX98357A decoupling,1,C1525,0.01,JLCPCB
+U-DAC2,PCM5102A,SSOP-20,I2S DAC for headphone output (-93dB SNR),1,C7853,1.00,JLCPCB
+J2,3.5mm jack,SMD,Stereo headphone output,1,C145819,0.30,JLCPCB
+C9,10uF,0402,DAC output coupling,2,C15525,0.02,JLCPCB
+R7,33R,0402,Headphone output impedance,2,C25100,0.01,JLCPCB
 ,,,,,,,,
-,,,TOTAL BOM COST (excl PCB & assembly),,,,~$11.83,
+,,,TOTAL BOM COST (excl PCB & assembly),,,,~$13.17,
 ,,,PCB (5pcs JLCPCB),,,,~$2.00/ea,
 ,,,PCBA Assembly,,,,~$8.00/ea,
-,,,TOTAL PER UNIT,,,,~$21.83,
+,,,TOTAL PER UNIT,,,,~$23.17,

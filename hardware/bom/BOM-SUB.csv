@@ -1,0 +1,46 @@
+Category,Ref,Part,Description,Qty,Unit USD,Subtotal USD,Source
+Driver,SPK1,Dayton Audio RSS390HF-4,"15in Reference Series HF subwoofer 4ohm, fs=28Hz Vas=203L Qts=0.34 Xmax=17mm",1,120.00,120.00,Parts Express/AliExpress
+,,,,,,,,
+Amplifier,U-AMP,ICEpower 1000ASP,"Class-D 1000W mono module, integrated SMPS, THD<0.005%",1,180.00,180.00,ICEpower/eBay
+,,,,,,,,
+DSP,U-DSP,miniDSP 2x4,"2-in 4-out DSP, 48kHz/24bit, parametric EQ + crossover + delay",1,25.00,25.00,miniDSP/Amazon
+,,,,,,,,
+GPS/Clock,U-GPS,u-blox NEO-M9N,"Multi-band GNSS, 1PPS output <30ns accuracy",1,18.00,18.00,Mouser/DigiKey
+GPS/Clock,Y1,TCXO 0.5ppm,"26MHz temperature-compensated crystal for GPS holdover",1,3.00,3.00,LCSC
+GPS/Clock,ANT-GPS,Active GPS antenna,"Ceramic patch 25x25mm + LNA, SMA",1,3.50,3.50,AliExpress
+,,,,,,,,
+Compute,U1,ESP32-S3-MINI-1-N8R2,"MCU WiFi+BLE, controls DSP params + GPS sync + LED + WiFi config",1,3.50,3.50,JLCPCB/LCSC
+Compute,PCB,Control PCB,"2-layer 60x40mm, ESP32 + GPS + level shifters + connectors",1,2.00,2.00,JLCPCB
+Compute,Passives,R+C+connector misc,"Decoupling caps, resistors, headers, LED driver",1,3.00,3.00,LCSC
+,,,,,,,,
+Power,J-AC,IEC C14 inlet,"Fused IEC C14 panel mount with switch, 250V 10A",1,2.50,2.50,LCSC/AliExpress
+Power,U-EMI,EMI filter module,"Single-stage pi filter 10A, reduces conducted emissions",1,3.50,3.50,AliExpress
+Power,U-AUX,Auxiliary PSU,"AC-DC 5V/2A module for ESP32 + GPS + LED (Mean Well IRM-10-5)",1,5.00,5.00,Mouser/AliExpress
+,,,,,,,,
+Enclosure,WOOD,18mm birch plywood,"Panels cut for 500x500x600mm external, ~80L net volume",1,25.00,25.00,Local lumber
+Enclosure,PORT,Bass reflex port tube,"PVC 100mm diameter x 200mm length, flared ends",1,4.00,4.00,Parts Express
+Enclosure,BRACE,Internal bracing,"18mm plywood cross-braces x2, window brace x1",1,5.00,5.00,Local lumber
+Enclosure,DAMP,Acoustic damping,"Polyester fill 200g + bitumen pads on panels",1,6.00,6.00,Parts Express/AliExpress
+Enclosure,GRILLE,Perforated steel grille,"Powder-coated 3mm perforated steel, front panel",1,5.00,5.00,Custom
+Enclosure,FINISH,Exterior coating,"Black textured spray coating (Duratex or equivalent)",1,8.00,8.00,Parts Express
+,,,,,,,,
+Connectors,J-SPK1,Neutrik NL4MP,"Speakon NL4 panel mount, input",1,4.00,4.00,Mouser/Amazon
+Connectors,J-SPK2,Neutrik NL4MP,"Speakon NL4 panel mount, link/thru output",1,4.00,4.00,Mouser/Amazon
+Connectors,J-XLR,Neutrik NC3FD-LX,"XLR female panel mount, balanced audio input",1,2.50,2.50,Mouser
+,,,,,,,,
+LED,LED1,WS2812B strip,"Addressable RGB LED strip, 10 LEDs, around port ring",10,0.08,0.80,LCSC/AliExpress
+LED,LED-WIRE,LED extension cable,"3-pin JST connector + 300mm silicone wire",1,0.50,0.50,AliExpress
+,,,,,,,,
+Hardware,HANDLE,Recessed handle,"Spring-loaded steel recessed handle, black",2,3.00,6.00,AliExpress/Penn Elcom
+Hardware,FEET,Rubber feet,"50mm heavy-duty rubber isolating feet, M8 thread",4,1.00,4.00,AliExpress
+Hardware,POLE,M20 pole mount,"Threaded M20 flange for speaker pole, top panel",1,3.00,3.00,AliExpress
+Hardware,SCREWS,Fastener kit,"T-nuts, wood screws, machine screws, corner brackets",1,3.00,3.00,Local hardware
+Hardware,WIRE,Internal wiring,"14AWG speaker cable 1m + 18AWG signal wire + solder terminals",1,3.00,3.00,Local/AliExpress
+Hardware,GASKET,Foam gasket tape,"Closed-cell foam 3mm x 20mm, seals driver + port + connectors",1,1.50,1.50,AliExpress
+,,,,,,,,
+TOTAL,,,,,,~$432,,
+,,,,,,,,
+,,,TOTAL BOM (per unit @100),,,$432,,
+,,,Enclosure tooling amortized,,,$0 (plywood construction),,
+,,,GRAND TOTAL PER UNIT,,,$432,,
+,,,Suggested retail (2.8x markup),,,$1,200,,
