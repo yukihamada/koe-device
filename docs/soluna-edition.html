@@ -21,7 +21,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Koe Soluna Edition — 音速を超える同期">
-<meta name="twitter:description" content="GPS原子時計で全スピーカーを同期。フェスティバル用分散オーディオ。STAGE $650 + CROWD $156。">
+<meta name="twitter:description" content="GPS原子時計で全スピーカーを同期。フェスティバル用分散オーディオ。SUB + FILL + COIN + STAGE。">
 <meta name="twitter:image" content="https://koe.live/images/C2-festival-hands.png">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -487,7 +487,7 @@ footer a:hover { color:#f97316; }
 
     <div class="hero-device-wrap">
       <div class="device-crowd"><div class="d-mic"></div><div class="d-led"></div></div>
-      <div class="hero-device-label">CROWD</div>
+      <div class="hero-device-label">COIN</div>
     </div>
   </div>
 
@@ -525,8 +525,8 @@ footer a:hover { color:#f97316; }
     </div>
     <div class="problem-card good">
       <div class="num" data-count-target="1" data-count-prefix="<" data-count-suffix="ms">0ms</div>
-      <h4>100m離れたCROWDへの電波の到達時間</h4>
-      <p>WiFi/4Gの電波は光速で伝播。100m先のCROWDデバイスにも1ms以下で音声データが届く。音がスピーカーの前30cmを飛ぶ時間より短い。</p>
+      <h4>100m離れたFILL/COINへの電波の到達時間</h4>
+      <p>WiFi/4Gの電波は光速で伝播。100m先のFILL/COINデバイスにも1ms以下で音声データが届く。音がスピーカーの前30cmを飛ぶ時間より短い。</p>
     </div>
     <div class="problem-card bad">
       <div class="num" data-count-target="10" data-count-suffix="ms">0ms</div>
@@ -536,7 +536,7 @@ footer a:hover { color:#f97316; }
     <div class="problem-card good">
       <div class="num">音速補正</div>
       <h4>Koeの答え: 距離に応じた再生ディレイ</h4>
-      <p>各CROWDデバイスがGPS座標を持つ。STAGEからの距離を計算し、「STAGEの直接音がリスナーに届くタイミング」に合わせて再生を遅延させる。CROWDは直接音を補強する増幅器になる。</p>
+      <p>各FILL/COINデバイスがGPS座標を持つ。STAGEからの距離を計算し、「STAGEの直接音がリスナーに届くタイミング」に合わせて再生を遅延させる。FILL/COINは直接音を補強する増幅器になる。</p>
     </div>
   </div>
 </section>
@@ -656,7 +656,7 @@ footer a:hover { color:#f97316; }
       <div class="si-icon">Layer 1</div>
       <div class="si-title"><span class="orange">絶対時刻同期 (GPS 1PPS)</span></div>
       <div class="si-desc">
-        全デバイスがGPS衛星の原子時計から1PPS(Pulse Per Second)信号を受信。各デバイスのローカルクロックをUTCに同期。精度&lt;100ns。これが全レイヤーの基盤。STAGEはTCXO(0.5ppm)でGPSロスト時も数分間精度を維持。屋内ではNTP + IEEE 1588 PTPでSTAGEからCROWDに時刻配信(精度~1ms)。
+        全デバイスがGPS衛星の原子時計から1PPS(Pulse Per Second)信号を受信。各デバイスのローカルクロックをUTCに同期。精度&lt;100ns。これが全レイヤーの基盤。STAGEはTCXO(0.5ppm)でGPSロスト時も数分間精度を維持。屋内ではNTP + IEEE 1588 PTPでSTAGEからFILL/COINに時刻配信(精度~1ms)。
       </div>
     </div>
     <div class="sync-item">
@@ -670,14 +670,14 @@ footer a:hover { color:#f97316; }
       <div class="si-icon">Layer 3</div>
       <div class="si-title"><span class="orange">音速補正 (距離連動ディレイ)</span></div>
       <div class="si-desc">
-        これが他のどの製品にもない核心技術。各CROWDがGPS座標でSTAGEとの距離dを計算。再生タイミングに d/343秒のディレイを追加。例:STAGEから50m離れたCROWDは146msのディレイを追加し、STAGEの直接音とCROWDの再生音が同じ瞬間にリスナーの耳に届く。CROWDはリスナーの至近距離(30cm-2m)にあるため、明瞭度はSTAGEの直接音より遥かに高い。
+        これが他のどの製品にもない核心技術。各FILL/COINがGPS座標でSTAGEとの距離dを計算。再生タイミングに d/343秒のディレイを追加。例:STAGEから50m離れたFILLは146msのディレイを追加し、STAGEの直接音とFILLの再生音が同じ瞬間にリスナーの耳に届く。COINはリスナーの至近距離(30cm)にあるため、イヤホン接続時の明瞭度は最高になる。
       </div>
     </div>
     <div class="sync-item">
       <div class="si-icon">Layer 4</div>
       <div class="si-title"><span class="orange">位相整合 (音響設計)</span></div>
       <div class="si-desc">
-        同期が完璧でも、各スピーカーの位相特性がバラバラだと打ち消し合いが起きる。STAGEの同軸ドライバーとCROWDのフルレンジ1発は、どちらも点音源に近く全帯域で位相が揃う。密閉型エンクロージャは群遅延が最小。DSPクロスオーバーはLinkwitz-Riley(直線位相に最も近い)を採用。バスレフポートの位相回転がないため、低域でも正確な同期が可能。
+        同期が完璧でも、各スピーカーの位相特性がバラバラだと打ち消し合いが起きる。FILLの圧縮ドライバー + ホーン構成は高効率かつ位相が揃い、SUBは専用帯域に集中。COINは20mmシングルドライバーで完璧な点音源。DSPクロスオーバーはLinkwitz-Riley(直線位相に最も近い)を採用。全製品の位相整合により、低域から高域まで正確な同期が可能。
       </div>
     </div>
   </div>
@@ -720,8 +720,8 @@ footer a:hover { color:#f97316; }
     </div>
 
     <div class="td-result">
-      <span class="g">電波は20msで到達 → CROWDが126msのディレイを追加 → 146msに再生開始</span><br>
-      <span class="g">音波は146msで到達 → STAGEの直接音とCROWDの再生音の差 = わずか3ms</span><br>
+      <span class="g">電波は20msで到達 → FILLが126msのディレイを追加 → 146msに再生開始</span><br>
+      <span class="g">音波は146msで到達 → STAGEの直接音とFILLの再生音の差 = わずか3ms</span><br>
       <span class="g" style="opacity:0.7;">人間の知覚閾値(10ms)以下 = 「同じ音」に聞こえる</span>
     </div>
   </div>
@@ -761,26 +761,26 @@ footer a:hover { color:#f97316; }
     <div class="case-card">
       <div class="cc-icon">🎧</div>
       <div class="cc-title">サイレントディスコ</div>
-      <div class="cc-desc">DJブースにSTAGE x3(配信のみ、スピーカーミュート)。参加者はCROWDのイヤホン出力で聴く。3チャンネル切替。LEDの色がチャンネルを示す。全員の体験が完全に同期。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x3(各DJ) + CROWD xN<br><strong>特殊:</strong> 3ch切替、LEDチャンネル同期<br><strong>Opus:</strong> 3ストリーム同時配信</div>
+      <div class="cc-desc">DJブースにSTAGE x3(配信のみ)。参加者はCOINのイヤホンジャック(3.5mm)にイヤホンを接続して聴く。3チャンネル切替。LEDの色がチャンネルを示す。音漏れゼロで全員の体験が完全に同期。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x3(各DJ) + COIN xN<br><strong>特殊:</strong> 3ch切替、LEDチャンネル同期、サイレントディスコ<br><strong>Opus:</strong> 3ストリーム同時配信</div>
     </div>
     <div class="case-card">
       <div class="cc-icon">🎸</div>
       <div class="cc-title">ストリートパフォーマンス</div>
-      <div class="cc-desc">パフォーマーがSTAGE x1をバッテリー駆動で設置。通りすがりの人がCROWDまたはスマホWebアプリで参加。4G経由でリモートリスナーにも配信。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x不定<br><strong>通信:</strong> WiFi + 4G fallback<br><strong>バッテリー:</strong> ~4時間</div>
+      <div class="cc-desc">パフォーマーがFILL x1(STAGE内蔵)をバッテリー駆動で設置。通りすがりの人がCOINまたはスマホWebアプリで参加。4G経由でリモートリスナーにも配信。</div>
+      <div class="cc-config"><strong>構成:</strong> FILL x1(STAGE内蔵) + COIN x不定<br><strong>通信:</strong> WiFi + 4G fallback<br><strong>バッテリー:</strong> ~4時間</div>
     </div>
     <div class="case-card">
       <div class="cc-icon">🎨</div>
       <div class="cc-title">美術館・インスタレーション</div>
-      <div class="cc-desc">展示室ごとにCROWDを配置。来場者の位置に応じて異なるチャンネルの音を再生。空間全体がインタラクティブな音響体験になる。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x1 + CROWD x20<br><strong>特殊:</strong> マルチチャンネル空間音響<br><strong>通信:</strong> WiFi</div>
+      <div class="cc-desc">展示室ごとにFILLを配置。来場者はCOINで位置に応じた異なるチャンネルの音を受信。空間全体がインタラクティブな音響体験になる。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x1 + FILL x4 + COIN x20<br><strong>特殊:</strong> マルチチャンネル空間音響<br><strong>通信:</strong> WiFi</div>
     </div>
     <div class="case-card">
       <div class="cc-icon">🏟️</div>
       <div class="cc-title">スポーツ観戦</div>
-      <div class="cc-desc">実況音声をSTAGEで配信。スタンドの各席でCROWDからクリアな実況を聴ける。多言語チャンネル切替対応。歓声チャンネルとの分離も可能。</div>
-      <div class="cc-config"><strong>構成:</strong> STAGE x2 + CROWD xN<br><strong>特殊:</strong> 多言語ch、実況/環境音分離<br><strong>通信:</strong> WiFi + 5G</div>
+      <div class="cc-desc">実況音声をSTAGEで配信。スタンドの各席でCOINのイヤホンからクリアな実況を聴ける。多言語チャンネル切替対応。歓声チャンネルとの分離も可能。</div>
+      <div class="cc-config"><strong>構成:</strong> STAGE x2 + FILL x4 + COIN xN<br><strong>特殊:</strong> 多言語ch、実況/環境音分離<br><strong>通信:</strong> WiFi + 5G</div>
     </div>
   </div>
 </section>
@@ -807,7 +807,7 @@ footer a:hover { color:#f97316; }
       <div class="cc-icon" style="font-size:0.75rem;color:#f97316;letter-spacing:0.1em;font-weight:600;">LEVEL 2</div>
       <div class="cc-title">群衆LEDライトショー</div>
       <div class="cc-desc">
-        全CROWDデバイスに搭載のWS2812B LEDが、GPSタイムスタンプで完璧に同期して光る。1000人のLEDが波打つ演出が、追加ハードウェアゼロで実現。
+        全COINデバイスに搭載のRGB LEDが、GPSタイムスタンプで完璧に同期して光る。1000人のLEDが波打つ演出が、追加ハードウェアゼロで実現。
       </div>
       <div class="cc-config"><strong>ColdplayのPixMobリストバンド:</strong> $5-10/人<br><strong>Koe:</strong> 無料（LED搭載済み）</div>
     </div>
