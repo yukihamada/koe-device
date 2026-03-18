@@ -12,6 +12,8 @@
 
 **[Website](https://yukihamada.github.io/koe-device/)** · **[日本語](https://yukihamada.github.io/koe-device/ja.html)** · **[Soluna Edition](https://yukihamada.github.io/koe-device/soluna-edition.html)** · **[Dashboard Demo](https://yukihamada.github.io/koe-device/dashboard.html)**
 
+**[日本語はこちら](README.ja.md)** · **[Documentation Portal](https://yukihamada.github.io/koe-device/docs.html)**
+
 </div>
 
 ---
@@ -77,6 +79,10 @@ Koe is a tiny open-hardware device that listens, remembers, and connects people 
 ```
 
 ## Quick Start
+
+### Buy parts
+
+See **[BUY_NOW.md](BUY_NOW.md)** for a complete prototype parts list. Everything is available on Amazon.co.jp for ~¥5,200-6,800.
 
 ### Sync demo (2 ESP32-S3 boards)
 

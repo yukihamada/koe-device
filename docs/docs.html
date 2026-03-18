@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs | 声 Koe</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+a{color:#4ade80;text-decoration:none;transition:color 0.2s}
+a:hover{color:#86efac}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid #1a1a1a;position:sticky;top:0;background:#0a0a0a;z-index:100}
+nav .logo{font-size:1.2rem;font-weight:700;letter-spacing:0.05em}
+nav .nav-links{display:flex;gap:1.5rem}
+nav .nav-links a{color:#888;font-size:0.85rem;letter-spacing:0.05em}
+nav .nav-links a:hover{color:#fff}
+nav .nav-cta{background:#1a1a1a;color:#e8e8e8;padding:0.4rem 1rem;border-radius:100px;font-size:0.8rem;border:1px solid #333;transition:all 0.2s}
+nav .nav-cta:hover{background:#333;color:#fff}
+
+.hero{text-align:center;padding:4rem 2rem 2rem;border-bottom:1px solid #1a1a1a}
+.hero h1{font-size:2.5rem;font-weight:700;margin-bottom:0.5rem}
+.hero p{color:#888;font-size:1.1rem;max-width:600px;margin:0 auto}
+
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+
+.category{margin-bottom:3rem}
+.category-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid #222}
+.category-header .icon{font-size:1.5rem}
+.category-header h2{font-size:1.3rem;font-weight:600}
+.category-header .subtitle{color:#666;font-size:0.85rem;margin-left:auto}
+
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+.doc-card{background:#111;border:1px solid #222;border-radius:8px;padding:1rem 1.2rem;transition:all 0.2s;display:flex;flex-direction:column;gap:0.3rem}
+.doc-card:hover{border-color:#4ade80;background:#141414;transform:translateY(-1px)}
+.doc-card .title{font-weight:600;font-size:0.95rem;color:#e8e8e8}
+.doc-card .desc{font-size:0.8rem;color:#777}
+.doc-card .meta{font-size:0.7rem;color:#555;margin-top:0.2rem}
+.doc-card .meta .tag{background:#1a2a1a;color:#4ade80;padding:0.1rem 0.5rem;border-radius:100px;font-size:0.65rem;margin-right:0.3rem}
+.doc-card .meta .tag.orange{background:#2a1a0a;color:#f97316}
+.doc-card .meta .tag.blue{background:#0a1a2a;color:#60a5fa}
+.doc-card .meta .tag.purple{background:#1a0a2a;color:#a78bfa}
+
+footer{text-align:center;padding:3rem 2rem;border-top:1px solid #1a1a1a;color:#555;font-size:0.8rem}
+footer a{color:#666}
+footer a:hover{color:#4ade80}
+
+@media(max-width:600px){
+  .hero h1{font-size:1.8rem}
+  .doc-grid{grid-template-columns:1fr}
+  nav .nav-links{display:none}
+  .category-header .subtitle{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">声 Koe</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="ja.html">日本語</a>
+    <a href="soluna-edition.html">Soluna</a>
+    <a href="dashboard.html">Dashboard</a>
+  </div>
+  <a href="https://github.com/yukihamada/koe-device" class="nav-cta" target="_blank">GitHub</a>
+</nav>
+
+<div class="hero">
+  <h1>Documentation Portal</h1>
+  <p>ドキュメント一覧 — All project documents in one place</p>
+</div>
+
+<div class="container">
+
+  <!-- 1. Getting Started / はじめに -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">🚀</span>
+      <h2>Getting Started / はじめに</h2>
+      <span class="subtitle">Project overview and first steps</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/README.md" class="doc-card" target="_blank">
+        <span class="title">README.md</span>
+        <span class="desc">Project overview, architecture, quick start guide</span>
+        <span class="meta"><span class="tag">EN</span> プロジェクト概要</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/README.ja.md" class="doc-card" target="_blank">
+        <span class="title">README.ja.md</span>
+        <span class="desc">日本語版README — プロジェクト概要・アーキテクチャ・クイックスタート</span>
+        <span class="meta"><span class="tag">JA</span> Japanese version</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/BUY_NOW.md" class="doc-card" target="_blank">
+        <span class="title">BUY_NOW.md</span>
+        <span class="desc">プロトタイプ部品リスト — Amazon.co.jp で今日注文できるパーツ一覧</span>
+        <span class="meta"><span class="tag">JA</span> ~¥5,200-6,800</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/ORDER_NOW.md" class="doc-card" target="_blank">
+        <span class="title">ORDER_NOW.md</span>
+        <span class="desc">Ordering guide for prototype parts</span>
+        <span class="meta"><span class="tag">EN</span></span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/CONTRIBUTING.md" class="doc-card" target="_blank">
+        <span class="title">CONTRIBUTING.md</span>
+        <span class="desc">How to contribute to the project</span>
+        <span class="meta"><span class="tag">EN</span> コントリビューションガイド</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/LICENSE" class="doc-card" target="_blank">
+        <span class="title">LICENSE</span>
+        <span class="desc">MIT License</span>
+        <span class="meta"><span class="tag">MIT</span> オープンソース</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. Hardware Design / ハードウェア設計 -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">🔧</span>
+      <h2>Hardware Design / ハードウェア設計</h2>
+      <span class="subtitle">Schematics, BOM, form factors</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/docs/DESIGN.md" class="doc-card" target="_blank">
+        <span class="title">DESIGN.md</span>
+        <span class="desc">Hardware design specification — ESP32-S3, MEMS mic, amp, power</span>
+        <span class="meta"><span class="tag orange">Hardware</span> 設計仕様</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/docs/FORM_FACTORS.md" class="doc-card" target="_blank">
+        <span class="title">FORM_FACTORS.md</span>
+        <span class="desc">5 form factors: Pick, Ear Cuff, Coin, Band, Lantern</span>
+        <span class="meta"><span class="tag orange">Hardware</span> フォームファクター</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/docs/PLATFORM_V2.md" class="doc-card" target="_blank">
+        <span class="title">PLATFORM_V2.md</span>
+        <span class="desc">V2 platform architecture and improvements</span>
+        <span class="meta"><span class="tag orange">Hardware</span> 次世代プラットフォーム</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/docs/ACOUSTIC_IMPROVEMENTS.md" class="doc-card" target="_blank">
+        <span class="title">ACOUSTIC_IMPROVEMENTS.md</span>
+        <span class="desc">Acoustic performance optimization and analysis</span>
+        <span class="meta"><span class="tag orange">Hardware</span> 音響改善</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/docs/VISION.md" class="doc-card" target="_blank">
+        <span class="title">VISION.md</span>
+        <span class="desc">Product vision and future direction</span>
+        <span class="meta"><span class="tag orange">Hardware</span> ビジョン</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/bom/BOM.csv" class="doc-card" target="_blank">
+        <span class="title">BOM.csv</span>
+        <span class="desc">Bill of Materials — Mini model (~$12)</span>
+        <span class="meta"><span class="tag orange">CSV</span> 部品表</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/bom/BOM-CROWD.csv" class="doc-card" target="_blank">
+        <span class="title">BOM-CROWD.csv</span>
+        <span class="desc">Bill of Materials — CROWD model (~$52)</span>
+        <span class="meta"><span class="tag orange">CSV</span> 部品表</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/bom/BOM-STAGE.csv" class="doc-card" target="_blank">
+        <span class="title">BOM-STAGE.csv</span>
+        <span class="desc">Bill of Materials — STAGE model (~$260)</span>
+        <span class="meta"><span class="tag orange">CSV</span> 部品表</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/kicad/schematic.svg" class="doc-card" target="_blank">
+        <span class="title">schematic.svg</span>
+        <span class="desc">Circuit schematic diagram (SVG)</span>
+        <span class="meta"><span class="tag orange">KiCad</span> 回路図</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/kicad/koe-device-netlist.json" class="doc-card" target="_blank">
+        <span class="title">koe-device-netlist.json</span>
+        <span class="desc">KiCad netlist export (JSON)</span>
+        <span class="meta"><span class="tag orange">KiCad</span> ネットリスト</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/hardware/kicad/generate_schematic.py" class="doc-card" target="_blank">
+        <span class="title">generate_schematic.py</span>
+        <span class="desc">Python script to generate schematic SVG</span>
+        <span class="meta"><span class="tag orange">Python</span> 回路図生成</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 3. Manufacturing / 製造 -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">🏭</span>
+      <h2>Manufacturing / 製造</h2>
+      <span class="subtitle">PCB ordering, assembly, JLCPCB</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/README.md" class="doc-card" target="_blank">
+        <span class="title">Manufacturing README</span>
+        <span class="desc">JLCPCB ordering guide — complete walkthrough</span>
+        <span class="meta"><span class="tag blue">Guide</span> 発注ガイド</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/jlcpcb/BOM-JLCPCB.csv" class="doc-card" target="_blank">
+        <span class="title">BOM-JLCPCB.csv</span>
+        <span class="desc">JLCPCB-formatted BOM for SMT assembly</span>
+        <span class="meta"><span class="tag blue">CSV</span> JLCPCB用部品表</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/jlcpcb/CPL-JLCPCB.csv" class="doc-card" target="_blank">
+        <span class="title">CPL-JLCPCB.csv</span>
+        <span class="desc">Component Placement List for pick-and-place</span>
+        <span class="meta"><span class="tag blue">CSV</span> 部品配置リスト</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/jlcpcb/PCB-SPEC.md" class="doc-card" target="_blank">
+        <span class="title">PCB-SPEC.md</span>
+        <span class="desc">PCB specifications — layers, thickness, finish</span>
+        <span class="meta"><span class="tag blue">Spec</span> 基板仕様</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/manual-parts.md" class="doc-card" target="_blank">
+        <span class="title">manual-parts.md</span>
+        <span class="desc">Parts requiring manual soldering (connectors, battery, speaker)</span>
+        <span class="meta"><span class="tag blue">Guide</span> 手はんだ部品</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/manufacturing/assembly-guide.md" class="doc-card" target="_blank">
+        <span class="title">assembly-guide.md</span>
+        <span class="desc">Step-by-step final assembly instructions</span>
+        <span class="meta"><span class="tag blue">Guide</span> 組立ガイド</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 4. Regulatory / 認証 -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">📋</span>
+      <h2>Regulatory / 認証・法規制</h2>
+      <span class="subtitle">技適, FCC, CE certification</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/regulatory/README.md" class="doc-card" target="_blank">
+        <span class="title">技適ガイド (README)</span>
+        <span class="desc">技適（技術基準適合証明）取得ガイド — 認証パス・タイムライン・費用</span>
+        <span class="meta"><span class="tag purple">技適</span> Giteki overview</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/regulatory/giteki/device-description.md" class="doc-card" target="_blank">
+        <span class="title">device-description.md</span>
+        <span class="desc">機器の技術説明書 — Device technical description</span>
+        <span class="meta"><span class="tag purple">技適</span> 技術説明書</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/regulatory/giteki/self-declaration-template.md" class="doc-card" target="_blank">
+        <span class="title">self-declaration-template.md</span>
+        <span class="desc">技術基準適合自己確認書テンプレート</span>
+        <span class="meta"><span class="tag purple">技適</span> Self-declaration template</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/regulatory/giteki/test-plan.md" class="doc-card" target="_blank">
+        <span class="title">test-plan.md</span>
+        <span class="desc">テスト計画書 — RF measurement plan</span>
+        <span class="meta"><span class="tag purple">技適</span> テスト計画</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/regulatory/fcc-ce/overview.md" class="doc-card" target="_blank">
+        <span class="title">FCC/CE overview.md</span>
+        <span class="desc">FCC (US) and CE (EU) certification overview</span>
+        <span class="meta"><span class="tag purple">FCC/CE</span> 海外認証</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 5. Firmware / ファームウェア -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">💻</span>
+      <h2>Firmware / ファームウェア</h2>
+      <span class="subtitle">ESP32-S3 Rust firmware source</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/demo/README.md" class="doc-card" target="_blank">
+        <span class="title">Demo README</span>
+        <span class="desc">Minimal 2-board sync demo — setup, wiring, flashing</span>
+        <span class="meta"><span class="tag">Guide</span> デモ手順</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/main.rs" class="doc-card" target="_blank">
+        <span class="title">main.rs</span>
+        <span class="desc">Entry point — dual mode (Koe AI / Soluna P2P)</span>
+        <span class="meta"><span class="tag">Rust</span> エントリポイント</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/audio.rs" class="doc-card" target="_blank">
+        <span class="title">audio.rs</span>
+        <span class="desc">I2S driver, VAD (voice activity detection), DSP</span>
+        <span class="meta"><span class="tag">Rust</span> 音声処理</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/soluna.rs" class="doc-card" target="_blank">
+        <span class="title">soluna.rs</span>
+        <span class="desc">UDP multicast P2P sync protocol</span>
+        <span class="meta"><span class="tag">Rust</span> P2P同期</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/cloud.rs" class="doc-card" target="_blank">
+        <span class="title">cloud.rs</span>
+        <span class="desc">HTTPS client for chatweb.ai API</span>
+        <span class="meta"><span class="tag">Rust</span> クラウド接続</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/led.rs" class="doc-card" target="_blank">
+        <span class="title">led.rs</span>
+        <span class="desc">WS2812B status LED control</span>
+        <span class="meta"><span class="tag">Rust</span> LED制御</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/ble.rs" class="doc-card" target="_blank">
+        <span class="title">ble.rs</span>
+        <span class="desc">Bluetooth LE configuration and pairing</span>
+        <span class="meta"><span class="tag">Rust</span> BLE</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/battery.rs" class="doc-card" target="_blank">
+        <span class="title">battery.rs</span>
+        <span class="desc">Battery monitoring and power management</span>
+        <span class="meta"><span class="tag">Rust</span> バッテリー管理</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/src/ota.rs" class="doc-card" target="_blank">
+        <span class="title">ota.rs</span>
+        <span class="desc">Over-the-air firmware update</span>
+        <span class="meta"><span class="tag">Rust</span> OTA更新</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/firmware/demo/src/main.rs" class="doc-card" target="_blank">
+        <span class="title">demo/main.rs</span>
+        <span class="desc">Demo firmware — minimal sender/receiver</span>
+        <span class="meta"><span class="tag">Rust</span> デモファームウェア</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 6. Enclosure / 筐体 -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">📦</span>
+      <h2>Enclosure / 筐体設計</h2>
+      <span class="subtitle">3D printable case designs</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/enclosure/SPEC.md" class="doc-card" target="_blank">
+        <span class="title">SPEC.md</span>
+        <span class="desc">Enclosure specifications — dimensions, materials, tolerances</span>
+        <span class="meta"><span class="tag orange">Spec</span> 筐体仕様</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/enclosure/pick-case.scad" class="doc-card" target="_blank">
+        <span class="title">pick-case.scad</span>
+        <span class="desc">OpenSCAD model — Pick form factor guitar-pick case</span>
+        <span class="meta"><span class="tag orange">OpenSCAD</span> 3Dモデル</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 7. Website / ウェブサイト -->
+  <div class="category">
+    <div class="category-header">
+      <span class="icon">🌐</span>
+      <h2>Website / ウェブサイト</h2>
+      <span class="subtitle">GitHub Pages site files</span>
+    </div>
+    <div class="doc-grid">
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/index.html" class="doc-card" target="_blank">
+        <span class="title">index.html</span>
+        <span class="desc">Main site — English version</span>
+        <span class="meta"><span class="tag">EN</span> メインサイト</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/ja.html" class="doc-card" target="_blank">
+        <span class="title">ja.html</span>
+        <span class="desc">Main site — Japanese version</span>
+        <span class="meta"><span class="tag">JA</span> 日本語サイト</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/soluna-edition.html" class="doc-card" target="_blank">
+        <span class="title">soluna-edition.html</span>
+        <span class="desc">Soluna Edition — festival-grade synchronized audio</span>
+        <span class="meta"><span class="tag">EN</span> Solunaエディション</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/dashboard.html" class="doc-card" target="_blank">
+        <span class="title">dashboard.html</span>
+        <span class="desc">Management dashboard demo — device monitoring UI</span>
+        <span class="meta"><span class="tag">Demo</span> ダッシュボード</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/pick-design.html" class="doc-card" target="_blank">
+        <span class="title">pick-design.html</span>
+        <span class="desc">Pick form factor interactive design page</span>
+        <span class="meta"><span class="tag">Design</span> Pick デザイン</span>
+      </a>
+      <a href="https://github.com/yukihamada/koe-device/blob/master/docs/docs.html" class="doc-card" target="_blank">
+        <span class="title">docs.html</span>
+        <span class="desc">This documentation portal page</span>
+        <span class="meta"><span class="tag">Meta</span> ドキュメントポータル</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>声 Koe — Open Hardware Voice Device</p>
+  <p style="margin-top:0.5rem">
+    <a href="index.html">Home</a> ·
+    <a href="ja.html">日本語</a> ·
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a> ·
+    <a href="https://yukihamada.github.io/koe-device/">Website</a>
+  </p>
+</footer>
+
+</body>
+</html>
