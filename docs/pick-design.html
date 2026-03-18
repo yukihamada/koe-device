@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — デバイスデザイン セレクター</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;padding:1.5rem 1.5rem 5rem}
+h1{font-size:1.6rem;font-weight:200;text-align:center;margin-bottom:0.3rem}
+.sub{text-align:center;color:#666;font-size:0.85rem;margin-bottom:0.5rem}
+.sub2{text-align:center;color:#444;font-size:0.75rem;margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6}
+.cat{margin-bottom:2.5rem}
+.cat-title{font-size:0.95rem;font-weight:400;color:#f97316;margin-bottom:0.3rem;border-bottom:1px solid #1a1a1a;padding-bottom:0.3rem}
+.cat-desc{font-size:0.7rem;color:#555;margin-bottom:0.8rem;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem}
+.card{position:relative;border-radius:12px;overflow:hidden;border:2px solid #1a1a1a;cursor:pointer;transition:all 0.2s}
+.card:hover{border-color:#555;transform:scale(1.02)}
+.card.selected{border-color:#4ade80;box-shadow:0 0 20px rgba(74,222,128,0.2)}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.card .tag{position:absolute;top:0.4rem;left:0.4rem;background:rgba(0,0,0,0.8);color:#fff;font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:100px;backdrop-filter:blur(4px)}
+.card.selected .tag{background:#4ade80;color:#000}
+.card .info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.92));padding:2.5rem 0.7rem 0.6rem}
+.card .name{font-size:0.8rem;font-weight:500;margin-bottom:0.2rem}
+.card .desc{font-size:0.65rem;color:#999;line-height:1.4}
+.card .dims{font-size:0.6rem;color:#555;margin-top:0.2rem;font-family:monospace}
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-top:1px solid #1a1a1a;padding:0.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:100}
+.bar .t{font-size:0.8rem;color:#888}.bar .t span{color:#4ade80;font-weight:500}
+.bar button{padding:0.6rem 1.5rem;border-radius:100px;background:#4ade80;color:#000;font-size:0.8rem;font-weight:600;border:none;cursor:pointer}
+.bar button:disabled{background:#333;color:#666;cursor:not-allowed}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<h1>デバイスデザイン セレクター</h1>
+<p class="sub">「群衆を楽器にする」デバイスの形を選ぶ</p>
+<p class="sub2">コンセプト: 1台は記憶のツール、100台はオーケストラ。テクノロジーを感じさせない、触りたくなる形。気に入ったデザインをタップして番号を伝えてください。</p>
+
+<!-- ウェアラブル (体につける) -->
+<div class="cat">
+  <div class="cat-title">ウェアラブル — 体につける</div>
+  <div class="cat-desc">常時装着、存在を忘れる、ジュエリーのように</div>
+  <div class="grid">
+    <div class="card" data-id="G1" onclick="t(this)">
+      <div class="tag">G1</div>
+      <img src="images/G1-pick-shape.png">
+      <div class="info">
+        <div class="name">Guitar Pick</div>
+        <div class="desc">ギターピック型。音楽のDNAを形に。三角の各頂点にマイク・LED・USB-C</div>
+        <div class="dims">30 x 30 x 8mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G2" onclick="t(this)">
+      <div class="tag">G2</div>
+      <img src="images/G2-pebble-pure.png">
+      <div class="info">
+        <div class="name">Pure Pebble</div>
+        <div class="desc">本物の河原の石と区別がつかない。テック要素ゼロの外見。磁気充電。ポート不可視</div>
+        <div class="dims">28 x 22 x 10mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G7" onclick="t(this)">
+      <div class="tag">G7</div>
+      <img src="images/G7-capsule.png">
+      <div class="info">
+        <div class="name">Capsule</div>
+        <div class="desc">薬のカプセル型。半分が半透明スモークでLEDの光が漏れる。未来的で医療的な清潔感</div>
+        <div class="dims">30 x 12mm (径)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ジュエリー型 (装飾として) -->
+<div class="cat">
+  <div class="cat-title">ジュエリー — アクセサリーとして身につける</div>
+  <div class="cat-desc">ファッションの一部、性別問わず、おしゃれ</div>
+  <div class="grid">
+    <div class="card" data-id="G4" onclick="t(this)">
+      <div class="tag">G4</div>
+      <img src="images/G4-ring.png">
+      <div class="info">
+        <div class="name">Ring</div>
+        <div class="desc">チタン製スマートリング。外側にLEDライン、内側にMEMSマイク。高級結婚指輪の佇まい</div>
+        <div class="dims">8mm幅 リング</div>
+      </div>
+    </div>
+    <div class="card" data-id="G5" onclick="t(this)">
+      <div class="tag">G5</div>
+      <img src="images/G5-earcuff.png">
+      <div class="info">
+        <div class="name">Ear Cuff</div>
+        <div class="desc">耳に挟むイヤーカフ。ピアス不要。声の入り口に最も近い位置。ファッション的に攻めたデザイン</div>
+        <div class="dims">20 x 8 x 5mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G8" onclick="t(this)">
+      <div class="tag">G8</div>
+      <img src="images/G8-crescent.png">
+      <div class="info">
+        <div class="name">Crescent</div>
+        <div class="desc">三日月型。耳の後ろのカーブにぴったりフィット。現代彫刻のようなフォルム</div>
+        <div class="dims">35mm (弧) x 8 x 4mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G12" onclick="t(this)">
+      <div class="tag">G12</div>
+      <img src="images/G12-brooch.png">
+      <div class="info">
+        <div class="name">Brooch</div>
+        <div class="desc">六角形ブローチ。ローズゴールドのエッジ。音波パターンのエッチングがスピーカーグリルを兼ねる</div>
+        <div class="dims">25mm (六角) x 5mm</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ポケット / スタンドアロン -->
+<div class="cat">
+  <div class="cat-title">ポケット / スタンドアロン — 持ち歩く・置く</div>
+  <div class="cat-desc">スピーカー内蔵、群衆モードの主役</div>
+  <div class="grid">
+    <div class="card" data-id="G3" onclick="t(this)">
+      <div class="tag">G3</div>
+      <img src="images/G3-tuning-fork.png">
+      <div class="info">
+        <div class="name">Tuning Fork</div>
+        <div class="desc">音叉型。2本のプロングが触覚フィードバックで振動する。音楽の根源的シンボル</div>
+        <div class="dims">35 x 15mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G6" onclick="t(this)">
+      <div class="tag">G6</div>
+      <img src="images/G6-coin.png">
+      <div class="info">
+        <div class="name">Coin</div>
+        <div class="desc">完全な円形コイン。500円玉サイズ。同心円パターンがスピーカーグリル。エッジにLEDリング</div>
+        <div class="dims">26mm (径) x 6mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G11" onclick="t(this)">
+      <div class="tag">G11</div>
+      <img src="images/G11-orb.png">
+      <div class="info">
+        <div class="name">Orb</div>
+        <div class="desc">光る球体。フロスト半透明シェルが内部から発光。群衆モードでオレンジに脈動。小さな月</div>
+        <div class="dims">35mm (径)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAGE (据置) -->
+<div class="cat">
+  <div class="cat-title">STAGE — イベント設置型</div>
+  <div class="cat-desc">プロ音響品質、同軸ドライバー、360度配信</div>
+  <div class="grid">
+    <div class="card" data-id="G10" onclick="t(this)">
+      <div class="tag">G10</div>
+      <img src="images/G10-stage-lantern.png">
+      <div class="info">
+        <div class="name">Lantern</div>
+        <div class="desc">日本のランタン型。360度スピーカーグリル。上部にハンドル。建築的で和のテイスト</div>
+        <div class="dims">100 x 150mm</div>
+      </div>
+    </div>
+    <div class="card" data-id="G9" onclick="t(this)">
+      <div class="tag">G9</div>
+      <img src="images/G9-band-v2.png">
+      <div class="info">
+        <div class="name">Band v2</div>
+        <div class="desc">リストバンド再デザイン。全面がスピーカーグリルメッシュ。7つのLEDが音波アニメーション</div>
+        <div class="dims">40 x 18 x 11mm</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="t">選択: <span id="s">なし</span></div>
+  <button id="b" disabled onclick="c()">番号をコピー</button>
+</div>
+
+<script>
+const sel=new Set();
+function t(c){const id=c.dataset.id;sel.has(id)?(sel.delete(id),c.classList.remove('selected')):(sel.add(id),c.classList.add('selected'));u()}
+function u(){const d=document.getElementById('s'),b=document.getElementById('b');if(!sel.size){d.textContent='なし';b.disabled=true}else{d.textContent=[...sel].sort().join(', ');b.disabled=false}}
+function c(){navigator.clipboard.writeText([...sel].sort().join(', ')).then(()=>{document.getElementById('b').textContent='OK!';setTimeout(()=>document.getElementById('b').textContent='番号をコピー',1500)})}
+</script>
+</body>
+</html>
