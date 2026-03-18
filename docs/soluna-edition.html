@@ -536,7 +536,7 @@ footer a:hover { color:#f97316; }
     <div class="problem-card good">
       <div class="num">音速補正</div>
       <h4>Koeの答え: 距離に応じた再生ディレイ</h4>
-      <p>各FILL/COINデバイスがGPS座標を持つ。STAGEからの距離を計算し、「STAGEの直接音がリスナーに届くタイミング」に合わせて再生を遅延させる。FILL/COINは直接音を補強する増幅器になる。</p>
+      <p>SUB/FILLはGPS座標を持ち、STAGEからの距離を自動計算してディレイを設定する。COINはGPSを持たないが、接続先FILLの位置情報を継承し、近接補強として機能する。「STAGEの直接音がリスナーに届くタイミング」に合わせて再生を遅延させる。</p>
     </div>
   </div>
 </section>
@@ -588,7 +588,7 @@ footer a:hover { color:#f97316; }
         <li><span class="sl-label">DAC</span><span class="sl-value accent">ES9038Q2M (-120dB SNR)</span></li>
         <li><span class="sl-label">MCU</span><span class="sl-value accent">Raspberry Pi 5 + WiFi 7 + GPS + 4G</span></li>
         <li><span class="sl-label">時刻同期</span><span class="sl-value accent">GPS 1PPS + IEEE 1588 PTP</span></li>
-        <li><span class="sl-label">音速補正</span><span class="sl-value">GPS座標ベースの自動ディレイ調整</span></li>
+        <li><span class="sl-label">音速補正</span><span class="sl-value">接続先FILLのディレイ値を継承</span></li>
         <li><span class="sl-label">入力</span><span class="sl-value">AES67 / Dante / XLR / USB-C UAC</span></li>
         <li><span class="sl-label">DSP</span><span class="sl-value">FIR クロスオーバー + PEQ + リミッター + 音速補正ディレイ</span></li>
         <li><span class="sl-label">価格</span><span class="sl-value accent">$1,500</span></li>
@@ -670,7 +670,7 @@ footer a:hover { color:#f97316; }
       <div class="si-icon">Layer 3</div>
       <div class="si-title"><span class="orange">音速補正 (距離連動ディレイ)</span></div>
       <div class="si-desc">
-        これが他のどの製品にもない核心技術。各FILL/COINがGPS座標でSTAGEとの距離dを計算。再生タイミングに d/343秒のディレイを追加。例:STAGEから50m離れたFILLは146msのディレイを追加し、STAGEの直接音とFILLの再生音が同じ瞬間にリスナーの耳に届く。COINはリスナーの至近距離(30cm)にあるため、イヤホン接続時の明瞭度は最高になる。
+        これが他のどの製品にもない核心技術。SUB/FILLがGPS座標でSTAGEとの距離dを計算。気温T(BME280)から音速v=331.3+0.606*Tを算出。d/v秒のディレイをバッファに追加。例:STAGEから50m離れたFILLは146msのディレイを追加し、STAGEの直接音とFILLの再生音が同じ瞬間にリスナーの耳に届く。COINはGPSを持たないが、接続先FILLのディレイ値を継承する。イヤホン接続時の明瞭度は最高。
       </div>
     </div>
     <div class="sync-item">
@@ -749,7 +749,7 @@ footer a:hover { color:#f97316; }
     <div class="case-card">
       <div class="cc-icon">🎪</div>
       <div class="cc-title">野外フェスティバル</div>
-      <div class="cc-desc">メインステージにSTAGE x2 + SUB x4 + FILL x8。観客がCOINを持ち込み、各デバイスがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
+      <div class="cc-desc">メインステージにSTAGE x2 + SUB x4 + FILL x8。観客がCOINを持ち込み、SUB/FILLがGPS座標に応じた音速補正をかける。ステージから200m離れても、手元から同期された音が聴こえる。</div>
       <div class="cc-config"><strong>構成:</strong> STAGE x2 + SUB x4 + FILL x8 + COIN xN<br><strong>同期:</strong> GPS(屋外)<br><strong>音速補正:</strong> 各FILL/COIN自動計算</div>
     </div>
     <div class="case-card">
