@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LED Controller — Koe Soluna Edition</title>
+<meta name="description" content="Web-based LED pattern controller for Koe Soluna Edition WS2812B synchronized lighting. Preview patterns and generate UDP commands.">
+<meta name="theme-color" content="#050505">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: #050505; color: #e8e8e8;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  min-height: 100vh;
+}
+body::before {
+  content:''; position:fixed; bottom:0; left:0; width:100%; height:100%;
+  background:radial-gradient(ellipse at 50% 100%, rgba(249,115,22,0.04) 0%, transparent 55%);
+  pointer-events:none; z-index:0;
+}
+
+nav {
+  position:fixed; top:0; width:100%; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.2rem 2rem; background:rgba(5,5,5,0.85);
+  backdrop-filter:blur(20px); border-bottom:1px solid rgba(249,115,22,0.08);
+}
+nav .logo { font-size:1.1rem; font-weight:200; letter-spacing:0.2em; }
+nav .logo span { color:#f97316; }
+.nav-back { color:#555; text-decoration:none; font-size:0.8rem; border:1px solid #333; padding:0.3rem 1rem; border-radius:100px; transition:all 0.2s; }
+.nav-back:hover { color:#fff; border-color:#555; }
+.nav-links { display:flex; gap:1.2rem; }
+.nav-links a { color:#666; text-decoration:none; font-size:0.8rem; transition:color 0.2s; }
+.nav-links a:hover { color:#f97316; }
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 900px; margin: 0 auto;
+  padding: 6rem 1.5rem 3rem;
+}
+
+h1 {
+  font-size: 1.8rem; font-weight: 100; letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+h1 em { font-style: normal; color: #f97316; }
+.subtitle { color: #555; font-size: 0.85rem; margin-bottom: 2.5rem; }
+
+.section {
+  margin-bottom: 2rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.section-title {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em;
+  color: #666; margin-bottom: 1rem;
+}
+
+/* Pattern buttons */
+.pattern-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+}
+.pattern-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 0.7rem 0.5rem; color: #aaa;
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+  text-align: center; font-family: inherit;
+}
+.pattern-btn:hover { background: rgba(249,115,22,0.08); color: #e8e8e8; border-color: rgba(249,115,22,0.2); }
+.pattern-btn.active { border-color: #f97316; color: #f97316; background: rgba(249,115,22,0.1); }
+.pattern-btn .icon { font-size: 1.2rem; display: block; margin-bottom: 0.3rem; }
+
+/* Sliders */
+.slider-row {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem;
+}
+.slider-label {
+  font-size: 0.75rem; color: #666; width: 50px; flex-shrink: 0; text-align: right;
+}
+.slider-value {
+  font-size: 0.75rem; color: #f97316; width: 35px; text-align: right; font-variant-numeric: tabular-nums;
+}
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.1); outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #f97316; cursor: pointer; border: 2px solid #050505;
+  box-shadow: 0 0 8px rgba(249,115,22,0.4);
+}
+input[type="range"].red::-webkit-slider-thumb { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+input[type="range"].green::-webkit-slider-thumb { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+input[type="range"].blue::-webkit-slider-thumb { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+
+.color-preview {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0;
+  transition: background 0.1s;
+}
+
+/* LED preview */
+.led-strip {
+  display: flex; justify-content: center; gap: 1.2rem;
+  padding: 1.5rem 0;
+}
+.led {
+  width: 36px; height: 36px; border-radius: 50%;
+  transition: none;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Crowd sim */
+.crowd-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+.crowd-dot {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 50%;
+  transition: none;
+}
+
+/* Command output */
+.code-block {
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 1rem; font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.75rem; color: #888; line-height: 1.6;
+  overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+}
+.code-block .hl { color: #f97316; }
+.code-block .dim { color: #444; }
+
+/* Beat tap */
+.tap-area {
+  display: flex; align-items: center; gap: 1.5rem;
+}
+.tap-btn {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(249,115,22,0.1); border: 2px solid rgba(249,115,22,0.3);
+  color: #f97316; font-size: 1rem; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.1s; user-select: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.tap-btn:active { transform: scale(0.92); background: rgba(249,115,22,0.25); }
+.bpm-display {
+  font-size: 2.5rem; font-weight: 100; color: #f97316;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.bpm-label { font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 0.1em; }
+.tap-reset {
+  font-size: 0.7rem; color: #444; cursor: pointer; background: none; border: none;
+  font-family: inherit; transition: color 0.2s;
+}
+.tap-reset:hover { color: #888; }
+
+/* Presets */
+.preset-row {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+}
+.preset-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px; padding: 0.5rem 1rem; color: #aaa;
+  font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+  font-family: inherit; white-space: nowrap;
+}
+.preset-btn:hover { background: rgba(249,115,22,0.08); color: #e8e8e8; border-color: rgba(249,115,22,0.2); }
+.preset-btn .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 0.4rem; vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .container { padding: 5rem 1rem 2rem; }
+  .pattern-grid { grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+  .pattern-btn { padding: 0.5rem 0.3rem; font-size: 0.7rem; }
+  .pattern-btn .icon { font-size: 1rem; }
+  .crowd-grid { grid-template-columns: repeat(10, 1fr); gap: 4px; }
+  nav { padding: 1rem 1rem; }
+  .nav-links { display: none; }
+  .bpm-display { font-size: 2rem; }
+  .tap-btn { width: 64px; height: 64px; font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">声 Koe <span>LED Controller</span></div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="soluna-edition.html">Soluna Edition</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="docs.html">Docs</a>
+  </div>
+  <a href="soluna-edition.html" class="nav-back">Soluna Edition</a>
+</nav>
+
+<div class="container">
+  <h1>LED <em>Controller</em></h1>
+  <p class="subtitle">WS2812B pattern control panel for Koe Soluna Edition devices</p>
+
+  <!-- Pattern Selector -->
+  <div class="section">
+    <div class="section-title">Pattern</div>
+    <div class="pattern-grid" id="patternGrid">
+      <button class="pattern-btn active" data-pattern="0"><span class="icon">&#9679;</span>Off</button>
+      <button class="pattern-btn" data-pattern="1"><span class="icon">&#9632;</span>Solid</button>
+      <button class="pattern-btn" data-pattern="2"><span class="icon">&#9684;</span>Pulse</button>
+      <button class="pattern-btn" data-pattern="3"><span class="icon">&#127752;</span>Rainbow</button>
+      <button class="pattern-btn" data-pattern="4"><span class="icon">&#8594;</span>Wave &#8594;</button>
+      <button class="pattern-btn" data-pattern="5"><span class="icon">&#8592;</span>Wave &#8592;</button>
+      <button class="pattern-btn" data-pattern="6"><span class="icon">&#9889;</span>Strobe</button>
+      <button class="pattern-btn" data-pattern="7"><span class="icon">&#9775;</span>Breathe</button>
+    </div>
+  </div>
+
+  <!-- Color Picker -->
+  <div class="section">
+    <div class="section-title">Color</div>
+    <div style="display:flex; align-items:center; gap:1.5rem;">
+      <div style="flex:1;">
+        <div class="slider-row">
+          <span class="slider-label" style="color:#ef4444;">R</span>
+          <input type="range" class="red" id="sliderR" min="0" max="255" value="255">
+          <span class="slider-value" id="valR">255</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label" style="color:#22c55e;">G</span>
+          <input type="range" class="green" id="sliderG" min="0" max="255" value="128">
+          <span class="slider-value" id="valG">128</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label" style="color:#3b82f6;">B</span>
+          <input type="range" class="blue" id="sliderB" min="0" max="255" value="0">
+          <span class="slider-value" id="valB">0</span>
+        </div>
+      </div>
+      <div class="color-preview" id="colorPreview"></div>
+    </div>
+  </div>
+
+  <!-- Speed & Intensity -->
+  <div class="section">
+    <div class="section-title">Speed &amp; Intensity</div>
+    <div class="slider-row">
+      <span class="slider-label">Speed</span>
+      <input type="range" id="sliderSpeed" min="0" max="255" value="128">
+      <span class="slider-value" id="valSpeed">128</span>
+    </div>
+    <div class="slider-row" style="margin-bottom:0;">
+      <span class="slider-label">Intensity</span>
+      <input type="range" id="sliderIntensity" min="0" max="255" value="192">
+      <span class="slider-value" id="valIntensity">192</span>
+    </div>
+  </div>
+
+  <!-- Live Preview -->
+  <div class="section">
+    <div class="section-title">Live Preview &mdash; 5 LEDs</div>
+    <div class="led-strip" id="ledStrip"></div>
+  </div>
+
+  <!-- Crowd Simulation -->
+  <div class="section">
+    <div class="section-title">Crowd Simulation &mdash; 50 Devices</div>
+    <div class="crowd-grid" id="crowdGrid"></div>
+  </div>
+
+  <!-- Beat Tap -->
+  <div class="section">
+    <div class="section-title">Beat Tap</div>
+    <div class="tap-area">
+      <button class="tap-btn" id="tapBtn">TAP</button>
+      <div>
+        <div class="bpm-display" id="bpmDisplay">---</div>
+        <div class="bpm-label">BPM</div>
+      </div>
+      <button class="tap-reset" id="tapReset">reset</button>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="section">
+    <div class="section-title">Presets</div>
+    <div class="preset-row">
+      <button class="preset-btn" data-preset="fire"><span class="dot" style="background:#ef4444;"></span>Fire</button>
+      <button class="preset-btn" data-preset="ocean"><span class="dot" style="background:#06b6d4;"></span>Ocean</button>
+      <button class="preset-btn" data-preset="disco"><span class="dot" style="background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#8b5cf6);"></span>Disco</button>
+      <button class="preset-btn" data-preset="calm"><span class="dot" style="background:#22c55e;"></span>Calm</button>
+      <button class="preset-btn" data-preset="sunset"><span class="dot" style="background:linear-gradient(135deg,#f97316,#a855f7);"></span>Sunset</button>
+    </div>
+  </div>
+
+  <!-- Command Output -->
+  <div class="section">
+    <div class="section-title">UDP Packet</div>
+    <div class="code-block" id="packetOutput"></div>
+  </div>
+
+  <!-- STAGE API -->
+  <div class="section">
+    <div class="section-title">STAGE API</div>
+    <div class="code-block" id="curlOutput"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // State
+  const state = {
+    pattern: 0,
+    r: 255, g: 128, b: 0,
+    speed: 128,
+    intensity: 192
+  };
+
+  const PATTERN_NAMES = ['off','solid','pulse','rainbow','wave_right','wave_left','strobe','breathe'];
+
+  // DOM refs
+  const sliderR = document.getElementById('sliderR');
+  const sliderG = document.getElementById('sliderG');
+  const sliderB = document.getElementById('sliderB');
+  const sliderSpeed = document.getElementById('sliderSpeed');
+  const sliderIntensity = document.getElementById('sliderIntensity');
+  const valR = document.getElementById('valR');
+  const valG = document.getElementById('valG');
+  const valB = document.getElementById('valB');
+  const valSpeed = document.getElementById('valSpeed');
+  const valIntensity = document.getElementById('valIntensity');
+  const colorPreview = document.getElementById('colorPreview');
+  const ledStrip = document.getElementById('ledStrip');
+  const crowdGrid = document.getElementById('crowdGrid');
+  const packetOutput = document.getElementById('packetOutput');
+  const curlOutput = document.getElementById('curlOutput');
+  const bpmDisplay = document.getElementById('bpmDisplay');
+
+  // Create LEDs
+  for (let i = 0; i < 5; i++) {
+    const led = document.createElement('div');
+    led.className = 'led';
+    ledStrip.appendChild(led);
+  }
+
+  // Create crowd dots
+  for (let i = 0; i < 50; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'crowd-dot';
+    crowdGrid.appendChild(dot);
+  }
+
+  const leds = ledStrip.querySelectorAll('.led');
+  const dots = crowdGrid.querySelectorAll('.crowd-dot');
+
+  // Pattern buttons
+  document.getElementById('patternGrid').addEventListener('click', function(e) {
+    const btn = e.target.closest('.pattern-btn');
+    if (!btn) return;
+    document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.pattern = parseInt(btn.dataset.pattern);
+    updateOutputs();
+  });
+
+  // Sliders
+  function bindSlider(el, valEl, key) {
+    el.addEventListener('input', function() {
+      state[key] = parseInt(this.value);
+      valEl.textContent = this.value;
+      if (key === 'r' || key === 'g' || key === 'b') updateColorPreview();
+      updateOutputs();
+    });
+  }
+  bindSlider(sliderR, valR, 'r');
+  bindSlider(sliderG, valG, 'g');
+  bindSlider(sliderB, valB, 'b');
+  bindSlider(sliderSpeed, valSpeed, 'speed');
+  bindSlider(sliderIntensity, valIntensity, 'intensity');
+
+  function updateColorPreview() {
+    colorPreview.style.background = `rgb(${state.r},${state.g},${state.b})`;
+    colorPreview.style.boxShadow = `0 0 20px rgba(${state.r},${state.g},${state.b},0.4)`;
+  }
+  updateColorPreview();
+
+  // Hex helper
+  function hex(n) { return n.toString(16).toUpperCase().padStart(2, '0'); }
+
+  // HSL to RGB
+  function hslToRgb(h, s, l) {
+    h /= 360; s /= 100; l /= 100;
+    let r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  // Update command outputs
+  function updateOutputs() {
+    // UDP packet: header 'L' 'E' + pattern(1) + reserved(3) + r + g + b + speed + intensity + reserved(2)
+    const pkt = [
+      0x4C, 0x45,                    // 'L','E' magic
+      state.pattern,                 // pattern
+      0x00, 0x00, 0x00,             // reserved
+      state.r, state.g, state.b,    // color
+      state.speed,                   // speed
+      state.intensity,               // intensity
+      0x00                           // reserved
+    ];
+    const hexStr = pkt.map(hex).join(' ');
+    packetOutput.innerHTML =
+      '<span class="dim">// Multicast UDP to all CROWD devices</span>\n' +
+      'Packet: <span class="hl">' + hexStr + '</span>\n' +
+      'Target: <span class="hl">239.42.42.1:4243</span>';
+
+    const pName = PATTERN_NAMES[state.pattern];
+    const json = JSON.stringify({pattern:pName, r:state.r, g:state.g, b:state.b, speed:state.speed, intensity:state.intensity});
+    curlOutput.innerHTML =
+      '<span class="dim">// Send via STAGE device HTTP API</span>\n' +
+      'curl -X POST http://stage.local:8080/led \\\n' +
+      '  -H "Content-Type: application/json" \\\n' +
+      '  -d \'<span class="hl">' + json + '</span>\'';
+  }
+  updateOutputs();
+
+  // Animation
+  let startTime = performance.now();
+
+  function animate(now) {
+    const t = (now - startTime) / 1000; // seconds
+    const speedFactor = (state.speed + 1) / 128; // 0.0078..2.0
+    const intFactor = state.intensity / 255;
+
+    for (let i = 0; i < leds.length; i++) {
+      const c = computeLedColor(i, leds.length, t, speedFactor, intFactor, false, 0);
+      leds[i].style.background = `rgb(${c[0]},${c[1]},${c[2]})`;
+      leds[i].style.boxShadow = `0 0 ${12 + c[3] * 0.08}px rgba(${c[0]},${c[1]},${c[2]},${0.3 + c[3] * 0.003})`;
+    }
+
+    for (let i = 0; i < dots.length; i++) {
+      const row = Math.floor(i / 10);
+      const col = i % 10;
+      const c = computeLedColor(i, dots.length, t, speedFactor, intFactor, true, row * 0.15 + col * 0.08);
+      dots[i].style.background = `rgb(${c[0]},${c[1]},${c[2]})`;
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  function computeLedColor(index, total, t, speedFactor, intFactor, isCrowd, spatialOffset) {
+    const p = state.pattern;
+    let r = state.r, g = state.g, b = state.b;
+    let brightness = intFactor;
+
+    switch (p) {
+      case 0: // Off
+        return [0, 0, 0, 0];
+
+      case 1: // Solid
+        return [
+          Math.round(r * brightness),
+          Math.round(g * brightness),
+          Math.round(b * brightness),
+          brightness * 255
+        ];
+
+      case 2: { // Pulse — triangle wave
+        const period = 2.0 / speedFactor;
+        const phase = ((t + spatialOffset * 0.3) % period) / period;
+        const tri = 1 - Math.abs(2 * phase - 1);
+        const br = tri * brightness;
+        return [Math.round(r * br), Math.round(g * br), Math.round(b * br), br * 255];
+      }
+
+      case 3: { // Rainbow
+        const hue = ((t * speedFactor * 60 + index * (360 / total) + spatialOffset * 40) % 360);
+        const rgb = hslToRgb(hue, 100, 50 * brightness);
+        return [rgb[0], rgb[1], rgb[2], brightness * 255];
+      }
+
+      case 4: { // Wave right
+        const wavePos = (t * speedFactor * 2 + spatialOffset) % 1;
+        const dist = Math.abs(((index / total) - wavePos + 1.5) % 1 - 0.5);
+        const wave = Math.max(0, 1 - dist * 4);
+        const br = wave * brightness;
+        return [Math.round(r * br), Math.round(g * br), Math.round(b * br), br * 255];
+      }
+
+      case 5: { // Wave left
+        const wavePos = (1 - (t * speedFactor * 2 + spatialOffset) % 1);
+        const dist = Math.abs(((index / total) - wavePos + 1.5) % 1 - 0.5);
+        const wave = Math.max(0, 1 - dist * 4);
+        const br = wave * brightness;
+        return [Math.round(r * br), Math.round(g * br), Math.round(b * br), br * 255];
+      }
+
+      case 6: { // Strobe
+        const freq = 1 + speedFactor * 12; // 1-25 Hz
+        const on = Math.sin(t * freq * Math.PI * 2 + spatialOffset * 3) > 0 ? 1 : 0;
+        const br = on * brightness;
+        return [Math.round(r * br), Math.round(g * br), Math.round(b * br), br * 255];
+      }
+
+      case 7: { // Breathe — sine wave
+        const period = 3.0 / speedFactor;
+        const phase = ((t + spatialOffset * 0.5) % period) / period;
+        const sine = (Math.sin(phase * Math.PI * 2 - Math.PI / 2) + 1) / 2;
+        const eased = sine * sine; // ease for more natural breathing
+        const br = eased * brightness;
+        return [Math.round(r * br), Math.round(g * br), Math.round(b * br), br * 255];
+      }
+
+      default:
+        return [0, 0, 0, 0];
+    }
+  }
+
+  requestAnimationFrame(animate);
+
+  // Beat tap
+  const tapTimes = [];
+  const tapBtn = document.getElementById('tapBtn');
+  const tapReset = document.getElementById('tapReset');
+
+  tapBtn.addEventListener('click', function() {
+    const now = performance.now();
+    tapTimes.push(now);
+    // Keep last 8 taps
+    if (tapTimes.length > 8) tapTimes.shift();
+    if (tapTimes.length >= 2) {
+      const intervals = [];
+      for (let i = 1; i < tapTimes.length; i++) {
+        intervals.push(tapTimes[i] - tapTimes[i - 1]);
+      }
+      const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const bpm = Math.round(60000 / avg);
+      bpmDisplay.textContent = bpm;
+      // Map BPM to speed: 60 BPM = 64, 120 BPM = 128, 180 BPM = 192, 240 BPM = 255
+      const mappedSpeed = Math.min(255, Math.max(0, Math.round((bpm - 60) * (255 / 180))));
+      state.speed = mappedSpeed;
+      sliderSpeed.value = mappedSpeed;
+      valSpeed.textContent = mappedSpeed;
+      updateOutputs();
+    }
+    // Discard if gap > 3 seconds
+    if (tapTimes.length >= 2 && tapTimes[tapTimes.length - 1] - tapTimes[tapTimes.length - 2] > 3000) {
+      tapTimes.length = 0;
+      tapTimes.push(now);
+      bpmDisplay.textContent = '---';
+    }
+  });
+
+  tapReset.addEventListener('click', function() {
+    tapTimes.length = 0;
+    bpmDisplay.textContent = '---';
+  });
+
+  // Presets
+  const presets = {
+    fire:   { pattern: 2, r: 255, g: 60,  b: 0,   speed: 100, intensity: 220 },
+    ocean:  { pattern: 4, r: 0,   g: 180, b: 255, speed: 80,  intensity: 180 },
+    disco:  { pattern: 6, r: 255, g: 0,   b: 200, speed: 200, intensity: 255 },
+    calm:   { pattern: 7, r: 40,  g: 220, b: 80,  speed: 50,  intensity: 140 },
+    sunset: { pattern: 2, r: 255, g: 100, b: 180, speed: 40,  intensity: 160 }
+  };
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const p = presets[this.dataset.preset];
+      if (!p) return;
+      state.pattern = p.pattern;
+      state.r = p.r; state.g = p.g; state.b = p.b;
+      state.speed = p.speed; state.intensity = p.intensity;
+
+      // Update UI
+      sliderR.value = p.r; valR.textContent = p.r;
+      sliderG.value = p.g; valG.textContent = p.g;
+      sliderB.value = p.b; valB.textContent = p.b;
+      sliderSpeed.value = p.speed; valSpeed.textContent = p.speed;
+      sliderIntensity.value = p.intensity; valIntensity.textContent = p.intensity;
+      updateColorPreview();
+
+      document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.pattern-btn[data-pattern="${p.pattern}"]`).classList.add('active');
+      updateOutputs();
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Koe Sync</title>
+<meta name="theme-color" content="#000">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#000;color:#fff;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.screen{width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background-color 0.15s}
+.status{position:fixed;top:1rem;left:50%;transform:translateX(-50%);font-size:0.7rem;color:#555;letter-spacing:0.1em}
+.status.connected{color:#4ade80}
+.bpm{font-size:4rem;font-weight:100;opacity:0.15;position:fixed;bottom:2rem;left:50%;transform:translateX(-50%)}
+.pattern-name{font-size:1rem;font-weight:200;color:#555;letter-spacing:0.3em;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
+.tap-hint{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);font-size:0.7rem;color:#333}
+</style>
+</head>
+<body>
+
+<div class="screen" id="screen">
+  <div class="status" id="status">CONNECTING...</div>
+  <div class="pattern-name" id="patternName"></div>
+  <div class="bpm" id="bpmDisplay"></div>
+  <div class="tap-hint">画面全体がLEDに同期します</div>
+</div>
+
+<script>
+// WebSocket connection to STAGE
+const WS_URL = `ws://${location.hostname}:8765`;
+let ws = null;
+let currentPattern = 'off';
+let currentColor = [0, 0, 0];
+let currentSpeed = 128;
+let currentIntensity = 200;
+let tick = 0;
+
+const screen = document.getElementById('screen');
+const statusEl = document.getElementById('status');
+const patternEl = document.getElementById('patternName');
+const bpmEl = document.getElementById('bpmDisplay');
+
+function connect() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    statusEl.textContent = 'SYNCED';
+    statusEl.classList.add('connected');
+  };
+  ws.onclose = () => {
+    statusEl.textContent = 'RECONNECTING...';
+    statusEl.classList.remove('connected');
+    setTimeout(connect, 2000);
+  };
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'led') {
+        currentPattern = msg.pattern || 'off';
+        currentColor = [msg.r || 0, msg.g || 0, msg.b || 0];
+        currentSpeed = msg.speed || 128;
+        currentIntensity = msg.intensity || 200;
+        patternEl.textContent = currentPattern.toUpperCase();
+      }
+      if (msg.type === 'status' && msg.bpm) {
+        bpmEl.textContent = msg.bpm + ' BPM';
+      }
+    } catch(e) {}
+  };
+}
+
+// Animation loop — phone screen becomes the LED
+function animate() {
+  tick++;
+  const spd = currentSpeed / 255;
+  const inten = currentIntensity / 255;
+  let r = currentColor[0], g = currentColor[1], b = currentColor[2];
+
+  switch (currentPattern) {
+    case 'solid':
+      break;
+    case 'pulse': {
+      const t = (tick * spd * 0.05) % 2;
+      const bright = t < 1 ? t : 2 - t;
+      r *= bright; g *= bright; b *= bright;
+      break;
+    }
+    case 'rainbow': {
+      const hue = (tick * spd * 0.5) % 360;
+      const c = hsv2rgb(hue, 1, 1);
+      r = c[0]; g = c[1]; b = c[2];
+      break;
+    }
+    case 'strobe': {
+      const on = Math.sin(tick * spd * 0.3) > 0;
+      if (!on) { r = 0; g = 0; b = 0; }
+      break;
+    }
+    case 'breathe': {
+      const t = (tick * spd * 0.02) % (Math.PI * 2);
+      const bright = (Math.sin(t) + 1) / 2;
+      r *= bright; g *= bright; b *= bright;
+      break;
+    }
+    case 'wave_lr':
+    case 'wave_rl': {
+      const phase = (tick * spd * 0.05) % 1;
+      const bright = Math.max(0, 1 - Math.abs(phase - 0.5) * 4);
+      r *= bright; g *= bright; b *= bright;
+      break;
+    }
+    case 'off':
+    default:
+      r = 0; g = 0; b = 0;
+  }
+
+  r = Math.round(r * inten);
+  g = Math.round(g * inten);
+  b = Math.round(b * inten);
+
+  screen.style.backgroundColor = `rgb(${r},${g},${b})`;
+  requestAnimationFrame(animate);
+}
+
+function hsv2rgb(h, s, v) {
+  const c = v * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = v - c;
+  let r, g, b;
+  if (h < 60) { r=c; g=x; b=0; }
+  else if (h < 120) { r=x; g=c; b=0; }
+  else if (h < 180) { r=0; g=c; b=x; }
+  else if (h < 240) { r=0; g=x; b=c; }
+  else if (h < 300) { r=x; g=0; b=c; }
+  else { r=c; g=0; b=x; }
+  return [(r+m)*255, (g+m)*255, (b+m)*255];
+}
+
+// Demo mode (when no WebSocket)
+let demoMode = false;
+setTimeout(() => {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    demoMode = true;
+    statusEl.textContent = 'DEMO MODE';
+    statusEl.style.color = '#f97316';
+    // Cycle through patterns
+    const patterns = ['rainbow', 'pulse', 'wave_lr', 'strobe', 'breathe', 'solid'];
+    const colors = [[255,0,0],[0,0,255],[255,128,0],[255,255,255],[0,255,128],[255,0,255]];
+    let idx = 0;
+    setInterval(() => {
+      currentPattern = patterns[idx % patterns.length];
+      currentColor = colors[idx % colors.length];
+      currentSpeed = 128;
+      currentIntensity = 200;
+      patternEl.textContent = currentPattern.toUpperCase();
+      idx++;
+    }, 3000);
+  }
+}, 3000);
+
+connect();
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

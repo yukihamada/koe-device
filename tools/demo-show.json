@@ -1,0 +1,18 @@
+{
+  "bpm": 120,
+  "steps": [
+    {"time": 0,    "pattern": "solid",   "color": [255, 0, 0],     "speed": 128},
+    {"time": 2.0,  "pattern": "pulse",   "color": [255, 0, 0],     "speed": 180},
+    {"time": 4.0,  "pattern": "solid",   "color": [0, 0, 255],     "speed": 128},
+    {"time": 5.0,  "pattern": "pulse",   "color": [0, 0, 255],     "speed": 200},
+    {"time": 7.0,  "pattern": "rainbow",                           "speed": 255},
+    {"time": 10.0, "pattern": "wave_lr", "color": [255, 128, 0],   "speed": 160},
+    {"time": 13.0, "pattern": "wave_rl", "color": [0, 255, 128],   "speed": 160},
+    {"time": 16.0, "pattern": "strobe",  "color": [255, 255, 255], "speed": 255},
+    {"time": 18.0, "pattern": "breathe", "color": [128, 0, 255],   "speed": 80},
+    {"time": 22.0, "pattern": "pulse",   "color": [255, 64, 0],    "speed": 220},
+    {"time": 25.0, "pattern": "solid",   "color": [0, 255, 255],   "speed": 128},
+    {"time": 28.0, "pattern": "breathe", "color": [255, 255, 255], "speed": 60},
+    {"time": 30.0, "pattern": "off"}
+  ]
+}
