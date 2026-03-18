@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — 画像セレクター v2</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;padding:1.5rem}
+h1{font-size:1.5rem;font-weight:200;text-align:center;margin-bottom:0.3rem}
+.sub{text-align:center;color:#666;font-size:0.85rem;margin-bottom:1.5rem}
+.cat{margin-bottom:2.5rem}
+.cat-title{font-size:1rem;font-weight:400;color:#f97316;margin-bottom:0.3rem;border-bottom:1px solid #1a1a1a;padding-bottom:0.4rem}
+.cat-desc{font-size:0.75rem;color:#555;margin-bottom:0.8rem}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.5rem}
+.compare.triple{grid-template-columns:1fr 1fr 1fr}
+.compare-label{font-size:0.65rem;color:#888;text-align:center;letter-spacing:0.1em;margin-bottom:0.3rem}
+
+.card{position:relative;border-radius:10px;overflow:hidden;border:2px solid #1a1a1a;cursor:pointer;transition:all 0.2s}
+.card:hover{border-color:#555;transform:scale(1.01)}
+.card.selected{border-color:#4ade80;box-shadow:0 0 15px rgba(74,222,128,0.2)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.card .tag{position:absolute;top:0.4rem;left:0.4rem;background:rgba(0,0,0,0.75);color:#fff;font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:100px;backdrop-filter:blur(4px)}
+.card.selected .tag{background:#4ade80;color:#000}
+.card .current-tag{position:absolute;top:0.4rem;right:0.4rem;background:rgba(249,115,22,0.8);color:#fff;font-size:0.55rem;padding:0.1rem 0.4rem;border-radius:100px}
+.card .desc{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:1.5rem 0.6rem 0.5rem;font-size:0.7rem;color:#aaa;line-height:1.3}
+
+.new-section{margin-top:3rem;padding-top:2rem;border-top:1px solid #222}
+.new-section h2{font-size:1.2rem;font-weight:200;text-align:center;margin-bottom:0.3rem;color:#4ade80}
+.new-section .sub{color:#555}
+
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-top:1px solid #1a1a1a;padding:0.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:100}
+.sel-text{font-size:0.8rem;color:#888}
+.sel-text span{color:#4ade80;font-weight:500}
+.copy-btn{padding:0.6rem 1.5rem;border-radius:100px;background:#4ade80;color:#000;font-size:0.8rem;font-weight:600;border:none;cursor:pointer}
+.copy-btn:disabled{background:#333;color:#666;cursor:not-allowed}
+
+@media(max-width:768px){.compare{grid-template-columns:1fr 1fr}.compare.triple{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:500px){.compare.triple{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<h1>画像セレクター v2</h1>
+<p class="sub">現在の画像 vs 新バージョン。気に入った方をタップ。番号を伝えてください。</p>
+
+<!-- === 比較: マクロ === -->
+<div class="cat">
+  <div class="cat-title">マクロ / プロダクトディテール</div>
+  <div class="cat-desc">シナリオ1「つける」+ ラインナップ横に使用中</div>
+  <div class="compare">
+    <div>
+      <div class="compare-label">現在 (E3)</div>
+      <div class="card" data-id="E3" onclick="toggle(this)">
+        <div class="tag">E3</div><div class="current-tag">使用中</div>
+        <img src="images/E3-macro.png"><div class="desc">前回選択のマクロ</div>
+      </div>
+    </div>
+    <div>
+      <div class="compare-label">新 (E3v2)</div>
+      <div class="card" data-id="E3v2" onclick="toggle(this)">
+        <div class="tag">E3v2</div>
+        <img src="images/NEW-E3-macro-v2.png"><div class="desc">サンドブラスト質感、ヘアラインチャンファー</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 比較: 手のひら === -->
+<div class="cat">
+  <div class="cat-title">手のひら</div>
+  <div class="cat-desc">シナリオ2「持つ」に使用中</div>
+  <div class="compare">
+    <div>
+      <div class="compare-label">現在 (B1)</div>
+      <div class="card" data-id="B1" onclick="toggle(this)">
+        <div class="tag">B1</div><div class="current-tag">使用中</div>
+        <img src="images/B1-palm-dark.png"><div class="desc">ドラマティック照明</div>
+      </div>
+    </div>
+    <div>
+      <div class="compare-label">新 (B1v2)</div>
+      <div class="card" data-id="B1v2" onclick="toggle(this)">
+        <div class="tag">B1v2</div>
+        <img src="images/NEW-B1-palm-v2.png"><div class="desc">エモーショナル、下からの暖色光</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 比較: フェス === -->
+<div class="cat">
+  <div class="cat-title">フェスティバル / Soluna</div>
+  <div class="cat-desc">シナリオ4 + Soluna Edition バナーに使用中</div>
+  <div class="compare">
+    <div>
+      <div class="compare-label">現在 (C2)</div>
+      <div class="card" data-id="C2" onclick="toggle(this)">
+        <div class="tag">C2</div><div class="current-tag">使用中</div>
+        <img src="images/C2-festival-hands.png"><div class="desc">手元のオレンジLED</div>
+      </div>
+    </div>
+    <div>
+      <div class="compare-label">新 (C2v2)</div>
+      <div class="card" data-id="C2v2" onclick="toggle(this)">
+        <div class="tag">C2v2</div>
+        <img src="images/NEW-C2-fest-v2.png"><div class="desc">両手を上げて、紙吹雪、ドラマティック</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 比較: ランニング === -->
+<div class="cat">
+  <div class="cat-title">ランニング / アクティブ</div>
+  <div class="cat-desc">シナリオ3「聴く」に使用中</div>
+  <div class="compare">
+    <div>
+      <div class="compare-label">現在 (D1)</div>
+      <div class="card" data-id="D1" onclick="toggle(this)">
+        <div class="tag">D1</div><div class="current-tag">使用中</div>
+        <img src="images/D1-jog-river.png"><div class="desc">川沿いジョギング</div>
+      </div>
+    </div>
+    <div>
+      <div class="compare-label">新 (D1v2)</div>
+      <div class="card" data-id="D1v2" onclick="toggle(this)">
+        <div class="tag">D1v2</div>
+        <img src="images/NEW-D1-run-v2.png"><div class="desc">橋の上、望遠、モーションブラー</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === 新しいビジュアル === -->
+<div class="new-section">
+  <h2>新しいビジュアル素材</h2>
+  <p class="sub">サイトの背景、セクション間、ヒーローなどに使えるアート</p>
+</div>
+
+<div class="cat">
+  <div class="cat-title">テクノロジービジュアル</div>
+  <div class="cat-desc">ヒーロー背景、セクション区切り、Solunaページのアクセントに</div>
+  <div class="compare triple">
+    <div>
+      <div class="card" data-id="V-wave" onclick="toggle(this)">
+        <div class="tag">V-wave</div>
+        <img src="images/VIS-soundwave.png"><div class="desc">音波ビジュアライゼーション</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="V-mesh" onclick="toggle(this)">
+        <div class="tag">V-mesh</div>
+        <img src="images/VIS-mesh-sync.png"><div class="desc">メッシュ同期ネットワーク</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="V-speed" onclick="toggle(this)">
+        <div class="tag">V-speed</div>
+        <img src="images/VIS-speed-of-sound.png"><div class="desc">音速 vs 電波速度の可視化</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-title">プロダクトビジュアル</div>
+  <div class="cat-desc">スペックセクション、テクノロジーセクションに</div>
+  <div class="compare triple">
+    <div>
+      <div class="card" data-id="V-explode" onclick="toggle(this)">
+        <div class="tag">V-explode</div>
+        <img src="images/VIS-exploded.png"><div class="desc">内部構造 爆発図</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="V-size" onclick="toggle(this)">
+        <div class="tag">V-size</div>
+        <img src="images/VIS-size-compare.png"><div class="desc">サイズ比較 (AirPods/500円/鍵)</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="E1" onclick="toggle(this)">
+        <div class="tag">E1</div><div class="current-tag">使用中</div>
+        <img src="images/E1-lineup-float.png"><div class="desc">現在のラインナップ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cat" style="margin-bottom:5rem">
+  <div class="cat-title">新しいライフスタイルシーン</div>
+  <div class="cat-desc">シナリオ追加、またはギャラリーとして</div>
+  <div class="compare triple">
+    <div>
+      <div class="card" data-id="N-pendant" onclick="toggle(this)">
+        <div class="tag">N-pendant</div>
+        <img src="images/NEW-pendant.png"><div class="desc">ゴールドチェーンのペンダント装着</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="N-meeting" onclick="toggle(this)">
+        <div class="tag">N-meeting</div>
+        <img src="images/NEW-meeting.png"><div class="desc">会議室でSTUDIOモデル使用</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-id="N-bar" onclick="toggle(this)">
+        <div class="tag">N-bar</div>
+        <img src="images/NEW-bar-night.png"><div class="desc">バーのカウンター、シネマティック</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="sel-text">選択: <span id="sel">なし</span></div>
+  <button class="copy-btn" id="btn" disabled onclick="copy()">番号をコピー</button>
+</div>
+
+<script>
+const s=new Set();
+function toggle(c){const id=c.dataset.id;s.has(id)?(s.delete(id),c.classList.remove('selected')):(s.add(id),c.classList.add('selected'));upd()}
+function upd(){const d=document.getElementById('sel'),b=document.getElementById('btn');if(!s.size){d.textContent='なし';b.disabled=true}else{d.textContent=[...s].sort().join(', ');b.disabled=false}}
+function copy(){navigator.clipboard.writeText([...s].sort().join(', ')).then(()=>{const b=document.getElementById('btn');b.textContent='Copied!';setTimeout(()=>b.textContent='番号をコピー',1500)})}
+</script>
+</body>
+</html>
