@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — 画像セレクター</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif; background:#0a0a0a; color:#e8e8e8; padding:2rem; }
+h1 { font-size:1.8rem; font-weight:200; text-align:center; margin-bottom:0.5rem; }
+.subtitle { text-align:center; color:#666; font-size:0.9rem; margin-bottom:2rem; }
+.category { margin-bottom:3rem; }
+.cat-title { font-size:1.1rem; font-weight:400; color:#f97316; margin-bottom:1rem; border-bottom:1px solid #1a1a1a; padding-bottom:0.5rem; }
+.grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; }
+.card {
+  position:relative; border-radius:12px; overflow:hidden;
+  border:2px solid #1a1a1a; cursor:pointer; transition:all 0.2s;
+}
+.card:hover { border-color:#555; transform:scale(1.02); }
+.card.selected { border-color:#4ade80; box-shadow:0 0 20px rgba(74,222,128,0.2); }
+.card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+.card .label {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding:2rem 0.8rem 0.8rem;
+}
+.card .num {
+  position:absolute; top:0.5rem; left:0.5rem;
+  background:rgba(0,0,0,0.7); color:#fff; font-size:0.75rem; font-weight:600;
+  padding:0.2rem 0.6rem; border-radius:100px; backdrop-filter:blur(4px);
+}
+.card.selected .num { background:#4ade80; color:#000; }
+.card .desc { font-size:0.75rem; color:#aaa; line-height:1.4; }
+.card .file { font-size:0.65rem; color:#555; margin-top:0.2rem; font-family:monospace; }
+
+.selection-bar {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(10,10,10,0.95); backdrop-filter:blur(20px);
+  border-top:1px solid #1a1a1a; padding:1rem 2rem;
+  display:flex; justify-content:space-between; align-items:center;
+  z-index:100;
+}
+.selected-list { font-size:0.85rem; color:#888; }
+.selected-list span { color:#4ade80; font-weight:500; }
+.apply-btn {
+  padding:0.7rem 2rem; border-radius:100px;
+  background:#4ade80; color:#000; font-size:0.85rem; font-weight:600;
+  border:none; cursor:pointer; transition:all 0.2s;
+}
+.apply-btn:hover { background:#22c55e; }
+.apply-btn:disabled { background:#333; color:#666; cursor:not-allowed; }
+
+.instructions {
+  background:#111; border:1px solid #1a1a1a; border-radius:12px;
+  padding:1.5rem; margin-bottom:2rem; font-size:0.85rem; color:#888; line-height:1.8;
+}
+.instructions strong { color:#ccc; }
+
+.result-box {
+  display:none; background:#111; border:1px solid #4ade80; border-radius:12px;
+  padding:1.5rem; margin-top:2rem; font-size:0.85rem; color:#4ade80; line-height:1.8;
+}
+.result-box code { background:#0a0a0a; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; }
+
+@media (max-width:768px) {
+  .grid { grid-template-columns:repeat(2, 1fr); gap:0.5rem; }
+  body { padding:1rem; }
+}
+</style>
+</head>
+<body>
+
+<h1>Koe 画像セレクター</h1>
+<p class="subtitle">各カテゴリから使いたい画像をタップ。番号を伝えてください。</p>
+
+<div class="instructions">
+  <strong>使い方:</strong> 画像をクリックして選択/解除。選んだら番号をコピーして伝えるだけ。<br>
+  <strong>カテゴリ:</strong> A=耳裏装着、B=手のひら、C=フェス/Soluna、D=日常、E=プロダクト
+</div>
+
+<div class="category">
+  <div class="cat-title">A. 耳の後ろに装着</div>
+  <div class="grid">
+    <div class="card" data-id="A1" onclick="toggle(this)">
+      <div class="num">A1</div>
+      <img src="images/A1-ear-shibuya.png" alt="">
+      <div class="label"><div class="desc">渋谷スクランブル交差点、ゴールデンアワー</div><div class="file">A1-ear-shibuya.png</div></div>
+    </div>
+    <div class="card" data-id="A2" onclick="toggle(this)">
+      <div class="num">A2</div>
+      <img src="images/A2-ear-cafe.png" alt="">
+      <div class="label"><div class="desc">カフェで仕事中の男性、窓際の自然光</div><div class="file">A2-ear-cafe.png</div></div>
+    </div>
+    <div class="card" data-id="A3" onclick="toggle(this)">
+      <div class="num">A3</div>
+      <img src="images/A3-ear-white.png" alt="">
+      <div class="label"><div class="desc">白セラミックモデル、屋外、ほぼ見えない</div><div class="file">A3-ear-white.png</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="cat-title">B. 手のひら / プロダクト</div>
+  <div class="grid">
+    <div class="card" data-id="B1" onclick="toggle(this)">
+      <div class="num">B1</div>
+      <img src="images/B1-palm-dark.png" alt="">
+      <div class="label"><div class="desc">黒背景、ドラマティック照明、Apple風</div><div class="file">B1-palm-dark.png</div></div>
+    </div>
+    <div class="card" data-id="B2" onclick="toggle(this)">
+      <div class="num">B2</div>
+      <img src="images/B2-palm-coin.png" alt="">
+      <div class="label"><div class="desc">500円玉との比較、木のテーブル</div><div class="file">B2-palm-coin.png</div></div>
+    </div>
+    <div class="card" data-id="B3" onclick="toggle(this)">
+      <div class="num">B3</div>
+      <img src="images/B3-two-colors.png" alt="">
+      <div class="label"><div class="desc">黒と白の2色、大理石の上</div><div class="file">B3-two-colors.png</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="cat-title">C. フェスティバル / Solunaモード</div>
+  <div class="grid">
+    <div class="card" data-id="C1" onclick="toggle(this)">
+      <div class="num">C1</div>
+      <img src="images/C1-festival-wide.png" alt="">
+      <div class="label"><div class="desc">フェス全景、オレンジLEDの星座</div><div class="file">C1-festival-wide.png</div></div>
+    </div>
+    <div class="card" data-id="C2" onclick="toggle(this)">
+      <div class="num">C2</div>
+      <img src="images/C2-festival-hands.png" alt="">
+      <div class="label"><div class="desc">手元のデバイス、5つのオレンジLED</div><div class="file">C2-festival-hands.png</div></div>
+    </div>
+    <div class="card" data-id="C3" onclick="toggle(this)">
+      <div class="num">C3</div>
+      <img src="images/C3-festival-aerial.png" alt="">
+      <div class="label"><div class="desc">ドローン空撮、夕暮れのフェス会場</div><div class="file">C3-festival-aerial.png</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="cat-title">D. 日常シーン</div>
+  <div class="grid">
+    <div class="card" data-id="D1" onclick="toggle(this)">
+      <div class="num">D1</div>
+      <img src="images/D1-jog-river.png" alt="">
+      <div class="label"><div class="desc">川沿いジョギング、朝日、東京スカイライン</div><div class="file">D1-jog-river.png</div></div>
+    </div>
+    <div class="card" data-id="D2" onclick="toggle(this)">
+      <div class="num">D2</div>
+      <img src="images/D2-office-suit.png" alt="">
+      <div class="label"><div class="desc">スーツのラペルにピン留め、オフィス</div><div class="file">D2-office-suit.png</div></div>
+    </div>
+    <div class="card" data-id="D3" onclick="toggle(this)">
+      <div class="num">D3</div>
+      <img src="images/D3-sleep.png" alt="">
+      <div class="label"><div class="desc">ベッドサイド、睡眠中の録音、月明かり</div><div class="file">D3-sleep.png</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="category" style="margin-bottom:6rem;">
+  <div class="cat-title">E. プロダクトショット</div>
+  <div class="grid">
+    <div class="card" data-id="E1" onclick="toggle(this)">
+      <div class="num">E1</div>
+      <img src="images/E1-lineup-float.png" alt="">
+      <div class="label"><div class="desc">3モデル浮遊、リムライティング、キーノート風</div><div class="file">E1-lineup-float.png</div></div>
+    </div>
+    <div class="card" data-id="E2" onclick="toggle(this)">
+      <div class="num">E2</div>
+      <img src="images/E2-accessories.png" alt="">
+      <div class="label"><div class="desc">アクセサリー一式、チェーン+ポーチ+ケーブル</div><div class="file">E2-accessories.png</div></div>
+    </div>
+    <div class="card" data-id="E3" onclick="toggle(this)">
+      <div class="num">E3</div>
+      <img src="images/E3-macro.png" alt="">
+      <div class="label"><div class="desc">超マクロ、マイク穴とLEDのディテール</div><div class="file">E3-macro.png</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="result" class="result-box"></div>
+
+<div class="selection-bar">
+  <div class="selected-list">選択中: <span id="sel-display">なし</span></div>
+  <button class="apply-btn" id="copy-btn" disabled onclick="copySelection()">番号をコピー</button>
+</div>
+
+<script>
+const selected = new Set();
+
+function toggle(card) {
+  const id = card.dataset.id;
+  if (selected.has(id)) {
+    selected.delete(id);
+    card.classList.remove('selected');
+  } else {
+    selected.add(id);
+    card.classList.add('selected');
+  }
+  updateDisplay();
+}
+
+function updateDisplay() {
+  const display = document.getElementById('sel-display');
+  const btn = document.getElementById('copy-btn');
+  if (selected.size === 0) {
+    display.textContent = 'なし';
+    btn.disabled = true;
+  } else {
+    const sorted = [...selected].sort();
+    display.textContent = sorted.join(', ');
+    btn.disabled = false;
+  }
+}
+
+function copySelection() {
+  const sorted = [...selected].sort();
+  const text = sorted.join(', ');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'コピーしました!';
+    setTimeout(() => { btn.textContent = '番号をコピー'; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
