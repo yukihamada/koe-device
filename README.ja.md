@@ -151,7 +151,7 @@ koe-device/
 |------|----------|-------|
 | ハードウェア設計 | 70% | 回路図完成、部品発注中 |
 | ファームウェア | 40% | コンパイル済み、実機テストが必要 |
-| Koe ソフトウェア | 100% | [koe.elio.love](https://koe.elio.love) (macOS/Windows) |
+| Koe ソフトウェア | 100% | [app.koe.live](https://app.koe.live) (macOS/Windows) |
 | プロトタイプ | 20% | 部品到着待ち |
 | Soluna Edition | 30% | Pi CM5アーキテクチャ設計済み |
 
@@ -169,7 +169,7 @@ koe-device/
 ## リンク
 
 - **ウェブサイト:** https://koe.live/ja.html
-- **Koe ソフトウェア:** https://koe.elio.love
+- **Koe ソフトウェア:** https://app.koe.live
 - **Soluna:** https://solun.art/soluna
 - **EnablerDAO:** https://github.com/enablerdao
 - **ドキュメント:** https://koe.live/docs.html

@@ -151,7 +151,7 @@ Full BOM: [hardware/bom/](hardware/bom/)
 |------|----------|-------|
 | Hardware design | 70% | Schematic done, parts being ordered |
 | Firmware | 40% | Compiles, needs real hardware test |
-| Koe software | 100% | [koe.elio.love](https://koe.elio.love) (macOS/Windows) |
+| Koe software | 100% | [app.koe.live](https://app.koe.live) (macOS/Windows) |
 | Prototype | 20% | Waiting for parts |
 | Soluna Edition | 30% | Pi CM5 architecture designed |
 
@@ -169,7 +169,7 @@ Full BOM: [hardware/bom/](hardware/bom/)
 ## Links
 
 - **Website:** https://koe.live/
-- **Koe software:** https://koe.elio.love
+- **Koe software:** https://app.koe.live
 - **Soluna:** https://solun.art/soluna
 - **EnablerDAO:** https://github.com/enablerdao
 
