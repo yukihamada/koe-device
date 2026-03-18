@@ -1,65 +1,56 @@
 #!/bin/bash
-# Soluna Channel Daemon — 全チャンネルを同時配信
-# Pi 5のSTAGEで実行。各チャンネルをバックグラウンドで起動。
+# Soluna Channel Daemon — 全チャンネル自動配信
+# 66プレイリスト、646曲
 #
-# Usage: ./channel-daemon.sh
-# Stop:  kill $(cat /tmp/soluna-channels.pid)
+# Usage:
+#   ./channel-daemon.sh          # 全チャンネル起動
+#   ./channel-daemon.sh avicii   # 1チャンネルだけ
+#   ./channel-daemon.sh stop     # 全停止
 
 set -e
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PID_FILE="/tmp/soluna-channels.pid"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+PID_FILE="/tmp/soluna-channels.pids"
+
+if [ "$1" = "stop" ]; then
+    if [ -f "$PID_FILE" ]; then
+        kill $(cat "$PID_FILE") 2>/dev/null || true
+        rm "$PID_FILE"
+        echo "All channels stopped."
+    fi
+    exit 0
+fi
 
 echo "=== Soluna Channel Daemon ==="
-echo "Starting channels..."
+echo "66 channels, 646 tracks"
 echo ""
 
 PIDS=""
+COUNT=0
 
-# Free channels (playlists loop)
-start_channel() {
+start() {
     local ch="$1"
-    local playlist="$2"
-    if [ -f "$SCRIPT_DIR/playlists/$playlist" ]; then
-        python3 "$SCRIPT_DIR/channel-dj.py" --channel "$ch" --playlist "$SCRIPT_DIR/playlists/$playlist" --loop &
+    local playlist="$DIR/playlists/${ch}.txt"
+    if [ -f "$playlist" ]; then
+        python3 "$DIR/channel-dj.py" --channel "$ch" --playlist "$playlist" --loop > "/tmp/soluna-${ch}.log" 2>&1 &
         PIDS="$PIDS $!"
-        echo "  Started: $ch (playlist: $playlist)"
+        COUNT=$((COUNT + 1))
+        echo "  [$COUNT] $ch"
     fi
 }
 
-# YouTube search channels (loop search results)
-start_search() {
-    local ch="$1"
-    local query="$2"
-    python3 "$SCRIPT_DIR/channel-dj.py" --channel "$ch" --search "$query" --loop &
-    PIDS="$PIDS $!"
-    echo "  Started: $ch (search: $query)"
-}
-
-# Artist channels
-start_channel "avicii" "avicii.txt"
-start_channel "fkj" "fkj.txt"
-start_channel "sunset-chill" "sunset-chill.txt"
-
-# Genre channels (search-based)
-start_search "jazz" "jazz lounge music live"
-start_search "ambient" "ambient music for focus 2024"
-start_search "lo-fi" "lofi hip hop radio beats"
-start_search "classical" "classical music orchestra live"
-start_search "electronic" "electronic music mix 2024"
-
-# DJ Mix channels
-start_search "solomun-live" "Solomun live DJ set 2024"
-start_search "tale-of-us" "Tale Of Us Afterlife mix"
-start_search "amelie-lens" "Amelie Lens techno set"
-start_search "ben-bohmer" "Ben Böhmer live set"
-start_search "carl-cox" "Carl Cox DJ set 2024"
+if [ -n "$1" ] && [ "$1" != "stop" ]; then
+    start "$1"
+else
+    for playlist in "$DIR"/playlists/*.txt; do
+        ch=$(basename "$playlist" .txt)
+        start "$ch"
+    done
+fi
 
 echo ""
-echo "Running $(echo $PIDS | wc -w | tr -d ' ') channels"
-echo "PIDs: $PIDS"
+echo "$COUNT channels running"
 echo "$PIDS" > "$PID_FILE"
-echo "Stop: kill \$(cat $PID_FILE)"
-echo ""
+echo "Logs: /tmp/soluna-*.log"
+echo "Stop: $0 stop"
 
-# Wait for all
 wait
