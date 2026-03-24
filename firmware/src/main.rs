@@ -162,7 +162,29 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
     };
     println!("WiFi connected!");
 
-    // WiFi接続後に最小限のスレッドだけ起動 (ESP32-S3 + 2MB PSRAM)
+    // 内蔵LED (GPIO2) を点滅して接続成功を表示
+    let mut led = PinDriver::output(peripherals.pins.gpio2)?;
+    thread::Builder::new().stack_size(2048).spawn(move || {
+        loop {
+            let _ = led.set_high();
+            thread::sleep(Duration::from_millis(
+                match get_state() {
+                    DeviceState::Listening => 1000,   // 遅い点滅 = 待機中
+                    DeviceState::Processing => 100,   // 速い点滅 = 処理中
+                    DeviceState::Speaking => 50,       // 超速点滅 = 再生中
+                    _ => 500,
+                }
+            ));
+            let _ = led.set_low();
+            thread::sleep(Duration::from_millis(500));
+        }
+    })?;
+
+    // BLEアドバタイズ開始（iOSからの接続を受付）
+    println!("Starting BLE...");
+    ble::start_pairing(&nvs);
+    println!("BLE advertising started");
+
     println!("Starting services...");
 
     // Koeクライアント初期化
