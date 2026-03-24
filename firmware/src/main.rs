@@ -356,19 +356,37 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
 
         match get_mode() {
             DeviceMode::Koe => {
+                // BLEブリッジモード: iPhoneが接続中かつWiFiなし → BLE経由でAPI呼び出し
+                let use_bridge = ble::is_connected() && koe_client.api_key().is_none();
+
                 if audio::detect_voice(&read_buf[..bytes_read]) {
                     silent_frames = 0;
                     voice_buf.extend_from_slice(&read_buf[..bytes_read]);
                     if voice_buf.len() >= SAMPLE_RATE as usize * 2 * 3 {
-                        if let Some(ref mut spk) = i2s_spk { send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable); }
+                        if use_bridge {
+                            bridge_send(&voice_buf);
+                        } else if let Some(ref mut spk) = i2s_spk {
+                            send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable);
+                        }
                         voice_buf.clear();
                     }
                 } else if !voice_buf.is_empty() {
                     silent_frames += 1;
                     if silent_frames >= SILENCE_TIMEOUT {
-                        if let Some(ref mut spk) = i2s_spk { send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable); }
+                        if use_bridge {
+                            bridge_send(&voice_buf);
+                        } else if let Some(ref mut spk) = i2s_spk {
+                            send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable);
+                        }
                         voice_buf.clear();
                         silent_frames = 0;
+                    }
+                }
+
+                // ブリッジ受信: iPhoneからのTTS音声を再生
+                if use_bridge {
+                    if let Some(ref mut spk) = i2s_spk {
+                        bridge_play(spk, &mut spk_enable);
                     }
                 }
             }
@@ -529,6 +547,40 @@ fn send_and_play(
         }
     }
     set_state(DeviceState::Listening);
+}
+
+// === BLEブリッジ ===
+
+/// 音声データをBLE notify でiPhoneに送信 → iPhoneがAPIを呼ぶ
+fn bridge_send(audio_data: &[u8]) {
+    set_state(DeviceState::Processing);
+    info!("Bridge: sending {}B audio via BLE", audio_data.len());
+    ble::notify_audio(audio_data);
+    ble::notify_audio_end();  // EOU送信 → iPhoneがAPI呼び出し開始
+}
+
+/// iPhoneからのTTS音声チャンクをI2Sで再生
+fn bridge_play(
+    i2s_spk: &mut esp_idf_hal::i2s::I2sDriver<'_, esp_idf_hal::i2s::I2sTx>,
+    spk_enable: &mut PinDriver<'_, impl esp_idf_hal::gpio::OutputPin, esp_idf_hal::gpio::Output>,
+) {
+    // 受信キューからチャンクを消費
+    while let Some(chunk) = ble::pop_rx_chunk() {
+        if !SPK_ON.load(Ordering::Relaxed) {
+            let _ = spk_enable.set_high();
+            SPK_ON.store(true, Ordering::Relaxed);
+            set_state(DeviceState::Speaking);
+        }
+        audio::aec_set_reference(&chunk);
+        let _ = i2s_spk.write(&chunk, 50);
+    }
+    // 全チャンク受信完了
+    if ble::rx_audio_complete() {
+        let _ = spk_enable.set_low();
+        SPK_ON.store(false, Ordering::Relaxed);
+        set_state(DeviceState::Listening);
+        info!("Bridge: playback complete");
+    }
 }
 
 // === ボタン (5連打=ファクトリーリセット検出追加) ===

@@ -81,9 +81,8 @@ impl SecureClient {
         }
     }
 
-    pub fn device_id(&self) -> &str {
-        &self.device_id
-    }
+    pub fn device_id(&self) -> &str { &self.device_id }
+    pub fn api_key(&self) -> Option<&str> { self.api_key.as_deref() }
 
     pub fn stream_audio(&self, audio_chunk: &[u8]) -> Result<Option<Vec<u8>>, Box<dyn std::error::Error>> {
         let api_key = match &self.api_key {
