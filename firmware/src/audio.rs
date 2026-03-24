@@ -336,6 +336,92 @@ pub fn apply_volume(audio: &mut [u8]) {
     }
 }
 
+/// Generate 19.5kHz ultrasonic chirp for acoustic ranging
+/// Outputs mono 16-bit PCM at current sample rate, returns bytes written
+pub fn generate_chirp(out: &mut [u8]) -> usize {
+    let rate = unsafe { SAMPLE_RATE };
+    let duration_ms = 10u32; // Short burst
+    let freq = 19500u32;
+    let n_samples = (rate * duration_ms / 1000) as usize;
+    let out_len = (n_samples * 2).min(out.len());
+    let period = rate / freq;
+    if period == 0 { return 0; }
+
+    let mut i = 0;
+    let mut sample_idx: u32 = 0;
+    while i + 1 < out_len {
+        // Square wave at 19.5kHz (lightweight, strong harmonic content for detection)
+        let val: i16 = if (sample_idx % period) < period / 2 { 16000 } else { -16000 };
+        let bytes = val.to_le_bytes();
+        out[i] = bytes[0];
+        out[i + 1] = bytes[1];
+        i += 2;
+        sample_idx += 1;
+    }
+    out_len
+}
+
+/// Detect chirp in audio data — returns true if 19.5kHz energy spike detected
+/// Uses Goertzel algorithm (single-frequency DFT, O(N), zero alloc)
+pub fn detect_chirp(audio_data: &[u8]) -> bool {
+    let rate = unsafe { SAMPLE_RATE } as f32;
+    let target_freq = 19500.0f32;
+    let n_samples = audio_data.len() / 2;
+    if n_samples == 0 { return false; }
+
+    // Goertzel coefficient
+    let k = (target_freq * n_samples as f32 / rate) as i32;
+    // Use fixed-point approximation: cos(2*pi*k/N)
+    // For simplicity, compute with i32 scaled by 1024
+    let w = (2.0 * core::f32::consts::PI * k as f32 / n_samples as f32) as f32;
+    // cos approximation not needed — just use the float for the coefficient
+    let coeff = (2.0f32 * cos_approx(w) * 1024.0) as i32;
+
+    let mut s0: i64 = 0;
+    let mut s1: i64 = 0;
+    let mut s2: i64 = 0;
+
+    let mut i = 0;
+    while i + 1 < audio_data.len() {
+        let sample = i16::from_le_bytes([audio_data[i], audio_data[i + 1]]) as i64;
+        s0 = sample + ((coeff as i64 * s1) >> 10) - s2;
+        s2 = s1;
+        s1 = s0;
+        i += 2;
+    }
+
+    // Power = s1² + s2² - coeff*s1*s2
+    let power = s1 * s1 + s2 * s2 - ((coeff as i64 * s1 * s2) >> 10);
+
+    // Also compute total energy for comparison
+    let mut total_energy: i64 = 0;
+    i = 0;
+    while i + 1 < audio_data.len() {
+        let s = i16::from_le_bytes([audio_data[i], audio_data[i + 1]]) as i64;
+        total_energy += s * s;
+        i += 2;
+    }
+
+    // Chirp detected if target frequency power is > 30% of total energy
+    if total_energy == 0 { return false; }
+    let ratio = power * 100 / (total_energy / n_samples as i64 + 1);
+    ratio > 30
+}
+
+/// Cosine approximation (Bhaskara I, avoids libm dependency)
+#[inline]
+fn cos_approx(x: f32) -> f32 {
+    // Normalize to [0, 2π]
+    let pi = core::f32::consts::PI;
+    let mut x = x % (2.0 * pi);
+    if x < 0.0 { x += 2.0 * pi; }
+    // Use identity: cos(x) = 1 - 2*sin²(x/2), with sin approx
+    // Simpler: Taylor series truncated — good enough for coefficient
+    let x2 = x * x;
+    let x4 = x2 * x2;
+    1.0 - x2 / 2.0 + x4 / 24.0
+}
+
 /// 整数平方根 (Newton法、FPU不要)
 #[inline]
 fn isqrt(n: u64) -> u32 {

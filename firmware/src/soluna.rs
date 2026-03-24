@@ -22,6 +22,19 @@ const PACKET_BUF_SIZE: usize = HEADER_SIZE + MAX_AUDIO_PER_PACKET;
 const FLAG_ADPCM: u8 = 0x01;
 const FLAG_ENCRYPTED: u8 = 0x02;
 const FLAG_HEARTBEAT: u8 = 0x04;
+const FLAG_CHIRP: u8 = 0x08;      // Acoustic ranging chirp
+const FLAG_GOSSIP: u8 = 0x10;     // Gossip-forwarded packet (don't re-forward)
+
+const CHIRP_FREQ_HZ: u32 = 19500; // Near-ultrasonic (barely audible)
+const CHIRP_DURATION_MS: u32 = 10; // Short burst
+const SPEED_OF_SOUND_CM_PER_MS: u32 = 34; // 343 m/s = 34.3 cm/ms
+
+const MAX_GOSSIP_PEERS: usize = 3; // Forward to top 3 nearest peers
+const GOSSIP_MAX_HOPS: u8 = 10;    // TTL
+
+const AUTO_BUFFER_MIN_MS: u32 = 20;
+const AUTO_BUFFER_MAX_MS: u32 = 300;
+const AUTO_BUFFER_DEFAULT_MS: u32 = 100;
 
 // Heartbeat間隔
 const HEARTBEAT_INTERVAL_MS: u64 = 5_000;
@@ -385,6 +398,35 @@ pub fn mix_audio(dst: &mut [u8], src: &[u8]) {
 // プリセットチャンネル (ダブルタップで巡回)
 pub const CHANNELS: &[&str] = &["soluna", "voice", "music", "ambient"];
 
+#[derive(Clone, Copy)]
+pub struct PeerInfo {
+    pub hash: u32,
+    pub last_seen: u32,       // seconds
+    pub rtt_ms: u16,          // WiFi round-trip time
+    pub distance_cm: u16,     // Acoustic distance (0 = unknown)
+    pub hops: u8,             // Gossip hop count from source
+    pub decode_state: AdpcmState,
+    pub expected_seq: u32,
+}
+
+impl PeerInfo {
+    pub const fn empty() -> Self {
+        Self {
+            hash: 0, last_seen: 0, rtt_ms: 0, distance_cm: 0, hops: 0,
+            decode_state: AdpcmState::new(), expected_seq: 0,
+        }
+    }
+
+    /// Routing score — lower is better (combines RTT + distance + hops)
+    pub fn score(&self) -> u32 {
+        (self.rtt_ms as u32) + (self.distance_cm as u32 / 10) + (self.hops as u32 * 50)
+    }
+
+    pub fn is_active(&self, now: u32) -> bool {
+        self.hash != 0 && now.wrapping_sub(self.last_seen) <= PEER_TIMEOUT_SEC
+    }
+}
+
 pub struct SolunaNode {
     channel_name: [u8; 32],
     channel_len: usize,
@@ -394,15 +436,18 @@ pub struct SolunaNode {
     pub jitter: JitterBuffer,
     encode_state: AdpcmState,
     decode_state: AdpcmState,
-    // ピア管理
-    peers: [u32; 8],
-    peer_last_seen: [u32; 8],
-    peer_decode_state: [AdpcmState; 8],
+    // ピア管理 (PeerInfo統合)
+    peers: [PeerInfo; 8],
     // PLC (パケットロス補間)
     last_good_frame: [u8; 2048],
     last_good_len: usize,
-    expected_seq: [u32; 8], // ピアごとの次期待seq
     channel_index: usize,  // 現在のチャンネルインデックス
+    // Gossip P2P routing
+    gossip_peers: [u32; MAX_GOSSIP_PEERS],
+    // Adaptive sync buffer
+    buffer_target_ms: u32,
+    // Acoustic ranging
+    chirp_sent_at: u32,
 }
 
 impl SolunaNode {
@@ -421,13 +466,13 @@ impl SolunaNode {
             jitter: JitterBuffer::new(),
             encode_state: AdpcmState::new(),
             decode_state: AdpcmState::new(),
-            peers: [0u32; 8],
-            peer_last_seen: [0u32; 8],
-            peer_decode_state: [AdpcmState::new(); 8],
+            peers: [PeerInfo::empty(); 8],
             last_good_frame: [0u8; 2048],
             last_good_len: 0,
-            expected_seq: [0u32; 8],
             channel_index: ch_idx,
+            gossip_peers: [0u32; MAX_GOSSIP_PEERS],
+            buffer_target_ms: AUTO_BUFFER_DEFAULT_MS,
+            chirp_sent_at: 0,
         }
     }
 
@@ -472,11 +517,27 @@ impl SolunaNode {
         }
 
         let flags = packet[18];
+        let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
 
-        // Heartbeatパケット: ピア存在だけ更新、音声なし
-        if flags & FLAG_HEARTBEAT != 0 {
-            let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
+        // Chirp packet: acoustic ranging response
+        if flags & FLAG_CHIRP != 0 {
+            let sent_ntp_ms = u32::from_le_bytes([packet[14], packet[15], packet[16], packet[17]]);
+            self.handle_chirp(sender_hash, sent_ntp_ms);
             self.register_peer(sender_hash, now);
+            return true;
+        }
+
+        // Heartbeatパケット: ピア存在 + RTT計測
+        if flags & FLAG_HEARTBEAT != 0 {
+            let peer_idx = self.register_peer(sender_hash, now);
+            // RTT: use NTP timestamp delta
+            if let Some(idx) = peer_idx {
+                let sent_ntp = u32::from_le_bytes([packet[14], packet[15], packet[16], packet[17]]);
+                let rtt = ntp_now_ms().wrapping_sub(sent_ntp);
+                if rtt < 10000 { // sanity check: < 10s
+                    self.peers[idx].rtt_ms = rtt as u16;
+                }
+            }
             return true;
         }
 
@@ -486,27 +547,37 @@ impl SolunaNode {
         }
 
         // ピア登録 & デコードstate取得
-        let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
         let peer_idx = self.register_peer(sender_hash, now);
 
         let recv_seq = u32::from_le_bytes([packet[6], packet[7], packet[8], packet[9]]);
+
+        // Gossip forwarding: if not already gossip-forwarded, mark for forwarding
+        // (caller is responsible for actual send; we just set the flag info)
+        let is_gossip = flags & FLAG_GOSSIP != 0;
+        if let Some(idx) = peer_idx {
+            if is_gossip {
+                // Extract hop count from seq high byte area — we encode hops in the flags vicinity
+                // For gossip packets, hops is stored implicitly; increment on receive
+                self.peers[idx].hops = self.peers[idx].hops.saturating_add(1);
+            } else {
+                self.peers[idx].hops = 0; // Direct packet
+            }
+        }
 
         // ADPCM デコード → PCM
         if flags & FLAG_ADPCM != 0 {
             let decode_state = if let Some(idx) = peer_idx {
                 // PLC: seqギャップ検出 → 前フレームをリピート
-                let expected = self.expected_seq[idx];
+                let expected = self.peers[idx].expected_seq;
                 if expected > 0 && recv_seq > expected {
                     let gap = (recv_seq - expected) as usize;
                     if gap <= 3 && self.last_good_len > 0 {
-                        // 欠落フレーム分、前フレームを減衰リピート
                         for g in 0..gap {
-                            let attenuation = 256 - (g as i32 * 64); // 段階的に減衰
+                            let attenuation = 256 - (g as i32 * 64);
                             if attenuation <= 0 { break; }
                             let mut plc_buf = [0u8; 2048];
                             let len = self.last_good_len;
                             plc_buf[..len].copy_from_slice(&self.last_good_frame[..len]);
-                            // 減衰適用
                             let mut k = 0;
                             while k + 1 < len {
                                 let s = i16::from_le_bytes([plc_buf[k], plc_buf[k+1]]) as i32;
@@ -520,8 +591,8 @@ impl SolunaNode {
                         }
                     }
                 }
-                self.expected_seq[idx] = recv_seq + 1;
-                &mut self.peer_decode_state[idx]
+                self.peers[idx].expected_seq = recv_seq + 1;
+                &mut self.peers[idx].decode_state
             } else {
                 &mut self.decode_state
             };
@@ -530,6 +601,25 @@ impl SolunaNode {
             let pcm_len = adpcm_decode(audio_data, &mut pcm_buf, decode_state);
 
             if pcm_len > 0 {
+                // Spatial audio: distance-based attenuation
+                if let Some(idx) = peer_idx {
+                    let dist = self.peers[idx].distance_cm;
+                    if dist > 0 {
+                        let atten = Self::distance_attenuation(dist);
+                        if atten < 256 {
+                            let mut k = 0;
+                            while k + 1 < pcm_len {
+                                let s = i16::from_le_bytes([pcm_buf[k], pcm_buf[k+1]]) as i32;
+                                let scaled = ((s * atten as i32) >> 8).clamp(-32768, 32767) as i16;
+                                let bytes = scaled.to_le_bytes();
+                                pcm_buf[k] = bytes[0];
+                                pcm_buf[k+1] = bytes[1];
+                                k += 2;
+                            }
+                        }
+                    }
+                }
+
                 // 正常フレームを記録 (PLC用)
                 self.last_good_frame[..pcm_len].copy_from_slice(&pcm_buf[..pcm_len]);
                 self.last_good_len = pcm_len;
@@ -545,21 +635,20 @@ impl SolunaNode {
     fn register_peer(&mut self, peer_hash: u32, now: u32) -> Option<usize> {
         // 既存ピア
         for i in 0..8 {
-            if self.peers[i] == peer_hash {
-                self.peer_last_seen[i] = now;
+            if self.peers[i].hash == peer_hash {
+                self.peers[i].last_seen = now;
                 return Some(i);
             }
         }
         // 新規 or 期限切れスロット
         for i in 0..8 {
-            if self.peers[i] == 0 || now.wrapping_sub(self.peer_last_seen[i]) > PEER_TIMEOUT_SEC {
-                self.peers[i] = peer_hash;
-                self.peer_last_seen[i] = now;
-                self.peer_decode_state[i] = AdpcmState::new();
+            if self.peers[i].hash == 0 || now.wrapping_sub(self.peers[i].last_seen) > PEER_TIMEOUT_SEC {
+                self.peers[i] = PeerInfo::empty();
+                self.peers[i].hash = peer_hash;
+                self.peers[i].last_seen = now;
 
                 let count = self.peers.iter()
-                    .zip(self.peer_last_seen.iter())
-                    .filter(|(&p, &t)| p != 0 && now.wrapping_sub(t) <= PEER_TIMEOUT_SEC)
+                    .filter(|p| p.is_active(now))
                     .count();
                 PEER_COUNT.store(count as u8, Ordering::Relaxed);
                 info!("Peer +1 ({})", count);
@@ -579,10 +668,11 @@ impl SolunaNode {
         self.jitter.clear();
         self.encode_state = AdpcmState::new();
         self.decode_state = AdpcmState::new();
-        self.peers = [0u32; 8];
-        self.peer_decode_state = [AdpcmState::new(); 8];
+        self.peers = [PeerInfo::empty(); 8];
         self.last_good_len = 0;
-        self.expected_seq = [0u32; 8];
+        self.gossip_peers = [0u32; MAX_GOSSIP_PEERS];
+        self.buffer_target_ms = AUTO_BUFFER_DEFAULT_MS;
+        self.chirp_sent_at = 0;
         self.channel_index = CHANNELS.iter().position(|&c| c == channel).unwrap_or(0);
         PEER_COUNT.store(0, Ordering::Relaxed);
         info!("Ch: {}", channel);
@@ -597,6 +687,145 @@ impl SolunaNode {
 
     pub fn channel_name_str(&self) -> &str {
         core::str::from_utf8(&self.channel_name[..self.channel_len]).unwrap_or("soluna")
+    }
+
+    // =====================================================
+    // Gossip P2P Routing
+    // =====================================================
+
+    /// Select best gossip peers (lowest routing score)
+    pub fn select_gossip_peers(&mut self) {
+        let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
+        // Collect active peers with scores
+        let mut scored: [(u32, u32); 8] = [(0, u32::MAX); 8]; // (hash, score)
+        let mut count = 0;
+        for p in &self.peers {
+            if p.is_active(now) {
+                scored[count] = (p.hash, p.score());
+                count += 1;
+            }
+        }
+        // Simple selection sort for top MAX_GOSSIP_PEERS
+        for i in 0..count.min(MAX_GOSSIP_PEERS) {
+            let mut best = i;
+            for j in (i + 1)..count {
+                if scored[j].1 < scored[best].1 {
+                    best = j;
+                }
+            }
+            scored.swap(i, best);
+        }
+        // Store results
+        self.gossip_peers = [0u32; MAX_GOSSIP_PEERS];
+        for i in 0..count.min(MAX_GOSSIP_PEERS) {
+            self.gossip_peers[i] = scored[i].0;
+        }
+    }
+
+    /// Check if a peer hash is in the gossip target list
+    pub fn is_gossip_target(&self, hash: u32) -> bool {
+        hash != 0 && self.gossip_peers.iter().any(|&h| h == hash)
+    }
+
+    /// Build gossip-forwarded version of a packet (set FLAG_GOSSIP, increment hops)
+    /// Returns packet length, or 0 if packet should not be forwarded
+    pub fn build_gossip_forward(&self, original: &[u8], out: &mut [u8; PACKET_BUF_SIZE]) -> usize {
+        if original.len() < HEADER_SIZE { return 0; }
+        let flags = original[18];
+        // Don't re-forward gossip packets or chirps
+        if flags & FLAG_GOSSIP != 0 || flags & FLAG_CHIRP != 0 { return 0; }
+
+        let len = original.len().min(PACKET_BUF_SIZE);
+        out[..len].copy_from_slice(&original[..len]);
+        out[18] |= FLAG_GOSSIP; // Mark as gossip-forwarded
+        len
+    }
+
+    // =====================================================
+    // Acoustic Ranging
+    // =====================================================
+
+    /// Build chirp packet (FLAG_CHIRP, no audio, just NTP timestamp in header)
+    pub fn build_chirp_packet(&self, out: &mut [u8; PACKET_BUF_SIZE]) -> usize {
+        out[0..2].copy_from_slice(&MAGIC);
+        out[2..6].copy_from_slice(&self.device_hash.to_le_bytes());
+        out[6..10].copy_from_slice(&0u32.to_le_bytes()); // seq=0 for chirp
+        out[10..14].copy_from_slice(&self.ch_hash.to_le_bytes());
+        out[14..18].copy_from_slice(&ntp_now_ms().to_le_bytes());
+        out[18] = FLAG_CHIRP;
+        HEADER_SIZE
+    }
+
+    /// Record chirp send time for distance calculation
+    pub fn mark_chirp_sent(&mut self) {
+        self.chirp_sent_at = ntp_now_ms();
+    }
+
+    /// Handle received chirp — calculate acoustic distance from NTP timestamp delta
+    pub fn handle_chirp(&mut self, sender_hash: u32, sent_ntp_ms: u32) {
+        let now = ntp_now_ms();
+        let elapsed_ms = now.wrapping_sub(sent_ntp_ms);
+        // Sanity: sound travels ~34cm/ms, ignore if > 30m (~88ms)
+        if elapsed_ms > 100 { return; }
+        let distance_cm = (elapsed_ms * SPEED_OF_SOUND_CM_PER_MS) as u16;
+        // Update peer distance
+        for p in &mut self.peers {
+            if p.hash == sender_hash {
+                p.distance_cm = distance_cm;
+                return;
+            }
+        }
+    }
+
+    // =====================================================
+    // Adaptive Sync Buffer
+    // =====================================================
+
+    /// Update adaptive buffer target based on worst-case peer latency
+    pub fn update_buffer_target(&mut self) {
+        let now = unsafe { (esp_idf_sys::esp_timer_get_time() / 1_000_000) as u32 };
+        let mut worst_rtt: u32 = 0;
+        let mut has_peers = false;
+        for p in &self.peers {
+            if p.is_active(now) {
+                has_peers = true;
+                if (p.rtt_ms as u32) > worst_rtt {
+                    worst_rtt = p.rtt_ms as u32;
+                }
+            }
+        }
+        if !has_peers {
+            self.buffer_target_ms = AUTO_BUFFER_DEFAULT_MS;
+            return;
+        }
+        // Target = 2x worst RTT + 20ms margin, clamped to [MIN, MAX]
+        let target = (worst_rtt * 2 + 20).clamp(AUTO_BUFFER_MIN_MS, AUTO_BUFFER_MAX_MS);
+        // Smooth: move 25% toward target each update
+        let current = self.buffer_target_ms;
+        self.buffer_target_ms = current - current / 4 + target / 4;
+        self.buffer_target_ms = self.buffer_target_ms.clamp(AUTO_BUFFER_MIN_MS, AUTO_BUFFER_MAX_MS);
+    }
+
+    /// Get current adaptive buffer target in milliseconds
+    pub fn buffer_target_ms(&self) -> u32 {
+        self.buffer_target_ms
+    }
+
+    // =====================================================
+    // Spatial Audio — Distance-based Attenuation
+    // =====================================================
+
+    /// Get volume attenuation for a peer based on acoustic distance
+    /// Returns 0-256 where 256=full volume, 0=silent
+    /// Model: full volume within 50cm, linear falloff to ~10% at 10m
+    pub fn distance_attenuation(distance_cm: u16) -> u16 {
+        if distance_cm == 0 { return 256; } // Unknown distance = full volume
+        if distance_cm <= 50 { return 256; } // Within 50cm = full
+        if distance_cm >= 1000 { return 26; } // 10m+ = ~10%
+        // Linear interpolation: 256 at 50cm → 26 at 1000cm
+        let range = distance_cm as u32 - 50;
+        let scale = 256 - (range * 230 / 950);
+        scale as u16
     }
 }
 

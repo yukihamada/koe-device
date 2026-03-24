@@ -98,25 +98,27 @@ fn main() {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
 
+    // NVSパーティションを一度だけ取得 (take()は二度呼ぶとpanic)
+    let nvs_partition = EspDefaultNvsPartition::take().expect("NVS partition");
+
     // クラッシュダンプ: 前回のパニック情報をチェック
-    check_crash_dump();
+    check_crash_dump(&nvs_partition);
 
     // WDTはrun()内、WiFi接続後に有効化 (BLEペアリング中にWDTが発火しないように)
 
-    if let Err(e) = run() {
+    if let Err(e) = run(nvs_partition.clone()) {
         error!("Fatal: {:?}", e);
         // クラッシュダンプ保存
-        save_crash_dump(&format!("{:?}", e));
+        save_crash_dump(&nvs_partition, &format!("{:?}", e));
         unsafe { esp_idf_sys::esp_restart(); }
     }
 }
 
-fn run() -> Result<(), Box<dyn std::error::Error>> {
+fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::Error>> {
     info!("Koe+Soluna v{}", VERSION);
 
     let peripherals = Peripherals::take()?;
     let sysloop = EspSystemEventLoop::take()?;
-    let nvs_partition = EspDefaultNvsPartition::take()?;
     let mut nvs = EspNvs::new(nvs_partition.clone(), "koe", true)?;
 
     // サンプルレート
@@ -136,14 +138,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     // バッテリー (LED は WiFi後に起動、RAM節約)
     thread::Builder::new().stack_size(2048).spawn(|| battery::monitor_task())?;
 
-    // WiFi — NVS未設定なら初期値を書き込み
+    // WiFi — NVS未設定ならBLEプロビジョニング待ち
     {
         let mut ssid_buf = [0u8; 64];
         if nvs.get_str("wifi_ssid", &mut ssid_buf).ok().flatten().is_none() {
-            println!("No WiFi config, writing defaults...");
-            let _ = nvs.set_str("wifi_ssid", "Hama-Fi-IoT");
-            let _ = nvs.set_str("wifi_pass", "sushiramen");
-            println!("WiFi config saved: Hama-Fi-IoT");
+            println!("No WiFi config in NVS. Use BLE provisioning or set via NVS.");
+            // WiFi未設定: 空のデフォルトを書き込み、BLE経由で設定を待つ
+            let _ = nvs.set_str("wifi_ssid", "");
+            let _ = nvs.set_str("wifi_pass", "");
         }
     }
 
@@ -160,26 +162,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     };
     println!("WiFi connected!");
 
-    // WiFi接続後にLED + WDT起動
-    thread::Builder::new().stack_size(2048).spawn(|| led::run_led_task())?;
-    init_watchdog();
+    // WiFi接続後に最小限のスレッドだけ起動 (ESP32-S3 + 2MB PSRAM)
+    println!("Starting services...");
 
-    thread::Builder::new().stack_size(3072).spawn(move || wifi_watchdog(wifi))?;
-    thread::Builder::new().stack_size(3072).spawn(|| soluna::sntp_task())?;
-
-    // OTA
+    // Koeクライアント初期化
     let koe_client = cloud::SecureClient::new(&mut nvs);
-    let ota_device_id = koe_client.device_id().to_string();
-    thread::Builder::new().stack_size(4096).spawn(move || {
-        thread::sleep(Duration::from_secs(30));
-        let _ = ota::check_and_update(&ota_device_id);
-    })?;
-
-    // Soluna
     let device_id = koe_client.device_id().to_string();
     let device_hash = soluna::fnv1a(device_id.as_bytes());
     soluna::set_own_device_hash(device_hash);
 
+    // Solunaノード
     let default_channel = {
         let mut buf = [0u8; 32];
         nvs.get_str("soluna_ch", &mut buf).ok().flatten()
@@ -187,41 +179,62 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             .unwrap_or_else(|| "soluna".to_string())
     };
     { let mut n = SOLUNA_NODE.lock().unwrap(); *n = Some(soluna::SolunaNode::new(&default_channel, device_hash)); }
-    let _ = soluna::register_mdns(&device_id);
 
-    // Soluna RX + Heartbeat + LED RX
-    thread::Builder::new().stack_size(4096).spawn(|| soluna_rx_loop())?;
-    thread::Builder::new().stack_size(3072).spawn(|| soluna_led_rx_loop())?;
+    // WDT有効化 (WiFi接続後)
+    init_watchdog();
+
+    // スレッド起動 (WiFi watchdog + Soluna RX + LED RX + Status Report)
+    thread::Builder::new().stack_size(4096).spawn(move || wifi_watchdog(wifi))?;
+    thread::Builder::new().stack_size(6144).spawn(|| soluna_rx_loop())?;
+    thread::Builder::new().stack_size(4096).spawn(|| soluna_led_rx_loop())?;
+    let did = device_id.clone();
+    thread::Builder::new().stack_size(4096).spawn(move || status_report_task(&did))?;
     let tx_socket = UdpSocket::bind("0.0.0.0:0")?;
-    let hb_socket = UdpSocket::bind("0.0.0.0:0")?;
-    thread::Builder::new().stack_size(2048).spawn(move || {
-        soluna::heartbeat_task(&hb_socket, MCAST_DEST);
-    })?;
+    feed_watchdog();
 
-    // ステータス送信 (5分ごと)
-    let status_device_id = koe_client.device_id().to_string();
-    thread::Builder::new().stack_size(3072).spawn(move || {
-        status_report_task(&status_device_id);
-    })?;
+    // SNTP は一回だけ同期
+    println!("SNTP sync...");
+    soluna::sntp_task();
+    feed_watchdog();
+    println!("Time synced");
 
-    // I2S
-    let mut i2s_mic = audio::init_mic_i2s(
+    // I2S 初期化 — ESP32-S3用GPIOピン (回路図準拠)
+    // マイク: I2S0 (BCLK=GPIO4, WS=GPIO5, DIN=GPIO6)
+    // スピーカー: I2S1 (BCLK=GPIO4 shared, DOUT=GPIO7, WS=GPIO5 shared)
+    // スピーカーアンプSD: GPIO8
+    println!("Init I2S...");
+    println!("  heap before: {}", unsafe { esp_idf_sys::esp_get_free_heap_size() });
+    feed_watchdog();
+
+    let mut i2s_mic = match audio::init_mic_i2s(
         peripherals.i2s0, peripherals.pins.gpio4,
         peripherals.pins.gpio5, peripherals.pins.gpio6,
-    )?;
-    let mut i2s_spk = audio::init_spk_i2s(
-        peripherals.i2s1, peripherals.pins.gpio9,
-        peripherals.pins.gpio7, peripherals.pins.gpio10,
-    )?;
+    ) {
+        Ok(m) => { println!("  mic OK"); Some(m) }
+        Err(e) => { println!("  mic err: {:?}", e); None }
+    };
+    feed_watchdog();
+
+    let mut i2s_spk = match audio::init_spk_i2s(
+        peripherals.i2s1, peripherals.pins.gpio4,
+        peripherals.pins.gpio7, peripherals.pins.gpio5,
+    ) {
+        Ok(s) => { println!("  spk OK"); Some(s) }
+        Err(e) => { println!("  spk err: {:?}", e); None }
+    };
+    feed_watchdog();
+
     let mut spk_enable = PinDriver::output(peripherals.pins.gpio8)?;
+    println!("  heap after: {}", unsafe { esp_idf_sys::esp_get_free_heap_size() });
 
-    // Button
+    // Button: GPIO15, LED: GPIO16, Battery ADC: GPIO1
     let button = PinDriver::input(peripherals.pins.gpio15)?;
-    thread::Builder::new().stack_size(2048).spawn(move || button_task(button))?;
+    thread::Builder::new().stack_size(4096).spawn(move || button_task(button))?;
 
-    play_beep(&mut i2s_spk, &mut spk_enable, 660, 60);
     set_state(DeviceState::Listening);
-    info!("Ready v{}", VERSION);
+    println!("=== Koe+Soluna v{} READY ===", VERSION);
+    println!("  Device: {}", device_id);
+    println!("  Free heap: {} bytes", unsafe { esp_idf_sys::esp_get_free_heap_size() });
 
     // バッファ
     let mut ring_buffer = vec![0u8; RING_BUFFER_SIZE];
@@ -238,37 +251,19 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         // ボタンイベント
         let btn = BTN_EVENT.swap(0, Ordering::Relaxed);
-        match btn {
-            1 => {
-                let cur = RECORDING.load(Ordering::Relaxed);
-                RECORDING.store(!cur, Ordering::Relaxed);
+        if btn == 1 {
+            let cur = RECORDING.load(Ordering::Relaxed);
+            RECORDING.store(!cur, Ordering::Relaxed);
+            println!("Rec: {}", !cur);
+        } else if btn == 2 {
+            if let Some(ref mut spk) = i2s_spk {
+                toggle_mode(spk, &mut spk_enable);
             }
-            2 => toggle_mode(&mut i2s_spk, &mut spk_enable),
-            3 => {
-                play_beep(&mut i2s_spk, &mut spk_enable, 330, 200);
-                ble::start_pairing(&nvs);
+            println!("Mode toggle");
+        } else if btn == 5 {
+            if let Some(ref mut spk) = i2s_spk {
+                factory_reset(&mut nvs, spk, &mut spk_enable);
             }
-            4 => {
-                if get_mode() == DeviceMode::Soluna {
-                    if let Ok(mut g) = SOLUNA_NODE.lock() {
-                        if let Some(ref mut node) = *g { node.next_channel(); }
-                    }
-                    play_beep(&mut i2s_spk, &mut spk_enable, 550, 50);
-                    play_beep(&mut i2s_spk, &mut spk_enable, 770, 50);
-                }
-            }
-            5 => factory_reset(&mut nvs, &mut i2s_spk, &mut spk_enable), // 5連打
-            6 => { // ボリュームアップ (トリプルタップ上)
-                let vol = audio::get_volume();
-                audio::set_volume(vol + 64);
-                play_beep(&mut i2s_spk, &mut spk_enable, 880, 30);
-            }
-            7 => { // ボリュームダウン
-                let vol = audio::get_volume();
-                audio::set_volume(vol - 64);
-                play_beep(&mut i2s_spk, &mut spk_enable, 330, 30);
-            }
-            _ => {}
         }
 
         if !RECORDING.load(Ordering::Relaxed) {
@@ -276,14 +271,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             continue;
         }
 
-        let bytes_read = match i2s_mic.read(&mut read_buf, 50) {
-            Ok(n) => n,
-            Err(_) => continue,
+        // I2Sが未初期化の場合はスキップ
+        let bytes_read = if let Some(ref mut mic) = i2s_mic {
+            match mic.read(&mut read_buf, 50) {
+                Ok(n) => n,
+                Err(_) => { thread::sleep(Duration::from_millis(50)); continue; }
+            }
+        } else {
+            thread::sleep(Duration::from_millis(50));
+            continue;
         };
 
         if bytes_read == 0 {
             if get_mode() == DeviceMode::Soluna {
-                soluna_play(&mut i2s_spk, &mut spk_enable, &mut play_buf);
+                if let Some(ref mut spk) = i2s_spk { soluna_play(spk, &mut spk_enable, &mut play_buf); }
             }
             continue;
         }
@@ -311,13 +312,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     silent_frames = 0;
                     voice_buf.extend_from_slice(&read_buf[..bytes_read]);
                     if voice_buf.len() >= SAMPLE_RATE as usize * 2 * 3 {
-                        send_and_play(&koe_client, &voice_buf, &mut i2s_spk, &mut spk_enable);
+                        if let Some(ref mut spk) = i2s_spk { send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable); }
                         voice_buf.clear();
                     }
                 } else if !voice_buf.is_empty() {
                     silent_frames += 1;
                     if silent_frames >= SILENCE_TIMEOUT {
-                        send_and_play(&koe_client, &voice_buf, &mut i2s_spk, &mut spk_enable);
+                        if let Some(ref mut spk) = i2s_spk { send_and_play(&koe_client, &voice_buf, spk, &mut spk_enable); }
                         voice_buf.clear();
                         silent_frames = 0;
                     }
@@ -328,7 +329,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if gate_open && audio::detect_voice(&read_buf[..bytes_read]) {
                     soluna_tx(&tx_socket, &read_buf[..bytes_read]);
                 }
-                soluna_play(&mut i2s_spk, &mut spk_enable, &mut play_buf);
+                if let Some(ref mut spk) = i2s_spk { soluna_play(spk, &mut spk_enable, &mut play_buf); }
             }
         }
     }
@@ -366,16 +367,29 @@ fn soluna_rx_loop() {
     };
     let _ = socket.join_multicast_v4(&Ipv4Addr::new(239,42,42,1), &Ipv4Addr::UNSPECIFIED);
     let _ = socket.set_read_timeout(Some(Duration::from_millis(100)));
-    let mut buf = [0u8; 531];
+    // バッファ: OTAパケット(31+1024=1055B)に対応
+    let mut buf = [0u8; 1088];
     loop {
-        if !soluna::is_active() { thread::sleep(Duration::from_millis(200)); continue; }
+        // Solunaが非アクティブでもOTAパケットは常に受信
         match socket.recv_from(&mut buf) {
             Ok((n, _)) => {
-                if let Ok(mut g) = SOLUNA_NODE.lock() {
-                    if let Some(ref mut node) = *g { node.handle_packet(&buf[..n]); }
+                // OTAパケットを先にチェック (チャンネル0xFFFFFFFF)
+                if ota::handle_ota_packet(&buf[..n]) {
+                    continue; // OTAパケットだった
+                }
+
+                // 通常の音声/Heartbeat/チャープパケット
+                if soluna::is_active() {
+                    if let Ok(mut g) = SOLUNA_NODE.lock() {
+                        if let Some(ref mut node) = *g { node.handle_packet(&buf[..n]); }
+                    }
                 }
             }
-            Err(_) => {}
+            Err(_) => {
+                if !soluna::is_active() {
+                    thread::sleep(Duration::from_millis(200));
+                }
+            }
         }
     }
 }
@@ -554,12 +568,13 @@ fn factory_reset(
 
 fn init_watchdog() {
     unsafe {
-        // タスクWDTに現在のタスクを登録 (30秒タイムアウト)
-        esp_idf_sys::esp_task_wdt_config_t {
+        // タスクWDTを再設定 (30秒タイムアウト)
+        let config = esp_idf_sys::esp_task_wdt_config_t {
             timeout_ms: 30_000,
             idle_core_mask: 0,
             trigger_panic: true,
         };
+        esp_idf_sys::esp_task_wdt_reconfigure(&config);
         esp_idf_sys::esp_task_wdt_add(core::ptr::null_mut());
     }
 }
@@ -570,26 +585,22 @@ fn feed_watchdog() {
 
 // === クラッシュダンプ ===
 
-fn save_crash_dump(msg: &str) {
+fn save_crash_dump(nvs_partition: &EspDefaultNvsPartition, msg: &str) {
     // NVSに最後のエラーを保存 (最大127文字)
-    if let Ok(nvs_partition) = EspDefaultNvsPartition::take() {
-        if let Ok(mut nvs) = EspNvs::new(nvs_partition, "crash", true) {
-            let truncated: String = msg.chars().take(127).collect();
-            let _ = nvs.set_str("last_error", &truncated);
-        }
+    if let Ok(mut nvs) = EspNvs::new(nvs_partition.clone(), "crash", true) {
+        let truncated: String = msg.chars().take(127).collect();
+        let _ = nvs.set_str("last_error", &truncated);
     }
 }
 
-fn check_crash_dump() {
-    if let Ok(nvs_partition) = EspDefaultNvsPartition::take() {
-        if let Ok(mut nvs) = EspNvs::new(nvs_partition, "crash", true) {
-            let mut buf = [0u8; 128];
-            if let Ok(Some(msg)) = nvs.get_str("last_error", &mut buf) {
-                let msg = msg.trim_end_matches('\0');
-                if !msg.is_empty() {
-                    warn!("Previous crash: {}", msg);
-                    let _ = nvs.remove("last_error");
-                }
+fn check_crash_dump(nvs_partition: &EspDefaultNvsPartition) {
+    if let Ok(mut nvs) = EspNvs::new(nvs_partition.clone(), "crash", true) {
+        let mut buf = [0u8; 128];
+        if let Ok(Some(msg)) = nvs.get_str("last_error", &mut buf) {
+            let msg = msg.trim_end_matches('\0');
+            if !msg.is_empty() {
+                warn!("Previous crash: {}", msg);
+                let _ = nvs.remove("last_error");
             }
         }
     }
