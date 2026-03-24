@@ -48,15 +48,40 @@ pub fn start_pairing(_nvs: &esp_idf_svc::nvs::EspNvs<esp_idf_svc::nvs::NvsDefaul
         esp_idf_sys::nimble_port_freertos_init(Some(nimble_host_task));
     }
 
-    // Advertising開始（NimBLEスタックが起動してから少し待つ）
-    std::thread::sleep(std::time::Duration::from_millis(500));
+    // NimBLEスタック起動を待つ
+    std::thread::sleep(std::time::Duration::from_millis(1000));
 
     unsafe {
+        // アドバタイズデータを明示的に設定（デバイス名 + サービスUUID）
+        let device_name = b"Koe-Device";
+        let mut adv_fields: esp_idf_sys::ble_hs_adv_fields = core::mem::zeroed();
+        adv_fields.flags = (esp_idf_sys::BLE_HS_ADV_F_DISC_GEN | esp_idf_sys::BLE_HS_ADV_F_BREDR_UNSUP) as u8;
+        adv_fields.set_tx_pwr_lvl_is_present(1);
+        adv_fields.tx_pwr_lvl = esp_idf_sys::BLE_HS_ADV_TX_PWR_LVL_AUTO as i8;
+        adv_fields.name = device_name.as_ptr();
+        adv_fields.name_len = device_name.len() as u8;
+        adv_fields.set_name_is_complete(1);
+
+        // サービスUUID FFE0をアドバタイズ
+        let svc_uuid = esp_idf_sys::ble_uuid16_t {
+            u: esp_idf_sys::ble_uuid_t { type_: esp_idf_sys::BLE_UUID_TYPE_16 as u8 },
+            value: 0xFFE0,
+        };
+        adv_fields.uuids16 = &svc_uuid;
+        adv_fields.num_uuids16 = 1;
+        adv_fields.set_uuids16_is_complete(1);
+
+        let ret = esp_idf_sys::ble_gap_adv_set_fields(&adv_fields);
+        if ret != 0 {
+            error!("BLE: set_adv_fields failed: {}", ret);
+        }
+
+        // Advertising開始
         let mut adv_params: esp_idf_sys::ble_gap_adv_params = core::mem::zeroed();
         adv_params.conn_mode = esp_idf_sys::BLE_GAP_CONN_MODE_UND as u8;
         adv_params.disc_mode = esp_idf_sys::BLE_GAP_DISC_MODE_GEN as u8;
-        adv_params.itvl_min = 0x20;
-        adv_params.itvl_max = 0x40;
+        adv_params.itvl_min = 0x30;  // 30ms
+        adv_params.itvl_max = 0x60;  // 60ms
 
         let ret = esp_idf_sys::ble_gap_adv_start(
             esp_idf_sys::BLE_OWN_ADDR_PUBLIC as u8,
@@ -70,7 +95,7 @@ pub fn start_pairing(_nvs: &esp_idf_svc::nvs::EspNvs<esp_idf_svc::nvs::NvsDefaul
         if ret != 0 {
             error!("BLE: adv_start failed: {}", ret);
         } else {
-            info!("BLE: advertising as 'Koe-Device'");
+            info!("BLE: advertising as 'Koe-Device' with UUID FFE0");
         }
     }
 }
