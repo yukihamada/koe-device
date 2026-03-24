@@ -19,7 +19,7 @@ mod ota;
 mod battery;
 
 const SAMPLE_RATE: u32 = 16_000;
-const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * 5;
+const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * 1; // 1秒分 (32KB) — ESP32 RAMに収まるサイズ
 const MCAST_DEST: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(239, 42, 42, 1), 4242);
 // LED制御送信先 (STAGE側で使用)
 #[allow(dead_code)]
@@ -138,14 +138,53 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
     // バッテリー (LED は WiFi後に起動、RAM節約)
     thread::Builder::new().stack_size(2048).spawn(|| battery::monitor_task())?;
 
-    // WiFi — NVS未設定ならBLEプロビジョニング待ち
-    {
+    // WiFi SSIDチェック — 未設定ならBLEのみモードで起動
+    let has_wifi = {
         let mut ssid_buf = [0u8; 64];
-        if nvs.get_str("wifi_ssid", &mut ssid_buf).ok().flatten().is_none() {
-            println!("No WiFi config in NVS. Use BLE provisioning or set via NVS.");
-            // WiFi未設定: 空のデフォルトを書き込み、BLE経由で設定を待つ
-            let _ = nvs.set_str("wifi_ssid", "");
-            let _ = nvs.set_str("wifi_pass", "");
+        nvs.get_str("wifi_ssid", &mut ssid_buf).ok().flatten()
+            .map(|s| !s.trim_end_matches('\0').is_empty())
+            .unwrap_or(false)
+    };
+
+    // 内蔵LED (GPIO2) — 常に点滅
+    let mut led = PinDriver::output(peripherals.pins.gpio2)?;
+    let led_has_wifi = has_wifi;
+    thread::Builder::new().stack_size(2048).spawn(move || {
+        loop {
+            let _ = led.set_high();
+            let interval = if led_has_wifi {
+                match get_state() {
+                    DeviceState::Listening => 1000,
+                    DeviceState::Processing => 100,
+                    _ => 500,
+                }
+            } else {
+                200  // 速い点滅 = BLEプロビジョニング待ち
+            };
+            thread::sleep(Duration::from_millis(interval as u64));
+            let _ = led.set_low();
+            thread::sleep(Duration::from_millis(interval as u64));
+        }
+    })?;
+
+    // BLEアドバタイズ開始（WiFi設定の有無に関わらず常に起動）
+    println!("Starting BLE...");
+    ble::start_pairing(&nvs);
+    println!("BLE advertising as 'Koe-Device'");
+
+    if !has_wifi {
+        println!("=== No WiFi configured ===");
+        println!("Use iPhone Koe app > More > Koe Device to set up WiFi via BLE");
+        println!("LED blinking fast = waiting for BLE setup");
+        set_state(DeviceState::Booting);
+        // WiFi未設定: BLE経由で設定されるまで待機ループ
+        loop {
+            if ble::is_done() {
+                println!("BLE provisioning complete, restarting...");
+                unsafe { esp_idf_sys::esp_restart(); }
+            }
+            thread::sleep(Duration::from_secs(1));
+            feed_watchdog();
         }
     }
 
@@ -161,30 +200,6 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
         }
     };
     println!("WiFi connected!");
-
-    // 内蔵LED (GPIO2) を点滅して接続成功を表示
-    let mut led = PinDriver::output(peripherals.pins.gpio2)?;
-    thread::Builder::new().stack_size(2048).spawn(move || {
-        loop {
-            let _ = led.set_high();
-            thread::sleep(Duration::from_millis(
-                match get_state() {
-                    DeviceState::Listening => 1000,   // 遅い点滅 = 待機中
-                    DeviceState::Processing => 100,   // 速い点滅 = 処理中
-                    DeviceState::Speaking => 50,       // 超速点滅 = 再生中
-                    _ => 500,
-                }
-            ));
-            let _ = led.set_low();
-            thread::sleep(Duration::from_millis(500));
-        }
-    })?;
-
-    // BLEアドバタイズ開始（iOSからの接続を受付）
-    println!("Starting BLE...");
-    ble::start_pairing(&nvs);
-    println!("BLE advertising started");
-
     println!("Starting services...");
 
     // Koeクライアント初期化
