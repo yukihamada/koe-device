@@ -206,29 +206,30 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
     println!("  heap before: {}", unsafe { esp_idf_sys::esp_get_free_heap_size() });
     feed_watchdog();
 
+    // ESP32 I2S pins: Mic(I2S0): BCLK=14, WS=15, DIN=32 / Spk(I2S1): BCLK=26, DOUT=25, WS=27
     let mut i2s_mic = match audio::init_mic_i2s(
-        peripherals.i2s0, peripherals.pins.gpio4,
-        peripherals.pins.gpio5, peripherals.pins.gpio6,
+        peripherals.i2s0, peripherals.pins.gpio14,
+        peripherals.pins.gpio15, peripherals.pins.gpio32,
     ) {
         Ok(m) => { println!("  mic OK"); Some(m) }
-        Err(e) => { println!("  mic err: {:?}", e); None }
+        Err(e) => { println!("  mic err: {:?} (no mic connected?)", e); None }
     };
     feed_watchdog();
 
     let mut i2s_spk = match audio::init_spk_i2s(
-        peripherals.i2s1, peripherals.pins.gpio4,
-        peripherals.pins.gpio7, peripherals.pins.gpio5,
+        peripherals.i2s1, peripherals.pins.gpio26,
+        peripherals.pins.gpio25, peripherals.pins.gpio27,
     ) {
         Ok(s) => { println!("  spk OK"); Some(s) }
-        Err(e) => { println!("  spk err: {:?}", e); None }
+        Err(e) => { println!("  spk err: {:?} (no speaker connected?)", e); None }
     };
     feed_watchdog();
 
-    let mut spk_enable = PinDriver::output(peripherals.pins.gpio8)?;
+    let mut spk_enable = PinDriver::output(peripherals.pins.gpio21)?;
     println!("  heap after: {}", unsafe { esp_idf_sys::esp_get_free_heap_size() });
 
-    // Button: GPIO15, LED: GPIO16, Battery ADC: GPIO1
-    let button = PinDriver::input(peripherals.pins.gpio15)?;
+    // Button: GPIO33 (ESP32 DevKit BOOT button), LED: GPIO2 (built-in)
+    let button = PinDriver::input(peripherals.pins.gpio33)?;
     thread::Builder::new().stack_size(4096).spawn(move || button_task(button))?;
 
     set_state(DeviceState::Listening);
