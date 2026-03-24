@@ -180,7 +180,17 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
         // WiFi未設定: BLE経由で設定されるまで待機ループ
         loop {
             if ble::is_done() {
-                println!("BLE provisioning complete, restarting...");
+                if let Some(ssid) = ble::get_wifi_ssid() {
+                    let pass = ble::get_wifi_pass().unwrap_or_default();
+                    println!("BLE provisioning complete: SSID={}", ssid);
+                    // NVSに書き込んで再起動
+                    let _ = nvs.set_str("wifi_ssid", &ssid);
+                    let _ = nvs.set_str("wifi_pass", &pass);
+                    println!("WiFi config saved, restarting...");
+                } else {
+                    println!("BLE done but no SSID, restarting...");
+                }
+                thread::sleep(Duration::from_millis(500));
                 unsafe { esp_idf_sys::esp_restart(); }
             }
             thread::sleep(Duration::from_secs(1));
