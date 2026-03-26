@@ -385,6 +385,53 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 }
 #viz-canvas { opacity:0.85; }
 
+/* ===================== VOCAL EFFECTS STRIP ===================== */
+#vocal-strip {
+  position:relative; z-index:5;
+  display:flex; align-items:center; gap:8px;
+  margin:6px 16px 0;
+  background:rgba(255,255,255,0.04); backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px; padding:8px 12px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+.fx-btn {
+  background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.6); border-radius:10px;
+  padding:5px 12px; font-size:0.75rem; font-weight:700;
+  cursor:pointer; white-space:nowrap; -webkit-appearance:none; transition:all 0.2s;
+  flex-shrink:0;
+}
+.fx-btn.on { border-color:var(--accent); color:var(--accent); background:rgba(139,92,246,0.15); }
+.fx-sep { width:1px; height:20px; background:rgba(255,255,255,0.1); flex-shrink:0; }
+.fx-stat { font-size:0.75rem; white-space:nowrap; flex-shrink:0; }
+#note-display { color:#fff; font-weight:700; }
+#bpm-display  { color:var(--accent2); }
+#key-display  { color:var(--gold); }
+
+/* ===================== LYRICS PANEL ===================== */
+#lyrics-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:rgba(10,10,18,0.97); backdrop-filter:blur(30px);
+  border-top:1px solid rgba(139,92,246,0.25);
+  border-radius:28px 28px 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; max-height:55vh; overflow:hidden;
+  flex-direction:column; gap:12px;
+}
+#lyrics-panel.show { display:flex; }
+#lyrics-header { display:flex; justify-content:space-between; align-items:center; }
+#lyrics-header span { font-weight:700; font-size:0.95rem; }
+#lyrics-body {
+  overflow-y:auto; flex:1;
+  font-size:1.05rem; line-height:2.2; color:rgba(255,255,255,0.5);
+  text-align:center;
+}
+.lyric-line { transition:all 0.3s; }
+.lyric-line.active { color:#fff; font-size:1.15rem; font-weight:700; text-shadow:0 0 20px rgba(139,92,246,0.8); }
+.lyric-line.next { color:rgba(255,255,255,0.8); }
+
 /* ===================== LATENCY BADGE ===================== */
 #latency-badge {
   font-size:0.7rem; color:var(--muted);
@@ -511,6 +558,18 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
       </div>
     </div>
 
+    <!-- VOCAL EFFECTS STRIP -->
+    <div id="vocal-strip">
+      <button class="fx-btn" id="btn-echo"     onclick="toggleEcho()">🔊 エコー</button>
+      <button class="fx-btn" id="btn-autotune" onclick="toggleAutotune()">🎤 チューン</button>
+      <div class="fx-sep"></div>
+      <span class="fx-stat">🎵 <span id="note-display">--</span></span>
+      <span class="fx-stat">♩ <span id="bpm-display">-- BPM</span></span>
+      <span class="fx-stat">🔑 <span id="key-display">--</span></span>
+      <div class="fx-sep"></div>
+      <button class="fx-btn" id="btn-lyrics" onclick="toggleLyrics()">📜 歌詞</button>
+    </div>
+
     <!-- AUDIO VISUALIZER -->
     <div id="viz-wrap">
       <canvas id="viz-canvas" width="300" height="300"></canvas>
@@ -541,6 +600,17 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
     </div>
   </div>
 
+</div>
+
+<!-- LYRICS PANEL -->
+<div id="lyrics-panel">
+  <div id="lyrics-header">
+    <span id="lyrics-track-title">歌詞</span>
+    <button class="fx-btn" onclick="toggleLyrics()">✕</button>
+  </div>
+  <div id="lyrics-body">
+    <!-- populated by JS based on current track -->
+  </div>
 </div>
 
 <!-- KARAOKE PANEL -->
@@ -1657,6 +1727,11 @@ function setupVolumeMeter(stream) {
   source.connect(analyser);
   // Connect music player to same audioCtx for visualization
   connectMusicToViz();
+  // Setup voice effects chain
+  const fxIn = setupVoiceEffects(analyser, audioCtx, audioCtx.destination);
+  source.connect(fxIn);
+  // Start pitch / BPM / key display
+  startPitchDisplay();
 
   const buf = new Uint8Array(analyser.frequencyBinCount);
 
@@ -1924,6 +1999,380 @@ function drawQR(text) {
     }, 200);
   }
 })();
+
+// ============================================================
+// LYRICS DATABASE
+// ============================================================
+const LYRICS_DB = {
+  'sore-koi-jujutsu': {
+    title: 'それ恋じゃなく柔術でした',
+    lines: [
+      '気づいたらずっと考えてた',
+      '道場で会うたびに胸が痛い',
+      'これって恋？それとも柔術？',
+      '内股一本 心まで落とされた',
+      'タックル切れなかった わたしの心',
+      'スパーリングの後 息が上がる',
+      'きっとこれは 柔術じゃない',
+      'それ恋じゃなく柔術でした',
+      'Everybody tap tap tap',
+    ],
+  },
+  'everybody-say-bjj': {
+    title: 'Everybody say BJJ',
+    lines: [
+      'Everybody say BJJ',
+      'Roll roll roll on the mat',
+      'Guard pass, mount, back take',
+      'Everybody say BJJ',
+      'Submission is the way',
+      'Triangle, armbar, RNC',
+      'Everybody say BJJ',
+      'On the mat we are free',
+    ],
+  },
+  'free-to-change': {
+    title: 'Free to Change',
+    lines: [
+      '変わっていく 怖くない',
+      'Free to change, free to grow',
+      '昨日の自分を越えていく',
+      'Free to change, let it go',
+      '新しい朝が来るたびに',
+      '少しだけ強くなれる気がする',
+      'Free to change',
+    ],
+  },
+  'hello-2150': {
+    title: 'HELLO 2150',
+    lines: [
+      'HELLO 2150',
+      'どんな世界が待ってるの',
+      'HELLO 2150',
+      'あなたに会いに行く',
+      '時代が変わっても',
+      'この歌は届く',
+      'HELLO 2150',
+    ],
+  },
+  'i-love-you': {
+    title: 'I love you',
+    lines: [
+      'I love you, I love you',
+      '言葉にできなかったけど',
+      'I love you, I love you',
+      'ずっと思ってた',
+      '春の風が吹く頃',
+      'やっと伝えられる',
+      'I love you',
+    ],
+  },
+  'i-need-your-attention': {
+    title: 'I need your attention',
+    lines: [
+      'I need your attention',
+      'ねえ、こっちを見て',
+      'I need your attention',
+      'もっと近くに来て',
+      'Everybody needs someone',
+      'I need you',
+      'I need your attention',
+    ],
+  },
+  'attention-kudasai': {
+    title: 'アテンションください',
+    lines: [
+      'アテンションください',
+      'みんな聴いてほしい',
+      'アテンションください',
+      'この声が届くまで',
+      'マイクを持って立ち上がる',
+      '言いたいことがある',
+      'アテンションください',
+    ],
+  },
+  'shio-to-pixel': {
+    title: '塩とピクセル',
+    lines: [
+      '塩とピクセルで作られた',
+      'この世界の片隅で',
+      '二進数の涙流して',
+      '人間みたいに笑ってる',
+      '塩とピクセル',
+      'デジタルの夢を見る',
+      '塩とピクセル',
+    ],
+  },
+  'musubinaosu-asa': {
+    title: '結び直す朝',
+    lines: [
+      '朝の光の中で',
+      'ほどけた糸を結び直す',
+      '昨日のこと、忘れないけど',
+      '今日また歩き出せる',
+      '結び直す 朝ごとに',
+      'また会える日まで',
+      '結び直す朝',
+    ],
+  },
+};
+
+// Current lyrics state
+let currentLyricLine = 0;
+let lyricTimer = null;
+
+// ============================================================
+// ECHO + AUTOTUNE EFFECTS
+// ============================================================
+let echoEnabled = false;
+let autotuneEnabled = false;
+let echoNode = null;
+let echoFbNode = null;
+let echoWetNode = null;
+let autotuneOsc = null;
+let autotuneRingNode = null;
+let autotuneWetNode = null;
+let autotuneGainNode = null;
+let micDryGain = null;
+let fxInputNode = null;
+let fxOutputNode = null;
+
+function setupVoiceEffects(micAnalyserNode, ctx, destination) {
+  // Create fx chain: mic → dry+echo+autotune → destination
+  fxInputNode  = ctx.createGain(); fxInputNode.gain.value  = 1;
+  fxOutputNode = ctx.createGain(); fxOutputNode.gain.value = 1;
+  micDryGain   = ctx.createGain(); micDryGain.gain.value   = 1;
+
+  fxInputNode.connect(micDryGain);
+  micDryGain.connect(fxOutputNode);
+
+  // --- Echo ---
+  echoNode   = ctx.createDelay(1.5); echoNode.delayTime.value   = 0.28;
+  echoFbNode = ctx.createGain();     echoFbNode.gain.value      = 0.38;
+  echoWetNode= ctx.createGain();     echoWetNode.gain.value     = 0;  // off
+  echoNode.connect(echoFbNode);
+  echoFbNode.connect(echoNode);
+  fxInputNode.connect(echoNode);
+  echoNode.connect(echoWetNode);
+  echoWetNode.connect(fxOutputNode);
+
+  // --- Autotune (T-Pain style: ring mod + chorus) ---
+  autotuneOsc     = ctx.createOscillator(); autotuneOsc.type = 'sine'; autotuneOsc.frequency.value = 220;
+  autotuneRingNode= ctx.createGain();      autotuneRingNode.gain.value = 0;
+  autotuneWetNode = ctx.createGain();      autotuneWetNode.gain.value  = 0;  // off
+  autotuneGainNode= ctx.createGain();      autotuneGainNode.gain.value = 0.6;
+
+  fxInputNode.connect(autotuneRingNode);
+  autotuneOsc.connect(autotuneRingNode.gain);
+  autotuneRingNode.connect(autotuneGainNode);
+  autotuneGainNode.connect(autotuneWetNode);
+  autotuneWetNode.connect(fxOutputNode);
+  autotuneOsc.start();
+
+  fxOutputNode.connect(destination);
+  return fxInputNode;
+}
+
+function toggleEcho() {
+  echoEnabled = !echoEnabled;
+  if (echoWetNode) echoWetNode.gain.linearRampToValueAtTime(echoEnabled ? 0.45 : 0, (audioCtx||{}).currentTime + 0.1 || 0);
+  document.getElementById('btn-echo').classList.toggle('on', echoEnabled);
+  showToast(echoEnabled ? '🔊 エコー ON' : 'エコー OFF');
+}
+
+function toggleAutotune() {
+  autotuneEnabled = !autotuneEnabled;
+  if (autotuneWetNode) autotuneWetNode.gain.linearRampToValueAtTime(autotuneEnabled ? 0.5 : 0, (audioCtx||{}).currentTime + 0.1 || 0);
+  if (autotuneRingNode) autotuneRingNode.gain.value = autotuneEnabled ? 0.7 : 0;
+  document.getElementById('btn-autotune').classList.toggle('on', autotuneEnabled);
+  showToast(autotuneEnabled ? '🎤 チューン ON' : 'チューン OFF');
+}
+
+// ============================================================
+// PITCH DETECTION (autocorrelation)
+// ============================================================
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function detectPitch(analyserNode) {
+  if (!analyserNode) return null;
+  const buf = new Float32Array(analyserNode.fftSize);
+  analyserNode.getFloatTimeDomainData(buf);
+
+  // RMS check — ignore silence
+  let rms = 0;
+  for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / buf.length);
+  if (rms < 0.01) return null;
+
+  // Autocorrelation
+  const n = buf.length;
+  let bestOffset = -1, bestCorr = 0;
+  let lastCorr = 1, goingDown = false;
+
+  for (let offset = 1; offset < n / 2; offset++) {
+    let corr = 0;
+    for (let i = 0; i < n / 2; i++) corr += buf[i] * buf[i + offset];
+    corr = corr / (n / 2);
+    if (goingDown && corr > lastCorr) {
+      if (bestOffset === -1 || corr > bestCorr) { bestCorr = corr; bestOffset = offset - 1; }
+    }
+    goingDown = corr < lastCorr;
+    lastCorr = corr;
+  }
+
+  if (bestCorr < 0.01) return null;
+  const sampleRate = analyserNode.context.sampleRate;
+  return sampleRate / bestOffset;
+}
+
+function hzToNote(hz) {
+  if (!hz || hz < 50 || hz > 2000) return '--';
+  const semitones = Math.round(12 * Math.log2(hz / 440));
+  const octave    = Math.floor((semitones + 57) / 12) + 1;
+  const note      = NOTE_NAMES[((semitones % 12) + 12) % 12];
+  return `${note}${octave}`;
+}
+
+// ============================================================
+// BPM DETECTION (energy-based onset)
+// ============================================================
+let bpmHistory = [];
+let lastBeat = 0;
+let detectedBPM = null;
+
+function detectBPMFromEnergy(energyLevel) {
+  const now = performance.now();
+  if (energyLevel > 120 && now - lastBeat > 250) {
+    if (lastBeat > 0) {
+      const interval = now - lastBeat;
+      bpmHistory.push(60000 / interval);
+      if (bpmHistory.length > 8) bpmHistory.shift();
+      const avg = bpmHistory.reduce((a, b) => a + b, 0) / bpmHistory.length;
+      detectedBPM = Math.round(avg);
+    }
+    lastBeat = now;
+  }
+  return detectedBPM;
+}
+
+// ============================================================
+// KEY DETECTION (chroma profile)
+// ============================================================
+const MAJOR_PROFILE = [6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const MINOR_PROFILE = [6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+
+function detectKey(analyserNode) {
+  if (!analyserNode) return null;
+  const buf = new Uint8Array(analyserNode.frequencyBinCount);
+  analyserNode.getByteFrequencyData(buf);
+  const sr = analyserNode.context.sampleRate;
+  const binHz = sr / (analyserNode.fftSize);
+
+  // Build chroma
+  const chroma = new Array(12).fill(0);
+  for (let i = 1; i < buf.length; i++) {
+    const hz = i * binHz;
+    if (hz < 80 || hz > 2000) continue;
+    const midi = 12 * Math.log2(hz / 440) + 69;
+    const pc = ((Math.round(midi) % 12) + 12) % 12;
+    chroma[pc] += buf[i];
+  }
+
+  // Normalize
+  const sum = chroma.reduce((a, b) => a + b, 0);
+  if (sum < 100) return null;
+  for (let i = 0; i < 12; i++) chroma[i] /= sum;
+
+  // Match against major/minor profiles for all 12 transpositions
+  let bestScore = -1, bestKey = 0, bestMode = 'maj';
+  for (let k = 0; k < 12; k++) {
+    let majScore = 0, minScore = 0;
+    for (let i = 0; i < 12; i++) {
+      majScore += chroma[(i + k) % 12] * MAJOR_PROFILE[i];
+      minScore += chroma[(i + k) % 12] * MINOR_PROFILE[i];
+    }
+    if (majScore > bestScore) { bestScore = majScore; bestKey = k; bestMode = 'maj'; }
+    if (minScore > bestScore) { bestScore = minScore; bestKey = k; bestMode = 'min'; }
+  }
+  return NOTE_NAMES[bestKey] + (bestMode === 'maj' ? ' maj' : 'm');
+}
+
+let pitchDisplayInterval = null;
+
+function startPitchDisplay() {
+  if (pitchDisplayInterval) clearInterval(pitchDisplayInterval);
+  pitchDisplayInterval = setInterval(() => {
+    const src = analyser;
+    if (!src) return;
+
+    // Note display from mic
+    const hz = detectPitch(src);
+    const noteEl = document.getElementById('note-display');
+    if (noteEl) noteEl.textContent = hz ? hzToNote(hz) : '--';
+    if (autotuneEnabled && hz && autotuneOsc) {
+      // Snap to nearest semitone
+      const semitones = Math.round(12 * Math.log2(hz / 440));
+      autotuneOsc.frequency.value = 440 * Math.pow(2, semitones / 12);
+    }
+
+    // BPM + Key from music
+    const musicSrc = musicAnalyserNode;
+    if (musicSrc) {
+      const mBuf = new Uint8Array(musicSrc.frequencyBinCount);
+      musicSrc.getByteFrequencyData(mBuf);
+      const energy = mBuf.slice(0, 20).reduce((a, b) => a + b, 0) / 20;
+      const bpm = detectBPMFromEnergy(energy);
+      const bpmEl = document.getElementById('bpm-display');
+      if (bpmEl && bpm) bpmEl.textContent = bpm + ' BPM';
+      const key = detectKey(musicSrc);
+      const keyEl = document.getElementById('key-display');
+      if (keyEl && key) keyEl.textContent = key;
+    }
+  }, 150);
+}
+
+// ============================================================
+// LYRICS
+// ============================================================
+function toggleLyrics() {
+  document.getElementById('lyrics-panel').classList.toggle('show');
+  if (document.getElementById('lyrics-panel').classList.contains('show')) {
+    renderLyrics();
+  }
+}
+
+function renderLyrics() {
+  const t = PLAYLIST[currentTrackIdx];
+  if (!t) return;
+  const key = t.url.split('/').pop().replace('.mp3', '');
+  const db = LYRICS_DB[key];
+  const titleEl = document.getElementById('lyrics-track-title');
+  const bodyEl  = document.getElementById('lyrics-body');
+  if (!bodyEl) return;
+  if (!db) {
+    titleEl.textContent = t.title;
+    bodyEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;">歌詞データなし</div>';
+    return;
+  }
+  titleEl.textContent = db.title;
+  bodyEl.innerHTML = db.lines.map((line, i) =>
+    `<div class="lyric-line" id="lyric-${i}">${line || '　'}</div>`
+  ).join('');
+  // Auto-scroll lyrics based on playback position
+  if (lyricTimer) clearInterval(lyricTimer);
+  lyricTimer = setInterval(() => {
+    if (!musicAudio || !db) return;
+    const pos     = musicAudio.currentTime;
+    const total   = musicAudio.duration || 180;
+    const lineIdx = Math.min(db.lines.length - 1, Math.floor((pos / total) * db.lines.length));
+    document.querySelectorAll('.lyric-line').forEach((el, i) => {
+      el.classList.toggle('active', i === lineIdx);
+      el.classList.toggle('next',   i === lineIdx + 1);
+    });
+    const activeEl = document.getElementById('lyric-' + lineIdx);
+    activeEl?.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 800);
+}
 
 // ============================================================
 // AUDIO VISUALIZER — circular spectrum around orbs
