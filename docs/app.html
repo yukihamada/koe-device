@@ -1070,6 +1070,8 @@ function connectSignaling() {
     signalingWs.onopen = () => {
       updateStatus(true);
       showToast('接続しました');
+      // Ask room for current music state
+      setTimeout(() => send({ type: 'music_request_sync', data: {} }), 500);
     };
     signalingWs.onmessage = (e) => { try { handleSignal(JSON.parse(e.data)); } catch(err){} };
     signalingWs.onclose = () => {
@@ -1121,6 +1123,15 @@ function handleSignal(msg) {
       showToast(`${data.name} が参加`);
       if (localStream) createOrGetPC(from, data.name, true);
       addParticipant(from, data.name);
+      // Send them current music state
+      if (musicAudio) {
+        send({ type: 'music_sync', data: {
+          trackIdx: currentTrackIdx,
+          playing: !musicAudio.paused,
+          position: musicAudio.currentTime,
+          serverTs: Date.now(),
+        }});
+      }
       break;
     case 'left':
       removeParticipant(from);
@@ -1145,7 +1156,47 @@ function handleSignal(msg) {
     case 'transcript':
       handleTranscriptMsg(from, data);
       break;
+    case 'music_sync':
+      handleMusicSync(data);
+      break;
+    case 'music_request_sync':
+      // Someone just joined — send them current state
+      if (musicAudio) {
+        send({ type: 'music_sync', data: {
+          trackIdx: currentTrackIdx,
+          playing: !musicAudio.paused,
+          position: musicAudio.currentTime,
+          serverTs: Date.now(),
+        }});
+      }
+      break;
   }
+}
+
+function handleMusicSync({ trackIdx, playing, position, serverTs }) {
+  if (!musicAudio) return;
+  const lag = (Date.now() - serverTs) / 1000; // seconds
+  const targetPos = position + lag;
+
+  // Switch track if needed
+  if (trackIdx !== currentTrackIdx) {
+    currentTrackIdx = trackIdx;
+    const t = PLAYLIST[trackIdx];
+    if (!t) return;
+    musicAudio.src = t.url;
+    musicAudio.load();
+    musicSource = null; // reset Web Audio source node
+  }
+
+  if (playing) {
+    musicAudio.currentTime = targetPos;
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    musicAudio.play().catch(() => {});
+  } else {
+    musicAudio.pause();
+    musicAudio.currentTime = targetPos;
+  }
+  showNowPlaying();
 }
 
 function send(obj) {
@@ -1696,11 +1747,16 @@ function playTrack(idx, autoplay = true) {
   const t = PLAYLIST[idx];
   if (!t || !musicAudio) return;
   musicAudio.src = t.url;
+  musicSource = null; // reset Web Audio node on track change
   musicAudio.load();
   if (autoplay) {
     musicAudio.play().catch(() => {
       showToast('▶ タップして再生: ' + t.title);
     });
+    // Broadcast to room
+    send({ type: 'music_sync', data: {
+      trackIdx: idx, playing: true, position: 0, serverTs: Date.now(),
+    }});
   }
   showNowPlaying();
   showToast(`${t.emoji} ${t.title} — ${t.artist}`);
@@ -1711,8 +1767,16 @@ function togglePlay() {
   if (musicAudio.paused) {
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     musicAudio.play().catch(()=>{});
+    send({ type: 'music_sync', data: {
+      trackIdx: currentTrackIdx, playing: true,
+      position: musicAudio.currentTime, serverTs: Date.now(),
+    }});
   } else {
     musicAudio.pause();
+    send({ type: 'music_sync', data: {
+      trackIdx: currentTrackIdx, playing: false,
+      position: musicAudio.currentTime, serverTs: Date.now(),
+    }});
   }
   showNowPlaying();
 }
