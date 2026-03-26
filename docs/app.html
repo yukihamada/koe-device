@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Koe — 声でつながる</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --card: #1a1a24;
+  --border: #2a2a3a;
+  --accent: #7c3aed;
+  --accent2: #06b6d4;
+  --text: #f1f5f9;
+  --muted: #64748b;
+  --green: #10b981;
+  --red: #ef4444;
+  --r: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; overflow-x:hidden; }
+
+/* SPLASH */
+#splash {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:1000; transition:opacity 0.5s;
+}
+#splash h1 { font-size:3rem; font-weight:800; background:linear-gradient(135deg,#a78bfa,#22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; }
+#splash p { color:var(--muted); margin-bottom:40px; }
+.btn-primary {
+  background:linear-gradient(135deg,#7c3aed,#06b6d4);
+  color:#fff; border:none; border-radius:50px;
+  padding:16px 48px; font-size:1.1rem; font-weight:600;
+  cursor:pointer; transition:transform 0.15s, opacity 0.15s;
+  -webkit-appearance:none;
+}
+.btn-primary:active { transform:scale(0.95); opacity:0.9; }
+
+/* HEADER */
+header {
+  background:rgba(10,10,15,0.9); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 20px; display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-size:1.5rem; font-weight:800; background:linear-gradient(135deg,#a78bfa,#22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); transition:background 0.3s; }
+.status-dot.online { background:var(--green); box-shadow:0 0 8px var(--green); }
+.status-text { font-size:0.85rem; color:var(--muted); }
+header .right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+
+/* TABS */
+.tabs { display:flex; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.tab {
+  flex:1; min-width:80px; padding:14px 8px; text-align:center;
+  font-size:0.8rem; color:var(--muted); cursor:pointer;
+  border-bottom:2px solid transparent; transition:all 0.2s;
+  white-space:nowrap;
+}
+.tab.active { color:var(--accent2); border-bottom-color:var(--accent2); }
+
+/* MAIN CONTENT */
+main { max-width:600px; margin:0 auto; padding:16px; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* VOICE ROOM */
+.room-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px; margin-bottom:16px;
+}
+.room-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.room-icon { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+
+/* PARTICIPANTS */
+.participants { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:12px; margin-bottom:20px; }
+.participant {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:12px 8px; border-radius:12px; background:var(--surface);
+  border:1px solid var(--border); transition:border-color 0.2s;
+  position:relative;
+}
+.participant.speaking { border-color:var(--green); }
+.participant.speaking::before {
+  content:''; position:absolute; inset:-2px; border-radius:14px;
+  background:transparent; border:2px solid var(--green);
+  animation:pulse-border 1s infinite;
+}
+@keyframes pulse-border { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.participant-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.participant-name { font-size:0.75rem; color:var(--muted); text-align:center; max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* MIC CONTROLS */
+.controls { display:flex; align-items:center; justify-content:center; gap:16px; padding:16px 0; }
+.ctrl-btn {
+  width:56px; height:56px; border-radius:50%; border:none;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; cursor:pointer; transition:all 0.15s;
+  -webkit-appearance:none;
+}
+.ctrl-btn:active { transform:scale(0.9); }
+.btn-mic { background:var(--green); color:#fff; box-shadow:0 4px 20px rgba(16,185,129,0.4); }
+.btn-mic.muted { background:var(--red); box-shadow:0 4px 20px rgba(239,68,68,0.4); }
+.btn-leave { background:var(--red); color:#fff; }
+.btn-share { background:var(--card); border:1px solid var(--border); color:var(--text); }
+
+/* VOLUME METER */
+.vol-wrap { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.vol-label { font-size:0.8rem; color:var(--muted); min-width:28px; }
+.vol-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.vol-fill { height:100%; width:0%; border-radius:3px; transition:width 0.05s; background:linear-gradient(90deg,var(--green),#a3e635); }
+
+/* MUSIC PLAYER */
+.music-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:16px; }
+.music-art { height:200px; background:linear-gradient(135deg,#1e1b4b,#0f172a,#164e63); display:flex; align-items:center; justify-content:center; font-size:4rem; position:relative; overflow:hidden; }
+.music-art.playing::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 100%, rgba(124,58,237,0.4) 0%, transparent 60%);
+  animation:glow-pulse 2s ease-in-out infinite;
+}
+@keyframes glow-pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+.vinyl {
+  width:120px; height:120px; border-radius:50%;
+  background:conic-gradient(from 0deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #1a1a2e 100%);
+  animation:spin 4s linear infinite paused;
+  box-shadow:0 0 40px rgba(124,58,237,0.5);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem;
+}
+.vinyl.spinning { animation-play-state:running; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.music-info { padding:16px; }
+.music-title { font-size:1rem; font-weight:600; margin-bottom:4px; }
+.music-artist { font-size:0.85rem; color:var(--muted); margin-bottom:16px; }
+.music-progress { margin-bottom:16px; }
+.progress-bar { width:100%; height:4px; background:var(--border); border-radius:2px; cursor:pointer; position:relative; }
+.progress-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); pointer-events:none; transition:width 0.1s; }
+.music-time { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted); margin-top:6px; }
+.music-controls { display:flex; align-items:center; justify-content:center; gap:20px; }
+.play-btn { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; color:#fff; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; }
+.play-btn:active { transform:scale(0.9); }
+.skip-btn { background:none; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; padding:8px; }
+
+/* CHANNEL LIST */
+.channel-list { margin-bottom:16px; }
+.channel-item {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:16px; margin-bottom:8px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:border-color 0.2s;
+}
+.channel-item:active { border-color:var(--accent2); }
+.channel-item.active-ch { border-color:var(--accent2); background:rgba(6,182,212,0.1); }
+.ch-icon { font-size:1.5rem; }
+.ch-info { flex:1; }
+.ch-name { font-weight:600; margin-bottom:2px; }
+.ch-meta { font-size:0.8rem; color:var(--muted); }
+.ch-users { background:var(--border); border-radius:20px; padding:2px 10px; font-size:0.75rem; }
+
+/* DEVICE LIST */
+.device-item {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px; margin-bottom:8px;
+  display:flex; align-items:center; gap:12px;
+}
+.device-status { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.device-status.online { background:var(--green); box-shadow:0 0 6px var(--green); }
+.device-status.offline { background:var(--muted); }
+.device-name { font-weight:600; font-size:0.9rem; }
+.device-meta { font-size:0.75rem; color:var(--muted); }
+.device-level { flex:1; }
+.level-mini { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.level-mini-fill { height:100%; background:var(--green); border-radius:2px; transition:width 0.1s; }
+
+/* QR MODAL */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; }
+.modal.show { display:flex; }
+.modal-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; text-align:center; max-width:320px; width:90%; }
+.modal-card h3 { margin-bottom:8px; }
+.modal-card p { color:var(--muted); font-size:0.85rem; margin-bottom:20px; }
+#qr-canvas { border-radius:12px; margin-bottom:16px; }
+.modal-close { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px 32px; border-radius:50px; cursor:pointer; -webkit-appearance:none; }
+
+/* INPUT */
+.input-row { display:flex; gap:8px; margin-bottom:16px; }
+.text-input {
+  flex:1; background:var(--card); border:1px solid var(--border);
+  border-radius:50px; padding:12px 20px; color:var(--text);
+  font-size:0.95rem; outline:none; -webkit-appearance:none;
+}
+.text-input:focus { border-color:var(--accent2); }
+.btn-sm { padding:12px 20px; border-radius:50px; border:none; cursor:pointer; font-size:0.9rem; font-weight:600; -webkit-appearance:none; }
+.btn-accent { background:var(--accent); color:#fff; }
+.btn-accent2 { background:var(--accent2); color:#000; }
+
+/* NOTIFICATION TOAST */
+.toast {
+  position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--card); border:1px solid var(--border); border-radius:50px;
+  padding:10px 24px; font-size:0.85rem; opacity:0;
+  transition:all 0.3s; z-index:500; pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(10,10,15,0.95); backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex; padding:8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index:100;
+}
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px; cursor:pointer; }
+.nav-icon { font-size:1.3rem; }
+.nav-label { font-size:0.65rem; color:var(--muted); }
+.nav-item.active .nav-label { color:var(--accent2); }
+
+/* Padding for bottom nav */
+main { padding-bottom:100px; }
+
+/* Connection quality */
+.conn-quality { display:flex; gap:2px; align-items:flex-end; }
+.conn-bar { width:4px; background:var(--border); border-radius:2px; }
+.conn-bar:nth-child(1) { height:8px; }
+.conn-bar:nth-child(2) { height:12px; }
+.conn-bar:nth-child(3) { height:16px; }
+.conn-bar.active { background:var(--green); }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div style="font-size:4rem; margin-bottom:16px;">🎙️</div>
+  <h1>Koe</h1>
+  <p>声でつながる · P2P音声 · Soluna音楽</p>
+  <button class="btn-primary" id="btn-enter" onclick="enterApp()">はじめる</button>
+  <p style="color:var(--muted); font-size:0.8rem; margin-top:16px;">マイクへのアクセスが必要です</p>
+</div>
+
+<!-- HEADER -->
+<header>
+  <span class="logo">声</span>
+  <div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="status-text" id="status-text">接続中...</span>
+    </div>
+  </div>
+  <div class="right">
+    <div class="conn-quality" id="conn-quality">
+      <div class="conn-bar active"></div>
+      <div class="conn-bar active"></div>
+      <div class="conn-bar"></div>
+    </div>
+    <button onclick="showSpatial()"
+      style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;">
+      🎧 空間</button>
+    <button id="mode-toggle" onclick="toggleAudioMode()"
+      style="background:var(--card); border:1px solid var(--border);
+             color:var(--text); padding:6px 12px; border-radius:20px;
+             font-size:0.75rem; cursor:pointer;">
+      🎙️ 会話
+    </button>
+    <button class="btn-sm btn-accent2" onclick="showQR()" style="padding:8px 14px; font-size:0.8rem;">共有</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="voice" onclick="switchTab('voice')">🎙️ 音声</div>
+  <div class="tab" data-tab="music" onclick="switchTab('music')">🎵 音楽</div>
+  <div class="tab" data-tab="channels" onclick="switchTab('channels')">📡 チャンネル</div>
+  <div class="tab" data-tab="devices" onclick="switchTab('devices')">💡 デバイス</div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- VOICE PANEL -->
+  <div class="panel active" id="panel-voice">
+    <div class="room-card">
+      <div class="room-header">
+        <div class="room-icon" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">🎙️</div>
+        <div>
+          <div style="font-weight:700;" id="room-name">Solunaルーム</div>
+          <div style="font-size:0.8rem; color:var(--muted);" id="room-id">room: soluna</div>
+        </div>
+        <div style="margin-left:auto;">
+          <span id="participant-count" style="background:var(--border); border-radius:20px; padding:4px 12px; font-size:0.8rem;">0人</span>
+        </div>
+      </div>
+
+      <!-- VOLUME METER -->
+      <div class="vol-wrap">
+        <span class="vol-label">🎙️</span>
+        <div class="vol-bar"><div class="vol-fill" id="vol-fill"></div></div>
+        <span id="vol-db" style="font-size:0.75rem; color:var(--muted); min-width:32px;">-∞</span>
+      </div>
+
+      <!-- PARTICIPANTS -->
+      <div class="participants" id="participants">
+        <div class="participant" id="local-participant">
+          <div class="participant-avatar">🙂</div>
+          <div class="participant-name" id="local-name">あなた</div>
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button class="ctrl-btn btn-share" onclick="showQR()">📤</button>
+        <button class="ctrl-btn btn-mic" id="btn-mic" onclick="toggleMic()">🎙️</button>
+        <button class="ctrl-btn btn-leave" onclick="leaveRoom()">📵</button>
+      </div>
+    </div>
+
+    <!-- JOIN ROOM -->
+    <div class="room-card">
+      <div style="font-weight:600; margin-bottom:12px;">ルームに参加</div>
+      <div class="input-row">
+        <input type="text" class="text-input" id="room-input" placeholder="ルームID または 名前" value="soluna">
+        <button class="btn-sm btn-accent" onclick="joinRoom()">参加</button>
+      </div>
+      <div style="font-size:0.8rem; color:var(--muted);">同じルーム名の人と直接つながります（P2P）</div>
+    </div>
+  </div>
+
+  <!-- MUSIC PANEL -->
+  <div class="panel" id="panel-music">
+    <div class="music-card">
+      <div class="music-art" id="music-art">
+        <div class="vinyl" id="vinyl">🌅</div>
+      </div>
+      <div class="music-info">
+        <div class="music-title" id="music-title">Dawn Frequency</div>
+        <div class="music-artist" id="music-artist">Soluna · koe.live</div>
+        <div class="music-progress">
+          <div class="progress-bar" id="progress-bar" onclick="seekMusic(event)">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="music-time">
+            <span id="time-current">0:00</span>
+            <span id="time-total">4:00</span>
+          </div>
+        </div>
+        <div class="music-controls">
+          <button class="skip-btn" onclick="prevTrack()">⏮</button>
+          <button class="play-btn" id="btn-play" onclick="togglePlay()">▶</button>
+          <button class="skip-btn" onclick="nextTrack()">⏭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYLIST -->
+    <div style="font-weight:600; margin-bottom:12px;">プレイリスト</div>
+    <div id="playlist"></div>
+
+    <!-- STREAM CHANNEL -->
+    <div class="room-card" style="margin-top:16px;">
+      <div style="font-weight:600; margin-bottom:8px;">ライブチャンネル</div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">WebSocketで接続してSolunaデバイスと同期します</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="status-dot" id="stream-dot"></div>
+        <span style="font-size:0.85rem;" id="stream-status">未接続</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNELS PANEL -->
+  <div class="panel" id="panel-channels">
+    <div style="font-weight:600; margin-bottom:12px;">利用可能なチャンネル</div>
+    <div class="channel-list" id="channel-list">
+      <div class="channel-item active-ch" onclick="joinChannel('soluna', this)">
+        <div class="ch-icon">🌙</div>
+        <div class="ch-info">
+          <div class="ch-name">Soluna</div>
+          <div class="ch-meta">P2P音楽同期チャンネル</div>
+        </div>
+        <span class="ch-users">接続中</span>
+      </div>
+      <div class="channel-item" onclick="joinChannel('voice', this)">
+        <div class="ch-icon">🎙️</div>
+        <div class="ch-info">
+          <div class="ch-name">Voice</div>
+          <div class="ch-meta">音声会話チャンネル</div>
+        </div>
+        <span class="ch-users" id="voice-count">0人</span>
+      </div>
+      <div class="channel-item" onclick="joinChannel('music', this)">
+        <div class="ch-icon">🎵</div>
+        <div class="ch-info">
+          <div class="ch-name">Music</div>
+          <div class="ch-meta">音楽ストリーミング</div>
+        </div>
+        <span class="ch-users" id="music-count">0人</span>
+      </div>
+      <div class="channel-item" onclick="joinChannel('ambient', this)">
+        <div class="ch-icon">🌊</div>
+        <div class="ch-info">
+          <div class="ch-name">Ambient</div>
+          <div class="ch-meta">環境音・BGM</div>
+        </div>
+        <span class="ch-users" id="ambient-count">0人</span>
+      </div>
+    </div>
+
+    <div class="room-card">
+      <div style="font-weight:600; margin-bottom:8px;">カスタムチャンネルを作成</div>
+      <div class="input-row">
+        <input type="text" class="text-input" id="ch-name-input" placeholder="チャンネル名">
+        <button class="btn-sm btn-accent2" onclick="createChannel()">作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVICES PANEL -->
+  <div class="panel" id="panel-devices">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <div style="font-weight:600;">接続デバイス</div>
+      <span id="device-count" style="background:var(--border); border-radius:20px; padding:2px 12px; font-size:0.8rem;">0台</span>
+    </div>
+    <div id="device-list">
+      <div style="text-align:center; padding:40px; color:var(--muted);">
+        <div style="font-size:2rem; margin-bottom:8px;">📡</div>
+        <div>デバイスを検索中...</div>
+      </div>
+    </div>
+
+    <div class="room-card" style="margin-top:16px;">
+      <div style="font-weight:600; margin-bottom:8px;">デバイスをペアリング</div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">Koeデバイスの電源を入れてWiFiに接続すると自動で表示されます</div>
+      <button class="btn-primary" style="width:100%; padding:12px;" onclick="scanDevices()">🔍 スキャン</button>
+    </div>
+  </div>
+</main>
+
+<!-- SPATIAL AUDIO SETTINGS MODAL -->
+<div class="modal" id="spatial-modal" onclick="hideSpatial()">
+  <div class="modal-card" onclick="event.stopPropagation()" style="max-width:360px; width:94%; text-align:left;">
+    <h3 style="margin-bottom:4px;">🎧 空間音響エンジン</h3>
+    <p style="color:var(--muted); font-size:0.8rem; margin-bottom:20px;">全設定をリアルタイムで反映</p>
+
+    <div style="margin-bottom:18px;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">🏠 部屋サイズ</div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="setRoomSize('small')"  class="room-btn" id="rb-small"  style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--accent2);background:rgba(6,182,212,0.15);color:var(--text);cursor:pointer;font-size:0.82rem;">小</button>
+        <button onclick="setRoomSize('medium')" class="room-btn" id="rb-medium" style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:0.82rem;">中</button>
+        <button onclick="setRoomSize('large')"  class="room-btn" id="rb-large"  style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:0.82rem;">大（ホール）</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:0.8rem; color:var(--muted);">🌊 残響（wet）</span>
+        <span style="font-size:0.8rem;" id="lbl-reverb">25%</span>
+      </div>
+      <input type="range" min="0" max="60" value="25" style="width:100%;accent-color:var(--accent2);"
+        oninput="setReverbWet(this.value/100); document.getElementById('lbl-reverb').textContent=this.value+'%'">
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:0.8rem; color:var(--muted);">✨ プレゼンスEQ（3kHz）</span>
+        <span style="font-size:0.8rem;" id="lbl-presence">+3dB</span>
+      </div>
+      <input type="range" min="0" max="8" value="3" step="0.5" style="width:100%;accent-color:var(--accent2);"
+        oninput="setPresenceGain(+this.value); document.getElementById('lbl-presence').textContent='+'+this.value+'dB'">
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:0.8rem; color:var(--muted);">🔥 倍音エキサイター</span>
+        <span style="font-size:0.8rem;" id="lbl-exciter">4%</span>
+      </div>
+      <input type="range" min="0" max="15" value="4" style="width:100%;accent-color:var(--accent2);"
+        oninput="setExciterAmount(this.value/100); document.getElementById('lbl-exciter').textContent=this.value+'%'">
+    </div>
+
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <button id="btn-gyro" onclick="initGyroTracking()"
+        style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:0.78rem;">
+        🧭 頭部追跡 OFF
+      </button>
+      <button id="btn-speaker" onclick="toggleSpeakerMode()"
+        style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:0.78rem;">
+        🎧 ヘッドホン
+      </button>
+    </div>
+
+    <div style="padding:12px;background:var(--surface);border-radius:10px;font-size:0.75rem;color:var(--muted);margin-bottom:16px;">
+      💡 <strong style="color:var(--text);">ヒント</strong>: イヤホン/ヘッドホン推奨。頭部追跡はスマホを耳に当てて使う。
+    </div>
+
+    <button class="modal-close" onclick="hideSpatial()" style="width:100%;">閉じる</button>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal" id="qr-modal" onclick="hideQR()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3>ルームに招待</h3>
+    <p>このQRコードをスキャンして<br>同じルームに参加</p>
+    <canvas id="qr-canvas" width="200" height="200"></canvas>
+    <br>
+    <div style="font-size:0.8rem; color:var(--muted); word-break:break-all; margin-bottom:16px;" id="qr-url"></div>
+    <button class="modal-close" onclick="hideQR()">閉じる</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// KOE WEB APP — P2P Voice + Soluna Music
+// ============================================================
+
+let localStream = null;
+let peerConnections = {};
+let signalingWs = null;
+let solunaWs = null;
+let audioCtx = null;
+let analyser = null;
+let volAnimId = null;
+let isMuted = false;
+let currentRoom = 'soluna';
+let myPeerId = 'web-' + Math.random().toString(36).slice(2,8);
+let localName = localStorage.getItem('koe-name') || ('ゲスト' + Math.floor(Math.random() * 9000 + 1000));
+let isPlaying = false;
+let currentTrackIdx = 0;
+let progressInterval = null;
+let trackOffset = 0;
+let trackStartTime = 0;
+let deviceRefreshInterval = null;
+
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun.cloudflare.com:3478' },
+  // Free public TURN — works behind mobile/CGNAT/corporate NAT
+  { urls: 'turn:openrelay.metered.ca:80',               username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443',              username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443?transport=tcp',username: 'openrelayproject', credential: 'openrelayproject' },
+];
+
+const PLAYLIST = [
+  { title: 'Dawn Frequency',      artist: 'Soluna · koe.live', emoji: '🌅', duration: 240 },
+  { title: 'Midnight Resonance',  artist: 'Soluna · koe.live', emoji: '🌙', duration: 195 },
+  { title: 'Crystal Oscillation', artist: 'Soluna · koe.live', emoji: '💎', duration: 210 },
+  { title: 'Ocean Drift',         artist: 'Soluna · koe.live', emoji: '🌊', duration: 180 },
+];
+
+// ---- INIT ----
+function enterApp() {
+  const name = prompt('名前を入力してください', localName);
+  if (name && name.trim()) { localName = name.trim(); localStorage.setItem('koe-name', localName); }
+  document.getElementById('local-name').textContent = localName;
+  document.getElementById('splash').style.opacity = '0';
+  setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 500);
+  connectSignaling();
+  connectSolunaRelay();
+  initPlaylist();
+  fetchDevices();
+  deviceRefreshInterval = setInterval(fetchDevices, 5000);
+}
+
+// ---- SIGNALING (WebRTC) ----
+function connectSignaling() {
+  if (signalingWs) { try { signalingWs.close(); } catch(e){} }
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${proto}://${location.host}/ws/signal?room=${encodeURIComponent(currentRoom)}&peer=${myPeerId}&name=${encodeURIComponent(localName)}`;
+
+  try {
+    signalingWs = new WebSocket(url);
+    signalingWs.onopen = () => {
+      updateStatus(true);
+      showToast('シグナリングサーバーに接続しました');
+    };
+    signalingWs.onmessage = (e) => { try { handleSignal(JSON.parse(e.data)); } catch(err){} };
+    signalingWs.onclose = () => {
+      updateStatus(false);
+      setTimeout(connectSignaling, 4000);
+    };
+    signalingWs.onerror = () => { updateStatus(false); };
+  } catch(e) {
+    updateStatus(false);
+    showToast('デモモード（P2P無効）');
+  }
+}
+
+function connectSolunaRelay() {
+  if (solunaWs) { try { solunaWs.close(); } catch(e){} }
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${proto}://${location.host}/ws/soluna?channel=${encodeURIComponent(currentRoom)}`;
+
+  try {
+    solunaWs = new WebSocket(url);
+    solunaWs.binaryType = 'arraybuffer';
+    solunaWs.onopen = () => {
+      document.getElementById('stream-dot').classList.add('online');
+      document.getElementById('stream-status').textContent = 'Solunaチャンネルに接続中';
+    };
+    solunaWs.onmessage = (e) => {
+      if (e.data instanceof ArrayBuffer) handleSolunaPacket(new Uint8Array(e.data));
+    };
+    solunaWs.onclose = () => {
+      document.getElementById('stream-dot').classList.remove('online');
+      document.getElementById('stream-status').textContent = '未接続';
+      setTimeout(connectSolunaRelay, 6000);
+    };
+  } catch(e) { /* サーバー未実装の場合は無視 */ }
+}
+
+function handleSignal(msg) {
+  const { type, from, data } = msg;
+  if (from === myPeerId) return;
+
+  switch(type) {
+    case 'peers':
+      (data.peers || []).forEach(p => {
+        if (p.id !== myPeerId) createOrGetPC(p.id, p.name, true);
+      });
+      updateParticipantCount((data.peers || []).length + 1);
+      break;
+    case 'joined':
+      showToast(`${data.name} が参加`);
+      if (localStream) createOrGetPC(from, data.name, true);
+      addParticipant(from, data.name);
+      break;
+    case 'left':
+      removeParticipant(from);
+      if (peerConnections[from]) { peerConnections[from].close(); delete peerConnections[from]; }
+      showToast(`${data.name} が退出`);
+      break;
+    case 'offer':
+      handleOffer(from, data.name, data.sdp);
+      break;
+    case 'answer':
+      if (peerConnections[from]) {
+        peerConnections[from].setRemoteDescription(
+          new RTCSessionDescription({ type:'answer', sdp:data.sdp })
+        ).catch(()=>{});
+      }
+      break;
+    case 'ice':
+      if (peerConnections[from] && data.candidate) {
+        peerConnections[from].addIceCandidate(new RTCIceCandidate(data.candidate)).catch(()=>{});
+      }
+      break;
+  }
+}
+
+function send(obj) {
+  if (signalingWs && signalingWs.readyState === WebSocket.OPEN) {
+    signalingWs.send(JSON.stringify({ ...obj, from: myPeerId }));
+  }
+}
+
+// ---- SDP patcher — Opus DTX / FEC / bitrate / ptime ----
+let audioMode = 'voice'; // 'voice' | 'music'
+
+function patchSdp(sdp) {
+  const sep = sdp.includes('\r\n') ? '\r\n' : '\n';
+  let inAudio = false;
+  let hasPtime = false;
+  const lines = sdp.split(sep);
+  const out = [];
+
+  for (const line of lines) {
+    if (line.startsWith('m=audio'))        { inAudio = true; hasPtime = false; }
+    else if (line.startsWith('m='))        inAudio = false;
+
+    if (inAudio && /^a=fmtp:111 /.test(line)) {
+      const base = line.replace(/^a=fmtp:111 /, '');
+      const parts = base.split(';').filter(p =>
+        !/^(usedtx|useinbandfec|maxaveragebitrate|stereo|sprop-stereo)=/.test(p.trim())
+      );
+      if (audioMode === 'voice') {
+        parts.push('usedtx=1', 'useinbandfec=1', 'maxaveragebitrate=32000', 'stereo=0', 'sprop-stereo=0');
+      } else {
+        // 音楽モード: 高ビットレート, ステレオ, DTX OFF
+        parts.push('usedtx=0', 'useinbandfec=1', 'maxaveragebitrate=128000', 'stereo=1', 'sprop-stereo=1');
+      }
+      out.push('a=fmtp:111 ' + parts.join(';'));
+      continue;
+    }
+
+    if (inAudio && line.startsWith('a=ptime:')) { hasPtime = true; }
+
+    // Insert ptime after rtpmap:111 line
+    if (inAudio && /^a=rtpmap:111 /.test(line)) {
+      out.push(line);
+      if (!hasPtime) {
+        out.push(audioMode === 'voice' ? 'a=ptime:10' : 'a=ptime:20');
+        out.push('a=maxptime:60');
+        hasPtime = true;
+      }
+      continue;
+    }
+
+    out.push(line);
+  }
+  return out.join(sep);
+}
+
+function toggleAudioMode() {
+  audioMode = audioMode === 'voice' ? 'music' : 'voice';
+  const btn = document.getElementById('mode-toggle');
+  btn.textContent = audioMode === 'voice' ? '🎙️ 会話' : '🎵 音楽';
+
+  // 全ピア接続に新しいSDPを再ネゴシエート
+  Object.entries(peerConnections).forEach(([peerId, pc]) => {
+    if (pc.connectionState === 'connected') {
+      pc.createOffer({ offerToReceiveAudio: true, voiceActivityDetection: false })
+        .then(offer => {
+          offer.sdp = patchSdp(offer.sdp);
+          return pc.setLocalDescription(offer);
+        })
+        .then(() => {
+          send({ type: 'offer', to: peerId, data: { name: localName, sdp: pc.localDescription.sdp } });
+        })
+        .catch(() => {});
+    }
+  });
+  showToast(audioMode === 'voice' ? '🎙️ 会話モード（低遅延）' : '🎵 音楽モード（高音質）');
+}
+
+// ---- WebRTC ----
+async function initMic() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation:       true,   // AEC
+        noiseSuppression:       true,   // NS
+        autoGainControl:        true,   // AGC
+        voiceActivityDetection: false,  // ブラウザVAD無効→Opus DTXに任せる
+        sampleRate:             48000,  // Opus ネイティブレート（16kHzより高音質）
+        channelCount:           1,      // モノラル
+        latency:                0,      // 最小レイテンシを要求
+      },
+      video: false
+    });
+    setupVolumeMeter(localStream);
+    return true;
+  } catch(e) {
+    showToast('マイクへのアクセスが拒否されました');
+    return false;
+  }
+}
+
+function createOrGetPC(peerId, peerName, isInitiator) {
+  if (peerConnections[peerId]) return peerConnections[peerId];
+
+  const pc = new RTCPeerConnection({
+    iceServers: ICE_SERVERS,
+    bundlePolicy:        'max-bundle', // 全メディアを1接続にまとめる
+    rtcpMuxPolicy:       'require',    // RTP/RTCPを多重化
+    iceCandidatePoolSize: 10,          // ICE候補を事前収集→接続高速化
+  });
+  peerConnections[peerId] = pc;
+  addParticipant(peerId, peerName);
+
+  if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  pc.ontrack = (e) => {
+    // AudioContext経由で処理（<audio>要素は使わない）
+    getOrCreateAudioGraph(peerId, e.streams[0]);
+
+    // ジッターバッファ最適化
+    const recv = e.receiver;
+    if (typeof recv.jitterBufferTarget !== 'undefined') recv.jitterBufferTarget = 0;
+    if ('playoutDelayHint' in recv) recv.playoutDelayHint = 0.03;
+  };
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) send({ type:'ice', to:peerId, data:{ candidate:e.candidate } });
+  };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+      removeParticipant(peerId);
+      delete peerConnections[peerId];
+    }
+  };
+
+  if (isInitiator) {
+    pc.createOffer({ offerToReceiveAudio:true, voiceActivityDetection:false }).then(offer => {
+      offer.sdp = patchSdp(offer.sdp);
+      return pc.setLocalDescription(offer).then(() => {
+        send({ type:'offer', to:peerId, data:{ name:localName, sdp:offer.sdp } });
+      });
+    }).catch(()=>{});
+  }
+
+  return pc;
+}
+
+async function handleOffer(fromId, fromName, sdp) {
+  if (!localStream) await initMic();
+  const pc = createOrGetPC(fromId, fromName, false);
+  await pc.setRemoteDescription(new RTCSessionDescription({ type:'offer', sdp: patchSdp(sdp) }));
+  const answer = await pc.createAnswer({ voiceActivityDetection:false });
+  answer.sdp = patchSdp(answer.sdp);
+  await pc.setLocalDescription(answer);
+  send({ type:'answer', to:fromId, data:{ sdp:answer.sdp } });
+}
+
+// ---- MIC CONTROLS ----
+async function toggleMic() {
+  if (!localStream) {
+    if (!await initMic()) return;
+    send({ type:'joined', data:{ name:localName } });
+  }
+  isMuted = !isMuted;
+  localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  const btn = document.getElementById('btn-mic');
+  btn.classList.toggle('muted', isMuted);
+  btn.textContent = isMuted ? '🔇' : '🎙️';
+  showToast(isMuted ? 'ミュート' : 'ミュート解除');
+}
+
+function leaveRoom() {
+  send({ type:'left', data:{ name:localName } });
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  Object.values(peerConnections).forEach(pc => pc.close());
+  peerConnections = {};
+  document.querySelectorAll('[id^="audio-"]').forEach(el => el.remove());
+  document.getElementById('participants').innerHTML = `
+    <div class="participant" id="local-participant">
+      <div class="participant-avatar">🙂</div>
+      <div class="participant-name" id="local-name">${localName}</div>
+    </div>`;
+  if (volAnimId) { cancelAnimationFrame(volAnimId); volAnimId = null; }
+  document.getElementById('vol-fill').style.width = '0%';
+  document.getElementById('vol-db').textContent = '-∞';
+  updateParticipantCount(0);
+  showToast('ルームを退出しました');
+}
+
+function joinRoom() {
+  const name = document.getElementById('room-input').value.trim() || 'soluna';
+  currentRoom = name;
+  document.getElementById('room-name').textContent = name + 'ルーム';
+  document.getElementById('room-id').textContent = 'room: ' + name;
+  leaveRoom();
+  setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 500);
+  showToast(`"${name}" に参加しました`);
+}
+
+// ============================================================
+// GENIUS AUDIO ENGINE
+// Chain: source → compressor → presenceEQ → exciter → panner(HRTF) → [dry + convolver→wet] → [xtalk] → out
+// ============================================================
+
+const audioGraphs = {};
+let roomIR = null;
+let currentRoomSize = 'small';
+let gyroEnabled = false;
+let speakerMode = false; // crosstalk cancellation
+let reverbWet = 0.25;
+let exciterAmount = 0.04;
+let presenceGain = 3.0;
+let xtalkNode = null; // master crosstalk canceller
+
+// ---- 1. ROOM IMPULSE RESPONSE ----
+// Physics-based IR: direct sound + early reflections (image-source) + late diffuse tail
+function createRoomIR(ctx, size = 'small') {
+  const sr = ctx.sampleRate;
+  const cfg = {
+    small:  { rt60: 0.4, roomW: 4,  roomD: 5,  roomH: 2.8, earlyCount: 6  },
+    medium: { rt60: 0.9, roomW: 8,  roomD: 10, roomH: 3.5, earlyCount: 12 },
+    large:  { rt60: 2.2, roomW: 20, roomD: 30, roomH: 10,  earlyCount: 20 },
+  }[size] || { rt60: 0.4, roomW: 4, roomD: 5, roomH: 2.8, earlyCount: 6 };
+
+  const len = Math.floor(sr * (cfg.rt60 * 1.5));
+  const ir  = ctx.createBuffer(2, len, sr);
+  const spd = 343; // m/s
+
+  for (let ch = 0; ch < 2; ch++) {
+    const data = ir.getChannelData(ch);
+
+    // Early reflections (image-source model, simplified)
+    for (let r = 0; r < cfg.earlyCount; r++) {
+      const dist   = 0.5 + r * (cfg.roomW / cfg.earlyCount);
+      const delay  = Math.floor((dist / spd) * sr);
+      const amp    = (1 / (dist + 1)) * (ch === 0 ? 1 : 0.85 + r * 0.01); // L/R asymmetry
+      const spread = Math.floor(sr * 0.001 * (r + 1));
+      if (delay < len) {
+        for (let s = 0; s < spread && delay + s < len; s++) {
+          data[delay + s] += (Math.random() * 2 - 1) * amp * (1 - s / spread);
+        }
+      }
+    }
+
+    // Late diffuse reverb tail
+    const decayRate = Math.log(1000) / (cfg.rt60 * sr); // -60dB decay
+    for (let i = Math.floor(sr * 0.02); i < len; i++) {
+      data[i] += (Math.random() * 2 - 1) * Math.exp(-decayRate * i) * 0.4;
+    }
+
+    // Normalize to -12dB
+    let max = 0;
+    for (let i = 0; i < len; i++) if (Math.abs(data[i]) > max) max = Math.abs(data[i]);
+    if (max > 0) { const g = 0.25 / max; for (let i = 0; i < len; i++) data[i] *= g; }
+  }
+  return ir;
+}
+
+// ---- 2. HARMONIC EXCITER ----
+// Adds warm 2nd/3rd order harmonics imperceptibly (tape machine effect)
+function createExciter(ctx) {
+  // High-pass first so only harmonics of mids/highs get excited (not muddy bass)
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 2000;
+  hp.Q.value = 0.7;
+
+  // Soft-clip waveshaper (2nd + 3rd harmonic)
+  const shaper = ctx.createWaveShaper();
+  const N = 512;
+  const curve = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    const x = (i * 2) / N - 1;
+    // Chebyshev T2+T3 blend: warm asymmetric saturation
+    curve[i] = x - 0.15 * x * x + 0.05 * x * x * x;
+  }
+  shaper.curve = curve;
+  shaper.oversample = '4x';
+
+  const blend = ctx.createGain();
+  blend.gain.value = exciterAmount; // barely perceptible
+
+  hp.connect(shaper);
+  shaper.connect(blend);
+  return { hp, shaper, blend, input: hp };
+}
+
+// ---- 3. PRESENCE EQ ----
+// Boost 2–4kHz for "in the room" vocal clarity (broadcast trick)
+function createPresenceEQ(ctx) {
+  const eq = ctx.createBiquadFilter();
+  eq.type = 'peaking';
+  eq.frequency.value = 3200;
+  eq.gain.value = presenceGain; // +3dB
+  eq.Q.value = 0.9;
+
+  // Also a gentle air shelf above 10kHz for openness
+  const air = ctx.createBiquadFilter();
+  air.type = 'highshelf';
+  air.frequency.value = 10000;
+  air.gain.value = 1.5;
+
+  eq.connect(air);
+  return { eq, air, input: eq, output: air };
+}
+
+// ---- 4. CROSSTALK CANCELLATION ----
+// When using speakers: L speaker leaks into R ear (and vice-versa)
+// Cancel the leak so 3D HRTF positioning works without headphones
+// Simplified HRTF crosstalk model: α=0.5 delay ~0.25ms HP filtered
+function buildCrosstalkCanceller(ctx) {
+  // Splitter: get L and R channels
+  const splitter = ctx.createChannelSplitter(2);
+  const merger   = ctx.createChannelMerger(2);
+
+  // Contralateral path: delayed + HP + inverted
+  function makeXtalkPath() {
+    const delay = ctx.createDelay(0.01);
+    delay.delayTime.value = 0.00025; // 0.25ms ≈ 8.5cm interaural
+
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 800;
+    hp.Q.value = 0.5;
+
+    const inv = ctx.createGain();
+    inv.gain.value = -0.5; // subtract 50%
+
+    delay.connect(hp);
+    hp.connect(inv);
+    return { delay, hp, inv };
+  }
+
+  const lToR = makeXtalkPath();
+  const rToL = makeXtalkPath();
+
+  // L_out = L_in + cancel(R_in),  R_out = R_in + cancel(L_in)
+  splitter.connect(lToR.delay, 0); // L → R cancellation path
+  splitter.connect(rToL.delay, 1); // R → L cancellation path
+
+  splitter.connect(merger, 0, 0);  // L direct
+  splitter.connect(merger, 1, 1);  // R direct
+  lToR.inv.connect(merger, 0, 1);  // L cancel → R
+  rToL.inv.connect(merger, 0, 0);  // R cancel → L
+
+  splitter._merger = merger;
+  return { splitter, merger };
+}
+
+// ---- 5. MAIN AUDIO GRAPH ----
+function getOrCreateAudioGraph(peerId, stream) {
+  if (audioGraphs[peerId]) return audioGraphs[peerId];
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (!roomIR) roomIR = createRoomIR(audioCtx, currentRoomSize);
+
+  // ① Source
+  const source = audioCtx.createMediaStreamSource(stream);
+
+  // ② Dynamics compressor — level out volume differences
+  const comp = audioCtx.createDynamicsCompressor();
+  comp.threshold.value = -24;
+  comp.knee.value      = 30;
+  comp.ratio.value     = 4;
+  comp.attack.value    = 0.004;
+  comp.release.value   = 0.12;
+
+  // ③ Presence EQ
+  const eqChain = createPresenceEQ(audioCtx);
+
+  // ④ Harmonic exciter (parallel blend)
+  const excChain = createExciter(audioCtx);
+  const excMix   = audioCtx.createGain();
+  excMix.gain.value = 1.0; // dry pass-through
+
+  // ⑤ HRTF Panner
+  const panner = audioCtx.createPanner();
+  panner.panningModel  = 'HRTF';
+  panner.distanceModel = 'inverse';
+  panner.refDistance   = 1;
+  panner.maxDistance   = 10;
+  panner.rolloffFactor = 0.7;
+
+  // ⑥ Room reverb (dry/wet)
+  const conv    = audioCtx.createConvolver();
+  conv.buffer   = roomIR;
+  const wetGain = audioCtx.createGain();
+  const dryGain = audioCtx.createGain();
+  wetGain.gain.value = reverbWet;
+  dryGain.gain.value = 1 - reverbWet;
+
+  // ⑦ Output bus
+  const outGain = audioCtx.createGain();
+  outGain.gain.value = 1.0;
+
+  // Wire the chain
+  source.connect(comp);
+  comp.connect(eqChain.input);
+  // Exciter parallel
+  eqChain.output.connect(excMix);
+  eqChain.output.connect(excChain.input);
+  excChain.blend.connect(excMix);
+  // Into panner
+  excMix.connect(panner);
+  // Dry/wet split after panner
+  panner.connect(dryGain);
+  panner.connect(conv);
+  conv.connect(wetGain);
+  dryGain.connect(outGain);
+  wetGain.connect(outGain);
+  outGain.connect(audioCtx.destination);
+
+  const graph = { source, comp, eqChain, excChain, excMix, panner, conv, wetGain, dryGain, outGain };
+  audioGraphs[peerId] = graph;
+  updateSpatialPositions();
+  return graph;
+}
+
+// ---- 6. GYROSCOPE HEAD TRACKING ----
+function initGyroTracking() {
+  if (!window.DeviceOrientationEvent) { showToast('ジャイロ非対応'); return; }
+
+  // iOS 13+ requires permission
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(r => { if (r === 'granted') startGyro(); else showToast('ジャイロ権限が必要です'); })
+      .catch(() => startGyro());
+  } else {
+    startGyro();
+  }
+}
+
+function startGyro() {
+  window.addEventListener('deviceorientation', onDeviceOrientation);
+  gyroEnabled = true;
+  document.getElementById('btn-gyro').textContent = '🧭 頭部追跡 ON';
+  document.getElementById('btn-gyro').style.borderColor = 'var(--green)';
+  showToast('🧭 頭部追跡 ON — 頭を動かしてみて');
+}
+
+let lastAlpha = 0;
+function onDeviceOrientation(e) {
+  if (!audioCtx || !gyroEnabled) return;
+  // alpha = compass yaw (0-360), beta = pitch, gamma = roll
+  const yaw   = (e.alpha || 0) * Math.PI / 180;
+  const pitch = (e.beta  || 0) * Math.PI / 180;
+  const t = audioCtx.currentTime;
+
+  // Forward vector (where listener faces)
+  const fx = -Math.sin(yaw) * Math.cos(pitch);
+  const fy =  Math.sin(pitch);
+  const fz = -Math.cos(yaw) * Math.cos(pitch);
+
+  // Up vector
+  const ux =  Math.sin(yaw) * Math.sin(pitch);
+  const uy =  Math.cos(pitch);
+  const uz =  Math.cos(yaw) * Math.sin(pitch);
+
+  const l = audioCtx.listener;
+  if (l.forwardX) {
+    l.forwardX.setTargetAtTime(fx, t, 0.05);
+    l.forwardY.setTargetAtTime(fy, t, 0.05);
+    l.forwardZ.setTargetAtTime(fz, t, 0.05);
+    l.upX.setTargetAtTime(ux, t, 0.05);
+    l.upY.setTargetAtTime(uy, t, 0.05);
+    l.upZ.setTargetAtTime(uz, t, 0.05);
+  } else {
+    // older API
+    l.setOrientation(fx, fy, fz, ux, uy, uz);
+  }
+}
+
+// ---- 7. SPATIAL POSITIONS ----
+function updateSpatialPositions() {
+  if (!audioCtx) return;
+  const peers = Object.keys(audioGraphs);
+  peers.forEach((id, idx) => {
+    const g = audioGraphs[id];
+    if (!g) return;
+    // Spread participants in a horizontal circle, slightly elevated
+    const angle  = (idx / Math.max(peers.length, 1)) * 2 * Math.PI - Math.PI / 2;
+    const radius = 1.8;
+    const t = audioCtx.currentTime;
+    g.panner.positionX.setTargetAtTime(Math.cos(angle) * radius, t, 0.15);
+    g.panner.positionZ.setTargetAtTime(Math.sin(angle) * radius, t, 0.15);
+    g.panner.positionY.setTargetAtTime(0.1, t, 0.15); // slightly above ear level
+  });
+}
+
+// ---- 8. LIVE PARAMETER CONTROL ----
+
+function setReverbWet(v) {
+  reverbWet = v;
+  Object.values(audioGraphs).forEach(g => {
+    g.wetGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
+    g.dryGain.gain.setTargetAtTime(1 - v, audioCtx.currentTime, 0.05);
+  });
+}
+
+function setPresenceGain(db) {
+  presenceGain = db;
+  Object.values(audioGraphs).forEach(g => {
+    g.eqChain.eq.gain.setTargetAtTime(db, audioCtx.currentTime, 0.05);
+  });
+}
+
+function setExciterAmount(v) {
+  exciterAmount = v;
+  Object.values(audioGraphs).forEach(g => {
+    g.excChain.blend.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
+  });
+}
+
+function toggleSpeakerMode() {
+  speakerMode = !speakerMode;
+  const btn = document.getElementById('btn-speaker');
+  btn.textContent = speakerMode ? '🔊 スピーカー補正 ON' : '🎧 ヘッドホン';
+  btn.style.borderColor = speakerMode ? 'var(--green)' : 'var(--border)';
+
+  // Rebuild graphs with/without crosstalk cancellation
+  const streams = {};
+  Object.entries(audioGraphs).forEach(([id, g]) => {
+    try { streams[id] = g.source.mediaStream; } catch(e) {}
+    cleanupAudioGraph(id);
+  });
+  Object.entries(streams).forEach(([id, s]) => { if (s) getOrCreateAudioGraph(id, s); });
+  showToast(speakerMode ? '🔊 スピーカー補正 ON（クロストークキャンセル）' : '🎧 ヘッドホンモード');
+}
+
+function cleanupAudioGraph(peerId) {
+  const g = audioGraphs[peerId];
+  if (!g) return;
+  try { g.source.disconnect(); } catch(e) {}
+  try { g.comp.disconnect(); } catch(e) {}
+  try { g.eqChain.eq.disconnect(); g.eqChain.air.disconnect(); } catch(e) {}
+  try { g.excChain.hp.disconnect(); g.excChain.shaper.disconnect(); g.excChain.blend.disconnect(); } catch(e) {}
+  try { g.excMix.disconnect(); } catch(e) {}
+  try { g.panner.disconnect(); } catch(e) {}
+  try { g.conv.disconnect(); } catch(e) {}
+  try { g.wetGain.disconnect(); g.dryGain.disconnect(); } catch(e) {}
+  try { g.outGain.disconnect(); } catch(e) {}
+  delete audioGraphs[peerId];
+  updateSpatialPositions();
+}
+
+// ---- VOLUME METER ----
+function setupVolumeMeter(stream) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  source.connect(analyser);
+
+  const buf = new Uint8Array(analyser.frequencyBinCount);
+
+  function tick() {
+    volAnimId = requestAnimationFrame(tick);
+    analyser.getByteFrequencyData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    const rms = Math.sqrt(sum / buf.length);
+    const pct = Math.min(100, rms / 1.28);
+    document.getElementById('vol-fill').style.width = pct + '%';
+    const db = rms > 0 ? Math.round(20 * Math.log10(rms / 128)) : -Infinity;
+    document.getElementById('vol-db').textContent = isFinite(db) ? db + 'dB' : '-∞';
+    const local = document.getElementById('local-participant');
+    if (local) local.classList.toggle('speaking', rms > 20 && !isMuted);
+  }
+  tick();
+}
+
+// ---- SOLUNA PROTOCOL ----
+function handleSolunaPacket(data) {
+  if (data.length < 19) return;
+  const magic = (data[0] << 8) | data[1];
+  if (magic !== 0x534C) return; // 'SL'
+  const flags = data[18];
+  const FLAG_HEARTBEAT = 0x04;
+  if (flags & FLAG_HEARTBEAT) {
+    const deviceHash = ((data[2] | data[3]<<8 | data[4]<<16 | data[5]<<24) >>> 0).toString(16).padStart(8,'0');
+    updateDeviceFromPacket(deviceHash, data);
+  }
+}
+
+// ---- MUSIC PLAYER ----
+function initPlaylist() {
+  const pl = document.getElementById('playlist');
+  pl.innerHTML = '';
+  PLAYLIST.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'channel-item' + (i === currentTrackIdx ? ' active-ch' : '');
+    div.innerHTML = `
+      <div class="ch-icon">${t.emoji}</div>
+      <div class="ch-info">
+        <div class="ch-name">${t.title}</div>
+        <div class="ch-meta">${t.artist} · ${formatTime(t.duration)}</div>
+      </div>
+      ${i === currentTrackIdx ? '<span style="color:var(--accent2);">▶</span>' : ''}
+    `;
+    div.onclick = () => playTrack(i);
+    pl.appendChild(div);
+  });
+}
+
+function playTrack(idx) {
+  currentTrackIdx = idx;
+  trackOffset = 0;
+  const t = PLAYLIST[idx];
+  document.getElementById('music-title').textContent = t.title;
+  document.getElementById('music-artist').textContent = t.artist;
+  document.getElementById('time-total').textContent = formatTime(t.duration);
+  document.getElementById('time-current').textContent = '0:00';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('vinyl').textContent = t.emoji;
+  initPlaylist();
+  if (isPlaying) startProgressSimulation(t.duration);
+}
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  document.getElementById('btn-play').textContent = isPlaying ? '⏸' : '▶';
+  document.getElementById('vinyl').classList.toggle('spinning', isPlaying);
+  document.getElementById('music-art').classList.toggle('playing', isPlaying);
+  if (isPlaying) {
+    startProgressSimulation(PLAYLIST[currentTrackIdx].duration);
+    showToast('再生中');
+  } else {
+    clearInterval(progressInterval);
+    showToast('一時停止');
+  }
+}
+
+function startProgressSimulation(duration) {
+  clearInterval(progressInterval);
+  trackStartTime = Date.now() - trackOffset * 1000;
+  progressInterval = setInterval(() => {
+    const elapsed = (Date.now() - trackStartTime) / 1000;
+    if (elapsed >= duration) { nextTrack(); return; }
+    trackOffset = elapsed;
+    const pct = (elapsed / duration) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('time-current').textContent = formatTime(Math.floor(elapsed));
+  }, 250);
+}
+
+function seekMusic(e) {
+  const bar = document.getElementById('progress-bar');
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  trackOffset = pct * PLAYLIST[currentTrackIdx].duration;
+  if (isPlaying) startProgressSimulation(PLAYLIST[currentTrackIdx].duration);
+  else document.getElementById('progress-fill').style.width = (pct * 100) + '%';
+}
+
+function prevTrack() { trackOffset = 0; playTrack((currentTrackIdx - 1 + PLAYLIST.length) % PLAYLIST.length); }
+function nextTrack() { trackOffset = 0; playTrack((currentTrackIdx + 1) % PLAYLIST.length); }
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+// ---- CHANNELS ----
+function joinChannel(ch, el) {
+  currentRoom = ch;
+  document.querySelectorAll('#channel-list .channel-item').forEach(i => i.classList.remove('active-ch'));
+  if (el) el.classList.add('active-ch');
+  document.getElementById('room-name').textContent = ch + 'ルーム';
+  document.getElementById('room-id').textContent = 'room: ' + ch;
+  document.getElementById('room-input').value = ch;
+  if (signalingWs) { try { signalingWs.close(); } catch(e){} }
+  if (solunaWs)    { try { solunaWs.close(); }    catch(e){} }
+  setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 300);
+  showToast(`"${ch}" チャンネルに切り替え`);
+  switchTab('voice');
+}
+
+function createChannel() {
+  const name = document.getElementById('ch-name-input').value.trim();
+  if (!name) return;
+  const list = document.getElementById('channel-list');
+  const div = document.createElement('div');
+  div.className = 'channel-item';
+  div.innerHTML = `<div class="ch-icon">⭐</div><div class="ch-info"><div class="ch-name">${name}</div><div class="ch-meta">カスタムチャンネル</div></div><span class="ch-users">1人</span>`;
+  div.onclick = () => joinChannel(name, div);
+  list.appendChild(div);
+  document.getElementById('ch-name-input').value = '';
+  showToast(`"${name}" チャンネルを作成`);
+  joinChannel(name, div);
+}
+
+// ---- DEVICES ----
+const knownDevices = {};
+
+async function fetchDevices() {
+  try {
+    const res = await fetch('/api/devices', { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return;
+    const devices = await res.json();
+    devices.forEach(d => { knownDevices[d.id || d.hash] = { ...d, lastSeen: Date.now() }; });
+    renderDevices(Object.values(knownDevices));
+  } catch(e) { /* /api/devices が未実装の場合は無視 */ }
+}
+
+function updateDeviceFromPacket(hashHex, _data) {
+  const key = hashHex;
+  if (!knownDevices[key]) {
+    knownDevices[key] = { hash: hashHex, channel_name: currentRoom, audio_level: 0 };
+  }
+  knownDevices[key].lastSeen = Date.now();
+  renderDevices(Object.values(knownDevices));
+}
+
+function renderDevices(devices) {
+  const list = document.getElementById('device-list');
+  const count = document.getElementById('device-count');
+  const now = Date.now();
+  const active = devices.filter(d => !d.lastSeen || (now - d.lastSeen) < 30000);
+
+  if (active.length === 0) {
+    list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted);"><div style="font-size:2rem; margin-bottom:8px;">📡</div><div>デバイスが見つかりません<br>Koeデバイスの電源を入れてください</div></div>`;
+    count.textContent = '0台';
+    return;
+  }
+
+  count.textContent = active.length + '台';
+  list.innerHTML = active.map(d => {
+    const shortHash = (d.hash || '0000').toString(16).slice(-4);
+    const level = Math.round((d.audio_level || 0) * 100);
+    return `
+    <div class="device-item">
+      <div class="device-status online"></div>
+      <div style="flex:1;">
+        <div class="device-name">koe-${shortHash}</div>
+        <div class="device-meta">${d.channel_name || currentRoom} · ${level ? level+'%' : '--'}</div>
+      </div>
+      <div style="width:80px;">
+        <div class="level-mini"><div class="level-mini-fill" style="width:${level}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function scanDevices() {
+  showToast('スキャン中...');
+  fetchDevices();
+}
+
+// ---- UI HELPERS ----
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+}
+
+function addParticipant(id, name) {
+  if (document.getElementById('participant-' + id)) return;
+  const p = document.getElementById('participants');
+  const div = document.createElement('div');
+  div.className = 'participant';
+  div.id = 'participant-' + id;
+  const emojis = ['😊','🎵','🌟','🎙️','🎧','🌙','⚡','🎹','🦋','🌸'];
+  const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+  div.innerHTML = `<div class="participant-avatar">${emoji}</div><div class="participant-name">${name}</div>`;
+  p.appendChild(div);
+  updateParticipantCount(Object.keys(peerConnections).length + 1);
+}
+
+function removeParticipant(id) {
+  const el = document.getElementById('participant-' + id);
+  if (el) el.remove();
+  const audio = document.getElementById('audio-' + id);
+  if (audio) audio.remove();
+  cleanupAudioGraph(id);
+  updateParticipantCount(Math.max(0, Object.keys(peerConnections).length));
+}
+
+function updateParticipantCount(n) {
+  document.getElementById('participant-count').textContent = n + '人';
+}
+
+function updateStatus(online) {
+  document.getElementById('status-dot').classList.toggle('online', online);
+  document.getElementById('status-text').textContent = online ? 'オンライン' : 'オフライン';
+  const bars = document.querySelectorAll('.conn-bar');
+  bars.forEach((b, i) => b.classList.toggle('active', online && i < 2));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ---- QR CODE ----
+function showQR() {
+  const url = `${location.origin}/app?room=${encodeURIComponent(currentRoom)}`;
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-modal').classList.add('show');
+  drawQR(url);
+  navigator.clipboard?.writeText(url).then(() => showToast('URLをコピーしました'));
+}
+
+function hideQR() { document.getElementById('qr-modal').classList.remove('show'); }
+
+function showSpatial() { document.getElementById('spatial-modal').classList.add('show'); }
+function hideSpatial() { document.getElementById('spatial-modal').classList.remove('show'); }
+
+// Room size button highlight
+function setRoomSize(size) {
+  currentRoomSize = size;
+  if (!audioCtx) { showToast(`🏠 部屋: ${size}（接続後に適用）`); return; }
+  roomIR = createRoomIR(audioCtx, size);
+  Object.values(audioGraphs).forEach(g => { g.conv.buffer = roomIR; });
+  ['small','medium','large'].forEach(s => {
+    const btn = document.getElementById('rb-' + s);
+    if (!btn) return;
+    if (s === size) { btn.style.borderColor='var(--accent2)'; btn.style.background='rgba(6,182,212,0.15)'; btn.style.color='var(--text)'; }
+    else            { btn.style.borderColor='var(--border)';  btn.style.background='var(--surface)';         btn.style.color='var(--muted)'; }
+  });
+  showToast(`🏠 部屋サイズ: ${size}`);
+}
+
+function drawQR(text) {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 200;
+  canvas.width = size; canvas.height = size;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000000';
+
+  const cells = 21;
+  const cs = size / cells;
+
+  // Simple hash-based data grid (visual placeholder)
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+
+  for (let r = 0; r < cells; r++) {
+    for (let c = 0; c < cells; c++) {
+      const isCorner = (r < 7 && c < 7) || (r < 7 && c >= cells-7) || (r >= cells-7 && c < 7);
+      if (!isCorner) {
+        if ((hash ^ (r * 17 + c * 31 + r*c)) & 1) {
+          ctx.fillRect(c * cs, r * cs, cs, cs);
+        }
+      }
+    }
+  }
+
+  // Finder patterns
+  [[0,0],[0,cells-7],[cells-7,0]].forEach(([r,c]) => {
+    ctx.fillStyle = '#000'; ctx.fillRect(c*cs, r*cs, 7*cs, 7*cs);
+    ctx.fillStyle = '#fff'; ctx.fillRect((c+1)*cs, (r+1)*cs, 5*cs, 5*cs);
+    ctx.fillStyle = '#7c3aed'; ctx.fillRect((c+2)*cs, (r+2)*cs, 3*cs, 3*cs);
+  });
+}
+
+// ---- ROOM FROM URL ----
+(function() {
+  const urlParams = new URLSearchParams(location.search);
+  const urlRoom = urlParams.get('room');
+  if (urlRoom) {
+    currentRoom = urlRoom;
+    const ri = document.getElementById('room-input');
+    if (ri) ri.value = urlRoom;
+    document.getElementById('room-name').textContent = urlRoom + 'ルーム';
+    document.getElementById('room-id').textContent = 'room: ' + urlRoom;
+    // Auto-enter when room param is present
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      connectSignaling();
+      connectSolunaRelay();
+      initPlaylist();
+      fetchDevices();
+      deviceRefreshInterval = setInterval(fetchDevices, 5000);
+      initMic().then(ok => { if (ok) send({ type:'joined', data:{ name:localName } }); });
+    }, 200);
+  }
+})();
+
+console.log('Koe Web App initialized. Peer ID:', myPeerId);
+</script>
+</body>
+</html>

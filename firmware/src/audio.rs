@@ -1,17 +1,17 @@
 use esp_idf_hal::gpio::{OutputPin, PinDriver, Output};
 use esp_idf_hal::i2s::{I2sDriver, I2sRx, I2sTx, config::*};
 use esp_idf_hal::peripheral::Peripheral;
-use std::sync::atomic::{AtomicU8, AtomicBool, Ordering};
+use std::sync::atomic::{AtomicU8, AtomicBool, AtomicI8, Ordering};
 
 
 // サンプルレート (NVSから切替可能: 16000 or 48000)
 static mut SAMPLE_RATE: u32 = 16_000;
-const VAD_ENERGY_THRESHOLD: i32 = 500 * 500;
+const VAD_ENERGY_THRESHOLD: i32 = 300 * 300;
 const VAD_MIN_FRAMES: u8 = 5;
 static VAD_VOICE_FRAMES: AtomicU8 = AtomicU8::new(0);
 
 // AGC (自動ゲイン制御)
-const AGC_TARGET_RMS: i32 = 8000; // 目標RMSレベル
+const AGC_TARGET_RMS: i32 = 10000; // 目標RMSレベル
 const AGC_MIN_GAIN: i32 = 64;     // 0.25x (Q8 fixed point)
 const AGC_MAX_GAIN: i32 = 1024;   // 4.0x
 const AGC_ATTACK: i32 = 4;        // 速い追従
@@ -24,12 +24,12 @@ static mut AEC_REF_BUF: [u8; 2048] = [0u8; 2048];
 static mut AEC_REF_LEN: usize = 0;
 
 // ハイパスフィルタ (DCオフセット除去, 1次IIR)
-// y[n] = x[n] - x[n-1] + α * y[n-1], α=0.995 ≈ 255/256
+// y[n] = x[n] - x[n-1] + α * y[n-1], α=0.997 ≈ 255/256
 static mut HPF_PREV_IN: i16 = 0;
 static mut HPF_PREV_OUT: i16 = 0;
 
 // ノイズゲート
-const NOISE_GATE_THRESHOLD: i32 = 150 * 150; // RMS² 閾値
+const NOISE_GATE_THRESHOLD: i32 = 100 * 100; // RMS² 閾値
 const NOISE_GATE_HOLD_FRAMES: u8 = 10;
 static mut NOISE_GATE_HOLD: u8 = 0;
 static NOISE_GATE_OPEN: AtomicBool = AtomicBool::new(false);
@@ -252,8 +252,8 @@ pub fn apply_highpass(audio: &mut [u8]) {
         let mut i = 0;
         while i + 1 < audio.len() {
             let x = i16::from_le_bytes([audio[i], audio[i + 1]]);
-            // y = x - x_prev + 0.996 * y_prev (Q8: 255/256)
-            let y = (x as i32 - HPF_PREV_IN as i32 + (HPF_PREV_OUT as i32 * 255 / 256))
+            // y = x - x_prev + 0.997 * y_prev (Q9: 511/512)
+            let y = (x as i32 - HPF_PREV_IN as i32 + (HPF_PREV_OUT as i32 * 511 / 512))
                 .clamp(-32768, 32767) as i16;
             HPF_PREV_IN = x;
             HPF_PREV_OUT = y;
@@ -420,6 +420,109 @@ fn cos_approx(x: f32) -> f32 {
     let x2 = x * x;
     let x4 = x2 * x2;
     1.0 - x2 / 2.0 + x4 / 24.0
+}
+
+// ============================================================
+// ピッチシフター
+// ============================================================
+
+/// 現在のピッチシフト量 (半音, -12〜+12)
+static PITCH_SEMITONES: AtomicI8 = AtomicI8::new(0);
+
+/// ピッチをサイクル: 0 → +5 → +12 → -5 → 0 (double-tapで呼ぶ)
+pub fn cycle_pitch() {
+    let cur = PITCH_SEMITONES.load(Ordering::Relaxed);
+    let next: i8 = match cur {
+        0  =>  5,
+        5  =>  12,
+        12 => -5,
+        _  =>  0,
+    };
+    PITCH_SEMITONES.store(next, Ordering::Relaxed);
+}
+
+pub fn get_pitch_semitones() -> i8 { PITCH_SEMITONES.load(Ordering::Relaxed) }
+
+/// ピッチシフト適用 (線形補間リサンプリング, in-place)
+/// 半音 > 0 = 高く / < 0 = 低く
+#[inline]
+pub fn apply_pitch_shift(audio: &mut [u8]) {
+    let semitones = PITCH_SEMITONES.load(Ordering::Relaxed);
+    if semitones == 0 { return; }
+
+    let n = audio.len() / 2;
+    if n < 2 { return; }
+    let count = n.min(512);
+
+    let ratio_q16 = pitch_ratio_q16(semitones);
+
+    // 一時バッファ (静的 → ヒープ不要)
+    static mut PITCH_TMP: [i16; 512] = [0i16; 512];
+    unsafe {
+        for i in 0..count {
+            PITCH_TMP[i] = i16::from_le_bytes([audio[i * 2], audio[i * 2 + 1]]);
+        }
+        for i in 0..count {
+            let src_q16 = i as u64 * ratio_q16 as u64;
+            let src_idx = (src_q16 >> 16) as usize;
+            let frac    = (src_q16 & 0xFFFF) as i32;
+
+            let s0 = if src_idx < count     { PITCH_TMP[src_idx]     as i32 } else { 0 };
+            let s1 = if src_idx + 1 < count { PITCH_TMP[src_idx + 1] as i32 } else { s0 };
+
+            let sample = ((s0 * (65536 - frac) + s1 * frac) >> 16)
+                .clamp(-32768, 32767) as i16;
+            let b = sample.to_le_bytes();
+            audio[i * 2]     = b[0];
+            audio[i * 2 + 1] = b[1];
+        }
+    }
+}
+
+/// 2^(semitones/12) を Q16 固定小数点で近似
+fn pitch_ratio_q16(semitones: i8) -> u32 {
+    match semitones {
+        -12 =>  32768, // 0.5000
+        -7  =>  43691, // 0.6674
+        -5  =>  49086, // 0.7492
+        -3  =>  55109, // 0.8409
+        0   =>  65536, // 1.0000
+        3   =>  77936, // 1.1892
+        5   =>  87461, // 1.3348
+        7   =>  98200, // 1.4983
+        12  => 131072, // 2.0000
+        _   =>  65536,
+    }
+}
+
+// ============================================================
+// 拍手検出 (エネルギー過渡)
+// ============================================================
+
+static mut CLAP_PREV_ENERGY: i64 = 0;
+
+/// フレーム内に拍手トランジェントがあれば true
+/// 条件: 平均エネルギー > 閾値 かつ 前フレームの6倍超
+#[inline]
+pub fn detect_clap(audio: &[u8]) -> bool {
+    let n = audio.len() / 2;
+    if n == 0 { return false; }
+
+    let mut energy: i64 = 0;
+    let mut i = 0;
+    while i + 1 < audio.len() {
+        let s = i16::from_le_bytes([audio[i], audio[i + 1]]) as i64;
+        energy += s * s;
+        i += 2;
+    }
+    let mean = energy / n as i64;
+
+    let prev = unsafe { CLAP_PREV_ENERGY };
+    unsafe { CLAP_PREV_ENERGY = mean; }
+
+    // 閾値: 250² = 62500, 前フレームの6倍超, かつ前フレームが小さい (連続音でない)
+    const THRESHOLD: i64 = 250 * 250;
+    mean > THRESHOLD && mean > prev * 6 && prev < THRESHOLD * 4
 }
 
 /// 整数平方根 (Newton法、FPU不要)

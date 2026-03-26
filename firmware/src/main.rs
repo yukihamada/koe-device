@@ -17,6 +17,7 @@ mod soluna;
 mod ble;
 mod ota;
 mod battery;
+mod wakeword;
 
 const SAMPLE_RATE: u32 = 16_000;
 const RING_BUFFER_SIZE: usize = SAMPLE_RATE as usize * 2 * 1; // 1秒分 (32KB) — ESP32 RAMに収まるサイズ
@@ -115,7 +116,8 @@ fn main() {
 }
 
 fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::Error>> {
-    info!("Koe+Soluna v{}", VERSION);
+    info!("=== Koe+Soluna v{} booting ===", VERSION);
+    info!("Heap free: {} bytes", unsafe { esp_idf_sys::esp_get_free_heap_size() });
 
     let peripherals = Peripherals::take()?;
     let sysloop = EspSystemEventLoop::take()?;
@@ -199,18 +201,18 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
     }
 
     set_state(DeviceState::Connecting);
-    println!("Connecting to WiFi...");
+    info!("Connecting to WiFi (up to 5 retries)...");
     let wifi = match connect_wifi(peripherals.modem, sysloop.clone(), nvs_partition.clone(), &nvs) {
         Ok(w) => w,
         Err(e) => {
-            println!("WiFi failed: {:?}, restarting...", e);
+            warn!("WiFi failed after all retries: {:?} — restarting in 3s", e);
             std::thread::sleep(Duration::from_secs(3));
             unsafe { esp_idf_sys::esp_restart(); }
             unreachable!()
         }
     };
-    println!("WiFi connected!");
-    println!("Starting services...");
+    info!("WiFi connected! Starting all services...");
+    info!("Heap free after WiFi: {} bytes", unsafe { esp_idf_sys::esp_get_free_heap_size() });
 
     // Koeクライアント初期化
     let koe_client = cloud::SecureClient::new(&mut nvs);
@@ -244,6 +246,16 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
     soluna::sntp_task();
     feed_watchdog();
     println!("Time synced");
+
+    // OTAアップデートチェック (バックグラウンド、失敗しても続行)
+    println!("OTA check...");
+    let ota_device_id = koe_client.device_id().to_string();
+    match ota::check_and_update(&ota_device_id) {
+        Ok(true)  => { /* 更新成功 → esp_restart() が呼ばれて戻らない */ }
+        Ok(false) => { println!("OTA: up to date"); }
+        Err(e)    => { println!("OTA: skip ({})", e); }
+    }
+    feed_watchdog();
 
     // I2S 初期化 — ESP32-S3用GPIOピン (回路図準拠)
     // マイク: I2S0 (BCLK=GPIO4, WS=GPIO5, DIN=GPIO6)
@@ -308,6 +320,21 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
                 toggle_mode(spk, &mut spk_enable);
             }
             println!("Mode toggle");
+        } else if btn == 4 {
+            // Double-tap: ピッチシフトサイクル (0→+5→+12→-5→0半音)
+            audio::cycle_pitch();
+            let pitch = audio::get_pitch_semitones();
+            println!("Pitch: {}st", pitch);
+            if let Some(ref mut spk) = i2s_spk {
+                // ビープで現在ピッチを通知: 正=高音、負=低音、0=標準
+                let freq: u32 = match pitch {
+                    0  => 440,
+                    5  => 660,
+                    12 => 880,
+                    _  => 330,  // -5
+                };
+                play_beep(spk, &mut spk_enable, freq, 80);
+            }
         } else if btn == 5 {
             if let Some(ref mut spk) = i2s_spk {
                 factory_reset(&mut nvs, spk, &mut spk_enable);
@@ -350,6 +377,21 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
         audio::apply_limiter(&mut read_buf[..bytes_read]);
         // 6. ボリューム
         audio::apply_volume(&mut read_buf[..bytes_read]);
+        // 7. ピッチシフト (0半音の時はno-op)
+        audio::apply_pitch_shift(&mut read_buf[..bytes_read]);
+        // 8. 拍手検出 → LED閃光 + ウェイクワード
+        if audio::detect_clap(&read_buf[..bytes_read]) {
+            let now_ms = unsafe { (esp_idf_sys::esp_timer_get_time() / 1000) as u32 };
+            if wakeword::on_clap(now_ms) {
+                // ダブル拍手 = ウェイクワード → LED閃光 + 録音開始
+                println!("[Wake] Double-clap detected!");
+                RECORDING.store(true, Ordering::Relaxed);
+                send_led_flash(&tx_socket, 255, 255, 0); // 黄色フラッシュ
+            } else {
+                // シングル拍手 → 白色フラッシュ
+                send_led_flash(&tx_socket, 255, 255, 255);
+            }
+        }
 
         // リングバッファ
         ring_write(&mut ring_buffer, &mut ring_pos, &read_buf[..bytes_read]);
@@ -393,6 +435,10 @@ fn run(nvs_partition: EspDefaultNvsPartition) -> Result<(), Box<dyn std::error::
             DeviceMode::Soluna => {
                 // ノイズゲートが閉じてたら送信しない (帯域節約)
                 if gate_open && audio::detect_voice(&read_buf[..bytes_read]) {
+                    // 自動ポジショニング: ステレオランクに基づく送信遅延 (0〜8ms)
+                    // 左端デバイスが先に送信 → 音が左から右へ伝わる波効果
+                    let delay = soluna::rank_delay_ms();
+                    if delay > 0 { thread::sleep(Duration::from_millis(delay)); }
                     soluna_tx(&tx_socket, &read_buf[..bytes_read]);
                 }
                 if let Some(ref mut spk) = i2s_spk { soluna_play(spk, &mut spk_enable, &mut play_buf); }
@@ -414,6 +460,20 @@ fn ring_write(buf: &mut [u8], pos: &mut usize, data: &[u8]) {
         buf[..data.len() - first].copy_from_slice(&data[first..]);
     }
     *pos = (*pos + data.len()) % buf.len();
+}
+
+/// 拍手検出時のLED閃光をUDPマルチキャストで送信
+fn send_led_flash(socket: &UdpSocket, r: u8, g: u8, b: u8) {
+    let cmd = soluna::LedCommand {
+        timestamp: 0, // 即時実行
+        pattern: soluna::LedPattern::Strobe,
+        r, g, b,
+        speed: 220,
+        intensity: 255,
+    };
+    let mut pkt = [0u8; soluna::LED_PACKET_SIZE];
+    soluna::build_led_packet(&cmd, &mut pkt);
+    let _ = socket.send_to(&pkt, MCAST_LED);
 }
 
 fn soluna_tx(socket: &UdpSocket, audio: &[u8]) {
@@ -446,6 +506,12 @@ fn soluna_rx_loop() {
 
                 // 通常の音声/Heartbeat/チャープパケット
                 if soluna::is_active() {
+                    // ピアハッシュ登録 (自動ポジショニング用)
+                    // パケット: [magic 2B][device_id 4B LE][...]
+                    if n >= 6 && buf[0] == 0x53 && buf[1] == 0x4C {
+                        let peer_hash = u32::from_le_bytes([buf[2], buf[3], buf[4], buf[5]]);
+                        soluna::add_peer_hash(peer_hash);
+                    }
                     if let Ok(mut g) = SOLUNA_NODE.lock() {
                         if let Some(ref mut node) = *g { node.handle_packet(&buf[..n]); }
                     }
@@ -667,20 +733,12 @@ fn factory_reset(
 // === ハードウェアWDT ===
 
 fn init_watchdog() {
-    unsafe {
-        // タスクWDTを再設定 (30秒タイムアウト)
-        let config = esp_idf_sys::esp_task_wdt_config_t {
-            timeout_ms: 30_000,
-            idle_core_mask: 0,
-            trigger_panic: true,
-        };
-        esp_idf_sys::esp_task_wdt_reconfigure(&config);
-        esp_idf_sys::esp_task_wdt_add(core::ptr::null_mut());
-    }
+    // Manual WDT subscription skipped — esp_task_wdt_reset() logs ERR_NOT_FOUND noise.
+    // ESP-IDF's built-in idle-task WDT (sdkconfig) handles hardware-level hangs.
 }
 
 fn feed_watchdog() {
-    unsafe { esp_idf_sys::esp_task_wdt_reset(); }
+    // no-op: see init_watchdog()
 }
 
 // === クラッシュダンプ ===
@@ -790,11 +848,45 @@ fn connect_wifi(
         ..Default::default()
     }))?;
     wifi.start()?;
-    wifi.connect()?;
-    let deadline = std::time::Instant::now() + Duration::from_secs(15);
-    while !wifi.is_connected()? {
-        if std::time::Instant::now() > deadline { return Err("WiFi timeout".into()); }
-        thread::sleep(Duration::from_millis(100));
+
+    // スキャンして対象SSIDが見えるか確認
+    if let Ok(aps) = wifi.scan() {
+        let target_found = aps.iter().any(|ap| ap.ssid.as_str() == ssid);
+        info!("WiFi scan: {} APs found, target '{}' {}", aps.len(), ssid,
+            if target_found { "FOUND" } else { "NOT FOUND" });
+        for ap in aps.iter().take(5) {
+            info!("  AP: '{}' ch={} rssi={}", ap.ssid, ap.channel, ap.signal_strength);
+        }
     }
-    Ok(wifi)
+
+    // 接続リトライ: 最大5回、各試行15秒タイムアウト
+    let max_retries = 5usize;
+    let mut last_err: Box<dyn std::error::Error> = "WiFi connect failed".into();
+    for attempt in 1..=max_retries {
+        info!("WiFi connect attempt {}/{}", attempt, max_retries);
+        if let Err(e) = wifi.connect() {
+            warn!("WiFi connect() error (attempt {}): {:?}", attempt, e);
+            last_err = format!("connect: {:?}", e).into();
+            thread::sleep(Duration::from_millis(500));
+            continue;
+        }
+        let deadline = std::time::Instant::now() + Duration::from_secs(15);
+        let mut connected = false;
+        while std::time::Instant::now() < deadline {
+            match wifi.is_connected() {
+                Ok(true) => { connected = true; break; }
+                Ok(false) => {}
+                Err(e) => { warn!("WiFi is_connected error: {:?}", e); break; }
+            }
+            thread::sleep(Duration::from_millis(100));
+        }
+        if connected {
+            info!("WiFi connected on attempt {}", attempt);
+            return Ok(wifi);
+        }
+        warn!("WiFi timeout (attempt {}), retrying...", attempt);
+        last_err = format!("timeout on attempt {}", attempt).into();
+        thread::sleep(Duration::from_secs(1));
+    }
+    Err(last_err)
 }

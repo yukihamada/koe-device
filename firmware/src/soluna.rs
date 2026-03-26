@@ -197,6 +197,65 @@ pub fn fnv1a(data: &[u8]) -> u32 {
 }
 
 // =====================================================
+// 自動ポジショニング — ピアハッシュランキング
+// =====================================================
+
+const MAX_PEERS: usize = 16;
+static PEER_HASHES: Mutex<[u32; MAX_PEERS]> = Mutex::new([0u32; MAX_PEERS]);
+static PEER_HASH_COUNT: AtomicU8 = AtomicU8::new(0);
+
+/// ピアハッシュを登録 (Solunaパケット受信時に呼ぶ)
+/// 自分自身と重複は無視される
+pub fn add_peer_hash(hash: u32) {
+    if hash == 0 { return; }
+    let own = OWN_DEVICE_HASH.load(Ordering::Relaxed);
+    if hash == own { return; } // 自分自身は除外
+
+    if let Ok(mut peers) = PEER_HASHES.lock() {
+        let count = PEER_HASH_COUNT.load(Ordering::Relaxed) as usize;
+        // 重複チェック
+        for i in 0..count.min(MAX_PEERS) {
+            if peers[i] == hash { return; }
+        }
+        if count < MAX_PEERS {
+            peers[count] = hash;
+            PEER_HASH_COUNT.fetch_add(1, Ordering::Relaxed);
+            info!("Peer joined: {:08x} (total: {})", hash, count + 1);
+        }
+    }
+}
+
+/// 自デバイスのステレオランク (0=左端, 255=右端)
+/// ピアハッシュを昇順ソートした時の位置で決定 (決定論的)
+pub fn get_stereo_rank() -> u8 {
+    let own = OWN_DEVICE_HASH.load(Ordering::Relaxed);
+    let count = PEER_HASH_COUNT.load(Ordering::Relaxed) as usize;
+
+    if count == 0 { return 128; } // ピアなし → 中央
+
+    if let Ok(peers) = PEER_HASHES.lock() {
+        let total = count + 1; // ピア数 + 自分
+        // 自分より小さいハッシュの数 = ランク (0-indexed)
+        let mut rank = 0usize;
+        for i in 0..count.min(MAX_PEERS) {
+            if peers[i] < own { rank += 1; }
+        }
+        // rank/(total-1) を 0..255 にマップ
+        if total <= 1 { 128 } else { ((rank * 255) / (total - 1)) as u8 }
+    } else {
+        128
+    }
+}
+
+/// ステレオランクに基づく送信遅延 (ms)
+/// 左端デバイスが先に送信 → 左から右へ音の波が伝わる
+pub fn rank_delay_ms() -> u64 {
+    let rank = get_stereo_rank();
+    // 0ms (左) 〜 8ms (右) の遅延
+    (rank as u64 * 8) / 255
+}
+
+// =====================================================
 // IMA-ADPCM コーデック (4:1 圧縮、ゼロアロケーション)
 // =====================================================
 

@@ -50,21 +50,40 @@ pub fn get_wifi_pass() -> Option<String> {
 }
 
 /// 音声チャンクをFFE5 notify で送信 (ブリッジモード)
+/// MTUを考慮して適切なサイズに分割し、BLEバッファ溢れを防止
 pub fn notify_audio(data: &[u8]) -> bool {
     let conn = CONN_HANDLE.load(Ordering::Relaxed);
     if conn == u16::MAX { return false; }
     unsafe {
         let handle = AUDIO_TX_HANDLE;
         if handle == 0 { return false; }
-        // チャンクを512バイト以下に分割
-        for chunk in data.chunks(512) {
+        // MTU-3 のサイズで分割 (iOS default MTU=185, -3=182)
+        // ただしESP32 NimBLE default MTU=256以下を想定
+        let chunk_size: usize = 240; // 安全なサイズ (ATTヘッダ考慮)
+        let mut sent: u32 = 0;
+        for chunk in data.chunks(chunk_size) {
             let om = esp_idf_sys::ble_hs_mbuf_from_flat(
                 chunk.as_ptr() as *const _,
                 chunk.len() as u16,
             );
             if om.is_null() { return false; }
             let rc = esp_idf_sys::ble_gatts_notify_custom(conn, handle, om);
-            if rc != 0 { return false; }
+            if rc != 0 {
+                // BLEバッファフル: 少し待ってリトライ
+                std::thread::sleep(std::time::Duration::from_millis(5));
+                let om2 = esp_idf_sys::ble_hs_mbuf_from_flat(
+                    chunk.as_ptr() as *const _,
+                    chunk.len() as u16,
+                );
+                if om2.is_null() { return false; }
+                let rc2 = esp_idf_sys::ble_gatts_notify_custom(conn, handle, om2);
+                if rc2 != 0 { return false; }
+            }
+            sent += 1;
+            // 8チャンクごとにフロー制御 (BLE TXキューのバックプレッシャー)
+            if sent % 8 == 0 {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
         }
     }
     true
@@ -87,9 +106,11 @@ pub fn notify_audio_end() -> bool {
     }
 }
 
-/// iPhoneから受信した音声チャンクを取り出す
+/// iPhoneから受信した音声チャンクを取り出す (FIFO: 先入れ先出し)
 pub fn pop_rx_chunk() -> Option<Vec<u8>> {
-    RX_AUDIO.lock().ok()?.pop()
+    let mut q = RX_AUDIO.lock().ok()?;
+    if q.is_empty() { return None; }
+    Some(q.remove(0))
 }
 
 /// EOU受信済みかどうか (レスポンス音声全体の受信完了)
@@ -362,10 +383,12 @@ extern "C" fn gap_cb(event: *mut esp_idf_sys::ble_gap_event, _: *mut core::ffi::
             esp_idf_sys::BLE_GAP_EVENT_DISCONNECT => {
                 CONN_HANDLE.store(u16::MAX, Ordering::Relaxed);
                 BLE_CONNECTED.store(false, Ordering::Relaxed);
-                info!("BLE: disconnected");
-                if !PAIRING_DONE.load(Ordering::Relaxed) {
-                    restart_adv();
-                }
+                // 受信キューをクリア (中途半端なデータを残さない)
+                if let Ok(mut q) = RX_AUDIO.lock() { q.clear(); }
+                RX_AUDIO_DONE.store(false, Ordering::Relaxed);
+                info!("BLE: disconnected → re-advertising");
+                // 常に再アドバタイズ (ブリッジモードでも再接続を受け入れる)
+                restart_adv();
             }
             _ => {}
         }

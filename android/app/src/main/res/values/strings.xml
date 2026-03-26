@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Soluna</string>
+    <string name="channel_soluna">soluna</string>
+    <string name="channel_voice">voice</string>
+    <string name="channel_music">music</string>
+    <string name="channel_ambient">ambient</string>
+    <string name="mic_on">MIC ON</string>
+    <string name="mic_off">MIC OFF</string>
+    <string name="peers_label">Peers</string>
+    <string name="volume_label">Volume</string>
+    <string name="status_connecting">Connecting...</string>
+    <string name="status_connected">Connected</string>
+</resources>

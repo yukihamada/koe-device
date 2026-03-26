@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soluna</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    html, body { background: transparent; min-height: auto; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+<div class="embed-container">
+  <!-- Play button -->
+  <button class="embed-play-btn" id="play-btn" aria-label="Toggle audio">
+    <svg viewBox="0 0 24 24" id="play-icon">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </button>
+
+  <!-- Info -->
+  <div class="embed-info">
+    <div class="channel-name" id="channel-display">soluna</div>
+    <div class="peer-count"><span id="peer-count">0</span> peers connected</div>
+  </div>
+
+  <!-- Volume -->
+  <div class="embed-volume">
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+  </div>
+</div>
+
+<script src="/soluna.js"></script>
+<script>
+// Embed-specific: read channel from URL params
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const channel = params.get('channel') || 'soluna';
+
+  // Inject a hidden channel button so app.js can find it
+  const btn = document.createElement('button');
+  btn.className = 'channel-btn active';
+  btn.dataset.channel = channel;
+  btn.style.display = 'none';
+  document.body.appendChild(btn);
+
+  // Set channel display
+  const display = document.getElementById('channel-display');
+  if (display) display.textContent = channel;
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

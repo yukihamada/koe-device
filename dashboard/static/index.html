@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Soluna — Distributed Audio</title>
+  <meta name="description" content="Join a Soluna audio channel from your browser">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="player-container">
+  <div class="player-logo">Soluna</div>
+  <div class="player-subtitle">Distributed Audio Sync</div>
+
+  <!-- Channel selector -->
+  <div class="channel-selector">
+    <button class="channel-btn active" data-channel="soluna">soluna</button>
+    <button class="channel-btn" data-channel="voice">voice</button>
+    <button class="channel-btn" data-channel="music">music</button>
+    <button class="channel-btn" data-channel="ambient">ambient</button>
+  </div>
+
+  <!-- Play button -->
+  <button class="play-btn" id="play-btn" aria-label="Toggle audio">
+    <svg viewBox="0 0 24 24" id="play-icon">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </button>
+
+  <!-- Audio visualizer -->
+  <div class="visualizer">
+    <canvas id="visualizer"></canvas>
+  </div>
+
+  <!-- Volume control -->
+  <div class="volume-control">
+    <label>Vol</label>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+  </div>
+
+  <!-- Peer info -->
+  <div class="peer-info">
+    <span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      </svg>
+      <span id="peer-count">0</span> peers
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4m-9-9h4m14 0h4"/>
+      </svg>
+      Channel: <span id="channel-display">soluna</span>
+    </span>
+    <span id="status-label" style="font-size: 0.8rem; color: var(--text-dim);">disconnected</span>
+    <span class="dot" id="status-dot"></span>
+  </div>
+
+  <div style="margin-top: 24px;">
+    <a href="/dashboard.html" style="color: var(--text-dim); font-size: 0.8rem; text-decoration: none;">
+      Open Dashboard
+    </a>
+  </div>
+</div>
+
+<script src="/soluna.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

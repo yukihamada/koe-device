@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Soluna" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#00D4AA</item>
+        <item name="colorPrimaryContainer">#003D32</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorOnPrimaryContainer">#00D4AA</item>
+        <item name="colorSecondary">#00D4AA</item>
+        <item name="colorOnSecondary">#000000</item>
+        <item name="colorSurface">#121212</item>
+        <item name="colorOnSurface">#E0E0E0</item>
+        <item name="colorSurfaceVariant">#1E1E1E</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
+
+    <style name="ChannelButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="strokeColor">#00D4AA</item>
+        <item name="android:textColor">#00D4AA</item>
+    </style>
+
+    <style name="ChannelButton.Selected" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="backgroundTint">#00D4AA</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="MicButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">72dp</item>
+        <item name="android:minWidth">200dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

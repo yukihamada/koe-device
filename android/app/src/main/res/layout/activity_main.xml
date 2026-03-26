@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#000000">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SOLUNA"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#00D4AA"
+        android:letterSpacing="0.3"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Status -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_connecting"
+        android:textSize="14sp"
+        android:textColor="#888888"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Channel Selector -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CHANNEL"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:letterSpacing="0.2"
+        android:layout_marginBottom="8dp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="2"
+        android:layout_marginBottom="24dp"
+        android:useDefaultMargins="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSoluna"
+            style="@style/ChannelButton.Selected"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="@string/channel_soluna" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVoice"
+            style="@style/ChannelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="@string/channel_voice" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMusic"
+            style="@style/ChannelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="@string/channel_music" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAmbient"
+            style="@style/ChannelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="@string/channel_ambient" />
+    </GridLayout>
+
+    <!-- Audio Level Meter -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AUDIO LEVEL"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:letterSpacing="0.2"
+        android:layout_marginBottom="8dp" />
+
+    <ProgressBar
+        android:id="@+id/audioLevelMeter"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="#00D4AA"
+        android:progressBackgroundTint="#1E1E1E"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Mic Toggle -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMic"
+        style="@style/MicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mic_off"
+        android:backgroundTint="#333333"
+        android:textColor="#888888"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Volume -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VOLUME"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:letterSpacing="0.2"
+        android:layout_marginBottom="4dp" />
+
+    <SeekBar
+        android:id="@+id/volumeSlider"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:max="100"
+        android:progress="80"
+        android:thumbTint="#00D4AA"
+        android:progressTint="#00D4AA"
+        android:progressBackgroundTint="#333333"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Peer Count -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PEERS: "
+            android:textSize="18sp"
+            android:textColor="#666666" />
+
+        <TextView
+            android:id="@+id/peerCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#00D4AA" />
+    </LinearLayout>
+
+</LinearLayout>

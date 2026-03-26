@@ -1,6 +1,6 @@
 [package]
 name = "koe-device"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 authors = ["EnablerDAO"]
 description = "Koe+Soluna — Voice AI + Distributed Audio Sync"

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soluna Dashboard</title>
+  <meta name="description" content="Real-time monitoring of Soluna distributed audio devices">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Soluna Dashboard</h1>
+    <div class="status">
+      <span class="dot" id="status-dot"></span>
+      <span>Live</span>
+    </div>
+  </header>
+
+  <!-- Stats grid -->
+  <div class="grid-stats">
+    <div class="stat-card">
+      <div class="value" id="stat-devices">0</div>
+      <div class="label">Devices</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="stat-channels">0</div>
+      <div class="label">Channels</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="stat-packets">0</div>
+      <div class="label">Packets</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="stat-rate">0/s</div>
+      <div class="label">Rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" id="stat-uptime">0s</div>
+      <div class="label">Uptime</div>
+    </div>
+  </div>
+
+  <!-- Device list -->
+  <div class="card" style="margin-bottom: 24px;">
+    <h2>Connected Devices</h2>
+    <div class="device-list" id="device-list">
+      <div class="no-devices">No devices connected. Start a Soluna device or open the Player to appear here.</div>
+    </div>
+  </div>
+
+  <!-- Topology + Distance -->
+  <div class="grid-2">
+    <div class="card">
+      <h2>Network Topology</h2>
+      <div class="canvas-container topo-container">
+        <canvas id="topo-canvas"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Distance Map</h2>
+      <div class="canvas-container">
+        <canvas id="dist-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTA Firmware Update -->
+  <div class="card" style="margin-top: 24px;">
+    <h2>OTA Firmware Update</h2>
+    <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">
+      Upload firmware binary → broadcast to all devices via multicast
+    </p>
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <input type="file" id="ota-file" accept=".bin,.elf"
+             style="color: var(--text); font-size: 0.85rem;">
+      <button id="ota-btn" onclick="uploadOTA()"
+              style="background: #e44; color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
+        Deploy to All Devices
+      </button>
+    </div>
+    <div id="ota-status" style="margin-top: 8px; font-size: 0.85rem; color: var(--accent);"></div>
+  </div>
+
+  <div style="margin-top: 16px; text-align: center;">
+    <a href="/" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">
+      Open Player
+    </a>
+  </div>
+
+  <script>
+  async function uploadOTA() {
+    const file = document.getElementById('ota-file').files[0];
+    if (!file) { alert('Select a firmware file'); return; }
+    const status = document.getElementById('ota-status');
+    const btn = document.getElementById('ota-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+    status.textContent = `Uploading ${file.name} (${(file.size/1024).toFixed(0)} KB)...`;
+
+    const form = new FormData();
+    form.append('firmware', file);
+
+    try {
+      const res = await fetch('/api/ota', { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.error) {
+        status.textContent = `Error: ${data.error}`;
+        status.style.color = '#e44';
+      } else {
+        status.textContent = `Broadcasting: ${data.chunks} chunks × ${data.loops} loops (${data.hash})`;
+        status.style.color = '#00d4aa';
+        btn.textContent = 'Broadcasting...';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Deploy to All Devices';
+          status.textContent += ' — Complete!';
+        }, 30000);
+      }
+    } catch(e) {
+      status.textContent = `Error: ${e}`;
+      status.style.color = '#e44';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Deploy to All Devices';
+  }
+  </script>
+</div>
+
+<script src="/soluna.js"></script>
+<script src="/dashboard.js"></script>
+</body>
+</html>

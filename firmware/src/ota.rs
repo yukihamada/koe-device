@@ -19,7 +19,7 @@ use log::*;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const OTA_URL: &str = "https://api.chatweb.ai/api/v1/device/firmware";
+const OTA_URL: &str = "https://koe.live/api/v1/device/firmware";
 
 // マルチキャストOTA定数
 const OTA_CHANNEL_HASH: u32 = 0xFFFFFFFF; // システムアップデート用チャンネル
