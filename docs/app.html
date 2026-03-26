@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
 <title>Koe — 声でつながる</title>
 <style>
 :root {
@@ -480,6 +483,74 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   font-size:0.82rem; cursor:pointer; -webkit-appearance:none; width:100%;
 }
 
+/* ===================== TEXT CHAT ===================== */
+#chat-bar {
+  position:relative; z-index:10;
+  display:flex; gap:6px; padding:0 14px 4px; align-items:center;
+}
+#chat-input {
+  flex:1; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:8px 12px; color:var(--text);
+  font-size:0.82rem; outline:none; -webkit-appearance:none;
+}
+#chat-input::placeholder { color:var(--muted); }
+#chat-input:focus { border-color:var(--accent); }
+#chat-send {
+  background:var(--accent); border:none; color:#fff;
+  border-radius:var(--r-sm); padding:8px 14px; font-size:0.82rem;
+  cursor:pointer; -webkit-appearance:none; font-weight:600;
+}
+.chat-msg {
+  animation:subtitle-in 0.2s ease;
+  padding:2px 0; font-size:0.8rem;
+}
+.chat-msg .chat-name { color:var(--accent-hi); font-weight:600; margin-right:6px; font-size:0.72rem; }
+
+/* ===================== REACTIONS ===================== */
+.reaction-float {
+  position:fixed; font-size:2rem; pointer-events:none;
+  animation:reaction-rise 1.8s ease-out forwards; z-index:999;
+}
+@keyframes reaction-rise {
+  0%   { opacity:1; transform:translateY(0) scale(1); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translateY(-180px) scale(1.4); }
+}
+#reaction-bar {
+  display:flex; gap:2px; padding:0 14px; margin-bottom:2px;
+}
+.react-btn {
+  background:none; border:none; font-size:1.2rem; cursor:pointer;
+  padding:2px 6px; border-radius:var(--r-sm); transition:all 0.1s;
+  -webkit-appearance:none;
+}
+.react-btn:active { transform:scale(1.3); }
+
+/* ===================== RECORDING INDICATOR ===================== */
+#rec-indicator {
+  display:none; position:fixed; top:max(16px,env(safe-area-inset-top)); right:16px;
+  z-index:100; background:rgba(239,68,68,0.9); color:#fff;
+  border-radius:var(--r-sm); padding:4px 10px; font-size:0.72rem; font-weight:700;
+  align-items:center; gap:4px;
+}
+#rec-indicator.active { display:flex; }
+#rec-dot { width:8px; height:8px; border-radius:50%; background:#fff; animation:glow-pulse 1s infinite; }
+
+/* ===================== SCORE OVERLAY ===================== */
+#score-display {
+  display:none; position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%); z-index:100;
+  font-size:3rem; font-weight:900; color:#fff;
+  text-shadow:0 0 30px var(--accent); pointer-events:none;
+  animation:score-pop 1.5s ease-out forwards;
+}
+@keyframes score-pop {
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+  20%  { opacity:1; transform:translate(-50%,-50%) scale(1.1); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(1); }
+}
+
 /* ===================== HIDDEN LEGACY ELEMENTS (keep for JS) ===================== */
 #participants, #local-participant, #vol-fill, #vol-db, #panel-voice,
 #panel-music, #panel-channels, #panel-devices, .bottom-nav, .tabs, header,
@@ -580,11 +651,28 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 
   </div>
 
+  <!-- REACTIONS BAR -->
+  <div id="reaction-bar">
+    <button class="react-btn" onclick="sendReaction('👏')">👏</button>
+    <button class="react-btn" onclick="sendReaction('🔥')">🔥</button>
+    <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
+    <button class="react-btn" onclick="sendReaction('😂')">😂</button>
+    <button class="react-btn" onclick="sendReaction('🎵')">🎵</button>
+    <button class="react-btn" onclick="sendReaction('✨')">✨</button>
+  </div>
+
+  <!-- TEXT CHAT -->
+  <div id="chat-bar">
+    <input id="chat-input" type="text" placeholder="メッセージ..." maxlength="200"
+      onkeydown="if(event.key==='Enter')sendChat()">
+    <button id="chat-send" onclick="sendChat()">送信</button>
+  </div>
+
   <!-- BOTTOM BAR -->
   <div id="bottom-bar">
     <div id="bottom-left">
       <button id="btn-transcript" onclick="toggleTranscriptDrawer()">📝</button>
-      <button id="btn-translate-toggle" onclick="toggleAutoTranslate()">翻訳OFF</button>
+      <button id="btn-rec" onclick="toggleRecording()">⏺</button>
     </div>
     <button id="btn-mic-main" onclick="toggleMic()">🎙️</button>
     <div id="bottom-right">
@@ -723,6 +811,12 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
     <button class="modal-close" onclick="hideQR()">閉じる</button>
   </div>
 </div>
+
+<!-- RECORDING INDICATOR -->
+<div id="rec-indicator"><div id="rec-dot"></div><span id="rec-time">00:00</span> REC</div>
+
+<!-- SCORE OVERLAY -->
+<div id="score-display"></div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -1220,6 +1314,12 @@ function handleSignal(msg) {
       break;
     case 'transcript':
       handleTranscriptMsg(from, data);
+      break;
+    case 'chat':
+      showChatMsg(data.name || from, data.text);
+      break;
+    case 'reaction':
+      showReaction(data.emoji);
       break;
     case 'music_sync':
       handleMusicSync(data);
@@ -2344,10 +2444,11 @@ function startPitchDisplay() {
     const noteEl = document.getElementById('note-display');
     if (noteEl) noteEl.textContent = hz ? hzToNote(hz) : '--';
     if (autotuneEnabled && hz && autotuneOsc) {
-      // Snap to nearest semitone
       const semitones = Math.round(12 * Math.log2(hz / 440));
       autotuneOsc.frequency.value = 440 * Math.pow(2, semitones / 12);
     }
+    // Scoring
+    if (hz) updatePitchScore(hz);
 
     // BPM + Key from music
     const musicSrc = musicAnalyserNode;
@@ -2406,6 +2507,171 @@ function renderLyrics() {
     const activeEl = document.getElementById('lyric-' + lineIdx);
     activeEl?.scrollIntoView({ behavior:'smooth', block:'center' });
   }, 800);
+}
+
+// ============================================================
+// TEXT CHAT
+// ============================================================
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  send({ type: 'chat', data: { name: localName, text } });
+  showChatMsg(localName, text);
+}
+
+function showChatMsg(name, text) {
+  const strip = document.getElementById('subtitle-lines');
+  if (!strip) return;
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<span class="chat-name">${name}</span>${text}`;
+  strip.appendChild(div);
+  if (strip.children.length > 5) strip.removeChild(strip.children[0]);
+}
+
+// ============================================================
+// REACTIONS (emoji burst)
+// ============================================================
+function sendReaction(emoji) {
+  send({ type: 'reaction', data: { emoji } });
+  showReaction(emoji);
+}
+
+function showReaction(emoji) {
+  const el = document.createElement('div');
+  el.className = 'reaction-float';
+  el.textContent = emoji;
+  el.style.left = (20 + Math.random() * 60) + '%';
+  el.style.bottom = '120px';
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+// ============================================================
+// RECORDING (MediaRecorder → download)
+// ============================================================
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingStart = 0;
+let recTimerInterval = null;
+
+function toggleRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  // Capture everything going to speakers + mic
+  if (!audioCtx) { showToast('まずマイクを有効にしてください'); return; }
+  const dest = audioCtx.createMediaStreamDestination();
+  // Connect analyser (which has mic input) to the recording destination
+  if (analyser) analyser.connect(dest);
+  // Connect music if playing
+  if (musicSource) {
+    try { musicSource.connect(dest); } catch(e) { /* already connected elsewhere */ }
+  }
+  try {
+    mediaRecorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm;codecs=opus' });
+  } catch(e) {
+    mediaRecorder = new MediaRecorder(dest.stream);
+  }
+  recordedChunks = [];
+  mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `koe-${new Date().toISOString().slice(0,16).replace(/:/g,'-')}.webm`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('録音をダウンロードしました');
+  };
+  mediaRecorder.start(1000);
+  recordingStart = Date.now();
+  document.getElementById('rec-indicator').classList.add('active');
+  document.getElementById('btn-rec').style.color = 'var(--red)';
+  recTimerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - recordingStart) / 1000);
+    const m = Math.floor(s / 60);
+    document.getElementById('rec-time').textContent =
+      String(m).padStart(2,'0') + ':' + String(s % 60).padStart(2,'0');
+  }, 1000);
+  showToast('⏺ 録音開始');
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+  document.getElementById('rec-indicator').classList.remove('active');
+  document.getElementById('btn-rec').style.color = '';
+  clearInterval(recTimerInterval);
+}
+
+// ============================================================
+// KARAOKE SCORING (pitch accuracy)
+// ============================================================
+let scoreTotal = 0;
+let scoreCount = 0;
+let lastScoreShow = 0;
+
+function updatePitchScore(detectedHz) {
+  if (!detectedHz || detectedHz < 80 || detectedHz > 1200) return;
+  // Nearest semitone
+  const semitones = 12 * Math.log2(detectedHz / 440);
+  const nearest = Math.round(semitones);
+  const cents = Math.abs(semitones - nearest) * 100;  // deviation in cents
+  const accuracy = Math.max(0, 100 - cents * 2);      // 0-100 score
+
+  scoreTotal += accuracy;
+  scoreCount++;
+
+  // Show score periodically (every 5 seconds)
+  if (Date.now() - lastScoreShow > 5000 && scoreCount > 10) {
+    const avg = Math.round(scoreTotal / scoreCount);
+    const el = document.getElementById('score-display');
+    if (el) {
+      el.textContent = avg >= 90 ? `${avg}点 ★★★` : avg >= 70 ? `${avg}点 ★★` : `${avg}点 ★`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 1500);
+    }
+    scoreTotal = 0;
+    scoreCount = 0;
+    lastScoreShow = Date.now();
+  }
+}
+
+// ============================================================
+// NOISE GATE (suppress background noise)
+// ============================================================
+let noiseGateNode = null;
+let noiseGateEnabled = true; // on by default
+
+function setupNoiseGate(ctx, source) {
+  // Simple noise gate using DynamicsCompressor with extreme settings
+  const gate = ctx.createDynamicsCompressor();
+  gate.threshold.value = -45;   // dB below which audio is suppressed
+  gate.knee.value = 0;           // hard knee
+  gate.ratio.value = 20;         // essentially mute below threshold
+  gate.attack.value = 0.003;
+  gate.release.value = 0.05;
+  source.connect(gate);
+  noiseGateNode = gate;
+  return gate;
+}
+
+// ============================================================
+// SERVICE WORKER REGISTRATION
+// ============================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 
 // ============================================================
