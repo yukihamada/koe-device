@@ -8,22 +8,22 @@
 <title>Koe — 声でつながる</title>
 <style>
 :root {
-  --bg: #050508;
-  --surface: #0d0d15;
-  --card: #13131f;
-  --border: #1e1e30;
-  --accent: #8b5cf6;
-  --accent2: #06b6d4;
-  --accent3: #ec4899;
-  --text: #f0f0ff;
-  --muted: #5a5a7a;
-  --green: #10b981;
-  --red: #f43f5e;
-  --gold: #f59e0b;
-  --r: 20px;
-  --glow-purple: 0 0 30px rgba(139,92,246,0.3);
-  --glow-cyan: 0 0 30px rgba(6,182,212,0.3);
-  --glow-green: 0 0 20px rgba(16,185,129,0.4);
+  --bg: #08080f;
+  --surface: #0f0f1a;
+  --card: #141420;
+  --border: #1c1c2e;
+  --accent: #7c3aed;
+  --accent-hi: #9f5fff;
+  --text: #ececf8;
+  --muted: #52527a;
+  --green: #22c55e;
+  --red: #ef4444;
+  --gold: #eab308;
+  /* Unified radius tokens */
+  --r-sm: 6px;   /* tags, badges */
+  --r: 10px;     /* buttons, inputs */
+  --r-lg: 14px;  /* cards, panels */
+  --glow: 0 0 24px rgba(124,58,237,0.3);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -119,17 +119,17 @@ html, body {
 .splash-icon { font-size:4.5rem; margin-bottom:20px; filter:drop-shadow(0 0 24px rgba(139,92,246,0.8)); }
 #splash h1 {
   font-size:3.2rem; font-weight:800; letter-spacing:-0.03em;
-  background:linear-gradient(135deg,#c4b5fd,#22d3ee,#a78bfa);
+  background:linear-gradient(135deg,#a78bfa,#c4b5fd);
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   margin-bottom:10px;
 }
 #splash .splash-sub { color:var(--muted); margin-bottom:44px; font-size:0.95rem; letter-spacing:0.02em; }
 .btn-primary {
-  background:linear-gradient(135deg,#8b5cf6,#06b6d4);
-  color:#fff; border:none; border-radius:50px;
-  padding:18px 56px; font-size:1.1rem; font-weight:700; letter-spacing:0.01em;
+  background:#7c3aed;
+  color:#fff; border:none; border-radius:var(--r);
+  padding:16px 52px; font-size:1rem; font-weight:700; letter-spacing:0.01em;
   cursor:pointer;
-  box-shadow:0 0 0 0 rgba(139,92,246,0.5), 0 8px 32px rgba(139,92,246,0.4);
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
   transition:transform 0.15s, box-shadow 0.15s;
   -webkit-appearance:none; position:relative; overflow:hidden;
 }
@@ -144,18 +144,17 @@ html, body {
 /* ===================== AMBIENT BACKGROUND ===================== */
 #ambient-bg {
   position:fixed; inset:0; z-index:0;
-  background: radial-gradient(ellipse at 30% 40%, rgba(139,92,246,0.25) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 60%, rgba(6,182,212,0.2) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 90%, rgba(236,72,153,0.15) 0%, transparent 50%),
-              #050508;
+  background: radial-gradient(ellipse at 25% 35%, rgba(124,58,237,0.18) 0%, transparent 55%),
+              radial-gradient(ellipse at 75% 70%, rgba(124,58,237,0.10) 0%, transparent 50%),
+              #08080f;
 }
 .blob {
   position:absolute; border-radius:50%; filter:blur(80px); opacity:0.6;
   animation:blob-float 8s ease-in-out infinite;
 }
-.blob1 { width:300px;height:300px;background:rgba(139,92,246,0.3);top:-50px;left:-50px;animation-delay:0s; }
-.blob2 { width:250px;height:250px;background:rgba(6,182,212,0.25);bottom:100px;right:-30px;animation-delay:-3s; }
-.blob3 { width:200px;height:200px;background:rgba(236,72,153,0.2);top:40%;left:40%;animation-delay:-5s; }
+.blob1 { width:360px;height:360px;background:rgba(124,58,237,0.18);top:-80px;left:-80px;animation-delay:0s; }
+.blob2 { width:280px;height:280px;background:rgba(124,58,237,0.12);bottom:80px;right:-60px;animation-delay:-4s; }
+.blob3 { display:none; }
 
 /* ===================== MAIN APP ===================== */
 #app {
@@ -178,9 +177,9 @@ html, body {
 #room-dot.online { background:var(--green); box-shadow:0 0 6px var(--green); }
 #status-text-top { font-size:0.78rem; color:var(--muted); }
 #top-bar button {
-  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
-  color:#fff; border-radius:20px; padding:6px 14px; font-size:0.78rem; cursor:pointer;
-  backdrop-filter:blur(10px); transition:all 0.2s;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.09);
+  color:rgba(255,255,255,0.75); border-radius:var(--r-sm); padding:5px 12px;
+  font-size:0.75rem; cursor:pointer; transition:all 0.15s;
 }
 #top-bar button:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
 
@@ -252,31 +251,30 @@ html, body {
 }
 #bottom-left, #bottom-right { display:flex; gap:10px; align-items:center; }
 #bottom-bar button {
-  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
-  color:#fff; border-radius:20px; padding:8px 16px; font-size:0.8rem; cursor:pointer;
-  backdrop-filter:blur(10px); transition:all 0.2s; white-space:nowrap;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.09);
+  color:rgba(255,255,255,0.75); border-radius:var(--r-sm); padding:7px 14px;
+  font-size:0.78rem; cursor:pointer; transition:all 0.15s; white-space:nowrap;
   -webkit-appearance:none;
 }
-#bottom-bar button:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
+#bottom-bar button:active { opacity:0.7; }
 #btn-mic-main {
-  width:64px; height:64px; border-radius:50%; font-size:1.6rem;
-  background:linear-gradient(135deg,#8b5cf6,#06b6d4) !important;
-  border:none !important; box-shadow:0 4px 24px rgba(139,92,246,0.5);
+  width:56px; height:56px; border-radius:50%; font-size:1.4rem;
+  background:#7c3aed !important;
+  border:none !important; box-shadow:0 4px 20px rgba(124,58,237,0.45);
   display:flex; align-items:center; justify-content:center;
   transition:all 0.2s !important; flex-shrink:0;
 }
-#btn-mic-main.muted { background:linear-gradient(135deg,#ef4444,#f97316) !important; box-shadow:0 4px 24px rgba(239,68,68,0.4); }
+#btn-mic-main.muted { background:#ef4444 !important; box-shadow:0 4px 16px rgba(239,68,68,0.4); }
 #btn-mic-main.active { animation:mic-pulse 1.5s ease infinite; }
-#btn-translate-toggle.on { border-color:rgba(6,182,212,0.5) !important; color:var(--accent2) !important; }
+#btn-translate-toggle.on { border-color:rgba(124,58,237,0.6) !important; color:var(--accent-hi) !important; }
 
 /* ===================== TRANSCRIPT DRAWER ===================== */
 #transcript-drawer {
   position:fixed; bottom:0; left:0; right:0;
-  background:rgba(13,13,21,0.97); backdrop-filter:blur(30px);
-  border-top:1px solid rgba(139,92,246,0.2);
-  border-radius:24px 24px 0 0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
   height:60vh; display:flex; flex-direction:column;
-  transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);
+  transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
   z-index:200;
 }
 #transcript-drawer.open { transform:translateY(0); }
@@ -284,9 +282,9 @@ html, body {
 #drawer-header { display:flex;justify-content:space-between;align-items:center;padding:0 20px 12px; }
 #drawer-header span { font-weight:700; }
 #drawer-header button {
-  background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3);
-  color:#fff; border-radius:20px; padding:6px 16px; font-size:0.78rem; cursor:pointer;
-  -webkit-appearance:none;
+  background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.25);
+  color:var(--text); border-radius:var(--r-sm); padding:5px 14px;
+  font-size:0.75rem; cursor:pointer; -webkit-appearance:none;
 }
 #transcript-list { overflow-y:auto; flex:1; padding:0 20px; }
 .transcript-entry { padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; }
@@ -310,19 +308,19 @@ html, body {
 .modal.show { display:flex; }
 .modal-card {
   background:var(--card); border:1px solid var(--border);
-  border-radius:24px; padding:30px; text-align:center;
+  border-radius:var(--r-lg); padding:24px; text-align:center;
   max-width:320px; width:92%;
-  box-shadow:0 8px 60px rgba(0,0,0,0.6), var(--glow-purple);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
 }
 .modal-card h3 { margin-bottom:8px; font-size:1.1rem; }
 .modal-card p { color:var(--muted); font-size:0.85rem; margin-bottom:20px; }
 #qr-canvas { border-radius:14px; margin-bottom:16px; }
 .modal-close {
   background:var(--surface); border:1px solid var(--border);
-  color:var(--text); padding:13px 36px; border-radius:50px;
-  cursor:pointer; -webkit-appearance:none; transition:all 0.18s; font-weight:600;
+  color:var(--text); padding:11px 32px; border-radius:var(--r);
+  cursor:pointer; -webkit-appearance:none; transition:all 0.15s; font-weight:600;
 }
-.modal-close:hover { border-color:var(--accent); color:var(--accent); }
+.modal-close:hover { border-color:var(--accent); color:var(--accent-hi); }
 
 /* ===================== RANGE SLIDERS ===================== */
 input[type=range] {
@@ -341,12 +339,10 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 
 /* ===================== TOAST ===================== */
 .toast {
-  position:fixed; bottom:108px; left:50%; transform:translateX(-50%) translateY(16px);
-  background:rgba(30,30,50,0.95); backdrop-filter:blur(12px);
-  border:1px solid rgba(139,92,246,0.3); border-radius:50px;
-  padding:10px 28px; font-size:0.84rem; opacity:0;
-  transition:all 0.3s ease; z-index:500; pointer-events:none; white-space:nowrap;
-  box-shadow:0 4px 24px rgba(0,0,0,0.4);
+  position:fixed; bottom:104px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:#1a1a2e; border:1px solid var(--border);
+  border-radius:var(--r); padding:8px 20px; font-size:0.82rem; opacity:0;
+  transition:all 0.25s ease; z-index:500; pointer-events:none; white-space:nowrap;
 }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
@@ -354,10 +350,9 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 #now-playing-bar {
   position:relative; z-index:5;
   display:flex; align-items:center; justify-content:space-between;
-  margin:8px 16px 0;
-  background:rgba(255,255,255,0.05); backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:16px; padding:10px 14px;
+  margin:6px 14px 0;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:9px 12px;
   gap:10px;
 }
 #np-info { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
@@ -388,34 +383,34 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 /* ===================== VOCAL EFFECTS STRIP ===================== */
 #vocal-strip {
   position:relative; z-index:5;
-  display:flex; align-items:center; gap:8px;
-  margin:6px 16px 0;
-  background:rgba(255,255,255,0.04); backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:14px; padding:8px 12px;
+  display:flex; align-items:center; gap:6px;
+  margin:4px 14px 0;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:7px 10px;
   overflow-x:auto; -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
 }
+#vocal-strip::-webkit-scrollbar { display:none; }
 .fx-btn {
-  background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.6); border-radius:10px;
-  padding:5px 12px; font-size:0.75rem; font-weight:700;
-  cursor:pointer; white-space:nowrap; -webkit-appearance:none; transition:all 0.2s;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.55); border-radius:var(--r-sm);
+  padding:4px 10px; font-size:0.72rem; font-weight:600;
+  cursor:pointer; white-space:nowrap; -webkit-appearance:none; transition:all 0.15s;
   flex-shrink:0;
 }
-.fx-btn.on { border-color:var(--accent); color:var(--accent); background:rgba(139,92,246,0.15); }
-.fx-sep { width:1px; height:20px; background:rgba(255,255,255,0.1); flex-shrink:0; }
-.fx-stat { font-size:0.75rem; white-space:nowrap; flex-shrink:0; }
-#note-display { color:#fff; font-weight:700; }
-#bpm-display  { color:var(--accent2); }
+.fx-btn.on { border-color:var(--accent); color:var(--accent-hi); background:rgba(124,58,237,0.15); }
+.fx-sep { width:1px; height:16px; background:var(--border); flex-shrink:0; }
+.fx-stat { font-size:0.72rem; white-space:nowrap; flex-shrink:0; color:var(--muted); }
+#note-display { color:var(--text); font-weight:700; }
+#bpm-display  { color:var(--text); }
 #key-display  { color:var(--gold); }
 
 /* ===================== LYRICS PANEL ===================== */
 #lyrics-panel {
   display:none; position:fixed;
   bottom:0; left:0; right:0;
-  background:rgba(10,10,18,0.97); backdrop-filter:blur(30px);
-  border-top:1px solid rgba(139,92,246,0.25);
-  border-radius:28px 28px 0 0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
   padding:20px 24px max(28px,env(safe-area-inset-bottom));
   z-index:150; max-height:55vh; overflow:hidden;
   flex-direction:column; gap:12px;
@@ -446,9 +441,8 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 #karaoke-panel {
   display:none; position:fixed;
   bottom:0; left:0; right:0;
-  background:rgba(10,10,18,0.98); backdrop-filter:blur(30px);
-  border-top:1px solid rgba(139,92,246,0.25);
-  border-radius:28px 28px 0 0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
   padding:20px 24px max(28px,env(safe-area-inset-bottom));
   z-index:150; gap:14px;
   flex-direction:column;
@@ -457,14 +451,13 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 #karaoke-panel h3 { font-size:1rem; font-weight:700; margin-bottom:4px; }
 .karaoke-roles { display:flex; gap:10px; }
 .karaoke-role-btn {
-  flex:1; padding:14px 10px; border-radius:16px;
-  border:1.5px solid var(--border); background:var(--surface);
+  flex:1; padding:12px 10px; border-radius:var(--r);
+  border:1px solid var(--border); background:var(--surface);
   color:var(--text); cursor:pointer; font-size:0.85rem; font-weight:600;
   text-align:center; transition:all 0.2s; -webkit-appearance:none;
 }
 .karaoke-role-btn.active {
-  border-color:var(--accent); background:rgba(139,92,246,0.2); color:#fff;
-  box-shadow: 0 0 20px rgba(139,92,246,0.3);
+  border-color:var(--accent); background:rgba(124,58,237,0.18); color:#fff;
 }
 .karaoke-role-btn .role-icon { font-size:1.8rem; display:block; margin-bottom:6px; }
 .karaoke-role-btn .role-label { font-size:0.75rem; color:var(--muted); margin-top:2px; display:block; }
@@ -475,15 +468,15 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 #backing-track-info { font-size:0.82rem; color:var(--muted); margin-bottom:10px; }
 .karaoke-ctrl { display:flex; gap:8px; align-items:center; }
 .karaoke-ctrl button {
-  background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3);
-  color:#fff; border-radius:20px; padding:8px 18px;
+  background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.25);
+  color:#fff; border-radius:var(--r-sm); padding:7px 16px;
   font-size:0.82rem; cursor:pointer; -webkit-appearance:none; transition:all 0.2s;
 }
 .karaoke-ctrl button:active { transform:scale(0.95); }
 #karaoke-pitch-lbl { font-size:0.8rem; color:var(--muted); }
 #karaoke-close-btn {
   background:var(--surface); border:1px solid var(--border);
-  color:var(--muted); border-radius:20px; padding:10px;
+  color:var(--muted); border-radius:var(--r); padding:9px;
   font-size:0.82rem; cursor:pointer; -webkit-appearance:none; width:100%;
 }
 
@@ -1140,8 +1133,10 @@ function connectSignaling() {
     signalingWs.onopen = () => {
       updateStatus(true);
       showToast('接続しました');
-      // Ask room for current music state
-      setTimeout(() => send({ type: 'music_request_sync', data: {} }), 500);
+      // Ask room for current music state (if someone is already there)
+      setTimeout(() => send({ type: 'music_request_sync', data: {} }), 600);
+      // Become sync leader after short delay (overridden if peers respond)
+      setTimeout(() => { if (!syncLeader) startPeriodicSync(); }, 2000);
     };
     signalingWs.onmessage = (e) => { try { handleSignal(JSON.parse(e.data)); } catch(err){} };
     signalingWs.onclose = () => {
@@ -1230,7 +1225,9 @@ function handleSignal(msg) {
       handleMusicSync(data);
       break;
     case 'music_request_sync':
-      // Someone just joined — send them current state
+      // Someone just joined — we are the leader, send them state
+      syncLeader = true;
+      if (!periodicSyncInterval) startPeriodicSync();
       if (musicAudio) {
         send({ type: 'music_sync', data: {
           trackIdx: currentTrackIdx,
@@ -1243,30 +1240,67 @@ function handleSignal(msg) {
   }
 }
 
+let syncLeader = false; // true if this client is broadcasting periodic syncs
+let periodicSyncInterval = null;
+
 function handleMusicSync({ trackIdx, playing, position, serverTs }) {
   if (!musicAudio) return;
-  const lag = (Date.now() - serverTs) / 1000; // seconds
+  const lag = Math.max(0, (Date.now() - serverTs) / 1000);
   const targetPos = position + lag;
 
-  // Switch track if needed
+  // Track change
   if (trackIdx !== currentTrackIdx) {
     currentTrackIdx = trackIdx;
     const t = PLAYLIST[trackIdx];
     if (!t) return;
     musicAudio.src = t.url;
     musicAudio.load();
-    musicSource = null; // reset Web Audio source node
+    musicSource = null;
+    if (playing) {
+      musicAudio.addEventListener('canplay', () => {
+        musicAudio.currentTime = (Date.now() - serverTs) / 1000 + position;
+        if (audioCtx?.state === 'suspended') audioCtx.resume();
+        musicAudio.play().catch(() => {});
+      }, { once: true });
+    }
+    showNowPlaying();
+    return;
   }
 
   if (playing) {
-    musicAudio.currentTime = targetPos;
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    musicAudio.play().catch(() => {});
+    const drift = Math.abs(musicAudio.currentTime - targetPos);
+    if (drift > 0.8) {
+      // Big drift → hard jump
+      musicAudio.currentTime = targetPos;
+    } else if (drift > 0.15) {
+      // Small drift → speed up/slow down to converge (~2s)
+      musicAudio.playbackRate = musicAudio.currentTime < targetPos ? 1.06 : 0.94;
+      setTimeout(() => { if (musicAudio) musicAudio.playbackRate = 1.0; }, 2000);
+    }
+    if (musicAudio.paused) {
+      if (audioCtx?.state === 'suspended') audioCtx.resume();
+      musicAudio.play().catch(() => {});
+    }
   } else {
     musicAudio.pause();
     musicAudio.currentTime = targetPos;
   }
   showNowPlaying();
+}
+
+function startPeriodicSync() {
+  // The first client in the room becomes the sync leader
+  if (periodicSyncInterval) clearInterval(periodicSyncInterval);
+  syncLeader = true;
+  periodicSyncInterval = setInterval(() => {
+    if (!musicAudio || !syncLeader) return;
+    send({ type: 'music_sync', data: {
+      trackIdx: currentTrackIdx,
+      playing: !musicAudio.paused,
+      position: musicAudio.currentTime,
+      serverTs: Date.now(),
+    }});
+  }, 8000); // broadcast position every 8 seconds
 }
 
 function send(obj) {
