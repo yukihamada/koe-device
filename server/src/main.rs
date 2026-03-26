@@ -121,6 +121,13 @@ async fn main() {
         )
         .route("/api/translate",  post(handle_translate))
         .route("/api/summarize",  post(handle_summarize))
+        .route("/api/features",   get(handle_features))
+        .route("/api/v1/ai/vocal-remove",    post(handle_ai_proxy))
+        .route("/api/v1/ai/voice-clone",     post(handle_ai_proxy))
+        .route("/api/v1/ai/harmonize",       post(handle_ai_proxy))
+        .route("/api/v1/ai/translate-voice",  post(handle_ai_proxy))
+        .route("/api/v1/ai/score-detail",    post(handle_ai_proxy))
+        .route("/api/v1/ai/generate-music",  post(handle_ai_proxy))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
@@ -552,6 +559,86 @@ async fn handle_summarize(
     match call_groq(&groq_key, &prompt, 1024).await {
         Ok(s) => (StatusCode::OK, axum::Json(json!({"summary": s}))).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": e}))).into_response(),
+    }
+}
+
+// ---- Feature flags (env var toggles) ----
+
+async fn handle_features() -> impl IntoResponse {
+    let gpu_url = std::env::var("GPU_ENDPOINT").unwrap_or_default();
+    let has_gpu = !gpu_url.is_empty();
+    let has_groq = !std::env::var("GROQ_API_KEY").unwrap_or_default().is_empty();
+
+    let features = json!({
+        "translate":      has_groq,
+        "summarize":      has_groq,
+        "vocal_remove":   has_gpu,
+        "voice_clone":    has_gpu,
+        "harmonize":      has_gpu,
+        "translate_voice": has_gpu,
+        "score_detail":   has_gpu,
+        "generate_music": has_gpu,
+        "gpu_endpoint":   if has_gpu { "online" } else { "offline" },
+    });
+    (StatusCode::OK, axum::Json(features))
+}
+
+// ---- AI proxy (forwards to GPU_ENDPOINT) ----
+
+async fn handle_ai_proxy(
+    req: axum::http::Request<axum::body::Body>,
+) -> impl IntoResponse {
+    let gpu_url = match std::env::var("GPU_ENDPOINT") {
+        Ok(u) if !u.is_empty() => u,
+        _ => {
+            return (
+                StatusCode::SERVICE_UNAVAILABLE,
+                axum::Json(json!({
+                    "error": "GPU service offline",
+                    "hint": "Set GPU_ENDPOINT env var to enable AI features"
+                })),
+            ).into_response();
+        }
+    };
+
+    let path = req.uri().path().to_string();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(120))
+        .build()
+        .unwrap();
+
+    // Forward body to GPU endpoint
+    let body_bytes = match axum::body::to_bytes(req.into_body(), 50 * 1024 * 1024).await {
+        Ok(b) => b,
+        Err(e) => {
+            return (StatusCode::BAD_REQUEST, axum::Json(json!({"error": e.to_string()}))).into_response();
+        }
+    };
+
+    let target = format!("{}{}", gpu_url.trim_end_matches('/'), path);
+    match client
+        .post(&target)
+        .header("Content-Type", "application/octet-stream")
+        .body(body_bytes.to_vec())
+        .send()
+        .await
+    {
+        Ok(resp) => {
+            let status = StatusCode::from_u16(resp.status().as_u16()).unwrap_or(StatusCode::BAD_GATEWAY);
+            let content_type = resp
+                .headers()
+                .get("content-type")
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("application/octet-stream")
+                .to_string();
+            match resp.bytes().await {
+                Ok(bytes) => (status, [("content-type", content_type)], bytes.to_vec()).into_response(),
+                Err(e) => (StatusCode::BAD_GATEWAY, axum::Json(json!({"error": e.to_string()}))).into_response(),
+            }
+        }
+        Err(e) => {
+            (StatusCode::BAD_GATEWAY, axum::Json(json!({"error": e.to_string()}))).into_response()
+        }
     }
 }
 

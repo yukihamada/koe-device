@@ -402,6 +402,8 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   flex-shrink:0;
 }
 .fx-btn.on { border-color:var(--accent); color:var(--accent-hi); background:rgba(124,58,237,0.15); }
+.fx-btn.disabled { opacity:0.35; pointer-events:none; }
+.fx-btn.ai-feature-btn:not(.disabled) { border-color:rgba(34,197,94,0.3); color:rgba(34,197,94,0.8); }
 .fx-sep { width:1px; height:16px; background:var(--border); flex-shrink:0; }
 .fx-stat { font-size:0.72rem; white-space:nowrap; flex-shrink:0; color:var(--muted); }
 #note-display { color:var(--text); font-weight:700; }
@@ -632,6 +634,11 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
       <span class="fx-stat">🔑 <span id="key-display">--</span></span>
       <div class="fx-sep"></div>
       <button class="fx-btn" id="btn-lyrics" onclick="toggleLyrics()">📜 歌詞</button>
+      <div class="fx-sep"></div>
+      <button class="fx-btn ai-feature-btn disabled" data-feature="vocal_remove" onclick="removeVocals()">🎵 ボーカル除去</button>
+      <button class="fx-btn ai-feature-btn disabled" data-feature="voice_clone" id="btn-voice-clone" onclick="toggleVoiceClone()">🎭 声変換</button>
+      <button class="fx-btn ai-feature-btn disabled" data-feature="harmonize" id="btn-harmonize" onclick="toggleHarmonize()">🎶 ハーモニー</button>
+      <button class="fx-btn ai-feature-btn disabled" data-feature="translate_voice" id="btn-voice-translate" onclick="toggleVoiceTranslate()">🌐 声翻訳</button>
     </div>
 
     <!-- AUDIO VISUALIZER -->
@@ -1214,6 +1221,7 @@ function enterApp() {
   deviceRefreshInterval = setInterval(fetchDevices, 5000);
   initViz();
   startLatencyMonitor();
+  loadFeatures();
 }
 
 // ---- SIGNALING (WebRTC) ----
@@ -2672,6 +2680,133 @@ function setupNoiseGate(ctx, source) {
 // ============================================================
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ============================================================
+// FEATURE FLAGS — fetch from server, enable AI features when GPU is up
+// ============================================================
+let serverFeatures = {};
+
+async function loadFeatures() {
+  try {
+    const res = await fetch('/api/features');
+    serverFeatures = await res.json();
+    // Show/hide AI feature buttons based on availability
+    const aiBtns = document.querySelectorAll('.ai-feature-btn');
+    aiBtns.forEach(btn => {
+      const feat = btn.dataset.feature;
+      if (feat && serverFeatures[feat]) {
+        btn.classList.remove('disabled');
+        btn.title = '';
+      } else {
+        btn.classList.add('disabled');
+        btn.title = 'GPU未接続（Coming Soon）';
+      }
+    });
+    if (serverFeatures.gpu_endpoint === 'online') {
+      showToast('🟢 AI機能が利用可能です');
+    }
+  } catch(e) { /* offline / no features endpoint */ }
+}
+
+// ============================================================
+// AI VOCAL REMOVAL (server-side demucs)
+// ============================================================
+async function removeVocals() {
+  if (!serverFeatures.vocal_remove) {
+    showToast('⏳ ボーカル除去は準備中（GPUサーバー必要）');
+    return;
+  }
+  if (!musicAudio || !musicAudio.src) { showToast('先に曲を再生してください'); return; }
+  showToast('🎵 ボーカル除去中...');
+  try {
+    const resp = await fetch(musicAudio.src);
+    const audioBlob = await resp.blob();
+    const result = await fetch('/api/v1/ai/vocal-remove', {
+      method: 'POST', body: audioBlob,
+    });
+    if (!result.ok) throw new Error('GPU error');
+    const instrBlob = await result.blob();
+    const url = URL.createObjectURL(instrBlob);
+    musicAudio.src = url;
+    musicAudio.play().catch(() => {});
+    showToast('🎵 ボーカル除去完了！');
+  } catch(e) { showToast('ボーカル除去に失敗しました'); }
+}
+
+// ============================================================
+// AI VOICE CLONE (server-side RVC)
+// ============================================================
+let voiceCloneEnabled = false;
+let voiceCloneTarget = 'default';
+
+function toggleVoiceClone() {
+  if (!serverFeatures.voice_clone) {
+    showToast('⏳ ボイスクローンは準備中（GPUサーバー必要）');
+    return;
+  }
+  voiceCloneEnabled = !voiceCloneEnabled;
+  document.getElementById('btn-voice-clone')?.classList.toggle('on', voiceCloneEnabled);
+  showToast(voiceCloneEnabled ? '🎭 ボイスクローン ON' : 'ボイスクローン OFF');
+}
+
+// ============================================================
+// AI HARMONIZER (server-side pitch shift + blend)
+// ============================================================
+let harmonizeEnabled = false;
+
+function toggleHarmonize() {
+  if (!serverFeatures.harmonize) {
+    showToast('⏳ ハーモニーは準備中（GPUサーバー必要）');
+    return;
+  }
+  harmonizeEnabled = !harmonizeEnabled;
+  document.getElementById('btn-harmonize')?.classList.toggle('on', harmonizeEnabled);
+  showToast(harmonizeEnabled ? '🎶 AIハーモニー ON（3度+5度）' : 'ハーモニー OFF');
+}
+
+// ============================================================
+// AI VOICE TRANSLATION (preserve voice, change language)
+// ============================================================
+let voiceTranslateEnabled = false;
+let voiceTranslateLang = 'en';
+
+function toggleVoiceTranslate() {
+  if (!serverFeatures.translate_voice) {
+    showToast('⏳ 音声翻訳は準備中（GPUサーバー必要）');
+    return;
+  }
+  voiceTranslateEnabled = !voiceTranslateEnabled;
+  document.getElementById('btn-voice-translate')?.classList.toggle('on', voiceTranslateEnabled);
+  showToast(voiceTranslateEnabled
+    ? `🌐 音声翻訳 ON → ${voiceTranslateLang.toUpperCase()}（あなたの声で翻訳）`
+    : '音声翻訳 OFF');
+}
+
+// ============================================================
+// AI MUSIC GENERATION (describe → backing track)
+// ============================================================
+async function generateMusic(prompt) {
+  if (!serverFeatures.generate_music) {
+    showToast('⏳ AI作曲は準備中（GPUサーバー必要）');
+    return;
+  }
+  showToast('🎼 AI作曲中...');
+  try {
+    const result = await fetch('/api/v1/ai/generate-music', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, bpm: detectedBPM || 120 }),
+    });
+    if (!result.ok) throw new Error('GPU error');
+    const blob = await result.blob();
+    const url = URL.createObjectURL(blob);
+    if (musicAudio) {
+      musicAudio.src = url;
+      musicAudio.play().catch(() => {});
+      showToast('🎼 AI曲生成完了！');
+    }
+  } catch(e) { showToast('AI作曲に失敗しました'); }
 }
 
 // ============================================================
