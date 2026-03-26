@@ -119,6 +119,8 @@ async fn main() {
             post(handle_firmware_upload)
                 .layer(DefaultBodyLimit::max(8 * 1024 * 1024)),
         )
+        .route("/api/translate",  post(handle_translate))
+        .route("/api/summarize",  post(handle_summarize))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
@@ -503,6 +505,77 @@ async fn handle_firmware_upload(
 
     info!("OTA: uploaded v{} ({} bytes)", version, body.len());
     (StatusCode::OK, format!("v{} ({} bytes) uploaded", version, body.len())).into_response()
+}
+
+// ---- AI API Proxy (Groq) ----
+
+#[derive(Deserialize)]
+struct TranslateReq { text: String, target: String }
+
+async fn handle_translate(
+    axum::Json(req): axum::Json<TranslateReq>,
+) -> impl IntoResponse {
+    let groq_key = std::env::var("GROQ_API_KEY").unwrap_or_default();
+    if groq_key.is_empty() {
+        return (StatusCode::SERVICE_UNAVAILABLE, axum::Json(json!({"error":"GROQ_API_KEY not set"}))).into_response();
+    }
+    let lang_name = match req.target.as_str() {
+        "en" => "English", "zh" => "Chinese", "ko" => "Korean",
+        "es" => "Spanish", "ja" => "Japanese", _ => "English",
+    };
+    let prompt = format!(
+        "Translate the following to {}. Output ONLY the translation, no explanation:\n{}",
+        lang_name, req.text
+    );
+    match call_groq(&groq_key, &prompt, 256).await {
+        Ok(t) => (StatusCode::OK, axum::Json(json!({"translation": t}))).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": e}))).into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct SummarizeReq { transcript: String }
+
+async fn handle_summarize(
+    axum::Json(req): axum::Json<SummarizeReq>,
+) -> impl IntoResponse {
+    let groq_key = std::env::var("GROQ_API_KEY").unwrap_or_default();
+    if groq_key.is_empty() {
+        return (StatusCode::SERVICE_UNAVAILABLE, axum::Json(json!({"error":"GROQ_API_KEY not set"}))).into_response();
+    }
+    let truncated = &req.transcript[..req.transcript.len().min(8000)];
+    let prompt = format!(
+        "以下の会話トランスクリプトから日本語で議事録を作成してください。\
+         フォーマット: 参加者、主要な議題、決定事項、アクションアイテムを箇条書きで。\n\n{}",
+        truncated
+    );
+    match call_groq(&groq_key, &prompt, 1024).await {
+        Ok(s) => (StatusCode::OK, axum::Json(json!({"summary": s}))).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": e}))).into_response(),
+    }
+}
+
+async fn call_groq(api_key: &str, prompt: &str, max_tokens: u32) -> Result<String, String> {
+    let client = reqwest::Client::new();
+    let body = json!({
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role":"user","content":prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0.3
+    });
+    let resp = client
+        .post("https://api.groq.com/openai/v1/chat/completions")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let j: serde_json::Value = resp.json().await.map_err(|e| e.to_string())?;
+    j["choices"][0]["message"]["content"]
+        .as_str()
+        .map(|s| s.trim().to_string())
+        .ok_or_else(|| format!("unexpected groq response: {}", j))
 }
 
 // ---- Helpers ----

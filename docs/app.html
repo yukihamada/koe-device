@@ -30,7 +30,7 @@
 html, body {
   height:100%; background:var(--bg); color:var(--text);
   font-family:-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
-  overflow-x:hidden;
+  overflow:hidden;
 }
 
 /* ===================== ANIMATIONS ===================== */
@@ -49,10 +49,6 @@ html, body {
   70%  { box-shadow: 0 0 0 22px rgba(244,63,94,0); }
   100% { box-shadow: 0 0 0 0 rgba(244,63,94,0); }
 }
-@keyframes waveform {
-  0%, 100% { height: 4px; }
-  50%       { height: 20px; }
-}
 @keyframes glow-breathe {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50%       { opacity: 1;   transform: scale(1.05); }
@@ -68,6 +64,24 @@ html, body {
   0%   { transform:scale(0.6); opacity:0.5; }
   100% { transform:scale(1.8); opacity:0; }
 }
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes blob-float {
+  0%,100% { transform:translate(0,0) scale(1); }
+  33%      { transform:translate(20px,-20px) scale(1.05); }
+  66%      { transform:translate(-15px,15px) scale(0.95); }
+}
+@keyframes orb-pulse {
+  0%,100% { transform:scale(1); }
+  50%      { transform:scale(1.08); }
+}
+@keyframes subtitle-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes mic-pulse {
+  0%,100%{ box-shadow:0 4px 24px rgba(139,92,246,0.5); }
+  50%    { box-shadow:0 4px 40px rgba(139,92,246,0.9), 0 0 0 12px rgba(139,92,246,0.1); }
+}
 @keyframes bar1 { 0%,100%{height:4px} 50%{height:14px} }
 @keyframes bar2 { 0%,100%{height:6px} 50%{height:20px} }
 @keyframes bar3 { 0%,100%{height:8px} 50%{height:16px} }
@@ -76,10 +90,6 @@ html, body {
 @keyframes bar6 { 0%,100%{height:5px} 50%{height:12px} }
 @keyframes bar7 { 0%,100%{height:9px} 50%{height:17px} }
 @keyframes bar8 { 0%,100%{height:3px} 50%{height:15px} }
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
 
 /* ===================== SPLASH ===================== */
 #splash {
@@ -102,25 +112,18 @@ html, body {
 .splash-ring:nth-child(2) { width:320px; height:320px; animation-delay:0.7s; }
 .splash-ring:nth-child(3) { width:460px; height:460px; animation-delay:1.4s; }
 .splash-ring:nth-child(4) { width:600px; height:600px; animation-delay:2.1s; }
-
 .splash-logo-wrap {
   position:relative; display:flex; flex-direction:column; align-items:center;
   animation:glow-breathe 3s ease-in-out infinite;
 }
-.splash-icon {
-  font-size:4.5rem; margin-bottom:20px;
-  filter:drop-shadow(0 0 24px rgba(139,92,246,0.8));
-}
+.splash-icon { font-size:4.5rem; margin-bottom:20px; filter:drop-shadow(0 0 24px rgba(139,92,246,0.8)); }
 #splash h1 {
   font-size:3.2rem; font-weight:800; letter-spacing:-0.03em;
   background:linear-gradient(135deg,#c4b5fd,#22d3ee,#a78bfa);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  background-clip:text;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   margin-bottom:10px;
 }
-#splash .splash-sub {
-  color:var(--muted); margin-bottom:44px; font-size:0.95rem; letter-spacing:0.02em;
-}
+#splash .splash-sub { color:var(--muted); margin-bottom:44px; font-size:0.95rem; letter-spacing:0.02em; }
 .btn-primary {
   background:linear-gradient(135deg,#8b5cf6,#06b6d4);
   color:#fff; border:none; border-radius:50px;
@@ -128,303 +131,181 @@ html, body {
   cursor:pointer;
   box-shadow:0 0 0 0 rgba(139,92,246,0.5), 0 8px 32px rgba(139,92,246,0.4);
   transition:transform 0.15s, box-shadow 0.15s;
-  -webkit-appearance:none;
-  position:relative; overflow:hidden;
+  -webkit-appearance:none; position:relative; overflow:hidden;
 }
 .btn-primary::after {
   content:''; position:absolute; inset:0;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-  background-size:200% 100%;
-  animation:shimmer 2.5s infinite;
+  background-size:200% 100%; animation:shimmer 2.5s infinite;
 }
-.btn-primary:hover  { box-shadow:0 0 0 0 rgba(139,92,246,0), 0 12px 40px rgba(139,92,246,0.6); }
 .btn-primary:active { transform:scale(0.95); opacity:0.9; }
-#splash .splash-hint {
-  color:var(--muted); font-size:0.78rem; margin-top:18px; opacity:0.7;
+#splash .splash-hint { color:var(--muted); font-size:0.78rem; margin-top:18px; opacity:0.7; }
+
+/* ===================== AMBIENT BACKGROUND ===================== */
+#ambient-bg {
+  position:fixed; inset:0; z-index:0;
+  background: radial-gradient(ellipse at 30% 40%, rgba(139,92,246,0.25) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 60%, rgba(6,182,212,0.2) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 90%, rgba(236,72,153,0.15) 0%, transparent 50%),
+              #050508;
+}
+.blob {
+  position:absolute; border-radius:50%; filter:blur(80px); opacity:0.6;
+  animation:blob-float 8s ease-in-out infinite;
+}
+.blob1 { width:300px;height:300px;background:rgba(139,92,246,0.3);top:-50px;left:-50px;animation-delay:0s; }
+.blob2 { width:250px;height:250px;background:rgba(6,182,212,0.25);bottom:100px;right:-30px;animation-delay:-3s; }
+.blob3 { width:200px;height:200px;background:rgba(236,72,153,0.2);top:40%;left:40%;animation-delay:-5s; }
+
+/* ===================== MAIN APP ===================== */
+#app {
+  position:fixed; inset:0;
+  display:none; flex-direction:column;
+  background:#050508; overflow:hidden;
+}
+#app.visible { display:flex; }
+
+/* ===================== TOP BAR ===================== */
+#top-bar {
+  position:relative; z-index:10;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:max(16px,env(safe-area-inset-top)) 20px 12px;
+  background:linear-gradient(to bottom, rgba(5,5,8,0.9), transparent);
+}
+#room-info { display:flex; align-items:center; gap:8px; }
+#room-name-top { font-size:1.1rem; font-weight:700; color:#fff; }
+#room-dot { width:6px;height:6px;border-radius:50%;background:var(--muted);transition:background 0.3s; }
+#room-dot.online { background:var(--green); box-shadow:0 0 6px var(--green); }
+#status-text-top { font-size:0.78rem; color:var(--muted); }
+#top-bar button {
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+  color:#fff; border-radius:20px; padding:6px 14px; font-size:0.78rem; cursor:pointer;
+  backdrop-filter:blur(10px); transition:all 0.2s;
+}
+#top-bar button:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
+
+/* ===================== VOICE ROOM ===================== */
+#voice-room {
+  flex:1; display:flex; flex-direction:column;
+  position:relative; z-index:1; overflow:hidden;
+  min-height:0;
 }
 
-/* ===================== HEADER ===================== */
-header {
-  background:rgba(5,5,8,0.88); backdrop-filter:blur(24px) saturate(1.8);
-  border-bottom:1px solid var(--border);
-  padding:14px 18px; display:flex; align-items:center; gap:12px;
-  position:sticky; top:0; z-index:100;
+/* ===================== ORB STAGE ===================== */
+#orb-stage {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:24px; padding:20px; position:relative; z-index:1;
+  min-height:0;
+  /* allow viz canvas to be absolutely positioned within */
 }
-.logo {
-  font-size:1.6rem; font-weight:800; letter-spacing:-0.02em;
-  background:linear-gradient(135deg,#c4b5fd,#22d3ee);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  background-clip:text;
+#orb-stage .orb { position:relative; z-index:2; }
+.orb {
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  cursor:default; transition:all 0.3s;
 }
-.status-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
-.status-dot.online { background:var(--green); box-shadow:0 0 10px var(--green); }
-.status-text { font-size:0.82rem; color:var(--muted); }
-header .right { margin-left:auto; display:flex; gap:8px; align-items:center; }
-
-/* ===================== TABS ===================== */
-.tabs {
-  display:flex; background:var(--surface);
-  border-bottom:1px solid var(--border);
-  overflow-x:auto; -webkit-overflow-scrolling:touch;
-}
-.tab {
-  flex:1; min-width:72px; padding:14px 6px; text-align:center;
-  font-size:0.78rem; color:var(--muted); cursor:pointer;
-  border-bottom:2px solid transparent; transition:all 0.25s;
-  white-space:nowrap; position:relative;
-}
-.tab .tab-icon { font-size:1.1rem; display:block; margin-bottom:3px; }
-.tab.active { color:var(--text); }
-.tab.active::after {
-  content:''; position:absolute; bottom:-1px; left:20%; right:20%;
-  height:2px; border-radius:2px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  box-shadow:var(--glow-cyan);
-}
-
-/* ===================== MAIN CONTENT ===================== */
-main { max-width:600px; margin:0 auto; padding:18px 16px; padding-bottom:110px; }
-.panel { display:none; }
-.panel.active { display:block; }
-
-/* ===================== VOICE ROOM CARD ===================== */
-.room-card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:var(--r); padding:20px; margin-bottom:16px;
-  box-shadow:0 2px 20px rgba(0,0,0,0.4);
-}
-.room-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-.room-icon {
-  width:48px; height:48px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center; font-size:1.5rem;
-  box-shadow:var(--glow-purple);
-}
-
-/* ===================== PARTICIPANTS ===================== */
-.participants {
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr));
-  gap:12px; margin-bottom:20px;
-}
-.participant {
-  display:flex; flex-direction:column; align-items:center; gap:6px;
-  padding:14px 8px; border-radius:16px; background:var(--surface);
-  border:1px solid var(--border); transition:all 0.25s;
+.orb-circle {
+  width:80px; height:80px; border-radius:50%;
+  background:linear-gradient(135deg, #8b5cf6, #06b6d4);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem;
+  box-shadow: 0 0 0 0 rgba(139,92,246,0.5);
+  transition:box-shadow 0.1s, transform 0.1s;
   position:relative;
 }
-.participant.speaking {
-  border-color:rgba(139,92,246,0.6);
-  background:rgba(139,92,246,0.06);
+.orb-circle::before {
+  content:''; position:absolute; inset:-4px; border-radius:50%;
+  border:1.5px solid rgba(139,92,246,0.3);
 }
-.participant.speaking::before {
-  content:''; position:absolute; inset:-3px; border-radius:19px;
-  background:transparent; border:2px solid rgba(139,92,246,0.5);
-  animation:pulse-border 1.2s ease-in-out infinite;
+.orb.speaking .orb-circle {
+  animation:orb-pulse 0.8s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(139,92,246,0.6), 0 0 60px rgba(139,92,246,0.3);
 }
-.participant.speaking::after {
-  content:''; position:absolute; inset:-6px; border-radius:22px;
-  background:transparent; border:1px solid rgba(139,92,246,0.2);
-  animation:pulse-border 1.2s ease-in-out infinite 0.3s;
+.orb-name { font-size:0.82rem; color:rgba(255,255,255,0.7); letter-spacing:0.03em; }
+.orb-caption { font-size:0.72rem; color:rgba(139,92,246,0.9); max-width:120px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:1em; }
+.orb.local .orb-circle {
+  background:linear-gradient(135deg, #06b6d4, #8b5cf6);
+  width:96px; height:96px; font-size:2.4rem;
 }
-.participant-avatar {
-  width:56px; height:56px; border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex; align-items:center; justify-content:center; font-size:1.4rem;
-  box-shadow:0 4px 16px rgba(139,92,246,0.3);
-  transition:box-shadow 0.3s;
-}
-.participant.speaking .participant-avatar {
-  box-shadow:0 0 0 3px rgba(139,92,246,0.5), 0 4px 20px rgba(139,92,246,0.5);
-  animation:sonic-pulse 1.5s ease-out infinite;
-}
-.participant-name {
-  font-size:0.72rem; color:var(--muted); text-align:center;
-  max-width:76px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-.participant.speaking .participant-name { color:var(--text); }
-.participant-speaking-label {
-  font-size:0.62rem; color:var(--accent); display:none;
-}
-.participant.speaking .participant-speaking-label { display:block; }
 
-/* ===================== VOLUME METER — SPECTRUM ===================== */
-.vol-wrap { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-.vol-label { font-size:0.8rem; color:var(--muted); min-width:28px; }
-.vol-spectrum {
-  flex:1; height:28px; display:flex; align-items:flex-end; gap:3px;
-  padding:0 4px; background:rgba(255,255,255,0.02);
-  border-radius:8px; border:1px solid var(--border); overflow:hidden;
+/* ===================== SUBTITLE STRIP ===================== */
+#subtitle-strip {
+  position:relative; z-index:2;
+  padding:8px 20px 4px; min-height:64px;
 }
-.vol-bar-seg {
-  flex:1; border-radius:3px 3px 0 0;
-  background:linear-gradient(to top, var(--green), #a3e635);
-  height:4px; transition:height 0.05s ease;
-  box-shadow:0 0 6px rgba(16,185,129,0.4);
+#subtitle-lines { display:flex; flex-direction:column; gap:6px; }
+.subtitle-line {
+  display:flex; align-items:flex-start; gap:8px;
+  animation:subtitle-in 0.3s ease;
 }
-/* Legacy vol-bar / vol-fill for JS compatibility */
-.vol-bar { display:none; }
-.vol-fill { display:none; }
+.subtitle-speaker { font-size:0.72rem; font-weight:700; color:var(--accent); min-width:40px; padding-top:2px; }
+.subtitle-text { font-size:0.88rem; color:rgba(255,255,255,0.9); line-height:1.4; }
+.subtitle-text.interim { color:rgba(255,255,255,0.5); font-style:italic; }
+.subtitle-translated { font-size:0.75rem; color:rgba(6,182,212,0.8); margin-top:2px; }
 
-/* ===================== MIC CONTROLS ===================== */
-.controls { display:flex; align-items:center; justify-content:center; gap:20px; padding:18px 0 8px; }
-.ctrl-btn {
-  width:62px; height:62px; border-radius:50%; border:none;
+/* ===================== BOTTOM BAR ===================== */
+#bottom-bar {
+  position:relative; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px max(24px,env(safe-area-inset-bottom));
+  background:linear-gradient(to top, rgba(5,5,8,0.95), transparent);
+  gap:12px;
+}
+#bottom-left, #bottom-right { display:flex; gap:10px; align-items:center; }
+#bottom-bar button {
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+  color:#fff; border-radius:20px; padding:8px 16px; font-size:0.8rem; cursor:pointer;
+  backdrop-filter:blur(10px); transition:all 0.2s; white-space:nowrap;
+  -webkit-appearance:none;
+}
+#bottom-bar button:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
+#btn-mic-main {
+  width:64px; height:64px; border-radius:50%; font-size:1.6rem;
+  background:linear-gradient(135deg,#8b5cf6,#06b6d4) !important;
+  border:none !important; box-shadow:0 4px 24px rgba(139,92,246,0.5);
   display:flex; align-items:center; justify-content:center;
-  font-size:1.5rem; cursor:pointer; transition:all 0.18s;
-  -webkit-appearance:none; position:relative;
+  transition:all 0.2s !important; flex-shrink:0;
 }
-.ctrl-btn:active { transform:scale(0.88); }
-.btn-mic {
-  background:linear-gradient(135deg,#10b981,#059669);
-  color:#fff;
-  box-shadow:0 4px 20px rgba(16,185,129,0.5), var(--glow-green);
+#btn-mic-main.muted { background:linear-gradient(135deg,#ef4444,#f97316) !important; box-shadow:0 4px 24px rgba(239,68,68,0.4); }
+#btn-mic-main.active { animation:mic-pulse 1.5s ease infinite; }
+#btn-translate-toggle.on { border-color:rgba(6,182,212,0.5) !important; color:var(--accent2) !important; }
+
+/* ===================== TRANSCRIPT DRAWER ===================== */
+#transcript-drawer {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(13,13,21,0.97); backdrop-filter:blur(30px);
+  border-top:1px solid rgba(139,92,246,0.2);
+  border-radius:24px 24px 0 0;
+  height:60vh; display:flex; flex-direction:column;
+  transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);
+  z-index:200;
 }
-.btn-mic:not(.muted) { animation:sonic-pulse-green 2s ease-out infinite; }
-.btn-mic.muted {
-  background:linear-gradient(135deg,#f43f5e,#be123c);
-  box-shadow:0 4px 20px rgba(244,63,94,0.5);
-  animation:sonic-pulse-red 2s ease-out infinite;
+#transcript-drawer.open { transform:translateY(0); }
+#drawer-handle { text-align:center; padding:12px; color:rgba(255,255,255,0.3); cursor:pointer; font-size:0.7rem; letter-spacing:4px; }
+#drawer-header { display:flex;justify-content:space-between;align-items:center;padding:0 20px 12px; }
+#drawer-header span { font-weight:700; }
+#drawer-header button {
+  background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3);
+  color:#fff; border-radius:20px; padding:6px 16px; font-size:0.78rem; cursor:pointer;
+  -webkit-appearance:none;
 }
-.btn-leave {
-  background:linear-gradient(135deg,#f43f5e,#be123c);
-  color:#fff;
-  box-shadow:0 4px 20px rgba(244,63,94,0.4);
-}
-.btn-share {
-  background:var(--card); border:1px solid var(--border); color:var(--text);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3);
+#transcript-list { overflow-y:auto; flex:1; padding:0 20px; }
+.transcript-entry { padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; }
+.transcript-entry .entry-speaker { font-size:0.72rem; font-weight:600; color:var(--accent); margin-bottom:3px; }
+.transcript-entry .entry-text { color:rgba(255,255,255,0.85); line-height:1.5; }
+.transcript-entry .entry-translation { color:rgba(6,182,212,0.7); font-size:0.78rem; margin-top:3px; }
+#minutes-output { display:none; padding:20px; background:rgba(139,92,246,0.1); margin:12px; border-radius:12px; font-size:0.85rem; }
+#minutes-output h4 { color:var(--accent); margin-bottom:8px; }
+#minutes-output .minutes-copy-btn {
+  background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3);
+  color:#fff; border-radius:20px; padding:6px 16px; font-size:0.78rem; cursor:pointer;
+  margin-top:12px; -webkit-appearance:none;
 }
 
-/* ===================== MUSIC PLAYER ===================== */
-.music-card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:var(--r); overflow:hidden; margin-bottom:16px;
-  box-shadow:0 4px 40px rgba(0,0,0,0.5);
-}
-.music-art {
-  height:220px;
-  background:linear-gradient(135deg,#1a0a2e,#0f172a,#0c2340);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  font-size:4rem; position:relative; overflow:hidden; gap:16px;
-}
-.music-art::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.18) 0%, transparent 70%);
-}
-.music-art.playing::before {
-  background:radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.35) 0%, transparent 70%);
-  animation:glow-pulse 2.5s ease-in-out infinite;
-}
-.vinyl {
-  width:130px; height:130px; border-radius:50%;
-  background:conic-gradient(from 0deg, #1a0a2e 0%, #2d1b5a 20%, #0f3460 45%, #533483 70%, #1a0a2e 100%);
-  animation:spin 6s linear infinite paused;
-  box-shadow:0 0 50px rgba(139,92,246,0.6), inset 0 0 20px rgba(0,0,0,0.6);
-  display:flex; align-items:center; justify-content:center;
-  font-size:2.2rem; z-index:1; position:relative;
-}
-.vinyl::after {
-  content:''; position:absolute; width:18px; height:18px; border-radius:50%;
-  background:var(--bg); border:3px solid rgba(139,92,246,0.5);
-}
-.vinyl.spinning { animation-play-state:running; }
-
-/* Pseudo-waveform visualizer */
-.music-waveform {
-  display:flex; align-items:center; gap:3px; height:24px; z-index:1;
-}
-.wv-bar {
-  width:3px; border-radius:2px;
-  background:linear-gradient(to top, var(--accent), var(--accent2));
-  height:4px; opacity:0.6;
-}
-.music-art.playing .wv-bar:nth-child(1) { animation:bar1 0.9s ease-in-out infinite; }
-.music-art.playing .wv-bar:nth-child(2) { animation:bar2 1.1s ease-in-out infinite 0.1s; }
-.music-art.playing .wv-bar:nth-child(3) { animation:bar3 0.8s ease-in-out infinite 0.05s; }
-.music-art.playing .wv-bar:nth-child(4) { animation:bar4 1.3s ease-in-out infinite 0.2s; }
-.music-art.playing .wv-bar:nth-child(5) { animation:bar5 0.7s ease-in-out infinite 0.15s; }
-.music-art.playing .wv-bar:nth-child(6) { animation:bar6 1.0s ease-in-out infinite 0.08s; }
-.music-art.playing .wv-bar:nth-child(7) { animation:bar7 1.2s ease-in-out infinite 0.25s; }
-.music-art.playing .wv-bar:nth-child(8) { animation:bar8 0.95s ease-in-out infinite 0.18s; }
-
-.music-info { padding:18px; }
-.music-title { font-size:1.1rem; font-weight:700; letter-spacing:-0.01em; margin-bottom:4px; }
-.music-artist { font-size:0.85rem; color:var(--muted); margin-bottom:20px; }
-.music-progress { margin-bottom:18px; }
-.progress-bar {
-  width:100%; height:5px;
-  background:var(--border); border-radius:3px; cursor:pointer; position:relative;
-}
-.progress-fill {
-  height:100%; border-radius:3px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  pointer-events:none; transition:width 0.1s;
-  box-shadow:0 0 8px rgba(139,92,246,0.5);
-}
-.music-time {
-  display:flex; justify-content:space-between;
-  font-size:0.72rem; color:var(--muted); margin-top:8px;
-}
-.music-controls { display:flex; align-items:center; justify-content:center; gap:24px; }
-.play-btn {
-  width:62px; height:62px; border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none; color:#fff; font-size:1.4rem; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 24px rgba(139,92,246,0.5), var(--glow-purple);
-  transition:all 0.18s;
-}
-.play-btn:active { transform:scale(0.9); box-shadow:none; }
-.skip-btn {
-  background:rgba(255,255,255,0.05); border:1px solid var(--border);
-  color:var(--muted); font-size:1.2rem; cursor:pointer;
-  padding:10px 14px; border-radius:50%; transition:all 0.18s;
-}
-.skip-btn:hover { color:var(--text); background:rgba(255,255,255,0.08); }
-
-/* ===================== CHANNEL LIST ===================== */
-.channel-list { margin-bottom:16px; }
-.channel-item {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:14px; padding:16px; margin-bottom:10px;
-  display:flex; align-items:center; gap:12px;
-  cursor:pointer; transition:all 0.22s;
-}
-.channel-item:active { border-color:var(--accent2); transform:scale(0.99); }
-.channel-item.active-ch {
-  border-color:rgba(6,182,212,0.5);
-  background:rgba(6,182,212,0.07);
-  box-shadow:inset 0 0 0 1px rgba(6,182,212,0.2), var(--glow-cyan);
-}
-.ch-icon { font-size:1.6rem; }
-.ch-info { flex:1; }
-.ch-name { font-weight:600; margin-bottom:2px; font-size:0.95rem; }
-.ch-meta { font-size:0.78rem; color:var(--muted); }
-.ch-users {
-  background:var(--border); border-radius:20px;
-  padding:3px 12px; font-size:0.72rem; color:var(--muted);
-}
-
-/* ===================== DEVICE LIST ===================== */
-.device-item {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:14px; padding:14px 16px; margin-bottom:10px;
-  display:flex; align-items:center; gap:12px;
-  transition:border-color 0.2s;
-}
-.device-status { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-.device-status.online  { background:var(--green); box-shadow:0 0 8px var(--green); animation:sonic-pulse-green 2.5s infinite; }
-.device-status.offline { background:var(--muted); }
-.device-name  { font-weight:600; font-size:0.9rem; }
-.device-meta  { font-size:0.75rem; color:var(--muted); }
-.device-level { flex:1; }
-.level-mini   { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
-.level-mini-fill { height:100%; background:linear-gradient(90deg,var(--green),#a3e635); border-radius:2px; transition:width 0.1s; }
-
-/* ===================== QR MODAL ===================== */
+/* ===================== MODAL (QR / SPATIAL) ===================== */
 .modal {
   display:none; position:fixed; inset:0;
   background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
-  z-index:200; align-items:center; justify-content:center;
+  z-index:300; align-items:center; justify-content:center;
 }
 .modal.show { display:flex; }
 .modal-card {
@@ -443,63 +324,7 @@ main { max-width:600px; margin:0 auto; padding:18px 16px; padding-bottom:110px; 
 }
 .modal-close:hover { border-color:var(--accent); color:var(--accent); }
 
-/* ===================== INPUT ===================== */
-.input-row { display:flex; gap:8px; margin-bottom:16px; }
-.text-input {
-  flex:1; background:var(--surface); border:1px solid var(--border);
-  border-radius:50px; padding:13px 20px; color:var(--text);
-  font-size:0.95rem; outline:none; -webkit-appearance:none;
-  transition:border-color 0.2s, box-shadow 0.2s;
-}
-.text-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(139,92,246,0.15); }
-.btn-sm { padding:13px 22px; border-radius:50px; border:none; cursor:pointer; font-size:0.9rem; font-weight:600; -webkit-appearance:none; transition:all 0.18s; }
-.btn-accent  { background:linear-gradient(135deg,var(--accent),#7c3aed); color:#fff; box-shadow:0 2px 16px rgba(139,92,246,0.4); }
-.btn-accent2 { background:linear-gradient(135deg,var(--accent2),#0891b2); color:#000; box-shadow:0 2px 16px rgba(6,182,212,0.35); }
-
-/* ===================== TOAST ===================== */
-.toast {
-  position:fixed; bottom:108px; left:50%; transform:translateX(-50%) translateY(16px);
-  background:rgba(30,30,50,0.95); backdrop-filter:blur(12px);
-  border:1px solid rgba(139,92,246,0.3); border-radius:50px;
-  padding:10px 28px; font-size:0.84rem; opacity:0;
-  transition:all 0.3s ease; z-index:500; pointer-events:none; white-space:nowrap;
-  box-shadow:0 4px 24px rgba(0,0,0,0.4);
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ===================== BOTTOM NAV ===================== */
-.bottom-nav {
-  position:fixed; bottom:0; left:0; right:0;
-  background:rgba(5,5,8,0.95); backdrop-filter:blur(24px) saturate(1.8);
-  border-top:1px solid var(--border);
-  display:flex; padding:10px 0 max(10px, env(safe-area-inset-bottom));
-  z-index:100;
-}
-.nav-item {
-  flex:1; display:flex; flex-direction:column; align-items:center;
-  gap:3px; padding:4px 2px; cursor:pointer; position:relative;
-  transition:all 0.2s;
-}
-.nav-icon  { font-size:1.4rem; transition:transform 0.2s; }
-.nav-label { font-size:0.63rem; color:var(--muted); transition:color 0.2s; }
-.nav-item.active .nav-icon  { transform:scale(1.1); }
-.nav-item.active .nav-label { color:var(--accent2); }
-.nav-item.active::after {
-  content:''; position:absolute; bottom:-10px; left:30%; right:30%;
-  height:2px; border-radius:2px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  box-shadow:var(--glow-cyan); opacity:0.8;
-}
-
-/* ===================== CONNECTION QUALITY ===================== */
-.conn-quality { display:flex; gap:2px; align-items:flex-end; }
-.conn-bar { width:4px; background:var(--border); border-radius:2px; transition:background 0.3s; }
-.conn-bar:nth-child(1) { height:8px; }
-.conn-bar:nth-child(2) { height:12px; }
-.conn-bar:nth-child(3) { height:16px; }
-.conn-bar.active { background:var(--green); box-shadow:0 0 4px var(--green); }
-
-/* ===================== SPATIAL AUDIO SLIDERS ===================== */
+/* ===================== RANGE SLIDERS ===================== */
 input[type=range] {
   -webkit-appearance:none; appearance:none;
   width:100%; height:4px; border-radius:2px; outline:none;
@@ -513,12 +338,87 @@ input[type=range]::-webkit-slider-thumb {
   cursor:pointer; transition:transform 0.15s;
 }
 input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
-input[type=range]::-moz-range-thumb {
-  width:18px; height:18px; border-radius:50%; border:none;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  box-shadow:0 0 10px rgba(139,92,246,0.6);
-  cursor:pointer;
+
+/* ===================== TOAST ===================== */
+.toast {
+  position:fixed; bottom:108px; left:50%; transform:translateX(-50%) translateY(16px);
+  background:rgba(30,30,50,0.95); backdrop-filter:blur(12px);
+  border:1px solid rgba(139,92,246,0.3); border-radius:50px;
+  padding:10px 28px; font-size:0.84rem; opacity:0;
+  transition:all 0.3s ease; z-index:500; pointer-events:none; white-space:nowrap;
+  box-shadow:0 4px 24px rgba(0,0,0,0.4);
 }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ===================== VIZ CANVAS ===================== */
+#viz-wrap {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:0;
+}
+#viz-canvas { opacity:0.85; }
+
+/* ===================== LATENCY BADGE ===================== */
+#latency-badge {
+  font-size:0.7rem; color:var(--muted);
+  background:rgba(255,255,255,0.05); border-radius:8px;
+  padding:2px 8px; letter-spacing:0.02em;
+}
+#latency-badge.good { color:var(--green); }
+#latency-badge.mid  { color:var(--gold); }
+#latency-badge.bad  { color:var(--red); }
+
+/* ===================== KARAOKE PANEL ===================== */
+#karaoke-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:rgba(10,10,18,0.98); backdrop-filter:blur(30px);
+  border-top:1px solid rgba(139,92,246,0.25);
+  border-radius:28px 28px 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; gap:14px;
+  flex-direction:column;
+}
+#karaoke-panel.show { display:flex; }
+#karaoke-panel h3 { font-size:1rem; font-weight:700; margin-bottom:4px; }
+.karaoke-roles { display:flex; gap:10px; }
+.karaoke-role-btn {
+  flex:1; padding:14px 10px; border-radius:16px;
+  border:1.5px solid var(--border); background:var(--surface);
+  color:var(--text); cursor:pointer; font-size:0.85rem; font-weight:600;
+  text-align:center; transition:all 0.2s; -webkit-appearance:none;
+}
+.karaoke-role-btn.active {
+  border-color:var(--accent); background:rgba(139,92,246,0.2); color:#fff;
+  box-shadow: 0 0 20px rgba(139,92,246,0.3);
+}
+.karaoke-role-btn .role-icon { font-size:1.8rem; display:block; margin-bottom:6px; }
+.karaoke-role-btn .role-label { font-size:0.75rem; color:var(--muted); margin-top:2px; display:block; }
+#backing-track-area {
+  background:var(--surface); border-radius:14px; padding:14px; display:none;
+}
+#backing-track-area.show { display:block; }
+#backing-track-info { font-size:0.82rem; color:var(--muted); margin-bottom:10px; }
+.karaoke-ctrl { display:flex; gap:8px; align-items:center; }
+.karaoke-ctrl button {
+  background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.3);
+  color:#fff; border-radius:20px; padding:8px 18px;
+  font-size:0.82rem; cursor:pointer; -webkit-appearance:none; transition:all 0.2s;
+}
+.karaoke-ctrl button:active { transform:scale(0.95); }
+#karaoke-pitch-lbl { font-size:0.8rem; color:var(--muted); }
+#karaoke-close-btn {
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--muted); border-radius:20px; padding:10px;
+  font-size:0.82rem; cursor:pointer; -webkit-appearance:none; width:100%;
+}
+
+/* ===================== HIDDEN LEGACY ELEMENTS (keep for JS) ===================== */
+#participants, #local-participant, #vol-fill, #vol-db, #panel-voice,
+#panel-music, #panel-channels, #panel-devices, .bottom-nav, .tabs, header,
+#vol-spectrum, #stream-dot, #stream-status, #room-name, #room-id,
+#participant-count, #status-dot, #status-text, #conn-quality,
+#mode-toggle, #btn-mic, #playlist, #device-list, #device-count { display:none !important; }
 </style>
 </head>
 <body>
@@ -540,226 +440,112 @@ input[type=range]::-moz-range-thumb {
   </div>
 </div>
 
-<!-- HEADER -->
-<header>
-  <span class="logo">声</span>
-  <div>
-    <div style="display:flex; align-items:center; gap:6px;">
-      <div class="status-dot" id="status-dot"></div>
-      <span class="status-text" id="status-text">接続中...</span>
-    </div>
-  </div>
-  <div class="right">
-    <div class="conn-quality" id="conn-quality">
-      <div class="conn-bar active"></div>
-      <div class="conn-bar active"></div>
-      <div class="conn-bar"></div>
-    </div>
-    <button onclick="showSpatial()"
-      style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;">
-      🎧 空間</button>
-    <button id="mode-toggle" onclick="toggleAudioMode()"
-      style="background:var(--card); border:1px solid var(--border);
-             color:var(--text); padding:6px 12px; border-radius:20px;
-             font-size:0.75rem; cursor:pointer;">
-      🎙️ 会話
-    </button>
-    <button class="btn-sm btn-accent2" onclick="showQR()" style="padding:8px 14px; font-size:0.8rem;">共有</button>
-  </div>
-</header>
+<!-- MAIN APP -->
+<div id="app">
 
-<!-- TABS -->
-<div class="tabs">
-  <div class="tab active" data-tab="voice" onclick="switchTab('voice')"><span class="tab-icon">🎙️</span>音声</div>
-  <div class="tab" data-tab="music" onclick="switchTab('music')"><span class="tab-icon">🎵</span>音楽</div>
-  <div class="tab" data-tab="channels" onclick="switchTab('channels')"><span class="tab-icon">📡</span>チャンネル</div>
-  <div class="tab" data-tab="devices" onclick="switchTab('devices')"><span class="tab-icon">💡</span>デバイス</div>
+  <!-- AMBIENT BACKGROUND -->
+  <div id="ambient-bg">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div id="top-bar">
+    <div id="room-info">
+      <span id="room-name-top">Soluna</span>
+      <div id="room-dot"></div>
+      <span id="status-text-top">接続中...</span>
+      <span id="latency-badge">--ms</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="lang-toggle" onclick="cycleLang()">🌐 JA</button>
+      <button onclick="showSpatial()">🎧</button>
+      <button onclick="showQR()">⊕</button>
+    </div>
+  </div>
+
+  <!-- VOICE ROOM -->
+  <div id="voice-room">
+
+    <!-- AUDIO VISUALIZER -->
+    <div id="viz-wrap">
+      <canvas id="viz-canvas" width="300" height="300"></canvas>
+    </div>
+
+    <!-- PARTICIPANT ORBS -->
+    <div id="orb-stage">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- SUBTITLE STRIP -->
+    <div id="subtitle-strip">
+      <div id="subtitle-lines"></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div id="bottom-bar">
+    <div id="bottom-left">
+      <button id="btn-transcript" onclick="toggleTranscriptDrawer()">📝</button>
+      <button id="btn-translate-toggle" onclick="toggleAutoTranslate()">翻訳OFF</button>
+    </div>
+    <button id="btn-mic-main" onclick="toggleMic()">🎙️</button>
+    <div id="bottom-right">
+      <button onclick="toggleKaraokePanel()">🎤</button>
+      <button onclick="joinRoomPrompt()">＋</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- MAIN -->
-<main>
-
-  <!-- VOICE PANEL -->
-  <div class="panel active" id="panel-voice">
-    <div class="room-card">
-      <div class="room-header">
-        <div class="room-icon" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">🎙️</div>
-        <div>
-          <div style="font-weight:700;" id="room-name">Solunaルーム</div>
-          <div style="font-size:0.8rem; color:var(--muted);" id="room-id">room: soluna</div>
-        </div>
-        <div style="margin-left:auto;">
-          <span id="participant-count" style="background:var(--border); border-radius:20px; padding:4px 12px; font-size:0.8rem;">0人</span>
-        </div>
-      </div>
-
-      <!-- VOLUME METER -->
-      <div class="vol-wrap">
-        <span class="vol-label">🎙️</span>
-        <!-- Legacy elements kept for JS (hidden via CSS) -->
-        <div class="vol-bar"><div class="vol-fill" id="vol-fill"></div></div>
-        <!-- Spectrum visualizer -->
-        <div class="vol-spectrum" id="vol-spectrum">
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-          <div class="vol-bar-seg"></div>
-        </div>
-        <span id="vol-db" style="font-size:0.72rem; color:var(--muted); min-width:34px; text-align:right;">-∞</span>
-      </div>
-
-      <!-- PARTICIPANTS -->
-      <div class="participants" id="participants">
-        <div class="participant" id="local-participant">
-          <div class="participant-avatar">🙂</div>
-          <div class="participant-name" id="local-name">あなた</div>
-          <div class="participant-speaking-label">話し中...</div>
-        </div>
-      </div>
-
-      <!-- CONTROLS -->
-      <div class="controls">
-        <button class="ctrl-btn btn-share" onclick="showQR()">📤</button>
-        <button class="ctrl-btn btn-mic" id="btn-mic" onclick="toggleMic()">🎙️</button>
-        <button class="ctrl-btn btn-leave" onclick="leaveRoom()">📵</button>
-      </div>
-    </div>
-
-    <!-- JOIN ROOM -->
-    <div class="room-card">
-      <div style="font-weight:600; margin-bottom:12px;">ルームに参加</div>
-      <div class="input-row">
-        <input type="text" class="text-input" id="room-input" placeholder="ルームID または 名前" value="soluna">
-        <button class="btn-sm btn-accent" onclick="joinRoom()">参加</button>
-      </div>
-      <div style="font-size:0.8rem; color:var(--muted);">同じルーム名の人と直接つながります（P2P）</div>
+<!-- KARAOKE PANEL -->
+<div id="karaoke-panel">
+  <h3>🎤 カラオケモード</h3>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:2px;">このデバイスの役割を選択</p>
+  <div class="karaoke-roles">
+    <button class="karaoke-role-btn" id="role-mic" onclick="setKaraokeRole('mic')">
+      <span class="role-icon">📱</span>
+      マイク
+      <span class="role-label">iPhoneで歌う</span>
+    </button>
+    <button class="karaoke-role-btn" id="role-speaker" onclick="setKaraokeRole('speaker')">
+      <span class="role-icon">🖥️</span>
+      スピーカー
+      <span class="role-label">Macで再生</span>
+    </button>
+  </div>
+  <div id="backing-track-area">
+    <div id="backing-track-info">伴奏トラックを選択（MP3/WAV/M4A）</div>
+    <input type="file" id="backing-file" accept="audio/*" style="display:none" onchange="loadBackingTrack(this.files[0])">
+    <div class="karaoke-ctrl">
+      <button onclick="document.getElementById('backing-file').click()">📂 選択</button>
+      <button id="btn-backing-play" onclick="toggleBackingTrack()" disabled>▶ 再生</button>
+      <button onclick="adjustPitch(-1)">♭</button>
+      <button onclick="adjustPitch(+1)">♯</button>
+      <span id="karaoke-pitch-lbl">ピッチ ±0</span>
     </div>
   </div>
+  <button id="karaoke-close-btn" onclick="toggleKaraokePanel()">閉じる</button>
+</div>
 
-  <!-- MUSIC PANEL -->
-  <div class="panel" id="panel-music">
-    <div class="music-card">
-      <div class="music-art" id="music-art">
-        <div class="vinyl" id="vinyl">🌅</div>
-        <div class="music-waveform">
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-          <div class="wv-bar"></div>
-        </div>
-      </div>
-      <div class="music-info">
-        <div class="music-title" id="music-title">Dawn Frequency</div>
-        <div class="music-artist" id="music-artist">Soluna · koe.live</div>
-        <div class="music-progress">
-          <div class="progress-bar" id="progress-bar" onclick="seekMusic(event)">
-            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-          </div>
-          <div class="music-time">
-            <span id="time-current">0:00</span>
-            <span id="time-total">4:00</span>
-          </div>
-        </div>
-        <div class="music-controls">
-          <button class="skip-btn" onclick="prevTrack()">⏮</button>
-          <button class="play-btn" id="btn-play" onclick="togglePlay()">▶</button>
-          <button class="skip-btn" onclick="nextTrack()">⏭</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PLAYLIST -->
-    <div style="font-weight:600; margin-bottom:12px;">プレイリスト</div>
-    <div id="playlist"></div>
-
-    <!-- STREAM CHANNEL -->
-    <div class="room-card" style="margin-top:16px;">
-      <div style="font-weight:600; margin-bottom:8px;">ライブチャンネル</div>
-      <div style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">WebSocketで接続してSolunaデバイスと同期します</div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div class="status-dot" id="stream-dot"></div>
-        <span style="font-size:0.85rem;" id="stream-status">未接続</span>
-      </div>
-    </div>
+<!-- TRANSCRIPT DRAWER -->
+<div id="transcript-drawer">
+  <div id="drawer-handle" onclick="toggleTranscriptDrawer()">━━━</div>
+  <div id="drawer-header">
+    <span>📝 トランスクリプト</span>
+    <button onclick="generateMinutes()">議事録を生成</button>
   </div>
-
-  <!-- CHANNELS PANEL -->
-  <div class="panel" id="panel-channels">
-    <div style="font-weight:600; margin-bottom:12px;">利用可能なチャンネル</div>
-    <div class="channel-list" id="channel-list">
-      <div class="channel-item active-ch" onclick="joinChannel('soluna', this)">
-        <div class="ch-icon">🌙</div>
-        <div class="ch-info">
-          <div class="ch-name">Soluna</div>
-          <div class="ch-meta">P2P音楽同期チャンネル</div>
-        </div>
-        <span class="ch-users">接続中</span>
-      </div>
-      <div class="channel-item" onclick="joinChannel('voice', this)">
-        <div class="ch-icon">🎙️</div>
-        <div class="ch-info">
-          <div class="ch-name">Voice</div>
-          <div class="ch-meta">音声会話チャンネル</div>
-        </div>
-        <span class="ch-users" id="voice-count">0人</span>
-      </div>
-      <div class="channel-item" onclick="joinChannel('music', this)">
-        <div class="ch-icon">🎵</div>
-        <div class="ch-info">
-          <div class="ch-name">Music</div>
-          <div class="ch-meta">音楽ストリーミング</div>
-        </div>
-        <span class="ch-users" id="music-count">0人</span>
-      </div>
-      <div class="channel-item" onclick="joinChannel('ambient', this)">
-        <div class="ch-icon">🌊</div>
-        <div class="ch-info">
-          <div class="ch-name">Ambient</div>
-          <div class="ch-meta">環境音・BGM</div>
-        </div>
-        <span class="ch-users" id="ambient-count">0人</span>
-      </div>
-    </div>
-
-    <div class="room-card">
-      <div style="font-weight:600; margin-bottom:8px;">カスタムチャンネルを作成</div>
-      <div class="input-row">
-        <input type="text" class="text-input" id="ch-name-input" placeholder="チャンネル名">
-        <button class="btn-sm btn-accent2" onclick="createChannel()">作成</button>
-      </div>
-    </div>
+  <div id="transcript-list"></div>
+  <div id="minutes-output">
+    <h4>📋 議事録</h4>
+    <div id="minutes-text" style="white-space:pre-wrap;"></div>
+    <button class="minutes-copy-btn" onclick="copyMinutes()">コピー</button>
   </div>
+</div>
 
-  <!-- DEVICES PANEL -->
-  <div class="panel" id="panel-devices">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-      <div style="font-weight:600;">接続デバイス</div>
-      <span id="device-count" style="background:var(--border); border-radius:20px; padding:2px 12px; font-size:0.8rem;">0台</span>
-    </div>
-    <div id="device-list">
-      <div style="text-align:center; padding:40px; color:var(--muted);">
-        <div style="font-size:2rem; margin-bottom:8px;">📡</div>
-        <div>デバイスを検索中...</div>
-      </div>
-    </div>
-
-    <div class="room-card" style="margin-top:16px;">
-      <div style="font-weight:600; margin-bottom:8px;">デバイスをペアリング</div>
-      <div style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">Koeデバイスの電源を入れてWiFiに接続すると自動で表示されます</div>
-      <button class="btn-primary" style="width:100%; padding:12px;" onclick="scanDevices()">🔍 スキャン</button>
-    </div>
-  </div>
-</main>
-
-<!-- SPATIAL AUDIO SETTINGS MODAL -->
+<!-- SPATIAL AUDIO MODAL -->
 <div class="modal" id="spatial-modal" onclick="hideSpatial()">
   <div class="modal-card" onclick="event.stopPropagation()" style="max-width:360px; width:94%; text-align:left;">
     <h3 style="margin-bottom:4px;">🎧 空間音響エンジン</h3>
@@ -835,9 +621,35 @@ input[type=range]::-moz-range-thumb {
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- LEGACY HIDDEN ELEMENTS (for JS compatibility) -->
+<div id="participants" style="display:none;">
+  <div class="participant" id="local-participant">
+    <div class="participant-avatar">🙂</div>
+    <div class="participant-name" id="local-name">あなた</div>
+    <div class="participant-speaking-label">話し中...</div>
+  </div>
+</div>
+<div id="vol-spectrum" style="display:none;"><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div><div class="vol-bar-seg"></div></div>
+<div id="vol-fill" style="display:none;"></div>
+<span id="vol-db" style="display:none;"></span>
+<div id="status-dot" style="display:none;"></div>
+<span id="status-text" style="display:none;"></span>
+<div id="participant-count" style="display:none;"></div>
+<div id="stream-dot" style="display:none;"></div>
+<span id="stream-status" style="display:none;"></span>
+<div id="room-name" style="display:none;"></div>
+<div id="room-id" style="display:none;"></div>
+<div id="btn-mic" style="display:none;"></div>
+<div id="mode-toggle" style="display:none;"></div>
+<div id="playlist" style="display:none;"></div>
+<div id="device-list" style="display:none;"></div>
+<span id="device-count" style="display:none;"></span>
+<input id="room-input" style="display:none;" value="soluna">
+<div id="conn-quality" style="display:none;"><div class="conn-bar active"></div><div class="conn-bar active"></div><div class="conn-bar"></div></div>
+
 <script>
 // ============================================================
-// KOE WEB APP — P2P Voice + Soluna Music
+// KOE WEB APP — P2P Voice + Soluna Music + Speech Recognition
 // ============================================================
 
 let localStream = null;
@@ -862,7 +674,6 @@ const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun.cloudflare.com:3478' },
-  // Free public TURN — works behind mobile/CGNAT/corporate NAT
   { urls: 'turn:openrelay.metered.ca:80',               username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443',              username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443?transport=tcp',username: 'openrelayproject', credential: 'openrelayproject' },
@@ -875,18 +686,329 @@ const PLAYLIST = [
   { title: 'Ocean Drift',         artist: 'Soluna · koe.live', emoji: '🌊', duration: 180 },
 ];
 
-// ---- INIT ----
+// ============================================================
+// SPEECH RECOGNITION + TRANSCRIPTION ENGINE
+// ============================================================
+let recognition = null;
+let isTranscribing = false;
+let autoTranslate = false;
+let targetLang = 'en';
+let transcriptHistory = [];
+let subtitleTimeout = null;
+const LANGS = ['JA', 'EN', 'ZH', 'KO', 'ES'];
+let langIdx = 0;
+
+function initSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('このブラウザは文字起こし非対応（Chrome推奨）'); return false; }
+
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'ja-JP';
+  recognition.maxAlternatives = 1;
+
+  let finalBuffer = '';
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+
+    const localOrb = document.getElementById('orb-local');
+    if (localOrb) localOrb.classList.toggle('speaking', !!(interim || final));
+
+    if (interim) showSubtitleLine(localName, interim, true, null);
+
+    if (final) {
+      finalBuffer += final;
+      showSubtitleLine(localName, finalBuffer, false, null);
+
+      if (autoTranslate) {
+        translateText(finalBuffer, targetLang).then(tr => {
+          showSubtitleLine(localName, finalBuffer, false, tr);
+          addTranscriptEntry(localName, finalBuffer, tr);
+        });
+      } else {
+        addTranscriptEntry(localName, finalBuffer, null);
+      }
+
+      send({ type:'transcript', data:{ name:localName, text:finalBuffer, lang:'ja' }});
+      finalBuffer = '';
+    }
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error !== 'no-speech') showToast('文字起こしエラー: ' + e.error);
+  };
+  recognition.onend = () => {
+    if (isTranscribing) {
+      try { recognition.start(); } catch(e) {}
+    }
+  };
+  return true;
+}
+
+function toggleTranscription() {
+  if (!recognition && !initSpeechRecognition()) return;
+  isTranscribing = !isTranscribing;
+  const btn = document.getElementById('btn-mic-main');
+  if (isTranscribing) {
+    try { recognition.start(); } catch(e) {}
+    btn.classList.add('active');
+    showToast('🎙️ 文字起こし開始');
+  } else {
+    try { recognition.stop(); } catch(e) {}
+    btn.classList.remove('active');
+    const localOrb = document.getElementById('orb-local');
+    if (localOrb) localOrb.classList.remove('speaking');
+    showToast('⏹ 文字起こし停止');
+  }
+}
+
+// Subtitle display — max 3 lines
+function showSubtitleLine(speaker, text, isInterim, translation) {
+  const strip = document.getElementById('subtitle-lines');
+  if (!strip) return;
+
+  if (isInterim) {
+    let line = document.querySelector('.subtitle-line.interim-holder');
+    if (!line) {
+      line = document.createElement('div');
+      line.className = 'subtitle-line interim-holder';
+      strip.appendChild(line);
+    }
+    line.innerHTML = `<span class="subtitle-speaker">${speaker.slice(0,4)}</span><span class="subtitle-text interim">${text}</span>`;
+    return;
+  }
+
+  document.querySelector('.subtitle-line.interim-holder')?.remove();
+  const div = document.createElement('div');
+  div.className = 'subtitle-line';
+  div.innerHTML = `
+    <span class="subtitle-speaker">${speaker.slice(0,4)}</span>
+    <div>
+      <div class="subtitle-text">${text}</div>
+      ${translation ? `<div class="subtitle-translated">${translation}</div>` : ''}
+    </div>`;
+  strip.appendChild(div);
+
+  while (strip.children.length > 3) strip.removeChild(strip.firstChild);
+
+  clearTimeout(subtitleTimeout);
+  subtitleTimeout = setTimeout(() => {
+    strip.innerHTML = '';
+  }, 8000);
+}
+
+// Handle transcript message from remote peer
+function handleTranscriptMsg(from, data) {
+  showSubtitleLine(data.name || from, data.text, false, null);
+  const orb = document.getElementById('orb-' + from);
+  if (orb) {
+    orb.classList.add('speaking');
+    const cap = document.getElementById('cap-' + from);
+    if (cap) cap.textContent = data.text.slice(0, 20) + (data.text.length > 20 ? '…' : '');
+    setTimeout(() => {
+      orb.classList.remove('speaking');
+      if (cap) cap.textContent = '';
+    }, 3000);
+  }
+  addTranscriptEntry(data.name || from, data.text, null);
+  if (autoTranslate) {
+    translateText(data.text, 'ja').then(tr => {
+      if (tr) showSubtitleLine(data.name || from, data.text, false, tr);
+    });
+  }
+}
+
+// ============================================================
+// TRANSLATION + MINUTES
+// ============================================================
+async function translateText(text, targetLangCode) {
+  try {
+    const res = await fetch('/api/translate', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({ text, target: targetLangCode })
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    return j.translation || null;
+  } catch(e) { return null; }
+}
+
+function toggleAutoTranslate() {
+  autoTranslate = !autoTranslate;
+  const btn = document.getElementById('btn-translate-toggle');
+  if (btn) {
+    btn.textContent = autoTranslate ? '翻訳ON 🌐' : '翻訳OFF';
+    btn.classList.toggle('on', autoTranslate);
+  }
+  showToast(autoTranslate ? '🌐 自動翻訳 ON' : '翻訳 OFF');
+}
+
+function cycleLang() {
+  langIdx = (langIdx + 1) % LANGS.length;
+  targetLang = LANGS[langIdx].toLowerCase();
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = '🌐 ' + LANGS[langIdx];
+  if (autoTranslate) showToast('翻訳先: ' + LANGS[langIdx]);
+}
+
+function addTranscriptEntry(speaker, text, translation) {
+  const ts = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  transcriptHistory.push({ speaker, text, translation, ts });
+
+  const list = document.getElementById('transcript-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'transcript-entry';
+  div.innerHTML = `
+    <div class="entry-speaker">${speaker} · ${ts}</div>
+    <div class="entry-text">${text}</div>
+    ${translation ? `<div class="entry-translation">${translation}</div>` : ''}`;
+  list.appendChild(div);
+  list.scrollTop = list.scrollHeight;
+}
+
+async function generateMinutes() {
+  if (transcriptHistory.length === 0) { showToast('トランスクリプトがありません'); return; }
+  showToast('📝 議事録を生成中...');
+  const fullText = transcriptHistory.map(e => `${e.speaker}: ${e.text}`).join('\n');
+  try {
+    const res = await fetch('/api/summarize', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({ transcript: fullText })
+    });
+    const j = await res.json();
+    const out = document.getElementById('minutes-output');
+    const txt = document.getElementById('minutes-text');
+    if (out && txt) {
+      txt.textContent = j.summary || j.error || '生成失敗';
+      out.style.display = 'block';
+      const list = document.getElementById('transcript-list');
+      if (list) list.scrollTop = 99999;
+    }
+  } catch(e) { showToast('議事録生成エラー'); }
+}
+
+function copyMinutes() {
+  const text = document.getElementById('minutes-output')?.innerText;
+  if (text) navigator.clipboard?.writeText(text).then(() => showToast('コピーしました'));
+}
+
+function toggleTranscriptDrawer() {
+  document.getElementById('transcript-drawer').classList.toggle('open');
+}
+
+function joinRoomPrompt() {
+  const name = prompt('ルーム名を入力', currentRoom);
+  if (!name || !name.trim()) return;
+  currentRoom = name.trim();
+  document.getElementById('room-name-top').textContent = currentRoom;
+  document.getElementById('room-input').value = currentRoom;
+  leaveRoom();
+  setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 400);
+  showToast(`"${currentRoom}" に参加`);
+}
+
+// ============================================================
+// ORB MANAGEMENT
+// ============================================================
+function addParticipant(id, name) {
+  // Legacy hidden list
+  if (!document.getElementById('participant-' + id)) {
+    const p = document.getElementById('participants');
+    if (p) {
+      const div = document.createElement('div');
+      div.className = 'participant';
+      div.id = 'participant-' + id;
+      div.innerHTML = `<div class="participant-avatar">🙂</div><div class="participant-name">${name}</div><div class="participant-speaking-label">話し中...</div>`;
+      p.appendChild(div);
+    }
+  }
+
+  if (document.getElementById('orb-' + id)) return;
+  const stage = document.getElementById('orb-stage');
+  if (!stage) return;
+  const colors = [
+    ['#8b5cf6','#06b6d4'], ['#ec4899','#f59e0b'],
+    ['#10b981','#06b6d4'], ['#f97316','#ec4899'],
+  ];
+  const [c1,c2] = colors[Math.floor(Math.random()*colors.length)];
+  const orb = document.createElement('div');
+  orb.className = 'orb';
+  orb.id = 'orb-' + id;
+  orb.innerHTML = `
+    <div class="orb-circle" style="background:linear-gradient(135deg,${c1},${c2})">
+      ${name.charAt(0).toUpperCase()}
+    </div>
+    <div class="orb-name">${name}</div>
+    <div class="orb-caption" id="cap-${id}"></div>`;
+  stage.appendChild(orb);
+}
+
+function removeParticipant(id) {
+  document.getElementById('orb-' + id)?.remove();
+  document.getElementById('participant-' + id)?.remove();
+  cleanupAudioGraph(id);
+  document.getElementById('audio-' + id)?.remove();
+}
+
+function updateParticipantCount(n) {
+  const el = document.getElementById('participant-count');
+  if (el) el.textContent = n + '人';
+}
+
+function updateStatus(online) {
+  const dot = document.getElementById('room-dot');
+  const txt = document.getElementById('status-text-top');
+  if (dot) dot.classList.toggle('online', online);
+  if (txt) txt.textContent = online ? 'オンライン' : '再接続中...';
+  // legacy
+  document.getElementById('status-dot')?.classList.toggle('online', online);
+  if (document.getElementById('status-text'))
+    document.getElementById('status-text').textContent = online ? 'オンライン' : 'オフライン';
+  const bars = document.querySelectorAll('.conn-bar');
+  bars.forEach((b, i) => b.classList.toggle('active', online && i < 2));
+}
+
+// ============================================================
+// APP INIT
+// ============================================================
 function enterApp() {
   const name = prompt('名前を入力してください', localName);
   if (name && name.trim()) { localName = name.trim(); localStorage.setItem('koe-name', localName); }
   document.getElementById('local-name').textContent = localName;
+
   document.getElementById('splash').style.opacity = '0';
   setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 500);
+  document.getElementById('app').classList.add('visible');
+
+  // Build local orb
+  const stage = document.getElementById('orb-stage');
+  if (stage) {
+    stage.innerHTML = `
+      <div class="orb local" id="orb-local">
+        <div class="orb-circle">🙂</div>
+        <div class="orb-name" id="orb-local-name">${localName}</div>
+        <div class="orb-caption" id="cap-local"></div>
+      </div>`;
+  }
+
   connectSignaling();
   connectSolunaRelay();
   initPlaylist();
   fetchDevices();
   deviceRefreshInterval = setInterval(fetchDevices, 5000);
+  initViz();
+  startLatencyMonitor();
 }
 
 // ---- SIGNALING (WebRTC) ----
@@ -899,7 +1021,7 @@ function connectSignaling() {
     signalingWs = new WebSocket(url);
     signalingWs.onopen = () => {
       updateStatus(true);
-      showToast('シグナリングサーバーに接続しました');
+      showToast('接続しました');
     };
     signalingWs.onmessage = (e) => { try { handleSignal(JSON.parse(e.data)); } catch(err){} };
     signalingWs.onclose = () => {
@@ -922,18 +1044,18 @@ function connectSolunaRelay() {
     solunaWs = new WebSocket(url);
     solunaWs.binaryType = 'arraybuffer';
     solunaWs.onopen = () => {
-      document.getElementById('stream-dot').classList.add('online');
-      document.getElementById('stream-status').textContent = 'Solunaチャンネルに接続中';
+      if (document.getElementById('stream-dot')) document.getElementById('stream-dot').classList.add('online');
+      if (document.getElementById('stream-status')) document.getElementById('stream-status').textContent = 'Solunaチャンネルに接続中';
     };
     solunaWs.onmessage = (e) => {
       if (e.data instanceof ArrayBuffer) handleSolunaPacket(new Uint8Array(e.data));
     };
     solunaWs.onclose = () => {
-      document.getElementById('stream-dot').classList.remove('online');
-      document.getElementById('stream-status').textContent = '未接続';
+      if (document.getElementById('stream-dot')) document.getElementById('stream-dot').classList.remove('online');
+      if (document.getElementById('stream-status')) document.getElementById('stream-status').textContent = '未接続';
       setTimeout(connectSolunaRelay, 6000);
     };
-  } catch(e) { /* サーバー未実装の場合は無視 */ }
+  } catch(e) {}
 }
 
 function handleSignal(msg) {
@@ -972,6 +1094,9 @@ function handleSignal(msg) {
         peerConnections[from].addIceCandidate(new RTCIceCandidate(data.candidate)).catch(()=>{});
       }
       break;
+    case 'transcript':
+      handleTranscriptMsg(from, data);
+      break;
   }
 }
 
@@ -981,8 +1106,8 @@ function send(obj) {
   }
 }
 
-// ---- SDP patcher — Opus DTX / FEC / bitrate / ptime ----
-let audioMode = 'voice'; // 'voice' | 'music'
+// ---- SDP patcher ----
+let audioMode = 'voice';
 
 function patchSdp(sdp) {
   const sep = sdp.includes('\r\n') ? '\r\n' : '\n';
@@ -1003,7 +1128,6 @@ function patchSdp(sdp) {
       if (audioMode === 'voice') {
         parts.push('usedtx=1', 'useinbandfec=1', 'maxaveragebitrate=32000', 'stereo=0', 'sprop-stereo=0');
       } else {
-        // 音楽モード: 高ビットレート, ステレオ, DTX OFF
         parts.push('usedtx=0', 'useinbandfec=1', 'maxaveragebitrate=128000', 'stereo=1', 'sprop-stereo=1');
       }
       out.push('a=fmtp:111 ' + parts.join(';'));
@@ -1012,7 +1136,6 @@ function patchSdp(sdp) {
 
     if (inAudio && line.startsWith('a=ptime:')) { hasPtime = true; }
 
-    // Insert ptime after rtpmap:111 line
     if (inAudio && /^a=rtpmap:111 /.test(line)) {
       out.push(line);
       if (!hasPtime) {
@@ -1031,9 +1154,7 @@ function patchSdp(sdp) {
 function toggleAudioMode() {
   audioMode = audioMode === 'voice' ? 'music' : 'voice';
   const btn = document.getElementById('mode-toggle');
-  btn.textContent = audioMode === 'voice' ? '🎙️ 会話' : '🎵 音楽';
-
-  // 全ピア接続に新しいSDPを再ネゴシエート
+  if (btn) btn.textContent = audioMode === 'voice' ? '🎙️ 会話' : '🎵 音楽';
   Object.entries(peerConnections).forEach(([peerId, pc]) => {
     if (pc.connectionState === 'connected') {
       pc.createOffer({ offerToReceiveAudio: true, voiceActivityDetection: false })
@@ -1047,7 +1168,7 @@ function toggleAudioMode() {
         .catch(() => {});
     }
   });
-  showToast(audioMode === 'voice' ? '🎙️ 会話モード（低遅延）' : '🎵 音楽モード（高音質）');
+  showToast(audioMode === 'voice' ? '🎙️ 会話モード' : '🎵 音楽モード');
 }
 
 // ---- WebRTC ----
@@ -1055,13 +1176,13 @@ async function initMic() {
   try {
     localStream = await navigator.mediaDevices.getUserMedia({
       audio: {
-        echoCancellation:       true,   // AEC
-        noiseSuppression:       true,   // NS
-        autoGainControl:        true,   // AGC
-        voiceActivityDetection: false,  // ブラウザVAD無効→Opus DTXに任せる
-        sampleRate:             48000,  // Opus ネイティブレート（16kHzより高音質）
-        channelCount:           1,      // モノラル
-        latency:                0,      // 最小レイテンシを要求
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        voiceActivityDetection: false,
+        sampleRate: 48000,
+        channelCount: 1,
+        latency: 0,
       },
       video: false
     });
@@ -1078,9 +1199,9 @@ function createOrGetPC(peerId, peerName, isInitiator) {
 
   const pc = new RTCPeerConnection({
     iceServers: ICE_SERVERS,
-    bundlePolicy:        'max-bundle', // 全メディアを1接続にまとめる
-    rtcpMuxPolicy:       'require',    // RTP/RTCPを多重化
-    iceCandidatePoolSize: 10,          // ICE候補を事前収集→接続高速化
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require',
+    iceCandidatePoolSize: 10,
   });
   peerConnections[peerId] = pc;
   addParticipant(peerId, peerName);
@@ -1088,10 +1209,7 @@ function createOrGetPC(peerId, peerName, isInitiator) {
   if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
   pc.ontrack = (e) => {
-    // AudioContext経由で処理（<audio>要素は使わない）
     getOrCreateAudioGraph(peerId, e.streams[0]);
-
-    // ジッターバッファ最適化
     const recv = e.receiver;
     if (typeof recv.jitterBufferTarget !== 'undefined') recv.jitterBufferTarget = 0;
     if ('playoutDelayHint' in recv) recv.playoutDelayHint = 0.03;
@@ -1134,62 +1252,80 @@ async function handleOffer(fromId, fromName, sdp) {
 async function toggleMic() {
   if (!localStream) {
     if (!await initMic()) return;
+    // Also start transcription
+    toggleTranscription();
     send({ type:'joined', data:{ name:localName } });
+  } else {
+    // Toggle transcription
+    toggleTranscription();
   }
   isMuted = !isMuted;
-  localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-  const btn = document.getElementById('btn-mic');
+  if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  const btn = document.getElementById('btn-mic-main');
   btn.classList.toggle('muted', isMuted);
   btn.textContent = isMuted ? '🔇' : '🎙️';
+  const legacyBtn = document.getElementById('btn-mic');
+  if (legacyBtn) { legacyBtn.classList.toggle('muted', isMuted); legacyBtn.textContent = isMuted ? '🔇' : '🎙️'; }
   showToast(isMuted ? 'ミュート' : 'ミュート解除');
 }
 
 function leaveRoom() {
+  // Stop speech recognition
+  if (recognition && isTranscribing) {
+    isTranscribing = false;
+    try { recognition.stop(); } catch(e) {}
+  }
   send({ type:'left', data:{ name:localName } });
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
   Object.values(peerConnections).forEach(pc => pc.close());
   peerConnections = {};
   document.querySelectorAll('[id^="audio-"]').forEach(el => el.remove());
-  document.getElementById('participants').innerHTML = `
-    <div class="participant" id="local-participant">
-      <div class="participant-avatar">🙂</div>
-      <div class="participant-name" id="local-name">${localName}</div>
-      <div class="participant-speaking-label">話し中...</div>
-    </div>`;
+
+  // Reset orbs
+  const stage = document.getElementById('orb-stage');
+  if (stage) {
+    stage.innerHTML = `
+      <div class="orb local" id="orb-local">
+        <div class="orb-circle">🙂</div>
+        <div class="orb-name" id="orb-local-name">${localName}</div>
+        <div class="orb-caption" id="cap-local"></div>
+      </div>`;
+  }
+
   if (volAnimId) { cancelAnimationFrame(volAnimId); volAnimId = null; }
-  document.getElementById('vol-fill').style.width = '0%';
-  document.getElementById('vol-db').textContent = '-∞';
   updateParticipantCount(0);
+  const btn = document.getElementById('btn-mic-main');
+  btn.classList.remove('muted', 'active');
+  btn.textContent = '🎙️';
+  isMuted = false;
   showToast('ルームを退出しました');
 }
 
 function joinRoom() {
   const name = document.getElementById('room-input').value.trim() || 'soluna';
   currentRoom = name;
-  document.getElementById('room-name').textContent = name + 'ルーム';
-  document.getElementById('room-id').textContent = 'room: ' + name;
+  document.getElementById('room-name-top').textContent = name;
+  if (document.getElementById('room-name')) document.getElementById('room-name').textContent = name + 'ルーム';
+  if (document.getElementById('room-id')) document.getElementById('room-id').textContent = 'room: ' + name;
   leaveRoom();
   setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 500);
   showToast(`"${name}" に参加しました`);
 }
 
 // ============================================================
-// GENIUS AUDIO ENGINE
-// Chain: source → compressor → presenceEQ → exciter → panner(HRTF) → [dry + convolver→wet] → [xtalk] → out
+// AUDIO ENGINE (unchanged from original)
 // ============================================================
 
 const audioGraphs = {};
 let roomIR = null;
 let currentRoomSize = 'small';
 let gyroEnabled = false;
-let speakerMode = false; // crosstalk cancellation
+let speakerMode = false;
 let reverbWet = 0.25;
 let exciterAmount = 0.04;
 let presenceGain = 3.0;
-let xtalkNode = null; // master crosstalk canceller
+let xtalkNode = null;
 
-// ---- 1. ROOM IMPULSE RESPONSE ----
-// Physics-based IR: direct sound + early reflections (image-source) + late diffuse tail
 function createRoomIR(ctx, size = 'small') {
   const sr = ctx.sampleRate;
   const cfg = {
@@ -1200,16 +1336,14 @@ function createRoomIR(ctx, size = 'small') {
 
   const len = Math.floor(sr * (cfg.rt60 * 1.5));
   const ir  = ctx.createBuffer(2, len, sr);
-  const spd = 343; // m/s
+  const spd = 343;
 
   for (let ch = 0; ch < 2; ch++) {
     const data = ir.getChannelData(ch);
-
-    // Early reflections (image-source model, simplified)
     for (let r = 0; r < cfg.earlyCount; r++) {
       const dist   = 0.5 + r * (cfg.roomW / cfg.earlyCount);
       const delay  = Math.floor((dist / spd) * sr);
-      const amp    = (1 / (dist + 1)) * (ch === 0 ? 1 : 0.85 + r * 0.01); // L/R asymmetry
+      const amp    = (1 / (dist + 1)) * (ch === 0 ? 1 : 0.85 + r * 0.01);
       const spread = Math.floor(sr * 0.001 * (r + 1));
       if (delay < len) {
         for (let s = 0; s < spread && delay + s < len; s++) {
@@ -1217,14 +1351,10 @@ function createRoomIR(ctx, size = 'small') {
         }
       }
     }
-
-    // Late diffuse reverb tail
-    const decayRate = Math.log(1000) / (cfg.rt60 * sr); // -60dB decay
+    const decayRate = Math.log(1000) / (cfg.rt60 * sr);
     for (let i = Math.floor(sr * 0.02); i < len; i++) {
       data[i] += (Math.random() * 2 - 1) * Math.exp(-decayRate * i) * 0.4;
     }
-
-    // Normalize to -12dB
     let max = 0;
     for (let i = 0; i < len; i++) if (Math.abs(data[i]) > max) max = Math.abs(data[i]);
     if (max > 0) { const g = 0.25 / max; for (let i = 0; i < len; i++) data[i] *= g; }
@@ -1232,153 +1362,77 @@ function createRoomIR(ctx, size = 'small') {
   return ir;
 }
 
-// ---- 2. HARMONIC EXCITER ----
-// Adds warm 2nd/3rd order harmonics imperceptibly (tape machine effect)
 function createExciter(ctx) {
-  // High-pass first so only harmonics of mids/highs get excited (not muddy bass)
   const hp = ctx.createBiquadFilter();
-  hp.type = 'highpass';
-  hp.frequency.value = 2000;
-  hp.Q.value = 0.7;
-
-  // Soft-clip waveshaper (2nd + 3rd harmonic)
+  hp.type = 'highpass'; hp.frequency.value = 2000; hp.Q.value = 0.7;
   const shaper = ctx.createWaveShaper();
   const N = 512;
   const curve = new Float32Array(N);
   for (let i = 0; i < N; i++) {
     const x = (i * 2) / N - 1;
-    // Chebyshev T2+T3 blend: warm asymmetric saturation
     curve[i] = x - 0.15 * x * x + 0.05 * x * x * x;
   }
-  shaper.curve = curve;
-  shaper.oversample = '4x';
-
+  shaper.curve = curve; shaper.oversample = '4x';
   const blend = ctx.createGain();
-  blend.gain.value = exciterAmount; // barely perceptible
-
-  hp.connect(shaper);
-  shaper.connect(blend);
+  blend.gain.value = exciterAmount;
+  hp.connect(shaper); shaper.connect(blend);
   return { hp, shaper, blend, input: hp };
 }
 
-// ---- 3. PRESENCE EQ ----
-// Boost 2–4kHz for "in the room" vocal clarity (broadcast trick)
 function createPresenceEQ(ctx) {
   const eq = ctx.createBiquadFilter();
-  eq.type = 'peaking';
-  eq.frequency.value = 3200;
-  eq.gain.value = presenceGain; // +3dB
-  eq.Q.value = 0.9;
-
-  // Also a gentle air shelf above 10kHz for openness
+  eq.type = 'peaking'; eq.frequency.value = 3200; eq.gain.value = presenceGain; eq.Q.value = 0.9;
   const air = ctx.createBiquadFilter();
-  air.type = 'highshelf';
-  air.frequency.value = 10000;
-  air.gain.value = 1.5;
-
+  air.type = 'highshelf'; air.frequency.value = 10000; air.gain.value = 1.5;
   eq.connect(air);
   return { eq, air, input: eq, output: air };
 }
 
-// ---- 4. CROSSTALK CANCELLATION ----
-// When using speakers: L speaker leaks into R ear (and vice-versa)
-// Cancel the leak so 3D HRTF positioning works without headphones
-// Simplified HRTF crosstalk model: α=0.5 delay ~0.25ms HP filtered
 function buildCrosstalkCanceller(ctx) {
-  // Splitter: get L and R channels
   const splitter = ctx.createChannelSplitter(2);
   const merger   = ctx.createChannelMerger(2);
-
-  // Contralateral path: delayed + HP + inverted
   function makeXtalkPath() {
-    const delay = ctx.createDelay(0.01);
-    delay.delayTime.value = 0.00025; // 0.25ms ≈ 8.5cm interaural
-
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 800;
-    hp.Q.value = 0.5;
-
-    const inv = ctx.createGain();
-    inv.gain.value = -0.5; // subtract 50%
-
-    delay.connect(hp);
-    hp.connect(inv);
+    const delay = ctx.createDelay(0.01); delay.delayTime.value = 0.00025;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 800; hp.Q.value = 0.5;
+    const inv = ctx.createGain(); inv.gain.value = -0.5;
+    delay.connect(hp); hp.connect(inv);
     return { delay, hp, inv };
   }
-
-  const lToR = makeXtalkPath();
-  const rToL = makeXtalkPath();
-
-  // L_out = L_in + cancel(R_in),  R_out = R_in + cancel(L_in)
-  splitter.connect(lToR.delay, 0); // L → R cancellation path
-  splitter.connect(rToL.delay, 1); // R → L cancellation path
-
-  splitter.connect(merger, 0, 0);  // L direct
-  splitter.connect(merger, 1, 1);  // R direct
-  lToR.inv.connect(merger, 0, 1);  // L cancel → R
-  rToL.inv.connect(merger, 0, 0);  // R cancel → L
-
+  const lToR = makeXtalkPath(); const rToL = makeXtalkPath();
+  splitter.connect(lToR.delay, 0); splitter.connect(rToL.delay, 1);
+  splitter.connect(merger, 0, 0); splitter.connect(merger, 1, 1);
+  lToR.inv.connect(merger, 0, 1); rToL.inv.connect(merger, 0, 0);
   splitter._merger = merger;
   return { splitter, merger };
 }
 
-// ---- 5. MAIN AUDIO GRAPH ----
 function getOrCreateAudioGraph(peerId, stream) {
   if (audioGraphs[peerId]) return audioGraphs[peerId];
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
   if (!roomIR) roomIR = createRoomIR(audioCtx, currentRoomSize);
 
-  // ① Source
   const source = audioCtx.createMediaStreamSource(stream);
-
-  // ② Dynamics compressor — level out volume differences
   const comp = audioCtx.createDynamicsCompressor();
-  comp.threshold.value = -24;
-  comp.knee.value      = 30;
-  comp.ratio.value     = 4;
-  comp.attack.value    = 0.004;
-  comp.release.value   = 0.12;
-
-  // ③ Presence EQ
+  comp.threshold.value = -24; comp.knee.value = 30; comp.ratio.value = 4;
+  comp.attack.value = 0.004; comp.release.value = 0.12;
   const eqChain = createPresenceEQ(audioCtx);
-
-  // ④ Harmonic exciter (parallel blend)
   const excChain = createExciter(audioCtx);
-  const excMix   = audioCtx.createGain();
-  excMix.gain.value = 1.0; // dry pass-through
-
-  // ⑤ HRTF Panner
+  const excMix = audioCtx.createGain(); excMix.gain.value = 1.0;
   const panner = audioCtx.createPanner();
-  panner.panningModel  = 'HRTF';
-  panner.distanceModel = 'inverse';
-  panner.refDistance   = 1;
-  panner.maxDistance   = 10;
-  panner.rolloffFactor = 0.7;
+  panner.panningModel = 'HRTF'; panner.distanceModel = 'inverse';
+  panner.refDistance = 1; panner.maxDistance = 10; panner.rolloffFactor = 0.7;
+  const conv = audioCtx.createConvolver(); conv.buffer = roomIR;
+  const wetGain = audioCtx.createGain(); const dryGain = audioCtx.createGain();
+  wetGain.gain.value = reverbWet; dryGain.gain.value = 1 - reverbWet;
+  const outGain = audioCtx.createGain(); outGain.gain.value = 1.0;
 
-  // ⑥ Room reverb (dry/wet)
-  const conv    = audioCtx.createConvolver();
-  conv.buffer   = roomIR;
-  const wetGain = audioCtx.createGain();
-  const dryGain = audioCtx.createGain();
-  wetGain.gain.value = reverbWet;
-  dryGain.gain.value = 1 - reverbWet;
-
-  // ⑦ Output bus
-  const outGain = audioCtx.createGain();
-  outGain.gain.value = 1.0;
-
-  // Wire the chain
   source.connect(comp);
   comp.connect(eqChain.input);
-  // Exciter parallel
   eqChain.output.connect(excMix);
   eqChain.output.connect(excChain.input);
   excChain.blend.connect(excMix);
-  // Into panner
   excMix.connect(panner);
-  // Dry/wet split after panner
   panner.connect(dryGain);
   panner.connect(conv);
   conv.connect(wetGain);
@@ -1392,18 +1446,13 @@ function getOrCreateAudioGraph(peerId, stream) {
   return graph;
 }
 
-// ---- 6. GYROSCOPE HEAD TRACKING ----
 function initGyroTracking() {
   if (!window.DeviceOrientationEvent) { showToast('ジャイロ非対応'); return; }
-
-  // iOS 13+ requires permission
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
     DeviceOrientationEvent.requestPermission()
       .then(r => { if (r === 'granted') startGyro(); else showToast('ジャイロ権限が必要です'); })
       .catch(() => startGyro());
-  } else {
-    startGyro();
-  }
+  } else { startGyro(); }
 }
 
 function startGyro() {
@@ -1411,59 +1460,42 @@ function startGyro() {
   gyroEnabled = true;
   document.getElementById('btn-gyro').textContent = '🧭 頭部追跡 ON';
   document.getElementById('btn-gyro').style.borderColor = 'var(--green)';
-  showToast('🧭 頭部追跡 ON — 頭を動かしてみて');
+  showToast('🧭 頭部追跡 ON');
 }
 
 let lastAlpha = 0;
 function onDeviceOrientation(e) {
   if (!audioCtx || !gyroEnabled) return;
-  // alpha = compass yaw (0-360), beta = pitch, gamma = roll
   const yaw   = (e.alpha || 0) * Math.PI / 180;
   const pitch = (e.beta  || 0) * Math.PI / 180;
   const t = audioCtx.currentTime;
-
-  // Forward vector (where listener faces)
   const fx = -Math.sin(yaw) * Math.cos(pitch);
   const fy =  Math.sin(pitch);
   const fz = -Math.cos(yaw) * Math.cos(pitch);
-
-  // Up vector
   const ux =  Math.sin(yaw) * Math.sin(pitch);
   const uy =  Math.cos(pitch);
   const uz =  Math.cos(yaw) * Math.sin(pitch);
-
   const l = audioCtx.listener;
   if (l.forwardX) {
-    l.forwardX.setTargetAtTime(fx, t, 0.05);
-    l.forwardY.setTargetAtTime(fy, t, 0.05);
-    l.forwardZ.setTargetAtTime(fz, t, 0.05);
-    l.upX.setTargetAtTime(ux, t, 0.05);
-    l.upY.setTargetAtTime(uy, t, 0.05);
-    l.upZ.setTargetAtTime(uz, t, 0.05);
-  } else {
-    // older API
-    l.setOrientation(fx, fy, fz, ux, uy, uz);
-  }
+    l.forwardX.setTargetAtTime(fx, t, 0.05); l.forwardY.setTargetAtTime(fy, t, 0.05); l.forwardZ.setTargetAtTime(fz, t, 0.05);
+    l.upX.setTargetAtTime(ux, t, 0.05); l.upY.setTargetAtTime(uy, t, 0.05); l.upZ.setTargetAtTime(uz, t, 0.05);
+  } else { l.setOrientation(fx, fy, fz, ux, uy, uz); }
 }
 
-// ---- 7. SPATIAL POSITIONS ----
 function updateSpatialPositions() {
   if (!audioCtx) return;
   const peers = Object.keys(audioGraphs);
   peers.forEach((id, idx) => {
     const g = audioGraphs[id];
     if (!g) return;
-    // Spread participants in a horizontal circle, slightly elevated
     const angle  = (idx / Math.max(peers.length, 1)) * 2 * Math.PI - Math.PI / 2;
     const radius = 1.8;
     const t = audioCtx.currentTime;
     g.panner.positionX.setTargetAtTime(Math.cos(angle) * radius, t, 0.15);
     g.panner.positionZ.setTargetAtTime(Math.sin(angle) * radius, t, 0.15);
-    g.panner.positionY.setTargetAtTime(0.1, t, 0.15); // slightly above ear level
+    g.panner.positionY.setTargetAtTime(0.1, t, 0.15);
   });
 }
-
-// ---- 8. LIVE PARAMETER CONTROL ----
 
 function setReverbWet(v) {
   reverbWet = v;
@@ -1492,15 +1524,13 @@ function toggleSpeakerMode() {
   const btn = document.getElementById('btn-speaker');
   btn.textContent = speakerMode ? '🔊 スピーカー補正 ON' : '🎧 ヘッドホン';
   btn.style.borderColor = speakerMode ? 'var(--green)' : 'var(--border)';
-
-  // Rebuild graphs with/without crosstalk cancellation
   const streams = {};
   Object.entries(audioGraphs).forEach(([id, g]) => {
     try { streams[id] = g.source.mediaStream; } catch(e) {}
     cleanupAudioGraph(id);
   });
   Object.entries(streams).forEach(([id, s]) => { if (s) getOrCreateAudioGraph(id, s); });
-  showToast(speakerMode ? '🔊 スピーカー補正 ON（クロストークキャンセル）' : '🎧 ヘッドホンモード');
+  showToast(speakerMode ? '🔊 スピーカー補正 ON' : '🎧 ヘッドホンモード');
 }
 
 function cleanupAudioGraph(peerId) {
@@ -1529,42 +1559,17 @@ function setupVolumeMeter(stream) {
 
   const buf = new Uint8Array(analyser.frequencyBinCount);
 
-  const specBars = document.querySelectorAll('#vol-spectrum .vol-bar-seg');
-  const NUM_SPEC = specBars.length;
-  const freqBuf = new Uint8Array(analyser.frequencyBinCount);
-
   function tick() {
     volAnimId = requestAnimationFrame(tick);
     analyser.getByteFrequencyData(buf);
     let sum = 0;
     for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
     const rms = Math.sqrt(sum / buf.length);
-    const pct = Math.min(100, rms / 1.28);
-    document.getElementById('vol-fill').style.width = pct + '%';
-    const db = rms > 0 ? Math.round(20 * Math.log10(rms / 128)) : -Infinity;
-    document.getElementById('vol-db').textContent = isFinite(db) ? db + 'dB' : '-∞';
-    const local = document.getElementById('local-participant');
-    if (local) local.classList.toggle('speaking', rms > 20 && !isMuted);
 
-    // Update spectrum bars
-    if (specBars.length > 0) {
-      analyser.getByteFrequencyData(freqBuf);
-      const binPerBar = Math.floor(freqBuf.length / NUM_SPEC);
-      for (let b = 0; b < NUM_SPEC; b++) {
-        let avg = 0;
-        for (let k = 0; k < binPerBar; k++) avg += freqBuf[b * binPerBar + k];
-        avg /= binPerBar;
-        const h = Math.max(3, Math.round((avg / 255) * 24));
-        specBars[b].style.height = h + 'px';
-        // Green glow when speaking
-        if (rms > 20 && !isMuted) {
-          specBars[b].style.background = 'linear-gradient(to top, var(--green), #a3e635)';
-          specBars[b].style.boxShadow = '0 0 8px rgba(16,185,129,0.6)';
-        } else {
-          specBars[b].style.background = 'linear-gradient(to top, var(--accent), var(--accent2))';
-          specBars[b].style.boxShadow = '0 0 4px rgba(139,92,246,0.3)';
-        }
-      }
+    // Orb speaking indicator
+    const localOrb = document.getElementById('orb-local');
+    if (localOrb && !isTranscribing) {
+      localOrb.classList.toggle('speaking', rms > 20 && !isMuted);
     }
   }
   tick();
@@ -1574,7 +1579,7 @@ function setupVolumeMeter(stream) {
 function handleSolunaPacket(data) {
   if (data.length < 19) return;
   const magic = (data[0] << 8) | data[1];
-  if (magic !== 0x534C) return; // 'SL'
+  if (magic !== 0x534C) return;
   const flags = data[18];
   const FLAG_HEARTBEAT = 0x04;
   if (flags & FLAG_HEARTBEAT) {
@@ -1586,18 +1591,11 @@ function handleSolunaPacket(data) {
 // ---- MUSIC PLAYER ----
 function initPlaylist() {
   const pl = document.getElementById('playlist');
+  if (!pl) return;
   pl.innerHTML = '';
   PLAYLIST.forEach((t, i) => {
     const div = document.createElement('div');
-    div.className = 'channel-item' + (i === currentTrackIdx ? ' active-ch' : '');
-    div.innerHTML = `
-      <div class="ch-icon">${t.emoji}</div>
-      <div class="ch-info">
-        <div class="ch-name">${t.title}</div>
-        <div class="ch-meta">${t.artist} · ${formatTime(t.duration)}</div>
-      </div>
-      ${i === currentTrackIdx ? '<span style="color:var(--accent2);">▶</span>' : ''}
-    `;
+    div.innerHTML = `<span>${t.emoji} ${t.title}</span>`;
     div.onclick = () => playTrack(i);
     pl.appendChild(div);
   });
@@ -1606,56 +1604,11 @@ function initPlaylist() {
 function playTrack(idx) {
   currentTrackIdx = idx;
   trackOffset = 0;
-  const t = PLAYLIST[idx];
-  document.getElementById('music-title').textContent = t.title;
-  document.getElementById('music-artist').textContent = t.artist;
-  document.getElementById('time-total').textContent = formatTime(t.duration);
-  document.getElementById('time-current').textContent = '0:00';
-  document.getElementById('progress-fill').style.width = '0%';
-  document.getElementById('vinyl').textContent = t.emoji;
-  initPlaylist();
-  if (isPlaying) startProgressSimulation(t.duration);
 }
 
-function togglePlay() {
-  isPlaying = !isPlaying;
-  document.getElementById('btn-play').textContent = isPlaying ? '⏸' : '▶';
-  document.getElementById('vinyl').classList.toggle('spinning', isPlaying);
-  document.getElementById('music-art').classList.toggle('playing', isPlaying);
-  if (isPlaying) {
-    startProgressSimulation(PLAYLIST[currentTrackIdx].duration);
-    showToast('再生中');
-  } else {
-    clearInterval(progressInterval);
-    showToast('一時停止');
-  }
-}
-
-function startProgressSimulation(duration) {
-  clearInterval(progressInterval);
-  trackStartTime = Date.now() - trackOffset * 1000;
-  progressInterval = setInterval(() => {
-    const elapsed = (Date.now() - trackStartTime) / 1000;
-    if (elapsed >= duration) { nextTrack(); return; }
-    trackOffset = elapsed;
-    const pct = (elapsed / duration) * 100;
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('time-current').textContent = formatTime(Math.floor(elapsed));
-  }, 250);
-}
-
-function seekMusic(e) {
-  const bar = document.getElementById('progress-bar');
-  const rect = bar.getBoundingClientRect();
-  const pct = (e.clientX - rect.left) / rect.width;
-  trackOffset = pct * PLAYLIST[currentTrackIdx].duration;
-  if (isPlaying) startProgressSimulation(PLAYLIST[currentTrackIdx].duration);
-  else document.getElementById('progress-fill').style.width = (pct * 100) + '%';
-}
-
+function togglePlay() { isPlaying = !isPlaying; }
 function prevTrack() { trackOffset = 0; playTrack((currentTrackIdx - 1 + PLAYLIST.length) % PLAYLIST.length); }
 function nextTrack() { trackOffset = 0; playTrack((currentTrackIdx + 1) % PLAYLIST.length); }
-
 function formatTime(s) {
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
@@ -1663,32 +1616,14 @@ function formatTime(s) {
 }
 
 // ---- CHANNELS ----
-function joinChannel(ch, el) {
+function joinChannel(ch) {
   currentRoom = ch;
-  document.querySelectorAll('#channel-list .channel-item').forEach(i => i.classList.remove('active-ch'));
-  if (el) el.classList.add('active-ch');
-  document.getElementById('room-name').textContent = ch + 'ルーム';
-  document.getElementById('room-id').textContent = 'room: ' + ch;
+  document.getElementById('room-name-top').textContent = ch;
   document.getElementById('room-input').value = ch;
   if (signalingWs) { try { signalingWs.close(); } catch(e){} }
   if (solunaWs)    { try { solunaWs.close(); }    catch(e){} }
   setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 300);
   showToast(`"${ch}" チャンネルに切り替え`);
-  switchTab('voice');
-}
-
-function createChannel() {
-  const name = document.getElementById('ch-name-input').value.trim();
-  if (!name) return;
-  const list = document.getElementById('channel-list');
-  const div = document.createElement('div');
-  div.className = 'channel-item';
-  div.innerHTML = `<div class="ch-icon">⭐</div><div class="ch-info"><div class="ch-name">${name}</div><div class="ch-meta">カスタムチャンネル</div></div><span class="ch-users">1人</span>`;
-  div.onclick = () => joinChannel(name, div);
-  list.appendChild(div);
-  document.getElementById('ch-name-input').value = '';
-  showToast(`"${name}" チャンネルを作成`);
-  joinChannel(name, div);
 }
 
 // ---- DEVICES ----
@@ -1700,94 +1635,20 @@ async function fetchDevices() {
     if (!res.ok) return;
     const devices = await res.json();
     devices.forEach(d => { knownDevices[d.id || d.hash] = { ...d, lastSeen: Date.now() }; });
-    renderDevices(Object.values(knownDevices));
-  } catch(e) { /* /api/devices が未実装の場合は無視 */ }
+  } catch(e) {}
 }
 
 function updateDeviceFromPacket(hashHex, _data) {
-  const key = hashHex;
-  if (!knownDevices[key]) {
-    knownDevices[key] = { hash: hashHex, channel_name: currentRoom, audio_level: 0 };
+  if (!knownDevices[hashHex]) {
+    knownDevices[hashHex] = { hash: hashHex, channel_name: currentRoom, audio_level: 0 };
   }
-  knownDevices[key].lastSeen = Date.now();
-  renderDevices(Object.values(knownDevices));
+  knownDevices[hashHex].lastSeen = Date.now();
 }
 
-function renderDevices(devices) {
-  const list = document.getElementById('device-list');
-  const count = document.getElementById('device-count');
-  const now = Date.now();
-  const active = devices.filter(d => !d.lastSeen || (now - d.lastSeen) < 30000);
-
-  if (active.length === 0) {
-    list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted);"><div style="font-size:2rem; margin-bottom:8px;">📡</div><div>デバイスが見つかりません<br>Koeデバイスの電源を入れてください</div></div>`;
-    count.textContent = '0台';
-    return;
-  }
-
-  count.textContent = active.length + '台';
-  list.innerHTML = active.map(d => {
-    const shortHash = (d.hash || '0000').toString(16).slice(-4);
-    const level = Math.round((d.audio_level || 0) * 100);
-    return `
-    <div class="device-item">
-      <div class="device-status online"></div>
-      <div style="flex:1;">
-        <div class="device-name">koe-${shortHash}</div>
-        <div class="device-meta">${d.channel_name || currentRoom} · ${level ? level+'%' : '--'}</div>
-      </div>
-      <div style="width:80px;">
-        <div class="level-mini"><div class="level-mini-fill" style="width:${level}%"></div></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function scanDevices() {
-  showToast('スキャン中...');
-  fetchDevices();
-}
+function scanDevices() { showToast('スキャン中...'); fetchDevices(); }
 
 // ---- UI HELPERS ----
-function switchTab(tab) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
-  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
-}
-
-function addParticipant(id, name) {
-  if (document.getElementById('participant-' + id)) return;
-  const p = document.getElementById('participants');
-  const div = document.createElement('div');
-  div.className = 'participant';
-  div.id = 'participant-' + id;
-  const emojis = ['😊','🎵','🌟','🎙️','🎧','🌙','⚡','🎹','🦋','🌸'];
-  const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-  div.innerHTML = `<div class="participant-avatar">${emoji}</div><div class="participant-name">${name}</div><div class="participant-speaking-label">話し中...</div>`;
-  p.appendChild(div);
-  updateParticipantCount(Object.keys(peerConnections).length + 1);
-}
-
-function removeParticipant(id) {
-  const el = document.getElementById('participant-' + id);
-  if (el) el.remove();
-  const audio = document.getElementById('audio-' + id);
-  if (audio) audio.remove();
-  cleanupAudioGraph(id);
-  updateParticipantCount(Math.max(0, Object.keys(peerConnections).length));
-}
-
-function updateParticipantCount(n) {
-  document.getElementById('participant-count').textContent = n + '人';
-}
-
-function updateStatus(online) {
-  document.getElementById('status-dot').classList.toggle('online', online);
-  document.getElementById('status-text').textContent = online ? 'オンライン' : 'オフライン';
-  const bars = document.querySelectorAll('.conn-bar');
-  bars.forEach((b, i) => b.classList.toggle('active', online && i < 2));
-}
+function switchTab(tab) {}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1797,7 +1658,6 @@ function showToast(msg) {
   t._tid = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ---- QR CODE ----
 function showQR() {
   const url = `${location.origin}/app?room=${encodeURIComponent(currentRoom)}`;
   document.getElementById('qr-url').textContent = url;
@@ -1807,11 +1667,9 @@ function showQR() {
 }
 
 function hideQR() { document.getElementById('qr-modal').classList.remove('show'); }
-
 function showSpatial() { document.getElementById('spatial-modal').classList.add('show'); }
 function hideSpatial() { document.getElementById('spatial-modal').classList.remove('show'); }
 
-// Room size button highlight
 function setRoomSize(size) {
   currentRoomSize = size;
   if (!audioCtx) { showToast(`🏠 部屋: ${size}（接続後に適用）`); return; }
@@ -1821,7 +1679,7 @@ function setRoomSize(size) {
     const btn = document.getElementById('rb-' + s);
     if (!btn) return;
     if (s === size) { btn.style.borderColor='var(--accent2)'; btn.style.background='rgba(6,182,212,0.15)'; btn.style.color='var(--text)'; }
-    else            { btn.style.borderColor='var(--border)';  btn.style.background='var(--surface)';         btn.style.color='var(--muted)'; }
+    else            { btn.style.borderColor='var(--border)';  btn.style.background='var(--surface)';        btn.style.color='var(--muted)'; }
   });
   showToast(`🏠 部屋サイズ: ${size}`);
 }
@@ -1831,30 +1689,20 @@ function drawQR(text) {
   const ctx = canvas.getContext('2d');
   const size = 200;
   canvas.width = size; canvas.height = size;
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
   ctx.fillStyle = '#000000';
-
   const cells = 21;
   const cs = size / cells;
-
-  // Simple hash-based data grid (visual placeholder)
   let hash = 0;
   for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
-
   for (let r = 0; r < cells; r++) {
     for (let c = 0; c < cells; c++) {
       const isCorner = (r < 7 && c < 7) || (r < 7 && c >= cells-7) || (r >= cells-7 && c < 7);
       if (!isCorner) {
-        if ((hash ^ (r * 17 + c * 31 + r*c)) & 1) {
-          ctx.fillRect(c * cs, r * cs, cs, cs);
-        }
+        if ((hash ^ (r * 17 + c * 31 + r*c)) & 1) { ctx.fillRect(c * cs, r * cs, cs, cs); }
       }
     }
   }
-
-  // Finder patterns
   [[0,0],[0,cells-7],[cells-7,0]].forEach(([r,c]) => {
     ctx.fillStyle = '#000'; ctx.fillRect(c*cs, r*cs, 7*cs, 7*cs);
     ctx.fillStyle = '#fff'; ctx.fillRect((c+1)*cs, (r+1)*cs, 5*cs, 5*cs);
@@ -1868,22 +1716,228 @@ function drawQR(text) {
   const urlRoom = urlParams.get('room');
   if (urlRoom) {
     currentRoom = urlRoom;
-    const ri = document.getElementById('room-input');
-    if (ri) ri.value = urlRoom;
-    document.getElementById('room-name').textContent = urlRoom + 'ルーム';
-    document.getElementById('room-id').textContent = 'room: ' + urlRoom;
-    // Auto-enter when room param is present
+    document.getElementById('room-input').value = urlRoom;
     setTimeout(() => {
       document.getElementById('splash').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      const stage = document.getElementById('orb-stage');
+      if (stage) {
+        stage.innerHTML = `
+          <div class="orb local" id="orb-local">
+            <div class="orb-circle">🙂</div>
+            <div class="orb-name" id="orb-local-name">${localName}</div>
+            <div class="orb-caption" id="cap-local"></div>
+          </div>`;
+      }
+      document.getElementById('room-name-top').textContent = urlRoom;
       connectSignaling();
       connectSolunaRelay();
       initPlaylist();
       fetchDevices();
       deviceRefreshInterval = setInterval(fetchDevices, 5000);
-      initMic().then(ok => { if (ok) send({ type:'joined', data:{ name:localName } }); });
+      initMic().then(ok => {
+        if (ok) {
+          toggleTranscription();
+          send({ type:'joined', data:{ name:localName } });
+        }
+      });
+      initViz();
+      startLatencyMonitor();
     }, 200);
   }
 })();
+
+// ============================================================
+// AUDIO VISUALIZER — circular spectrum around orbs
+// ============================================================
+let vizCanvas = null, vizCtx = null, vizAnim = null;
+let vizAnalyser = null; // separate from global analyser for mix
+
+function initViz() {
+  vizCanvas = document.getElementById('viz-canvas');
+  if (!vizCanvas) return;
+  vizCtx = vizCanvas.getContext('2d');
+  resizeViz();
+  window.addEventListener('resize', resizeViz);
+  drawViz();
+}
+
+function resizeViz() {
+  if (!vizCanvas) return;
+  const stage = document.getElementById('orb-stage');
+  const size = Math.min(stage ? stage.clientWidth : 300, stage ? stage.clientHeight : 300, 360);
+  vizCanvas.width = size;
+  vizCanvas.height = size;
+}
+
+function drawViz() {
+  vizAnim = requestAnimationFrame(drawViz);
+  if (!vizCanvas || !vizCtx) return;
+  const W = vizCanvas.width, H = vizCanvas.height;
+  const cx = W / 2, cy = H / 2;
+  vizCtx.clearRect(0, 0, W, H);
+
+  const src = analyser || vizAnalyser;
+  let data;
+  if (src) {
+    data = new Uint8Array(src.frequencyBinCount);
+    src.getByteFrequencyData(data);
+  } else {
+    data = new Uint8Array(128).fill(0);
+  }
+
+  const bars = 80;
+  const innerR = W * 0.22;
+  const maxBarH = W * 0.18;
+  const step = Math.floor(data.length / bars);
+
+  for (let i = 0; i < bars; i++) {
+    const angle = (i / bars) * Math.PI * 2 - Math.PI / 2;
+    const val = (data[i * step] || 0) / 255;
+    const barH = innerR + val * maxBarH;
+
+    const x1 = cx + Math.cos(angle) * innerR;
+    const y1 = cy + Math.sin(angle) * innerR;
+    const x2 = cx + Math.cos(angle) * barH;
+    const y2 = cy + Math.sin(angle) * barH;
+
+    const hue = 260 + i * 1.2;
+    const alpha = 0.4 + val * 0.6;
+    vizCtx.beginPath();
+    vizCtx.moveTo(x1, y1);
+    vizCtx.lineTo(x2, y2);
+    vizCtx.lineWidth = 2.5;
+    vizCtx.strokeStyle = `hsla(${hue},80%,70%,${alpha})`;
+    vizCtx.stroke();
+  }
+
+  // Inner glow circle
+  const avgVol = data.reduce((a, b) => a + b, 0) / data.length / 255;
+  const grd = vizCtx.createRadialGradient(cx, cy, innerR * 0.3, cx, cy, innerR);
+  grd.addColorStop(0, `rgba(139,92,246,${0.06 + avgVol * 0.12})`);
+  grd.addColorStop(1, 'rgba(139,92,246,0)');
+  vizCtx.beginPath();
+  vizCtx.arc(cx, cy, innerR, 0, Math.PI * 2);
+  vizCtx.fillStyle = grd;
+  vizCtx.fill();
+}
+
+// ============================================================
+// KARAOKE MODE
+// ============================================================
+let karaokeRole = null; // 'mic' | 'speaker'
+let backingAudioCtx = null;
+let backingBuffer = null;
+let backingSource = null;
+let backingGain = null;
+let backingPlaying = false;
+let pitchOffset = 0;
+
+function toggleKaraokePanel() {
+  document.getElementById('karaoke-panel').classList.toggle('show');
+}
+
+function setKaraokeRole(role) {
+  karaokeRole = role;
+  document.getElementById('role-mic').classList.toggle('active', role === 'mic');
+  document.getElementById('role-speaker').classList.toggle('active', role === 'speaker');
+  document.getElementById('backing-track-area').classList.toggle('show', role === 'speaker');
+
+  if (role === 'mic') {
+    // Mic mode: mute local speakers so no echo
+    Object.values(peerConnections).forEach(pc => {
+      pc.getReceivers?.().forEach(r => { if (r.track) r.track.enabled = false; });
+    });
+    showToast('📱 マイクモード: 自分の声を送信します');
+  } else if (role === 'speaker') {
+    // Speaker mode: unmute received audio
+    Object.values(peerConnections).forEach(pc => {
+      pc.getReceivers?.().forEach(r => { if (r.track) r.track.enabled = true; });
+    });
+    showToast('🖥️ スピーカーモード: 受信音声を再生します');
+  }
+}
+
+async function loadBackingTrack(file) {
+  if (!file) return;
+  document.getElementById('backing-track-info').textContent = '⏳ 読み込み中...';
+  try {
+    if (!backingAudioCtx) {
+      backingAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      backingGain = backingAudioCtx.createGain();
+      backingGain.gain.value = 0.8;
+      backingGain.connect(backingAudioCtx.destination);
+    }
+    const ab = await file.arrayBuffer();
+    backingBuffer = await backingAudioCtx.decodeAudioData(ab);
+    document.getElementById('backing-track-info').textContent = `🎵 ${file.name}`;
+    document.getElementById('btn-backing-play').disabled = false;
+    showToast('伴奏トラック読み込み完了');
+  } catch(e) {
+    document.getElementById('backing-track-info').textContent = '❌ 読み込み失敗';
+    showToast('音声ファイルの読み込みに失敗しました');
+  }
+}
+
+function toggleBackingTrack() {
+  if (!backingBuffer || !backingAudioCtx) return;
+  if (backingPlaying) {
+    backingSource?.stop();
+    backingSource = null;
+    backingPlaying = false;
+    document.getElementById('btn-backing-play').textContent = '▶ 再生';
+  } else {
+    if (backingAudioCtx.state === 'suspended') backingAudioCtx.resume();
+    backingSource = backingAudioCtx.createBufferSource();
+    backingSource.buffer = backingBuffer;
+    backingSource.loop = false;
+    backingSource.connect(backingGain);
+    backingSource.start();
+    backingSource.onended = () => {
+      backingPlaying = false;
+      document.getElementById('btn-backing-play').textContent = '▶ 再生';
+    };
+    backingPlaying = true;
+    document.getElementById('btn-backing-play').textContent = '⏹ 停止';
+  }
+}
+
+function adjustPitch(delta) {
+  pitchOffset = Math.max(-6, Math.min(6, pitchOffset + delta));
+  document.getElementById('karaoke-pitch-lbl').textContent = `ピッチ ${pitchOffset >= 0 ? '+' : ''}${pitchOffset}`;
+  if (backingSource) {
+    // playbackRate ≈ 2^(semitones/12)
+    backingSource.playbackRate.value = Math.pow(2, pitchOffset / 12);
+  }
+  showToast(`ピッチ: ${pitchOffset >= 0 ? '+' : ''}${pitchOffset} 半音`);
+}
+
+// ============================================================
+// LATENCY MEASUREMENT
+// ============================================================
+function startLatencyMonitor() {
+  setInterval(async () => {
+    const pcs = Object.values(peerConnections);
+    if (!pcs.length) return;
+    try {
+      const stats = await pcs[0].getStats();
+      let rtt = null;
+      let candidateType = null;
+      stats.forEach(s => {
+        if (s.type === 'candidate-pair' && s.state === 'succeeded') {
+          if (s.currentRoundTripTime) rtt = s.currentRoundTripTime * 1000;
+        }
+        if (s.type === 'remote-candidate') candidateType = s.candidateType;
+      });
+      const badge = document.getElementById('latency-badge');
+      if (badge && rtt !== null) {
+        const ms = Math.round(rtt);
+        badge.textContent = (candidateType === 'relay' ? '📡 ' : '⚡ ') + ms + 'ms';
+        badge.className = ms < 50 ? 'good' : ms < 150 ? 'mid' : 'bad';
+      }
+    } catch(e) {}
+  }, 2000);
+}
 
 console.log('Koe Web App initialized. Peer ID:', myPeerId);
 </script>
