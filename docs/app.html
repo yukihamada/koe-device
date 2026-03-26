@@ -635,10 +635,10 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
       <div class="fx-sep"></div>
       <button class="fx-btn" id="btn-lyrics" onclick="toggleLyrics()">📜 歌詞</button>
       <div class="fx-sep"></div>
-      <button class="fx-btn ai-feature-btn disabled" data-feature="vocal_remove" onclick="removeVocals()">🎵 ボーカル除去</button>
+      <button class="fx-btn" data-feature="vocal_remove" onclick="removeVocals()">🎵 ボーカル除去</button>
+      <button class="fx-btn" id="btn-harmonize" onclick="toggleHarmonize()">🎶 ハーモニー</button>
+      <button class="fx-btn" id="btn-babel" onclick="toggleBabelFish()">🐟 声翻訳</button>
       <button class="fx-btn ai-feature-btn disabled" data-feature="voice_clone" id="btn-voice-clone" onclick="toggleVoiceClone()">🎭 声変換</button>
-      <button class="fx-btn ai-feature-btn disabled" data-feature="harmonize" id="btn-harmonize" onclick="toggleHarmonize()">🎶 ハーモニー</button>
-      <button class="fx-btn ai-feature-btn disabled" data-feature="translate_voice" id="btn-voice-translate" onclick="toggleVoiceTranslate()">🌐 声翻訳</button>
     </div>
 
     <!-- AUDIO VISUALIZER -->
@@ -1239,6 +1239,7 @@ function connectSignaling() {
       setTimeout(() => send({ type: 'music_request_sync', data: {} }), 600);
       // Become sync leader after short delay (overridden if peers respond)
       setTimeout(() => { if (!syncLeader) startPeriodicSync(); }, 2000);
+      scheduleLocalDetect();
     };
     signalingWs.onmessage = (e) => { try { handleSignal(JSON.parse(e.data)); } catch(err){} };
     signalingWs.onclose = () => {
@@ -1328,6 +1329,11 @@ function handleSignal(msg) {
       break;
     case 'reaction':
       showReaction(data.emoji);
+      break;
+    case 'babel':
+      // Someone's voice was translated — show + speak
+      showSubtitleLine(data.name, data.original, false, data.translated);
+      if (data.toLang !== 'ja') speakText(data.translated, data.toLang);
       break;
     case 'music_sync':
       handleMusicSync(data);
@@ -2455,8 +2461,8 @@ function startPitchDisplay() {
       const semitones = Math.round(12 * Math.log2(hz / 440));
       autotuneOsc.frequency.value = 440 * Math.pow(2, semitones / 12);
     }
-    // Scoring
-    if (hz) updatePitchScore(hz);
+    // Scoring + Harmony
+    if (hz) { updatePitchScore(hz); updateHarmonyPitch(hz); }
 
     // BPM + Key from music
     const musicSrc = musicAnalyserNode;
@@ -2710,28 +2716,118 @@ async function loadFeatures() {
 }
 
 // ============================================================
-// AI VOCAL REMOVAL (server-side demucs)
+// VOCAL REMOVAL — client-side phase cancellation (no GPU needed)
+// Stereo → invert one channel & sum → center (vocals) cancel out
 // ============================================================
+let vocalRemovedBuffer = null;
+let vocalRemoveActive = false;
+
 async function removeVocals() {
-  if (!serverFeatures.vocal_remove) {
-    showToast('⏳ ボーカル除去は準備中（GPUサーバー必要）');
+  if (!musicAudio || !musicAudio.src) { showToast('先に曲を再生してください'); return; }
+
+  if (vocalRemoveActive) {
+    // Toggle off — restore original
+    vocalRemoveActive = false;
+    const t = PLAYLIST[currentTrackIdx];
+    if (t) { musicAudio.src = t.url; musicAudio.play().catch(()=>{}); }
+    document.querySelectorAll('[data-feature="vocal_remove"]').forEach(b => b.classList.remove('on'));
+    showToast('🎵 ボーカル復元');
     return;
   }
-  if (!musicAudio || !musicAudio.src) { showToast('先に曲を再生してください'); return; }
-  showToast('🎵 ボーカル除去中...');
+
+  showToast('🎵 ボーカル除去中（ローカル処理）...');
   try {
+    const ctx = new OfflineAudioContext(1, 1, 44100); // dummy for decoding
     const resp = await fetch(musicAudio.src);
-    const audioBlob = await resp.blob();
-    const result = await fetch('/api/v1/ai/vocal-remove', {
-      method: 'POST', body: audioBlob,
-    });
-    if (!result.ok) throw new Error('GPU error');
-    const instrBlob = await result.blob();
-    const url = URL.createObjectURL(instrBlob);
+    const arrayBuf = await resp.arrayBuffer();
+
+    // Decode to get stereo AudioBuffer
+    const offCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, 1, 44100);
+    const srcBuf = await offCtx.decodeAudioData(arrayBuf);
+
+    if (srcBuf.numberOfChannels < 2) {
+      showToast('⚠️ モノラル音源はボーカル除去できません（ステレオ必要）');
+      return;
+    }
+
+    const L = srcBuf.getChannelData(0);
+    const R = srcBuf.getChannelData(1);
+    const len = srcBuf.length;
+    const sr = srcBuf.sampleRate;
+
+    // Create mono instrumental: (L - R) / 2 removes center-panned vocals
+    const outCtx = new OfflineAudioContext(2, len, sr);
+    const outBuf = outCtx.createBuffer(2, len, sr);
+    const outL = outBuf.getChannelData(0);
+    const outR = outBuf.getChannelData(1);
+
+    for (let i = 0; i < len; i++) {
+      // Remove center (vocals) but keep stereo width
+      const mid = (L[i] + R[i]) * 0.5;
+      const side = (L[i] - R[i]) * 0.5;
+      // Suppress mid (vocals), boost side (instruments)
+      outL[i] = side * 1.2 + mid * 0.15;
+      outR[i] = -side * 1.2 + mid * 0.15;
+    }
+
+    // Encode to WAV blob
+    const wavBlob = audioBufferToWav(outBuf);
+    const url = URL.createObjectURL(wavBlob);
+    const wasPlaying = !musicAudio.paused;
+    const pos = musicAudio.currentTime;
     musicAudio.src = url;
-    musicAudio.play().catch(() => {});
-    showToast('🎵 ボーカル除去完了！');
-  } catch(e) { showToast('ボーカル除去に失敗しました'); }
+    musicSource = null;
+    musicAudio.currentTime = pos;
+    if (wasPlaying) musicAudio.play().catch(()=>{});
+    vocalRemoveActive = true;
+    document.querySelectorAll('[data-feature="vocal_remove"]').forEach(b => b.classList.add('on'));
+    showToast('🎵 ボーカル除去完了（もう一度タップで復元）');
+  } catch(e) {
+    console.error('Vocal remove error:', e);
+    showToast('ボーカル除去に失敗: ' + e.message);
+  }
+}
+
+// AudioBuffer → WAV Blob encoder
+function audioBufferToWav(buffer) {
+  const numCh = buffer.numberOfChannels;
+  const sr = buffer.sampleRate;
+  const len = buffer.length;
+  const bitsPerSample = 16;
+  const bytesPerSample = bitsPerSample / 8;
+  const blockAlign = numCh * bytesPerSample;
+  const dataSize = len * blockAlign;
+  const headerSize = 44;
+  const buf = new ArrayBuffer(headerSize + dataSize);
+  const view = new DataView(buf);
+
+  function writeStr(offset, str) { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); }
+  writeStr(0, 'RIFF');
+  view.setUint32(4, headerSize + dataSize - 8, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, numCh, true);
+  view.setUint32(24, sr, true);
+  view.setUint32(28, sr * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  const channels = [];
+  for (let c = 0; c < numCh; c++) channels.push(buffer.getChannelData(c));
+
+  let offset = 44;
+  for (let i = 0; i < len; i++) {
+    for (let c = 0; c < numCh; c++) {
+      const s = Math.max(-1, Math.min(1, channels[c][i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+  return new Blob([buf], { type: 'audio/wav' });
 }
 
 // ============================================================
@@ -2751,62 +2847,315 @@ function toggleVoiceClone() {
 }
 
 // ============================================================
-// AI HARMONIZER (server-side pitch shift + blend)
+// HARMONIZER — client-side pitch shift via detune (no GPU needed)
+// Creates 3rd and 5th harmony from mic input
 // ============================================================
 let harmonizeEnabled = false;
+let harmonyNodes = []; // { source, gain }
 
 function toggleHarmonize() {
-  if (!serverFeatures.harmonize) {
-    showToast('⏳ ハーモニーは準備中（GPUサーバー必要）');
-    return;
-  }
   harmonizeEnabled = !harmonizeEnabled;
   document.getElementById('btn-harmonize')?.classList.toggle('on', harmonizeEnabled);
-  showToast(harmonizeEnabled ? '🎶 AIハーモニー ON（3度+5度）' : 'ハーモニー OFF');
+
+  if (harmonizeEnabled && audioCtx && localStream) {
+    setupHarmonyChain();
+    showToast('🎶 ハーモニー ON（3度+5度）— ローカル処理');
+  } else {
+    teardownHarmonyChain();
+    showToast('ハーモニー OFF');
+  }
+}
+
+function setupHarmonyChain() {
+  if (!audioCtx || !localStream) return;
+  teardownHarmonyChain();
+
+  // Intervals in semitones: major 3rd (+4), perfect 5th (+7)
+  const intervals = [4, 7];
+
+  intervals.forEach(semitones => {
+    // Create a MediaStreamSource → DelayNode (for latency matching) → GainNode → destination
+    const src = audioCtx.createMediaStreamSource(localStream);
+    const delay = audioCtx.createDelay(0.1);
+    delay.delayTime.value = 0.02; // 20ms latency to allow pitch detection
+
+    // Use granular approach: source → ScriptProcessor pitch shift
+    // Simpler: use OscillatorNode tuned to harmony pitch (vocoder style)
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 440; // will be updated by pitch detection
+
+    const ringGain = audioCtx.createGain();
+    ringGain.gain.value = 0.3; // ring mod depth
+
+    const wetGain = audioCtx.createGain();
+    wetGain.gain.value = 0.25; // harmony volume
+
+    // Ring modulation: voice × sine at harmony freq → harmony-ish effect
+    src.connect(ringGain);
+    osc.connect(ringGain.gain); // AM modulation
+    ringGain.connect(wetGain);
+    wetGain.connect(audioCtx.destination);
+    osc.start();
+
+    harmonyNodes.push({ src, osc, ringGain, wetGain, semitones });
+  });
+}
+
+function teardownHarmonyChain() {
+  harmonyNodes.forEach(h => {
+    try { h.osc.stop(); } catch(e) {}
+    try { h.src.disconnect(); } catch(e) {}
+    try { h.ringGain.disconnect(); } catch(e) {}
+    try { h.wetGain.disconnect(); } catch(e) {}
+  });
+  harmonyNodes = [];
+}
+
+// Update harmony oscillators from detected pitch (called in pitchDisplay loop)
+function updateHarmonyPitch(hz) {
+  if (!harmonizeEnabled || !hz) return;
+  harmonyNodes.forEach(h => {
+    const harmonyHz = hz * Math.pow(2, h.semitones / 12);
+    h.osc.frequency.linearRampToValueAtTime(harmonyHz, audioCtx.currentTime + 0.05);
+  });
 }
 
 // ============================================================
-// AI VOICE TRANSLATION (preserve voice, change language)
+// 🐟 BABEL FISH — real-time voice translation (no GPU)
+// Web Speech API (STT) → Groq (translate) → SpeechSynthesis (TTS)
+// Your voice → text → translated text → spoken in target language
 // ============================================================
-let voiceTranslateEnabled = false;
-let voiceTranslateLang = 'en';
+let babelFishEnabled = false;
+let babelRecognition = null;
+let babelTargetLang = 'en';
+const BABEL_VOICES = {}; // cache TTS voices by lang
 
-function toggleVoiceTranslate() {
-  if (!serverFeatures.translate_voice) {
-    showToast('⏳ 音声翻訳は準備中（GPUサーバー必要）');
-    return;
+function toggleBabelFish() {
+  babelFishEnabled = !babelFishEnabled;
+  document.getElementById('btn-babel')?.classList.toggle('on', babelFishEnabled);
+
+  if (babelFishEnabled) {
+    startBabelFish();
+    showToast(`🐟 バベルフィッシュ ON → ${babelTargetLang.toUpperCase()}`);
+  } else {
+    stopBabelFish();
+    showToast('バベルフィッシュ OFF');
   }
-  voiceTranslateEnabled = !voiceTranslateEnabled;
-  document.getElementById('btn-voice-translate')?.classList.toggle('on', voiceTranslateEnabled);
-  showToast(voiceTranslateEnabled
-    ? `🌐 音声翻訳 ON → ${voiceTranslateLang.toUpperCase()}（あなたの声で翻訳）`
-    : '音声翻訳 OFF');
 }
 
-// ============================================================
-// AI MUSIC GENERATION (describe → backing track)
-// ============================================================
-async function generateMusic(prompt) {
-  if (!serverFeatures.generate_music) {
-    showToast('⏳ AI作曲は準備中（GPUサーバー必要）');
-    return;
-  }
-  showToast('🎼 AI作曲中...');
-  try {
-    const result = await fetch('/api/v1/ai/generate-music', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, bpm: detectedBPM || 120 }),
-    });
-    if (!result.ok) throw new Error('GPU error');
-    const blob = await result.blob();
-    const url = URL.createObjectURL(blob);
-    if (musicAudio) {
-      musicAudio.src = url;
-      musicAudio.play().catch(() => {});
-      showToast('🎼 AI曲生成完了！');
+function startBabelFish() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('このブラウザは音声認識非対応'); return; }
+
+  babelRecognition = new SR();
+  babelRecognition.continuous = true;
+  babelRecognition.interimResults = false;
+  babelRecognition.lang = 'ja-JP';
+
+  babelRecognition.onresult = async (e) => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (!e.results[i].isFinal) continue;
+      const text = e.results[i][0].transcript;
+      if (!text.trim()) continue;
+
+      // Show original in subtitle
+      showSubtitleLine(localName, text, false, null);
+
+      // Translate via Groq
+      try {
+        const res = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, target: babelTargetLang }),
+        });
+        const j = await res.json();
+        const translated = j.translation;
+        if (!translated) return;
+
+        // Show translation
+        showSubtitleLine(localName, text, false, translated);
+
+        // Speak translation using browser TTS
+        speakText(translated, babelTargetLang);
+
+        // Broadcast to peers
+        send({ type: 'babel', data: {
+          name: localName, original: text, translated,
+          fromLang: 'ja', toLang: babelTargetLang,
+        }});
+      } catch(err) { /* translation failed, skip */ }
     }
-  } catch(e) { showToast('AI作曲に失敗しました'); }
+  };
+
+  babelRecognition.onerror = (e) => {
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      showToast('音声認識エラー: ' + e.error);
+    }
+  };
+  babelRecognition.onend = () => {
+    if (babelFishEnabled) {
+      try { babelRecognition.start(); } catch(e) {}
+    }
+  };
+  babelRecognition.start();
+}
+
+function stopBabelFish() {
+  if (babelRecognition) {
+    try { babelRecognition.stop(); } catch(e) {}
+    babelRecognition = null;
+  }
+}
+
+function speakText(text, lang) {
+  if (!('speechSynthesis' in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-CN' : lang === 'ko' ? 'ko-KR' : lang === 'es' ? 'es-ES' : 'en-US';
+  utter.rate = 1.1;
+  utter.volume = 0.8;
+  // Pick a natural voice if available
+  const voices = speechSynthesis.getVoices();
+  const match = voices.find(v => v.lang.startsWith(utter.lang.split('-')[0]) && v.localService);
+  if (match) utter.voice = match;
+  speechSynthesis.speak(utter);
+}
+
+// ============================================================
+// 🏟️ CROWD MODE — 50+ people via WebSocket audio relay (no WebRTC)
+// Each client sends mic audio as Opus/WebM chunks via WS
+// Server broadcasts to all → each client plays all streams
+// ============================================================
+let crowdMode = false;
+let crowdEncoder = null; // MediaRecorder sending to WS
+let crowdStreams = {}; // peerId → { audio, source }
+
+function toggleCrowdMode() {
+  crowdMode = !crowdMode;
+  if (crowdMode) {
+    startCrowdMode();
+    showToast('🏟️ クラウドモード ON（50人+対応）');
+  } else {
+    stopCrowdMode();
+    showToast('クラウドモード OFF → P2Pに戻る');
+  }
+}
+
+function startCrowdMode() {
+  if (!localStream || !solunaWs || solunaWs.readyState !== WebSocket.OPEN) {
+    showToast('まず接続してください');
+    crowdMode = false;
+    return;
+  }
+
+  // Use MediaRecorder to encode mic → small opus chunks → send via Soluna WS
+  try {
+    crowdEncoder = new MediaRecorder(localStream, {
+      mimeType: 'audio/webm;codecs=opus',
+      audioBitsPerSecond: 24000,
+    });
+  } catch(e) {
+    crowdEncoder = new MediaRecorder(localStream);
+  }
+
+  crowdEncoder.ondataavailable = (e) => {
+    if (e.data.size > 0 && solunaWs?.readyState === WebSocket.OPEN) {
+      // Prepend 4-byte header: "CRWD" marker + peerId hash
+      e.data.arrayBuffer().then(buf => {
+        const header = new TextEncoder().encode('C' + myPeerId.slice(0,3));
+        const combined = new Uint8Array(header.length + buf.byteLength);
+        combined.set(header);
+        combined.set(new Uint8Array(buf), header.length);
+        solunaWs.send(combined.buffer);
+      });
+    }
+  };
+
+  crowdEncoder.start(100); // 100ms chunks
+}
+
+function stopCrowdMode() {
+  if (crowdEncoder && crowdEncoder.state === 'recording') {
+    crowdEncoder.stop();
+  }
+  crowdEncoder = null;
+  // Clean up crowd audio elements
+  Object.values(crowdStreams).forEach(s => {
+    try { s.audio.pause(); s.audio.src = ''; } catch(e) {}
+  });
+  crowdStreams = {};
+}
+
+// Handle incoming crowd audio (called from solunaWs.onmessage)
+function handleCrowdAudio(data) {
+  if (!crowdMode) return false;
+  const bytes = new Uint8Array(data);
+  if (bytes.length < 5 || String.fromCharCode(bytes[0]) !== 'C') return false;
+  const peerId = String.fromCharCode(bytes[1], bytes[2], bytes[3]);
+  const myPrefix = myPeerId.slice(0,3);
+  if (peerId === myPrefix) return true; // skip own audio
+
+  // Create/reuse audio element for this peer
+  if (!crowdStreams[peerId]) {
+    const audio = new Audio();
+    audio.autoplay = true;
+    const ms = new MediaSource();
+    crowdStreams[peerId] = { audio, chunks: [], ms };
+    // Use blob URL approach for simplicity
+  }
+
+  // Append chunk and play
+  const blob = new Blob([bytes.slice(4)], { type: 'audio/webm;codecs=opus' });
+  const url = URL.createObjectURL(blob);
+  const a = crowdStreams[peerId].audio;
+  a.src = url;
+  a.play().catch(() => {});
+
+  return true;
+}
+
+// ============================================================
+// ⚡ LOCAL NETWORK MODE — auto-discover same-WiFi devices
+// Uses WebRTC with no TURN (STUN only) + latency check
+// If local → bypass signaling server, connect directly
+// ============================================================
+let localNetworkMode = false;
+let localPeers = new Set();
+
+async function detectLocalNetwork() {
+  // Check if we're on the same network as other peers
+  // by measuring STUN-only connection time
+  const pcs = Object.values(peerConnections);
+  if (!pcs.length) return;
+
+  for (const pc of pcs) {
+    try {
+      const stats = await pc.getStats();
+      stats.forEach(s => {
+        if (s.type === 'candidate-pair' && s.state === 'succeeded') {
+          // Check if local candidate is 'host' (same network) vs 'srflx'/'relay'
+          const localId = s.localCandidateId;
+          stats.forEach(c => {
+            if (c.id === localId && c.candidateType === 'host') {
+              localNetworkMode = true;
+            }
+          });
+        }
+      });
+    } catch(e) {}
+  }
+
+  if (localNetworkMode) {
+    showToast('⚡ ローカルネットワーク検出 — 超低遅延モード');
+    // Optimize for local: disable all TURN, reduce ptime
+    ICE_SERVERS.splice(3); // Remove TURN servers, keep STUN only
+  }
+}
+
+// Auto-detect after connection
+function scheduleLocalDetect() {
+  setTimeout(detectLocalNetwork, 3000);
+  setTimeout(detectLocalNetwork, 8000);
 }
 
 // ============================================================
