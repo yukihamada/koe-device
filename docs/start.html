@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; How it works</title>
+<meta name="description" content="Touch the top. Music plays. That's all.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/start">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe &mdash; How it works">
+<meta property="og:description" content="Touch the top. Music plays. That's all.">
+<meta property="og:image" content="https://koe.live/stl/thumbs/coin-lite-case.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover { color: #fff; }
+nav ul a.active { color: #fff; }
+
+.hero-start {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 6rem 1.5rem 4rem;
+    text-align: center;
+}
+.hero-start h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    max-width: 700px;
+}
+.hero-start .sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    margin-bottom: 4rem;
+    max-width: 540px;
+    line-height: 1.5;
+}
+
+.video-placeholder {
+    width: min(85vw, 520px);
+    aspect-ratio: 9/16;
+    background: linear-gradient(145deg, #1a1a2e 0%, #0a0a0a 100%);
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    margin-bottom: 4rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(139,92,246,0.08);
+}
+.video-placeholder .play {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.video-placeholder .play::after {
+    content: '';
+    width: 0; height: 0;
+    margin-left: 6px;
+    border-left: 22px solid rgba(255,255,255,0.85);
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+}
+.video-placeholder .play:hover {
+    background: rgba(139,92,246,0.2);
+    border-color: rgba(139,92,246,0.6);
+    transform: scale(1.05);
+}
+.video-placeholder .label {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.steps {
+    max-width: 760px;
+    margin: 0 auto 6rem;
+    padding: 0 1.5rem;
+}
+.steps h2 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 200;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: -0.02em;
+}
+.step-list {
+    list-style: none;
+    display: flex; flex-direction: column;
+    gap: 1.2rem;
+}
+.step {
+    display: flex; gap: 1.5rem;
+    padding: 1.4rem 1.6rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    align-items: flex-start;
+}
+.step .n {
+    font-size: 1.8rem;
+    font-weight: 100;
+    color: #8B5CF6;
+    min-width: 2.5rem;
+    line-height: 1;
+}
+.step .c {
+    flex: 1;
+}
+.step .h {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+}
+.step .d {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    font-weight: 300;
+}
+
+footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/start" class="active">How it works</a></li>
+        <li><a href="/business">Business</a></li>
+    </ul>
+</nav>
+
+<section class="hero-start">
+    <h1>Touch the top.<br>Music plays.</h1>
+    <div class="sub">No app. No setup. No account. The entire instruction manual is 30 seconds long.</div>
+    <div class="video-placeholder">
+        <div class="play"></div>
+        <div class="label">30 seconds</div>
+    </div>
+</section>
+
+<section class="steps">
+    <h2>Seven gestures. Zero buttons.</h2>
+    <ul class="step-list">
+        <li class="step">
+            <div class="n">01</div>
+            <div class="c">
+                <div class="h">Pick it up.</div>
+                <div class="d">The Stone wakes. A soft light pulses once.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">02</div>
+            <div class="c">
+                <div class="h">Touch the top.</div>
+                <div class="d">Music begins in under a second.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">03</div>
+            <div class="c">
+                <div class="h">Two fingers for volume.</div>
+                <div class="d">Low, mid, high. That&rsquo;s the entire volume control.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">04</div>
+            <div class="c">
+                <div class="h">Flip it upside down.</div>
+                <div class="d">Mute. Instant silence.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">05</div>
+            <div class="c">
+                <div class="h">Touch another Stone.</div>
+                <div class="d">The music follows you to the next room.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">06</div>
+            <div class="c">
+                <div class="h">Set them around your home.</div>
+                <div class="d">Up to eight Stones play perfectly in sync. Under 2 milliseconds apart.</div>
+            </div>
+        </li>
+        <li class="step">
+            <div class="n">07</div>
+            <div class="c">
+                <div class="h">Place on any Qi charger.</div>
+                <div class="d">No cables. No ports. Eight hours of play. Thirty days of standby.</div>
+            </div>
+        </li>
+    </ul>
+</section>
+
+<footer>
+    Koe &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="mailto:hello@koe.live">hello@koe.live</a>
+</footer>
+
+</body>
+</html>

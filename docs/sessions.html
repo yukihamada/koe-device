@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; Sessions</title>
+<meta name="description" content="Pick up an instrument. The house remembers.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/sessions">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Sessions">
+<meta property="og:description" content="Pick up an instrument. The house remembers.">
+<meta property="og:image" content="https://koe.live/brand/keynote/03_touch_music.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover, nav ul a.active { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
+
+.hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 6rem 1.5rem 4rem;
+    text-align: center;
+    position: relative;
+    background:
+        radial-gradient(ellipse 80% 50% at center 30%, rgba(139,92,246,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse at center top, #1a1a2e 0%, #0a0a0a 60%);
+}
+.hero-badge {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+}
+.hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    margin-bottom: 2rem;
+    max-width: 880px;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.5) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero h2 {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    max-width: 620px;
+    margin-bottom: 3.5rem;
+}
+.hero-image {
+    width: min(92vw, 980px);
+    aspect-ratio: 16/9;
+    background-image: url(/brand/keynote/03_touch_music.png);
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    box-shadow: 0 40px 120px rgba(139,92,246,0.1), 0 20px 60px rgba(0,0,0,0.7);
+}
+
+.section {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem;
+}
+.section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+}
+.section .sub {
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    max-width: 640px;
+}
+.section p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+    font-weight: 200;
+    max-width: 680px;
+    margin-bottom: 1.5rem;
+}
+
+.flow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 4rem 0;
+}
+@media (min-width: 768px) {
+    .flow { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+}
+.flow-step {
+    padding: 2rem 1.5rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    text-align: left;
+}
+.flow-step .n {
+    font-size: 0.62rem;
+    color: #8B5CF6;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+.flow-step .h {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #fff;
+    margin-bottom: 0.6rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+.flow-step .d {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    font-weight: 300;
+}
+
+.tracks {
+    margin: 4rem 0 3rem;
+    padding: 2.5rem;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+}
+.tracks h3 {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+.track-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.82rem;
+    align-items: baseline;
+}
+.track-row:last-child { border-bottom: none; }
+.track-row .num {
+    color: rgba(255,255,255,0.35);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+}
+.track-row .src {
+    color: #fff;
+    font-weight: 300;
+}
+.track-row .loc {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.74rem;
+    font-weight: 300;
+    text-align: right;
+}
+
+.privacy {
+    background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(139,92,246,0.01));
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    margin: 4rem 0;
+}
+.privacy h3 {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+}
+.privacy ul {
+    list-style: none;
+    padding: 0;
+}
+.privacy li {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    font-weight: 300;
+}
+.privacy li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #8B5CF6;
+}
+
+.closing {
+    text-align: center;
+    padding: 6rem 1.5rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+.closing p {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+}
+
+footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/family">Family</a></li>
+        <li><a href="/sessions" class="active">Sessions</a></li>
+        <li><a href="/business" class="hide-mobile">Business</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="hero-badge">New</div>
+    <h1>Pick up an instrument.<br>The house remembers.</h1>
+    <h2>Koe Sessions captures music as it happens. No setup. No recording button. No interruption.</h2>
+    <div class="hero-image"></div>
+</section>
+
+<section class="section">
+    <h2>Spontaneity, preserved.</h2>
+    <div class="sub">The best songs rarely start in studios. They start in kitchens and hotel rooms and beach decks, in the three seconds before anyone thought to press record.</div>
+    <p>
+        Koe Sessions listens for the moment an instrument begins. A guitar strummed idly in the morning. Vocals hummed over coffee. A bassline picked out in an empty room. The system begins recording automatically &mdash; multi-track, synchronized across every Amp in the house.
+    </p>
+    <p>
+        When you find the take later, it&rsquo;s already there. Already in time. Already mixed loose. Nothing was asked of you. Nothing was performed for anyone.
+    </p>
+</section>
+
+<section class="section">
+    <h2>Four steps, zero gestures.</h2>
+    <div class="flow">
+        <div class="flow-step">
+            <div class="n">01 &middot; Detect</div>
+            <div class="h">Instrument recognized</div>
+            <div class="d">On-device ML listens for guitar, bass, vocals, drums &mdash; and ignores conversation.</div>
+        </div>
+        <div class="flow-step">
+            <div class="n">02 &middot; Capture</div>
+            <div class="h">5-second lookback</div>
+            <div class="d">Recording begins from five seconds before detection. The first note is never lost.</div>
+        </div>
+        <div class="flow-step">
+            <div class="n">03 &middot; Sync</div>
+            <div class="h">Every Amp in time</div>
+            <div class="d">All Amp units in the house record in perfect sync. Each becomes its own track.</div>
+        </div>
+        <div class="flow-step">
+            <div class="n">04 &middot; Deliver</div>
+            <div class="h">Private URL, 30 days</div>
+            <div class="d">Access multi-track recordings from a private URL. Auto-deleted after 30 days unless preserved.</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Multi-track, by the room.</h2>
+    <div class="sub">Each Koe Amp records a stereo pair. Each Pick captures contact vibration directly from its instrument. Together, they form a spatial multi-track recording of your house.</div>
+
+    <div class="tracks">
+        <h3>A typical session &mdash; Hanare room</h3>
+        <div class="track-row">
+            <div class="num">01</div>
+            <div class="src">Pick &mdash; guitar contact</div>
+            <div class="loc">direct piezo</div>
+        </div>
+        <div class="track-row">
+            <div class="num">02</div>
+            <div class="src">Pick &mdash; spare / bass</div>
+            <div class="loc">direct piezo</div>
+        </div>
+        <div class="track-row">
+            <div class="num">03</div>
+            <div class="src">Amp &mdash; hanare L</div>
+            <div class="loc">stereo pair, room reference</div>
+        </div>
+        <div class="track-row">
+            <div class="num">04</div>
+            <div class="src">Amp &mdash; hanare R</div>
+            <div class="loc">stereo pair, room reference</div>
+        </div>
+        <div class="track-row">
+            <div class="num">05</div>
+            <div class="src">Amp &mdash; living room L</div>
+            <div class="loc">ambient bleed</div>
+        </div>
+        <div class="track-row">
+            <div class="num">06</div>
+            <div class="src">Amp &mdash; living room R</div>
+            <div class="loc">ambient bleed</div>
+        </div>
+    </div>
+    <p>
+        Six channels. 48 kHz / 24 bit. Synchronized to less than two milliseconds between tracks. Drop the files into any DAW and the spatial field of the original room is intact.
+    </p>
+</section>
+
+<section class="section">
+    <h2>Privacy, by design.</h2>
+    <div class="privacy">
+        <h3>What Koe Sessions will never do</h3>
+        <ul>
+            <li>Record ambient conversation. Voice detection is specifically trained to ignore speech and capture only musical performance.</li>
+            <li>Upload to the cloud without explicit host approval. All storage is local to the Amp units.</li>
+            <li>Retain beyond 30 days. Recordings automatically delete unless explicitly preserved.</li>
+            <li>Claim any ownership. Every recording belongs 100% to the performing artist or their management.</li>
+            <li>Record in bedrooms or bathrooms. Only common spaces and music rooms contain microphone-enabled Amps.</li>
+            <li>Work without consent. A release form is signed in advance, and any participant may disable recording at any time.</li>
+        </ul>
+    </div>
+    <p>
+        Each microphone-enabled device signals its state visually: when recording is active, a soft violet glow pulses from beneath the top face. It is always visible, never hidden.
+    </p>
+</section>
+
+<section class="closing">
+    <p>A home that listens only when music happens.<br>A room that remembers how it sounded.</p>
+</section>
+
+<footer>
+    Koe Sessions &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="mailto:business@koe.live">business@koe.live</a>
+</footer>
+
+</body>
+</html>

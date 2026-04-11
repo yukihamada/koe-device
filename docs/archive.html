@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe 3D Viewer &mdash; インタラクティブ3Dビューア</title>
+<meta name="description" content="Koeデバイスの3Dモデルをインタラクティブに閲覧。回転・ズーム・色変更が可能。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/3d">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe 3D Viewer — インタラクティブ3Dビューア">
+<meta property="og:description" content="Koeデバイスの3Dモデルをインタラクティブに閲覧。回転・ズーム・色変更が可能。">
+<meta property="og:image" content="https://koe.live/images/G-lineup-all.png">
+<meta property="og:url" content="https://koe.live/3d">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe 3D Viewer — インタラクティブ3Dビューア">
+<meta name="twitter:description" content="Koeデバイスの3Dモデルをインタラクティブに閲覧。回転・ズーム・色変更が可能。">
+<meta name="twitter:image" content="https://koe.live/images/G-lineup-all.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    overflow: hidden;
+}
+#viewer { width: 100vw; height: 100vh; }
+
+/* -- Nav overlay -- */
+#nav-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(10,10,10,0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+#nav-bar .logo {
+    font-size: 1.1rem; font-weight: 200; letter-spacing: 0.3em;
+    color: #e8e8e8; text-decoration: none;
+}
+#nav-bar .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+#nav-bar .nav-links a {
+    color: #888; text-decoration: none; font-size: 0.8rem;
+    letter-spacing: 0.05em; transition: color 0.2s;
+}
+#nav-bar .nav-links a:hover { color: #fff; }
+#nav-bar .nav-links a.active { color: #8B5CF6; }
+
+/* -- Sidebar -- */
+#controls {
+    position: fixed; top: 52px; left: 0; z-index: 10;
+    width: 240px; height: calc(100vh - 52px);
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    padding: 1rem 0.8rem;
+}
+#controls::-webkit-scrollbar { width: 3px; }
+#controls::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.section-label {
+    color: #666; font-size: 0.65rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 0.6rem 0.4rem 0.3rem;
+}
+
+#search-box {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    color: #e0e0e0;
+    font-family: inherit;
+    font-size: 0.78rem;
+    margin-bottom: 0.3rem;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+#search-box::placeholder { color: #555; }
+#search-box:focus {
+    border-color: rgba(139,92,246,0.5);
+    background: rgba(139,92,246,0.06);
+}
+
+.model-btn {
+    display: flex; align-items: center; gap: 0.55rem;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #bbb;
+    padding: 0.35rem 0.45rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    text-align: left;
+    width: 100%;
+}
+.model-btn:hover {
+    background: rgba(139, 92, 246, 0.08);
+    color: #e0e0e0;
+}
+.model-btn:hover .thumb {
+    border-color: rgba(139,92,246,0.35);
+    transform: scale(1.04);
+}
+.model-btn.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(139, 92, 246, 0.1);
+}
+.model-btn.active .thumb {
+    border-color: rgba(139,92,246,0.6);
+    box-shadow: 0 0 10px rgba(139,92,246,0.25);
+}
+.model-btn .icon {
+    font-size: 1rem;
+    width: 1.4rem;
+    text-align: center;
+    flex-shrink: 0;
+    display: none;
+}
+.model-btn .thumb {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background: radial-gradient(circle at 35% 30%, #1f1f2e, #0a0a11);
+    border: 1px solid rgba(255,255,255,0.06);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: all 0.18s ease;
+    image-rendering: -webkit-optimize-contrast;
+}
+.model-btn .label { flex: 1; line-height: 1.25; min-width: 0; }
+.model-btn .label-sub { display: block; font-size: 0.6rem; color: #666; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* -- Color Swatches -- */
+.color-section {
+    padding: 0.4rem;
+    margin-top: 0.2rem;
+}
+.color-swatches {
+    display: flex; gap: 0.4rem; flex-wrap: wrap;
+    padding: 0.3rem 0;
+}
+.color-swatch {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+.color-swatch:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.color-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+}
+.color-swatch::after {
+    content: '';
+    position: absolute; inset: 2px;
+    border-radius: 50%;
+    background: inherit;
+}
+
+/* -- Info Panel (right side) -- */
+#info-panel {
+    position: fixed; top: 72px; right: 1.5rem;
+    z-index: 10; max-width: 280px;
+    pointer-events: none;
+}
+#model-name {
+    font-size: 1.5rem; font-weight: 200;
+    color: #fff;
+    letter-spacing: -0.03em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    margin-bottom: 0.2rem;
+}
+#dimensions {
+    font-size: 0.78rem; color: rgba(255,255,255,0.4);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.8rem;
+}
+#description {
+    background: rgba(10,10,10,0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+#description.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+#description .desc-math {
+    font-size: 0.72rem; color: #8B5CF6;
+    letter-spacing: 0.03em; margin-bottom: 0.4rem;
+    font-weight: 500;
+}
+#description .desc-text {
+    font-size: 0.75rem; color: #aaa;
+    line-height: 1.6; font-weight: 300;
+}
+#description .desc-dims {
+    font-size: 0.68rem; color: #666;
+    margin-top: 0.5rem; padding-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+#description .desc-badge {
+    display: inline-block;
+    font-size: 0.6rem; color: #f59e0b;
+    border: 1px solid rgba(245,158,11,0.3);
+    background: rgba(245,158,11,0.08);
+    padding: 0.1rem 0.5rem; border-radius: 100px;
+    margin-top: 0.4rem;
+}
+
+#info {
+    position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+    text-align: center; color: rgba(255,255,255,0.25); font-size: 0.7rem;
+    z-index: 10; font-weight: 300;
+    letter-spacing: 0.02em;
+}
+
+/* -- Loading -- */
+#loading {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: none;
+}
+#loading.show { display: block; }
+#loading .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid rgba(139,92,246,0.2);
+    border-top-color: #8B5CF6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* -- Mobile -- */
+@media (max-width: 768px) {
+    #controls { width: 200px; padding: 0.8rem 0.6rem; }
+    #info-panel { right: 0.8rem; max-width: 200px; }
+    #model-name { font-size: 1.2rem; }
+    #nav-bar .nav-links a.hide-mobile { display: none; }
+    #nav-bar .nav-links { gap: 0.8rem; }
+}
+@media (max-width: 480px) {
+    #controls { width: 180px; }
+    #info-panel { display: none; }
+    #nav-bar { padding: 0.8rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div id="nav-bar">
+    <a href="/" class="logo">KOE</a>
+    <div class="nav-links">
+        <a href="/order">製品</a>
+        <a href="/gallery" class="hide-mobile">ギャラリー</a>
+        <a href="/3d" class="active">3D</a>
+        <a href="/business" class="hide-mobile">法人</a>
+        <a href="/orchestra" class="hide-mobile">オケ</a>
+    </div>
+</div>
+
+<div id="viewer"></div>
+<div id="loading"><div class="spinner"></div></div>
+
+<div id="controls">
+    <input id="search-box" type="text" placeholder="🔍 検索 (30モデル)" autocomplete="off">
+
+    <div class="section-label" data-section>販売中</div>
+    <button class="model-btn" data-id="dk" data-file="dk-case.stl" data-cat="prod">
+        <span class="icon">&#9645;</span>
+        <span class="label">DK Edition<span class="label-sub">nRF5340 Audio DK</span></span>
+    </button>
+
+    <div class="section-label" data-section>Pro Line <span style="color:#22c55e;font-size:0.55rem;margin-left:0.3rem;">本番機</span></div>
+    <button class="model-btn" data-id="pro" data-file="pro-v2-case.stl" data-cat="pro">
+        <span class="icon">&#9881;</span>
+        <span class="label">Koe Pro v2<span class="label-sub">UWB同期 + BLE Audio</span></span>
+    </button>
+    <button class="model-btn" data-id="hub" data-file="hub-v2-case.stl" data-cat="pro">
+        <span class="icon">&#9638;</span>
+        <span class="label">Koe Hub v2<span class="label-sub">Pi CM5 8ch mixer</span></span>
+    </button>
+
+    <div class="section-label" data-section>Seed Core <span style="color:#f59e0b;font-size:0.55rem;margin-left:0.3rem;">数理曲面</span></div>
+    <button class="model-btn" data-id="stone" data-file="coin-lite-case.stl" data-cat="seed">
+        <span class="icon">&#9679;</span>
+        <span class="label">The Stone<span class="label-sub">スーパー楕円 n=3</span></span>
+    </button>
+    <button class="model-btn" data-id="drop" data-file="seed-keychain.stl" data-cat="seed">
+        <span class="icon">&#9906;</span>
+        <span class="label">The Drop<span class="label-sub">涙滴曲線</span></span>
+    </button>
+    <button class="model-btn" data-id="lens" data-file="seed-wristband-pod.stl" data-cat="seed">
+        <span class="icon">&#9201;</span>
+        <span class="label">The Lens<span class="label-sub">双凸レンズ</span></span>
+    </button>
+    <button class="model-btn" data-id="seed" data-file="seed-dot.stl" data-cat="seed">
+        <span class="icon">&#183;</span>
+        <span class="label">The Seed<span class="label-sub">レンティキュラー</span></span>
+    </button>
+    <button class="model-btn" data-id="plectrum" data-file="seed-pick.stl" data-cat="seed">
+        <span class="icon">&#9835;</span>
+        <span class="label">The Plectrum<span class="label-sub">ルーローの三角形</span></span>
+    </button>
+
+    <div class="section-label" data-section>Music</div>
+    <button class="model-btn" data-id="capo" data-file="seed-capo.stl" data-cat="music">
+        <span class="icon">&#9836;</span>
+        <span class="label">Capo<span class="label-sub">ギターカポ内蔵</span></span>
+    </button>
+    <button class="model-btn" data-id="drumkey" data-file="seed-drumkey.stl" data-cat="music">
+        <span class="icon">&#9834;</span>
+        <span class="label">Drum Key<span class="label-sub">ドラムチューニング</span></span>
+    </button>
+    <button class="model-btn" data-id="pedalboard" data-file="seed-pedalboard.stl" data-cat="music">
+        <span class="icon">&#9724;</span>
+        <span class="label">Pedalboard<span class="label-sub">エフェクター統合</span></span>
+    </button>
+    <button class="model-btn" data-id="amp" data-file="seed-amp.stl" data-cat="music">
+        <span class="icon">&#127925;</span>
+        <span class="label">Mini Amp<span class="label-sub">ポータブルSPK</span></span>
+    </button>
+
+    <div class="section-label" data-section>Wearable</div>
+    <button class="model-btn" data-id="pendant" data-file="seed-pendant.stl" data-cat="wear">
+        <span class="icon">&#10047;</span>
+        <span class="label">Pendant<span class="label-sub">ネックレス型</span></span>
+    </button>
+    <button class="model-btn" data-id="neckband" data-file="seed-neckband.stl" data-cat="wear">
+        <span class="icon">&#9901;</span>
+        <span class="label">Neckband<span class="label-sub">首掛けスピーカー</span></span>
+    </button>
+    <button class="model-btn" data-id="ring" data-file="seed-ring.stl" data-cat="wear">
+        <span class="icon">&#9675;</span>
+        <span class="label">Ring<span class="label-sub">指輪型</span></span>
+    </button>
+    <button class="model-btn" data-id="watch" data-file="seed-watch.stl" data-cat="wear">
+        <span class="icon">&#8986;</span>
+        <span class="label">Watch<span class="label-sub">腕時計型</span></span>
+    </button>
+    <button class="model-btn" data-id="headphone" data-file="seed-headphone.stl" data-cat="wear">
+        <span class="icon">&#127911;</span>
+        <span class="label">Headphone<span class="label-sub">オーバーイヤー</span></span>
+    </button>
+    <button class="model-btn" data-id="earphone" data-file="seed-earphone.stl" data-cat="wear">
+        <span class="icon">&#127908;</span>
+        <span class="label">Earphone<span class="label-sub">インイヤー</span></span>
+    </button>
+    <button class="model-btn" data-id="glasses" data-file="seed-glasses.stl" data-cat="wear">
+        <span class="icon">&#128083;</span>
+        <span class="label">Glasses<span class="label-sub">メガネテンプル装着</span></span>
+    </button>
+
+    <div class="section-label" data-section>Attach</div>
+    <button class="model-btn" data-id="badge" data-file="seed-badge.stl" data-cat="attach">
+        <span class="icon">&#9642;</span>
+        <span class="label">Badge<span class="label-sub">名札型</span></span>
+    </button>
+    <button class="model-btn" data-id="clip" data-file="seed-clip.stl" data-cat="attach">
+        <span class="icon">&#128206;</span>
+        <span class="label">Clip<span class="label-sub">服/バッグ</span></span>
+    </button>
+    <button class="model-btn" data-id="hat-clip" data-file="seed-hat-clip.stl" data-cat="attach">
+        <span class="icon">&#127913;</span>
+        <span class="label">Hat Clip<span class="label-sub">帽子装着</span></span>
+    </button>
+    <button class="model-btn" data-id="mic-clip" data-file="seed-mic-clip.stl" data-cat="attach">
+        <span class="icon">&#127897;</span>
+        <span class="label">Mic Clip<span class="label-sub">ピンマイク</span></span>
+    </button>
+    <button class="model-btn" data-id="sticker" data-file="seed-sticker.stl" data-cat="attach">
+        <span class="icon">&#9873;</span>
+        <span class="label">Sticker<span class="label-sub">粘着パッチ</span></span>
+    </button>
+
+    <div class="section-label" data-section>Sport & Outdoor</div>
+    <button class="model-btn" data-id="shoe" data-file="seed-shoe.stl" data-cat="sport">
+        <span class="icon">&#128094;</span>
+        <span class="label">Shoe<span class="label-sub">シューズ装着</span></span>
+    </button>
+    <button class="model-btn" data-id="outdoor" data-file="seed-outdoor.stl" data-cat="sport">
+        <span class="icon">&#9968;</span>
+        <span class="label">Outdoor<span class="label-sub">防水/耐衝撃</span></span>
+    </button>
+    <button class="model-btn" data-id="lens-pod" data-file="seed-wristband.stl" data-cat="sport">
+        <span class="icon">&#8982;</span>
+        <span class="label">Wristband Pod<span class="label-sub">リストバンド差込</span></span>
+    </button>
+    <button class="model-btn" data-id="bottle" data-file="seed-bottle.stl" data-cat="sport">
+        <span class="icon">&#127870;</span>
+        <span class="label">Bottle<span class="label-sub">ボトル装着</span></span>
+    </button>
+
+    <div class="section-label" data-section>Object</div>
+    <button class="model-btn" data-id="ball" data-file="seed-ball.stl" data-cat="obj">
+        <span class="icon">&#9898;</span>
+        <span class="label">Ball<span class="label-sub">球体</span></span>
+    </button>
+    <button class="model-btn" data-id="card" data-file="seed-card.stl" data-cat="obj">
+        <span class="icon">&#9645;</span>
+        <span class="label">Card<span class="label-sub">ISO 7810</span></span>
+    </button>
+    <button class="model-btn" data-id="figurine" data-file="seed-figurine.stl" data-cat="obj">
+        <span class="icon">&#9823;</span>
+        <span class="label">Figurine<span class="label-sub">フィギュア型</span></span>
+    </button>
+
+    <div class="section-label">品質</div>
+    <div class="color-section">
+        <button class="model-btn" id="hd-toggle" onclick="toggleHD()" style="font-size:0.72rem;">
+            <span class="icon">&#9733;</span>
+            <span class="label">HD モード</span>
+        </button>
+    </div>
+
+    <div class="section-label">カラー</div>
+    <div class="color-section">
+        <div class="color-swatches">
+            <div class="color-swatch active" style="background:#f0f0f0" onclick="setColor(0xf0f0f0, this)" title="シルバー"></div>
+            <div class="color-swatch" style="background:#2a2a2e" onclick="setColor(0x2a2a2e, this)" title="スペースブラック"></div>
+            <div class="color-swatch" style="background:#3b5998" onclick="setColor(0x3b5998, this)" title="ミッドナイトブルー"></div>
+            <div class="color-swatch" style="background:#c0392b" onclick="setColor(0xc0392b, this)" title="レッド"></div>
+            <div class="color-swatch" style="background:#27ae60" onclick="setColor(0x27ae60, this)" title="グリーン"></div>
+            <div class="color-swatch" style="background:#f39c12" onclick="setColor(0xf39c12, this)" title="ゴールド"></div>
+            <div class="color-swatch" style="background:#8B5CF6" onclick="setColor(0x8B5CF6, this)" title="Koe パープル"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Panel -->
+<div id="info-panel">
+    <div id="model-name">DK Edition</div>
+    <div id="dimensions">135.6 &times; 65.6 &times; 24.5mm</div>
+    <div id="description" class="visible">
+        <div class="desc-math" id="desc-math"></div>
+        <div class="desc-text" id="desc-text"></div>
+        <div class="desc-dims" id="desc-dims"></div>
+        <div class="desc-badge" id="desc-badge" style="display:none;"></div>
+    </div>
+</div>
+
+<div id="info">ドラッグで回転 &middot; スクロールでズーム &middot; 右ドラッグでパン</div>
+
+<footer style="position:fixed;bottom:0;left:0;right:0;z-index:15;text-align:center;padding:0.5rem 1rem;background:rgba(10,10,10,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.04);font-size:0.7rem;color:#555;">
+  Koe — 東京 | <a href="mailto:hello@koe.live" style="color:#666;text-decoration:none;">hello@koe.live</a> | <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" style="color:#666;text-decoration:none;">GitHub</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// -- Model metadata --
+var MODEL_INFO = {
+    dk: {
+        name: 'DK Edition',
+        dims: '135.6 &times; 65.6 &times; 24.5mm',
+        math: 'nRF5340 Audio DK',
+        desc: 'Nordic Semiconductor公式開発キットベース。Auracast受信を今すぐ体験できる販売中のモデル。USB-C給電。',
+        detail: '135.6 &times; 65.6 &times; 24.5mm',
+        badge: '販売中'
+    },
+    stone: {
+        name: 'The Stone',
+        dims: 'スーパー楕円 n=3 &middot; &Oslash;26 &times; 8.2mm',
+        math: 'Superellipse |x/a|^n + |y/b|^n = 1, n=3',
+        desc: 'ラメの超楕円をベースにした有機的な形状。手の中に自然に収まるペブル（小石）のフォルム。28mm基板を内蔵。',
+        detail: '直径26mm &times; 厚さ8.2mm &middot; 重量: 約8g',
+        badge: '開発中'
+    },
+    drop: {
+        name: 'The Drop',
+        dims: '涙滴曲線 &middot; 26 &times; 20 &times; 6.8mm',
+        math: 'Piriform curve: x = a(1 + sin t), y = b cos t(1 + sin t)',
+        desc: '涙滴（ピリフォーム）曲線から生まれたキーチェーン型。カラビナやキーリングに取り付け可能。',
+        detail: '26 &times; 20 &times; 6.8mm &middot; 重量: 約6g',
+        badge: '開発中'
+    },
+    lens: {
+        name: 'The Lens',
+        dims: '双凸レンズ &middot; 28 &times; 20 &times; 6mm',
+        math: 'Biconvex: R1=R2, thickness = R - sqrt(R^2 - r^2)',
+        desc: '光学レンズの断面形状を筐体に応用。リストバンドポッドに装着して手首に。薄く滑らかな曲面。',
+        detail: '28 &times; 20 &times; 6mm &middot; 重量: 約7g',
+        badge: '開発中'
+    },
+    seed: {
+        name: 'The Seed',
+        dims: 'レンティキュラー &middot; &Oslash;20 &times; 4mm',
+        math: 'Lenticular: two spherical caps, h << r',
+        desc: '最小のフォームファクター。レンズ豆のような形状で、どこにでも忍ばせられる。名前の由来となったモデル。',
+        detail: '直径20mm &times; 厚さ4mm &middot; 重量: 約3g',
+        badge: '開発中'
+    },
+    plectrum: {
+        name: 'The Plectrum',
+        dims: 'ルーローの三角形 &middot; &Oslash;24 &times; 4.5mm',
+        math: 'Reuleaux triangle: intersection of 3 circles, constant width',
+        desc: 'ルーローの三角形 -- 定幅曲線の代表。ギターピックのような手触り。ミュージシャンのためのフォルム。',
+        detail: '直径24mm &times; 厚さ4.5mm &middot; 重量: 約4g',
+        badge: '開発中'
+    },
+    pendant: {
+        name: 'Pendant',
+        dims: '35 &times; 28 &times; 10mm',
+        math: '',
+        desc: 'ネックレスやストラップに通せるペンダント型。ガイドツアーやカンファレンスに。',
+        detail: '35 &times; 28 &times; 10mm',
+        badge: '開発中'
+    },
+    ring: {
+        name: 'Ring',
+        dims: '&Oslash;24 &times; 8mm',
+        math: '',
+        desc: 'リング型フォームファクター。指に装着して音楽を感じる。',
+        detail: '直径24mm &times; 高さ8mm',
+        badge: '開発中'
+    },
+    headphone: {
+        name: 'Headphone',
+        dims: '60 &times; 50 &times; 25mm',
+        math: '',
+        desc: 'オーバーイヤー型。高音質を求めるリスナー向け。',
+        detail: '60 &times; 50 &times; 25mm',
+        badge: '開発中'
+    },
+    watch: {
+        name: 'Watch',
+        dims: '&Oslash;42 &times; 10mm',
+        math: '',
+        desc: '腕時計型フォームファクター。日常使いを想定。',
+        detail: '直径42mm &times; 厚さ10mm',
+        badge: '開発中'
+    },
+    badge: {
+        name: 'Badge',
+        dims: '55 &times; 35 &times; 8mm',
+        math: '',
+        desc: 'バッジ/名札型。カンファレンスやイベント来場者に最適。',
+        detail: '55 &times; 35 &times; 8mm',
+        badge: '開発中'
+    },
+    clip: {
+        name: 'Clip',
+        dims: '35 &times; 25 &times; 12mm',
+        math: '',
+        desc: 'クリップ型。服やバッグに取り付け可能。',
+        detail: '35 &times; 25 &times; 12mm',
+        badge: '開発中'
+    },
+    amp: {
+        name: 'Mini Amp',
+        dims: '50 &times; 50 &times; 50mm',
+        math: '',
+        desc: '小型スピーカー内蔵アンプ。受信した音声を外部出力。',
+        detail: '50 &times; 50 &times; 50mm',
+        badge: '開発中'
+    },
+    ball: {
+        name: 'Ball',
+        dims: '&Oslash;40mm',
+        math: '',
+        desc: '球体型。転がしても音が途切れない全方位デザイン。',
+        detail: '直径40mm',
+        badge: '開発中'
+    },
+    card: {
+        name: 'Card',
+        dims: '85 &times; 54 &times; 4mm',
+        math: '',
+        desc: 'カード型。財布やカードケースに収まるISO 7810準拠サイズ。',
+        detail: '85 &times; 54 &times; 4mm (ISO 7810 ID-1)',
+        badge: '開発中'
+    },
+    pro: {
+        name: 'Koe Pro v2',
+        dims: '50 &times; 40 &times; 12mm',
+        math: 'nRF5340 + DW3720 UWB + AK5720 ADC',
+        desc: '本番機。BLE Audio (LC3, 80kbps)＋UWB同期 (±10ns)。ミュージシャン向け低遅延オーディオ送信機。',
+        detail: '50 &times; 40 &times; 12mm &middot; 重量: 約22g',
+        badge: '本番機'
+    },
+    hub: {
+        name: 'Koe Hub v2',
+        dims: '90 &times; 70 &times; 25mm',
+        math: 'Raspberry Pi CM5 + PCM5102A x2 + PCM1808',
+        desc: '8chミキサー+EQ/reverb/comp+SRT/RTMP配信を1台で。Pi CM5内蔵、WiFi 7+LAN、Pro機群の司令塔。',
+        detail: '90 &times; 70 &times; 25mm &middot; Pi CM5 4GB',
+        badge: '本番機'
+    },
+    capo: {
+        name: 'Capo',
+        dims: '55 &times; 25 &times; 12mm',
+        math: '',
+        desc: 'ギターカポに内蔵。演奏中の音を自動キャプチャして同期配信。カポの開閉でREC開始。',
+        detail: '55 &times; 25 &times; 12mm &middot; 重量: 約15g',
+        badge: '開発中'
+    },
+    drumkey: {
+        name: 'Drum Key',
+        dims: '45 &times; 15 &times; 10mm',
+        math: '',
+        desc: 'ドラムチューニングキー型。スネアの張力検出＋音声送信。叩いた位置を記録。',
+        detail: '45 &times; 15 &times; 10mm',
+        badge: '開発中'
+    },
+    pedalboard: {
+        name: 'Pedalboard Module',
+        dims: '80 &times; 50 &times; 20mm',
+        math: '',
+        desc: 'エフェクターチェーンに統合するパッチモジュール。各ペダルの出力をHub v2へ無線送信。',
+        detail: '80 &times; 50 &times; 20mm',
+        badge: '開発中'
+    },
+    neckband: {
+        name: 'Neckband',
+        dims: '120 &times; 90 &times; 15mm',
+        math: '',
+        desc: '首掛けスピーカー型。両端に4Ωドライバー、中央にマイクアレイ。通話もアンビエントも。',
+        detail: '120 &times; 90 &times; 15mm &middot; 重量: 約85g',
+        badge: '開発中'
+    },
+    earphone: {
+        name: 'Earphone',
+        dims: '18 &times; 15 &times; 10mm',
+        math: '',
+        desc: 'インイヤー型。BLE Audio LE対応、1台で補聴器/翻訳/配信受信を兼ねる。',
+        detail: '18 &times; 15 &times; 10mm (片耳)',
+        badge: '開発中'
+    },
+    glasses: {
+        name: 'Glasses',
+        dims: '20 &times; 10 &times; 8mm',
+        math: '',
+        desc: 'メガネのテンプルに装着するモジュール。骨伝導出力＋指向性マイク。',
+        detail: '20 &times; 10 &times; 8mm',
+        badge: '開発中'
+    },
+    'hat-clip': {
+        name: 'Hat Clip',
+        dims: '25 &times; 20 &times; 10mm',
+        math: '',
+        desc: '帽子のつばにクリップ留め。ストリートパフォーマーや屋外ガイド向け。',
+        detail: '25 &times; 20 &times; 10mm',
+        badge: '開発中'
+    },
+    'mic-clip': {
+        name: 'Mic Clip',
+        dims: '30 &times; 15 &times; 10mm',
+        math: '',
+        desc: 'ラベリアマイク型。襟元にクリップ。ワイヤレス＋録音ローカル保存。',
+        detail: '30 &times; 15 &times; 10mm',
+        badge: '開発中'
+    },
+    sticker: {
+        name: 'Sticker',
+        dims: '30 &times; 30 &times; 3mm',
+        math: '',
+        desc: '粘着パッチ型。iPhoneやノートPCに貼る最薄フォーム。交換式バッテリー。',
+        detail: '30 &times; 30 &times; 3mm &middot; 3M粘着',
+        badge: '開発中'
+    },
+    shoe: {
+        name: 'Shoe',
+        dims: '35 &times; 25 &times; 10mm',
+        math: '',
+        desc: 'シューズのシューレースに通すモジュール。歩数/リズム検出、同期エフェクト用。',
+        detail: '35 &times; 25 &times; 10mm',
+        badge: '開発中'
+    },
+    outdoor: {
+        name: 'Outdoor',
+        dims: '50 &times; 30 &times; 20mm',
+        math: 'IP68 + MIL-STD-810G',
+        desc: '防水・耐衝撃モデル。登山/キャンプ/海。大容量バッテリーとGPS内蔵。',
+        detail: '50 &times; 30 &times; 20mm &middot; 重量: 約48g',
+        badge: '開発中'
+    },
+    'lens-pod': {
+        name: 'Wristband Pod',
+        dims: '28 &times; 20 &times; 6mm',
+        math: 'Biconvex lens',
+        desc: 'The Lens をリストバンドに差し込む装着型。取り外して充電可能。',
+        detail: '28 &times; 20 &times; 6mm &middot; シリコンバンド同梱',
+        badge: '開発中'
+    },
+    bottle: {
+        name: 'Bottle',
+        dims: '25 &times; 25 &times; 8mm',
+        math: '',
+        desc: 'ウォーターボトルのキャップに装着。温度センサー兼用、ワークアウト記録。',
+        detail: '25 &times; 25 &times; 8mm',
+        badge: '開発中'
+    },
+    figurine: {
+        name: 'Figurine',
+        dims: '40 &times; 40 &times; 80mm',
+        math: '',
+        desc: 'フィギュア型。デスクやシェルフに置くキャラクター筐体。表情LED付き。',
+        detail: '40 &times; 40 &times; 80mm',
+        badge: '開発中'
+    }
+};
+
+// -- Scene --
+var scene = new THREE.Scene();
+
+// Gradient background
+var bgCanvas = document.createElement('canvas');
+bgCanvas.width = 512; bgCanvas.height = 512;
+var bgCtx = bgCanvas.getContext('2d');
+var bgGrad = bgCtx.createLinearGradient(0, 0, 0, 512);
+bgGrad.addColorStop(0, '#1a1a2e');
+bgGrad.addColorStop(0.5, '#121220');
+bgGrad.addColorStop(1, '#0a0a0a');
+bgCtx.fillStyle = bgGrad;
+bgCtx.fillRect(0, 0, 512, 512);
+var bgTexture = new THREE.CanvasTexture(bgCanvas);
+scene.background = bgTexture;
+
+// -- Camera --
+var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 120, 250);
+
+// -- Renderer --
+var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio * 1.5, 3));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.outputEncoding = THREE.sRGBEncoding;
+document.getElementById('viewer').appendChild(renderer.domElement);
+
+// -- Controls --
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.8;
+controls.minDistance = 30;
+controls.maxDistance = 600;
+controls.maxPolarAngle = Math.PI * 0.85;
+
+// -- Environment Map (gradient for reflections) --
+var envSize = 256;
+var envCanvas = document.createElement('canvas');
+envCanvas.width = envSize; envCanvas.height = envSize;
+var envCtx = envCanvas.getContext('2d');
+var envGrad = envCtx.createLinearGradient(0, 0, 0, envSize);
+envGrad.addColorStop(0, '#ffffff');
+envGrad.addColorStop(0.3, '#c8d4e8');
+envGrad.addColorStop(0.5, '#8899bb');
+envGrad.addColorStop(0.7, '#445577');
+envGrad.addColorStop(1, '#1a1a2e');
+envCtx.fillStyle = envGrad;
+envCtx.fillRect(0, 0, envSize, envSize);
+var envTexture = new THREE.CanvasTexture(envCanvas);
+envTexture.mapping = THREE.EquirectangularReflectionMapping;
+
+// -- Lights: 3-point + ambient --
+var keyLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+keyLight.position.set(100, 200, 150);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.width = 1024;
+keyLight.shadow.mapSize.height = 1024;
+keyLight.shadow.camera.near = 10;
+keyLight.shadow.camera.far = 500;
+keyLight.shadow.camera.left = -100;
+keyLight.shadow.camera.right = 100;
+keyLight.shadow.camera.top = 100;
+keyLight.shadow.camera.bottom = -100;
+keyLight.shadow.bias = -0.001;
+scene.add(keyLight);
+
+var fillLight = new THREE.DirectionalLight(0xe6f0ff, 0.5);
+fillLight.position.set(-100, 100, -50);
+scene.add(fillLight);
+
+var rimLight = new THREE.DirectionalLight(0x8B5CF6, 0.3);
+rimLight.position.set(0, -50, -200);
+scene.add(rimLight);
+
+var topLight = new THREE.DirectionalLight(0xffffff, 0.3);
+topLight.position.set(0, 300, 0);
+scene.add(topLight);
+
+var ambient = new THREE.AmbientLight(0x404050, 0.8);
+scene.add(ambient);
+
+// -- Ground plane --
+var groundGeo = new THREE.PlaneGeometry(600, 600);
+var groundMat = new THREE.MeshPhysicalMaterial({
+    color: 0x111118,
+    metalness: 0.6,
+    roughness: 0.7,
+    clearcoat: 0.3,
+    clearcoatRoughness: 0.8,
+    transparent: true,
+    opacity: 0.7
+});
+var ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.5;
+ground.receiveShadow = true;
+scene.add(ground);
+
+var gridHelper = new THREE.GridHelper(400, 40, 0x222233, 0x18182a);
+gridHelper.position.y = -0.3;
+gridHelper.material.transparent = true;
+gridHelper.material.opacity = 0.3;
+scene.add(gridHelper);
+
+// -- STL Loader --
+var loader = new THREE.STLLoader();
+var currentMesh = null;
+var currentColor = 0xf0f0f0;
+var currentModelId = 'dk';
+
+var STL_BASE = '/stl/';
+
+// Material: r128-safe properties only (no sheen, transmission, thickness, ior)
+var material = new THREE.MeshPhysicalMaterial({
+    color: currentColor,
+    metalness: 0.05,
+    roughness: 0.15,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.1,
+    reflectivity: 0.6,
+    envMap: envTexture,
+    envMapIntensity: 1.2,
+    flatShading: false
+});
+
+function setColor(color, el) {
+    currentColor = color;
+    if (material) {
+        material.color.setHex(color);
+        if (color < 0x404040) {
+            material.metalness = 0.4;
+            material.roughness = 0.2;
+        } else if (color === 0xf39c12) {
+            material.metalness = 0.6;
+            material.roughness = 0.15;
+        } else {
+            material.metalness = 0.15;
+            material.roughness = 0.3;
+        }
+        material.needsUpdate = true;
+    }
+
+    var swatches = document.querySelectorAll('.color-swatch');
+    for (var i = 0; i < swatches.length; i++) swatches[i].classList.remove('active');
+    if (el) el.classList.add('active');
+}
+
+var hdMode = false;
+function toggleHD() {
+    hdMode = !hdMode;
+    var btn = document.getElementById('hd-toggle');
+    if (hdMode) {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio * 2.5, 4));
+        btn.classList.add('active');
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+    } else {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio * 1.5, 3));
+        btn.classList.remove('active');
+        keyLight.shadow.mapSize.width = 1024;
+        keyLight.shadow.mapSize.height = 1024;
+    }
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (keyLight.shadow.map) {
+        keyLight.shadow.map.dispose();
+        keyLight.shadow.map = null;
+    }
+}
+
+function updateInfoPanel(id) {
+    var info = MODEL_INFO[id];
+    if (!info) return;
+
+    document.getElementById('model-name').innerHTML = info.name;
+    document.getElementById('dimensions').innerHTML = info.dims;
+
+    var descEl = document.getElementById('description');
+    descEl.classList.remove('visible');
+
+    setTimeout(function() {
+        document.getElementById('desc-math').innerHTML = info.math || '';
+        document.getElementById('desc-math').style.display = info.math ? '' : 'none';
+        document.getElementById('desc-text').innerHTML = info.desc;
+        document.getElementById('desc-dims').innerHTML = info.detail;
+
+        var badgeEl = document.getElementById('desc-badge');
+        if (info.badge) {
+            badgeEl.innerHTML = info.badge;
+            badgeEl.style.display = '';
+            if (info.badge === '販売中') {
+                badgeEl.style.color = '#22c55e';
+                badgeEl.style.borderColor = 'rgba(34,197,94,0.3)';
+                badgeEl.style.background = 'rgba(34,197,94,0.1)';
+            } else {
+                badgeEl.style.color = '#f59e0b';
+                badgeEl.style.borderColor = 'rgba(245,158,11,0.3)';
+                badgeEl.style.background = 'rgba(245,158,11,0.08)';
+            }
+        } else {
+            badgeEl.style.display = 'none';
+        }
+
+        descEl.classList.add('visible');
+    }, 100);
+}
+
+function loadModel(filename, id) {
+    currentModelId = id || 'dk';
+    updateInfoPanel(currentModelId);
+
+    var btns = document.querySelectorAll('.model-btn[data-id]');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    var activeBtn = document.querySelector('.model-btn[data-id="' + currentModelId + '"]');
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    try {
+        var url = new URL(window.location.href);
+        url.searchParams.set('model', currentModelId);
+        history.replaceState(null, '', url.toString());
+    } catch (e) {}
+
+    var loadingEl = document.getElementById('loading');
+    loadingEl.classList.add('show');
+
+    if (currentMesh) scene.remove(currentMesh);
+
+    loader.load(STL_BASE + filename, function(geometry) {
+        geometry.computeBoundingBox();
+        var bb = geometry.boundingBox;
+        var center = new THREE.Vector3();
+        bb.getCenter(center);
+        geometry.translate(-center.x, -center.y, -center.z);
+
+        var size = new THREE.Vector3();
+        bb.getSize(size);
+        geometry.translate(0, size.y / 2, 0);
+
+        geometry.computeVertexNormals();
+
+        currentMesh = new THREE.Mesh(geometry, material);
+        currentMesh.castShadow = true;
+        currentMesh.receiveShadow = true;
+        scene.add(currentMesh);
+
+        var maxDim = Math.max(size.x, size.y, size.z);
+        var dist = maxDim * 2.2;
+        camera.position.set(dist * 0.6, dist * 0.5, dist * 0.7);
+        controls.target.set(0, size.y * 0.35, 0);
+
+        ground.position.y = -0.5;
+        gridHelper.position.y = -0.3;
+
+        controls.update();
+        loadingEl.classList.remove('show');
+    },
+    function() {},
+    function(error) {
+        loadingEl.classList.remove('show');
+        console.error('STL load error:', error);
+    });
+}
+
+// -- Animate --
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+animate();
+
+// -- Resize --
+window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// -- Inject thumbnail backgrounds into all model buttons --
+(function injectThumbs() {
+    var btns = document.querySelectorAll('.model-btn[data-file]');
+    btns.forEach(function(btn) {
+        var file = btn.getAttribute('data-file');
+        if (!file) return;
+        var thumbName = file.replace(/\.stl$/i, '.png');
+        var thumb = document.createElement('span');
+        thumb.className = 'thumb';
+        thumb.style.backgroundImage = 'url(/stl/thumbs/' + thumbName + ')';
+        btn.insertBefore(thumb, btn.firstChild);
+    });
+    // Controls width: need more room for thumbs
+    var ctrl = document.getElementById('controls');
+    if (ctrl) ctrl.style.width = '260px';
+})();
+
+// -- Event delegation: click on any .model-btn[data-id] --
+document.getElementById('controls').addEventListener('click', function(e) {
+    var btn = e.target.closest('.model-btn[data-id]');
+    if (!btn) return;
+    loadModel(btn.getAttribute('data-file'), btn.getAttribute('data-id'));
+});
+
+// -- Keyboard nav: ← → cycles visible models --
+document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var visible = Array.prototype.filter.call(
+        document.querySelectorAll('.model-btn[data-id]'),
+        function(b) { return b.offsetParent !== null; }
+    );
+    if (!visible.length) return;
+    var idx = visible.findIndex(function(b) { return b.getAttribute('data-id') === currentModelId; });
+    var next = e.key === 'ArrowRight'
+        ? visible[(idx + 1) % visible.length]
+        : visible[(idx - 1 + visible.length) % visible.length];
+    if (next) loadModel(next.getAttribute('data-file'), next.getAttribute('data-id'));
+});
+
+// -- Search filter --
+document.getElementById('search-box').addEventListener('input', function(e) {
+    var q = e.target.value.toLowerCase().trim();
+    var btns = document.querySelectorAll('.model-btn[data-id]');
+    var visibleCats = {};
+    btns.forEach(function(b) {
+        var text = b.textContent.toLowerCase();
+        var match = !q || text.indexOf(q) !== -1;
+        b.style.display = match ? '' : 'none';
+        if (match) visibleCats[b.getAttribute('data-cat')] = true;
+    });
+    document.querySelectorAll('.section-label[data-section]').forEach(function(label) {
+        var nextBtn = label.nextElementSibling;
+        var hasVisible = false;
+        while (nextBtn && nextBtn.classList.contains('model-btn')) {
+            if (nextBtn.style.display !== 'none') { hasVisible = true; break; }
+            nextBtn = nextBtn.nextElementSibling;
+        }
+        label.style.display = hasVisible ? '' : 'none';
+    });
+});
+
+// -- Load default (URL param or DK) --
+var initialModel = 'dk';
+var initialFile = 'dk-case.stl';
+try {
+    var params = new URLSearchParams(window.location.search);
+    var m = params.get('model');
+    if (m) {
+        var btn = document.querySelector('.model-btn[data-id="' + m + '"]');
+        if (btn) {
+            initialModel = m;
+            initialFile = btn.getAttribute('data-file');
+        }
+    }
+} catch (e) {}
+loadModel(initialFile, initialModel);
+</script>
+</body>
+</html>

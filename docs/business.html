@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; Business</title>
+<meta name="description" content="Koe Stone — Limited 100. Press kit, specifications, and business inquiries.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/business">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe &mdash; Business">
+<meta property="og:description" content="Hand-crafted in Tokyo. Limited to 100 units.">
+<meta property="og:image" content="https://koe.live/stl/thumbs/coin-lite-case.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover, nav ul a.active { color: #fff; }
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 8rem 2rem 4rem;
+}
+.eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+}
+.lead {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    max-width: 640px;
+    line-height: 1.55;
+    margin-bottom: 4rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin-top: 3.5rem;
+    margin-bottom: 1.2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.spec-table {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.8rem 2rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+.spec-table dt {
+    color: rgba(255,255,255,0.45);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+.spec-table dd {
+    color: rgba(255,255,255,0.85);
+    font-weight: 300;
+}
+
+.downloads {
+    display: flex; flex-wrap: wrap; gap: 0.8rem;
+    margin-top: 1rem;
+}
+.download-btn {
+    display: inline-block;
+    padding: 0.7rem 1.2rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.15s;
+}
+.download-btn:hover {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.4);
+    color: #fff;
+}
+.download-btn.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.contact-box {
+    margin-top: 4rem;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(139,92,246,0.02));
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 16px;
+}
+.contact-box .label {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+.contact-box a.email {
+    display: inline-block;
+    font-size: 1.4rem;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+}
+.contact-box p {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+    font-weight: 300;
+    max-width: 580px;
+}
+
+.press-line {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.7;
+}
+.press-line strong {
+    color: #fff;
+    font-weight: 500;
+}
+
+footer {
+    margin-top: 6rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/start">How it works</a></li>
+        <li><a href="/business" class="active">Business</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+    <div class="eyebrow">For press, retailers, and business partners</div>
+    <h1>Koe Stone</h1>
+    <p class="lead">A wireless audio object. Hand-crafted in Tokyo. Limited to 100 units for the first production run. Currently in pilot with selected artists and cultural venues.</p>
+
+    <h2>Positioning</h2>
+    <p class="press-line">
+        <strong>Koe Stone</strong> is a palm-sized aluminum speaker designed around a single philosophy: one room should be a speaker, and eight rooms should be a symphony. A single Stone plays music alone. Up to eight Stones, placed anywhere in a home, form a self-synchronizing audio mesh with latency below two milliseconds between devices. There is no app, no account, no setup. The device has zero buttons. You touch it to begin.
+    </p>
+
+    <h2>Specifications</h2>
+    <dl class="spec-table">
+        <dt>Form factor</dt><dd>&Oslash;80 &times; 25 mm worry-stone / puck, superellipse profile</dd>
+        <dt>Weight</dt><dd>380 g (&plusmn; 20 g)</dd>
+        <dt>Material</dt><dd>CNC 6061-T6 aluminum, unibody</dd>
+        <dt>Finish</dt><dd>Hairline + hard anodize, Space Gray</dd>
+        <dt>Audio driver</dt><dd>Tectonic BMR 40 mm (TEBM46C20N-4B)</dd>
+        <dt>Passive radiator</dt><dd>50 &times; 30 mm elliptical, bottom-firing</dd>
+        <dt>Codecs</dt><dd>LDAC, aptX Adaptive, LC3, SBC</dd>
+        <dt>Bluetooth</dt><dd>5.4 + BLE Audio LE (Auracast&trade;)</dd>
+        <dt>Mesh sync</dt><dd>&lt; 2 ms inter-device, 8-device maximum</dd>
+        <dt>SPL (single)</dt><dd>82 dB @ 1 m @ 1 W</dd>
+        <dt>SPL (8&times; mesh)</dt><dd>91 dB @ 1 m</dd>
+        <dt>Frequency response</dt><dd>100 Hz &ndash; 20 kHz (&plusmn; 3 dB)</dd>
+        <dt>SoC</dt><dd>Nordic nRF5340 (dual-core Arm Cortex-M33)</dd>
+        <dt>Battery</dt><dd>3,000 mAh LiPo</dd>
+        <dt>Playback</dt><dd>8 hours continuous</dd>
+        <dt>Standby</dt><dd>30 days</dd>
+        <dt>Charging</dt><dd>Qi 5 W wireless (no cable, no port)</dd>
+        <dt>Interface</dt><dd>Capacitive top, accelerometer wake, NFC tag</dd>
+        <dt>Ingress protection</dt><dd>IPX4 (splash-resistant)</dd>
+        <dt>Certifications</dt><dd>Bluetooth SIG &middot; 技適 (JP) &middot; FCC &middot; CE (pending for production units)</dd>
+    </dl>
+
+    <h2>Price &amp; Availability</h2>
+    <p class="press-line">
+        <strong>$1,995 USD / &yen;300,000 JPY</strong> per unit. Production limited to 100 units, numbered 001-100 with laser-engraved serials. First shipments planned for Summer 2026. Distribution will be limited to koe.live direct, plus selected boutique audio and music retailers. No mass-market channels.
+    </p>
+
+    <h2>Enabler Inc.</h2>
+    <p class="press-line">
+        <strong>Enabler Inc.</strong> is a Tokyo-based design and engineering studio founded in 2023. Koe is the studio&rsquo;s first hardware product. Previous work includes open-source infrastructure projects, distributed audio research, and the SOLUNA festival audio platform.
+    </p>
+
+    <h2>Press kit</h2>
+    <div class="downloads">
+        <a class="download-btn disabled">Hero images (coming soon)</a>
+        <a class="download-btn disabled">Logo pack (coming soon)</a>
+        <a class="download-btn disabled">Press release PDF (coming soon)</a>
+        <a class="download-btn disabled">30-second film (coming soon)</a>
+    </div>
+
+    <div class="contact-box">
+        <div class="label">Business inquiries</div>
+        <a class="email" href="mailto:business@koe.live">business@koe.live</a>
+        <p>For press, retail distribution, artist endorsements, tour licensing, and cultural venue partnerships. Response typically within 48 hours, Tokyo business hours (JST).</p>
+    </div>
+</div>
+
+<footer>
+    Koe &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="mailto:business@koe.live">business@koe.live</a>
+</footer>
+
+</body>
+</html>

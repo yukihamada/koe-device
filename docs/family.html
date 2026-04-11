@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; The Family</title>
+<meta name="description" content="Five objects. One family. Koe Stone, Mini, Pick, Pendant, Amp.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/family">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe — The Family">
+<meta property="og:description" content="Five objects. One family.">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover, nav ul a.active { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
+
+.intro {
+    padding: 9rem 1.5rem 5rem;
+    max-width: 840px;
+    margin: 0 auto;
+    text-align: center;
+}
+.intro .eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+.intro h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+}
+.intro p {
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.55;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.family {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem 8rem;
+}
+.sku {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding: 6rem 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+@media (min-width: 960px) {
+    .sku {
+        grid-template-columns: 1fr 1fr;
+        gap: 6rem;
+        align-items: center;
+    }
+    .sku.reverse .content { order: -1; }
+}
+.sku .image {
+    aspect-ratio: 16/10;
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+.sku .content { max-width: 520px; }
+.sku .num {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+.sku h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 0.6rem;
+}
+.sku .subtitle {
+    font-size: 0.82rem;
+    color: #8B5CF6;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+.sku .poetry {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+    font-weight: 200;
+    margin-bottom: 2rem;
+}
+.sku .specs {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1.5rem;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sku .specs dt {
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+}
+.sku .specs dd {
+    color: rgba(255,255,255,0.85);
+    font-weight: 300;
+}
+
+.closing {
+    max-width: 720px;
+    margin: 6rem auto;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+.closing p {
+    font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+}
+
+footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/family" class="active">Family</a></li>
+        <li><a href="/sessions">Sessions</a></li>
+        <li><a href="/business" class="hide-mobile">Business</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
+    </ul>
+</nav>
+
+<section class="intro">
+    <div class="eyebrow">The Family</div>
+    <h1>Five objects.<br>One family.</h1>
+    <p>Each one shares a silhouette, a metal, a silence. Together, a home becomes an instrument.</p>
+</section>
+
+<section class="family">
+
+    <article class="sku">
+        <div class="image" style="background-image:url(/brand/hero/01_stone.png);"></div>
+        <div class="content">
+            <div class="num">01 &middot; The Hero</div>
+            <h2>Stone</h2>
+            <div class="subtitle">The anchor of every room.</div>
+            <p class="poetry">
+                A palm-sized aluminum worry stone. Sits on shelves, tables, nightstands. Heavy in the hand. Touch the top and the room begins to breathe.
+            </p>
+            <dl class="specs">
+                <dt>Size</dt><dd>&Oslash;80 &times; 25 mm</dd>
+                <dt>Weight</dt><dd>380 g</dd>
+                <dt>Driver</dt><dd>Tectonic BMR 40mm</dd>
+                <dt>Battery</dt><dd>8 h play &middot; 30 d standby</dd>
+                <dt>Price</dt><dd>$1,995 &middot; Limited 100</dd>
+            </dl>
+        </div>
+    </article>
+
+    <article class="sku reverse">
+        <div class="image" style="background-image:url(/brand/hero/02_stone_mini.png);"></div>
+        <div class="content">
+            <div class="num">02 &middot; The Traveler</div>
+            <h2>Stone Mini</h2>
+            <div class="subtitle">Music that fits in a pocket.</div>
+            <p class="poetry">
+                A smaller sibling. Thread a leather cord and it travels. From the kitchen to the car to the beach. The mesh remembers where it came from.
+            </p>
+            <dl class="specs">
+                <dt>Size</dt><dd>&Oslash;50 &times; 15 mm</dd>
+                <dt>Weight</dt><dd>120 g</dd>
+                <dt>Driver</dt><dd>TangBand 28mm</dd>
+                <dt>Battery</dt><dd>5 h play &middot; 14 d standby</dd>
+                <dt>Price</dt><dd>$895 &middot; Limited 200</dd>
+            </dl>
+        </div>
+    </article>
+
+    <article class="sku">
+        <div class="image" style="background-image:url(/brand/hero/03_pick.png);"></div>
+        <div class="content">
+            <div class="num">03 &middot; The Contact</div>
+            <h2>Pick</h2>
+            <div class="subtitle">For musicians. No cables.</div>
+            <p class="poetry">
+                A Reuleaux triangle of aluminum that adheres to the back of a guitar body with a silicone strap. A contact transducer reads the body&rsquo;s vibration and broadcasts it to every Stone in the house. Your instrument becomes its own broadcast.
+            </p>
+            <dl class="specs">
+                <dt>Size</dt><dd>40 &times; 35 &times; 4 mm tapered</dd>
+                <dt>Weight</dt><dd>12 g</dd>
+                <dt>Pickup</dt><dd>Piezo contact transducer</dd>
+                <dt>Mount</dt><dd>Silicone body wrap</dd>
+                <dt>Price</dt><dd>$595 &middot; Limited 50</dd>
+            </dl>
+        </div>
+    </article>
+
+    <article class="sku reverse">
+        <div class="image" style="background-image:url(/brand/hero/04_pendant.png);"></div>
+        <div class="content">
+            <div class="num">04 &middot; The Talisman</div>
+            <h2>Pendant</h2>
+            <div class="subtitle">Worn. Waterproof. Personal.</div>
+            <p class="poetry">
+                A teardrop on a leather cord. Waterproof to IPX7. Small enough to wear into the ocean. A personal speaker, an ambient anchor, an お守り.
+            </p>
+            <dl class="specs">
+                <dt>Size</dt><dd>&Oslash;35 &times; 10 mm teardrop</dd>
+                <dt>Weight</dt><dd>35 g</dd>
+                <dt>Driver</dt><dd>Knowles 20mm</dd>
+                <dt>Ingress</dt><dd>IPX7</dd>
+                <dt>Price</dt><dd>$795 &middot; Limited 100</dd>
+            </dl>
+        </div>
+    </article>
+
+    <article class="sku">
+        <div class="image" style="background-image:url(/brand/hero/05_amp.png);"></div>
+        <div class="content">
+            <div class="num">05 &middot; The Temple</div>
+            <h2>Amp</h2>
+            <div class="subtitle">Fixed. Loud. The center of a room.</div>
+            <p class="poetry">
+                A small shrine of a speaker. Tilted five degrees back, facing upward. Dayton RS100 flanked by two Tectonic tweeters. It does not move. It is where the room begins.
+            </p>
+            <dl class="specs">
+                <dt>Size</dt><dd>60 &times; 60 &times; 55 mm</dd>
+                <dt>Weight</dt><dd>520 g</dd>
+                <dt>Drivers</dt><dd>Dayton RS100 + 2&times; Tectonic BMR</dd>
+                <dt>Battery</dt><dd>15 h play &middot; 30 d standby</dd>
+                <dt>Price</dt><dd>$2,995 &middot; Limited 50</dd>
+            </dl>
+        </div>
+    </article>
+
+</section>
+
+<section class="closing">
+    <p>One Stone is a speaker.<br>Five is a home.<br>Eight rooms is a symphony.</p>
+</section>
+
+<footer>
+    Koe &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="mailto:business@koe.live">business@koe.live</a>
+</footer>
+
+</body>
+</html>
