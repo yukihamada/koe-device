@@ -11,7 +11,9 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Koe &mdash; How it works">
 <meta property="og:description" content="Touch the top. Music plays. That's all.">
-<meta property="og:image" content="https://koe.live/stl/thumbs/coin-lite-case.png">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://koe.live/brand/hero/01_stone.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,6 +42,12 @@ nav ul a {
 }
 nav ul a:hover { color: #fff; }
 nav ul a.active { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
 
 .hero-start {
     min-height: 100vh;
@@ -67,7 +75,9 @@ nav ul a.active { color: #fff; }
 .video-placeholder {
     width: min(85vw, 520px);
     aspect-ratio: 9/16;
-    background: linear-gradient(145deg, #1a1a2e 0%, #0a0a0a 100%);
+    background-image: url(/brand/keynote/05_nightstand.png);
+    background-size: cover;
+    background-position: center;
     border: 1px solid rgba(139,92,246,0.25);
     border-radius: 24px;
     display: flex; align-items: center; justify-content: center;
@@ -174,8 +184,10 @@ footer a { color: rgba(255,255,255,0.5); }
     <a href="/" class="logo">KOE</a>
     <ul>
         <li><a href="/3d">Stone</a></li>
-        <li><a href="/start" class="active">How it works</a></li>
-        <li><a href="/business">Business</a></li>
+        <li><a href="/family">Family</a></li>
+        <li><a href="/sessions">Sessions</a></li>
+        <li><a href="/business" class="hide-mobile">Business</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
     </ul>
 </nav>
 

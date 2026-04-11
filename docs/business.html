@@ -11,7 +11,9 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Koe &mdash; Business">
 <meta property="og:description" content="Hand-crafted in Tokyo. Limited to 100 units.">
-<meta property="og:image" content="https://koe.live/stl/thumbs/coin-lite-case.png">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://koe.live/brand/hero/01_stone.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,6 +41,12 @@ nav ul a {
     transition: color 0.15s;
 }
 nav ul a:hover, nav ul a.active { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
 
 .container {
     max-width: 960px;
@@ -70,7 +78,7 @@ h1 {
 
 h2 {
     font-size: 1.1rem;
-    font-weight: 500;
+    font-weight: 300;
     color: #fff;
     letter-spacing: 0.02em;
     margin-top: 3.5rem;
@@ -177,8 +185,10 @@ footer a { color: rgba(255,255,255,0.5); }
     <a href="/" class="logo">KOE</a>
     <ul>
         <li><a href="/3d">Stone</a></li>
-        <li><a href="/start">How it works</a></li>
+        <li><a href="/family">Family</a></li>
+        <li><a href="/sessions">Sessions</a></li>
         <li><a href="/business" class="active">Business</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
     </ul>
 </nav>
 
@@ -228,10 +238,13 @@ footer a { color: rgba(255,255,255,0.5); }
 
     <h2>Press kit</h2>
     <div class="downloads">
-        <a class="download-btn disabled">Hero images (coming soon)</a>
+        <a class="download-btn" href="/brand/hero/01_stone.png" download>Stone — Hero image</a>
+        <a class="download-btn" href="/brand/hero/02_stone_mini.png" download>Stone Mini — Hero image</a>
+        <a class="download-btn" href="/brand/hero/03_pick.png" download>Pick — Hero image</a>
+        <a class="download-btn" href="/brand/hero/04_pendant.png" download>Pendant — Hero image</a>
+        <a class="download-btn" href="/brand/hero/05_amp.png" download>Amp — Hero image</a>
         <a class="download-btn disabled">Logo pack (coming soon)</a>
         <a class="download-btn disabled">Press release PDF (coming soon)</a>
-        <a class="download-btn disabled">30-second film (coming soon)</a>
     </div>
 
     <div class="contact-box">
