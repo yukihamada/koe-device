@@ -227,6 +227,7 @@ async fn main() {
         .route("/family",                          get(handle_page_family))
         .route("/sessions",                        get(handle_page_sessions))
         .route("/sessions/hawaii-2026-07",         get(handle_page_sessions_hawaii))
+        .route("/room",                            get(handle_page_room))
         .route("/archive",                         get(handle_page_archive))
         .route("/key",                             get(handle_page_key))
         .route("/api/devices",                     get(handle_devices))
@@ -297,6 +298,7 @@ async fn handle_page_start() -> impl IntoResponse { serve_html("start.html").awa
 async fn handle_page_family() -> impl IntoResponse { serve_html("family.html").await }
 async fn handle_page_sessions() -> impl IntoResponse { serve_html("sessions.html").await }
 async fn handle_page_sessions_hawaii() -> impl IntoResponse { serve_html("sessions-hawaii.html").await }
+async fn handle_page_room() -> impl IntoResponse { serve_html("room.html").await }
 async fn handle_page_archive() -> impl IntoResponse { serve_html("archive.html").await }
 async fn handle_page_key() -> impl IntoResponse { serve_html("key.html").await }
 
