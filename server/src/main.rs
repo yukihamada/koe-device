@@ -2317,59 +2317,6 @@ async fn handle_session_end(
     (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"ended_at":now}))).into_response()
 }
 
-// ---- Consent stubs (placeholder — full implementation pending) ----
-
-async fn handle_consent_page(Path(_token): Path<String>) -> impl IntoResponse {
-    serve_html("consent.html").await
-}
-
-async fn handle_consent_generate(
-    State(_state): State<AppState>,
-    axum::Json(_body): axum::Json<Value>,
-) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
-}
-
-async fn handle_consent_pon_webhook(
-    State(_state): State<AppState>,
-    axum::Json(_body): axum::Json<Value>,
-) -> impl IntoResponse {
-    (StatusCode::OK, axum::Json(json!({"ok":true}))).into_response()
-}
-
-async fn handle_consent_check(
-    Path(_token): Path<String>,
-    State(_state): State<AppState>,
-) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
-}
-
-async fn handle_consent_submit(
-    Path(_token): Path<String>,
-    State(_state): State<AppState>,
-    axum::Json(_body): axum::Json<Value>,
-) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
-}
-
-async fn handle_consent_revoke(
-    Path(_token): Path<String>,
-    State(_state): State<AppState>,
-) -> impl IntoResponse {
-    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
-}
-
-async fn handle_admin_consents(
-    headers: HeaderMap,
-    Query(params): Query<HashMap<String, String>>,
-    State(_state): State<AppState>,
-) -> impl IntoResponse {
-    if !verify_admin_auth(&headers, &params) {
-        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"unauthorized"}))).into_response();
-    }
-    (StatusCode::OK, axum::Json(json!([]))).into_response()
-}
-
 // ---- Shared Brain (KOE × KAGI) ----
 
 /// POST /api/v1/brain/event — accept an event from KOE or KAGI, store it, and broadcast to WS clients
@@ -2460,6 +2407,319 @@ async fn handle_brain_events(
     };
 
     (StatusCode::OK, axum::Json(json!(events))).into_response()
+}
+
+// ---- Session consent (PON integration) ----
+
+/// GET /consent/:token — serve the consent landing page
+async fn handle_consent_page(
+    Path(_token): Path<String>,
+) -> impl IntoResponse {
+    serve_html("consent.html").await
+}
+
+/// GET /api/v1/consent/:token — check the current state of a consent token
+async fn handle_consent_check(
+    Path(token): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let result = db.query_row(
+        "SELECT guest_name, guest_email, consented_at, revoked_at FROM session_consents WHERE token = ?1",
+        rusqlite::params![token],
+        |row| Ok((
+            row.get::<_, Option<String>>(0)?,
+            row.get::<_, Option<String>>(1)?,
+            row.get::<_, Option<i64>>(2)?,
+            row.get::<_, Option<i64>>(3)?,
+        )),
+    );
+    match result {
+        Ok((name, email, consented_at, revoked_at)) => {
+            if revoked_at.is_some() {
+                (StatusCode::OK, axum::Json(json!({ "status": "revoked", "revoked_at": revoked_at }))).into_response()
+            } else if consented_at.is_some() {
+                (StatusCode::OK, axum::Json(json!({
+                    "status": "consented",
+                    "guest_name": name,
+                    "guest_email": email,
+                    "consented_at": consented_at,
+                }))).into_response()
+            } else {
+                (StatusCode::OK, axum::Json(json!({ "status": "pending" }))).into_response()
+            }
+        }
+        Err(_) => {
+            (StatusCode::NOT_FOUND, axum::Json(json!({ "status": "invalid", "error": "Token not found or expired" }))).into_response()
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct ConsentSubmit {
+    name: String,
+    #[serde(default)]
+    email: Option<String>,
+}
+
+/// POST /api/v1/consent/:token — record consent (guest submits name + optional email)
+async fn handle_consent_submit(
+    Path(token): Path<String>,
+    headers: HeaderMap,
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<ConsentSubmit>,
+) -> impl IntoResponse {
+    let name = body.name.trim().to_string();
+    if name.is_empty() || name.len() > 200 {
+        return (StatusCode::BAD_REQUEST, axum::Json(json!({"error":"name is required (max 200 chars)"}))).into_response();
+    }
+    let email = body.email.as_deref().map(|e| e.trim().to_string()).filter(|e| !e.is_empty());
+    if let Some(ref e) = email {
+        if e.len() > 300 {
+            return (StatusCode::BAD_REQUEST, axum::Json(json!({"error":"email too long"}))).into_response();
+        }
+    }
+
+    // Extract client IP (Fly.io sets x-forwarded-for)
+    let ip = headers.get("x-forwarded-for")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.split(',').next().unwrap_or("").trim().to_string())
+        .filter(|s| !s.is_empty())
+        .or_else(|| {
+            headers.get("fly-client-ip")
+                .and_then(|v| v.to_str().ok())
+                .map(|s| s.to_string())
+        });
+
+    let now = unix_now() as i64;
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+
+    // Check token exists and has not already been used / revoked
+    let existing = db.query_row(
+        "SELECT consented_at, revoked_at FROM session_consents WHERE token = ?1",
+        rusqlite::params![token],
+        |row| Ok((row.get::<_, Option<i64>>(0)?, row.get::<_, Option<i64>>(1)?)),
+    );
+    match existing {
+        Err(_) => {
+            return (StatusCode::NOT_FOUND, axum::Json(json!({"error":"Token not found"}))).into_response();
+        }
+        Ok((_, Some(_))) => {
+            return (StatusCode::CONFLICT, axum::Json(json!({"error":"Consent has been revoked"}))).into_response();
+        }
+        Ok((Some(_), _)) => {
+            return (StatusCode::CONFLICT, axum::Json(json!({"error":"Already consented"}))).into_response();
+        }
+        Ok((None, None)) => {}
+    }
+
+    match db.execute(
+        "UPDATE session_consents SET guest_name=?1, guest_email=?2, ip_addr=?3, consented_at=?4 WHERE token=?5",
+        rusqlite::params![name, email, ip, now, token],
+    ) {
+        Ok(n) if n > 0 => {
+            info!("consent: '{}' signed token {}", name, token);
+            (StatusCode::OK, axum::Json(json!({
+                "ok": true,
+                "consented_at": now,
+                "message": "Consent recorded. You can disable recording at any time by touching any Stone.",
+            }))).into_response()
+        }
+        _ => {
+            (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"Failed to record consent"}))).into_response()
+        }
+    }
+}
+
+/// POST /api/v1/consent/:token/revoke — revoke an existing consent
+async fn handle_consent_revoke(
+    Path(token): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let now = unix_now() as i64;
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    match db.execute(
+        "UPDATE session_consents SET revoked_at=?1 WHERE token=?2 AND revoked_at IS NULL",
+        rusqlite::params![now, token],
+    ) {
+        Ok(n) if n > 0 => {
+            info!("consent: token {} revoked", token);
+            (StatusCode::OK, axum::Json(json!({"ok":true,"revoked_at":now}))).into_response()
+        }
+        Ok(_) => {
+            (StatusCode::NOT_FOUND, axum::Json(json!({"error":"Token not found or already revoked"}))).into_response()
+        }
+        Err(e) => {
+            (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response()
+        }
+    }
+}
+
+/// POST /api/v1/consent/generate — generate a new consent token (admin only)
+async fn handle_consent_generate(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_admin_auth(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"Unauthorized"}))).into_response();
+    }
+
+    // Two 64-bit halves derived from time + thread id
+    let token = {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let mut h = DefaultHasher::new();
+        unix_now().hash(&mut h);
+        std::thread::current().id().hash(&mut h);
+        let a = h.finish();
+        unix_now().wrapping_add(9973).hash(&mut h);
+        let b = h.finish();
+        format!("{:016x}{:016x}", a, b)
+    };
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+
+    match db.execute(
+        "INSERT INTO session_consents (token) VALUES (?1)",
+        rusqlite::params![token],
+    ) {
+        Ok(_) => {
+            let url = format!("https://koe.live/consent/{}", token);
+            info!("consent: generated token {}", token);
+            (StatusCode::CREATED, axum::Json(json!({
+                "token": token,
+                "url": url,
+                "qr_hint": format!("Render a QR code pointing to: {}", url),
+            }))).into_response()
+        }
+        Err(e) => {
+            (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response()
+        }
+    }
+}
+
+/// GET /admin/consents — list all consent records (admin only)
+async fn handle_admin_consents(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_admin_auth(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"Unauthorized"}))).into_response();
+    }
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+
+    let mut stmt = match db.prepare(
+        "SELECT id, token, guest_name, guest_email, ip_addr, consented_at, revoked_at, created_at \
+         FROM session_consents ORDER BY id DESC LIMIT 200"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    };
+
+    let rows: Vec<Value> = match stmt.query_map([], |row| {
+        Ok(json!({
+            "id":           row.get::<_, i64>(0)?,
+            "token":        row.get::<_, String>(1)?,
+            "guest_name":   row.get::<_, Option<String>>(2)?,
+            "guest_email":  row.get::<_, Option<String>>(3)?,
+            "ip_addr":      row.get::<_, Option<String>>(4)?,
+            "consented_at": row.get::<_, Option<i64>>(5)?,
+            "revoked_at":   row.get::<_, Option<i64>>(6)?,
+            "created_at":   row.get::<_, i64>(7)?,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => Vec::new(),
+    };
+
+    (StatusCode::OK, axum::Json(json!({ "consents": rows, "total": rows.len() }))).into_response()
+}
+
+/// POST /api/v1/consent/pon-webhook — PON app posts when a contract is signed
+/// Body: { "token": "...", "signer_name": "...", "signer_email": "...", "signed_at": unix_ts, "contract_id": "..." }
+#[derive(Debug, Deserialize)]
+struct PonWebhookPayload {
+    token: String,
+    #[serde(default)]
+    signer_name: Option<String>,
+    #[serde(default)]
+    signer_email: Option<String>,
+    #[serde(default)]
+    signed_at: Option<i64>,
+    #[serde(default)]
+    contract_id: Option<String>,
+}
+
+async fn handle_consent_pon_webhook(
+    headers: HeaderMap,
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<PonWebhookPayload>,
+) -> impl IntoResponse {
+    // Validate using KOE_ADMIN_TOKEN (future: dedicated PON_WEBHOOK_SECRET)
+    let admin_token = std::env::var("KOE_ADMIN_TOKEN").unwrap_or_default();
+    let provided = headers.get("authorization")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.strip_prefix("Bearer "))
+        .unwrap_or("");
+    if !admin_token.is_empty() && provided != admin_token {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"Unauthorized"}))).into_response();
+    }
+
+    let token = body.token.trim().to_string();
+    if token.is_empty() {
+        return (StatusCode::BAD_REQUEST, axum::Json(json!({"error":"token required"}))).into_response();
+    }
+
+    let now = body.signed_at.unwrap_or(unix_now() as i64);
+    let name = body.signer_name.as_deref().unwrap_or("PON Signer").trim().to_string();
+    let email = body.signer_email.as_deref().map(|e| e.trim().to_string()).filter(|e| !e.is_empty());
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+
+    // Upsert: create if not exists, update if exists
+    let result = db.execute(
+        "INSERT INTO session_consents (token, guest_name, guest_email, consented_at)
+         VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT(token) DO UPDATE SET
+             guest_name   = excluded.guest_name,
+             guest_email  = excluded.guest_email,
+             consented_at = excluded.consented_at,
+             revoked_at   = NULL",
+        rusqlite::params![token, name, email, now],
+    );
+
+    match result {
+        Ok(_) => {
+            info!("pon-webhook: consent recorded for token {} (contract={:?})", token, body.contract_id);
+            (StatusCode::OK, axum::Json(json!({ "ok": true, "token": token, "consented_at": now }))).into_response()
+        }
+        Err(e) => {
+            warn!("pon-webhook: db error: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response()
+        }
+    }
 }
 
 // ---- Helpers ----
