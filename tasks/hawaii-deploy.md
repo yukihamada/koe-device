@@ -3,24 +3,56 @@
 **Venue**: 濱田優貴 (Oki) residence, Hawaii
 **Guests**: ONE OK ROCK band + crew, arrive July 1, 2026
 **Hard deadline**: Everything verified and working by **June 28, 2026 18:00 HST**
-**Devices**: 4× Amp (ESP32-S3), 2× Stone (nRF5340), 1× Pick (ESP32-C3)
+**Devices**: 4× Amp (Raspberry Pi 5 + ReSpeaker USB), Stone = AirPlay 2 speakers (stand-in), Pick = skipped
 **Session archive slug**: `hawaii-2026-07` | Password: `KOE2026`
 
 ---
 
 ## Phase 0 — Pre-arrival Prep (complete before flying to Hawaii)
 
-- [ ] Flash all firmware locally in Tokyo (see Phase 2)
+Hardware approach: **plug-and-play Raspberry Pi 5 units** — no soldering, no firmware flashing on-site.
+All SD cards are pre-flashed and bench-tested in Tokyo before shipping.
+See `tasks/bom-pi5.md` for full parts list and order deadlines.
+
+### 0-A: Hardware ordering (Tokyo, by June 23)
+- [ ] Order 4× Pi 5 bundles via Amazon (see `tasks/bom-pi5.md` Section 1)
+- [ ] Order Stone stand-ins if desired (Sonos Era 100 or IKEA SYMFONISK — see Section 2)
+- [ ] Confirm all hardware arrives at Tokyo address
+
+### 0-B: SD card flashing (Tokyo)
+- [ ] Obtain Oki's WiFi SSID and password before flashing
+- [ ] Flash SD card for each unit with unique device_id:
+  ```bash
+  cd /Users/yuki/workspace/koe-device/hub
+  ./flash-sd.sh --device-id koe-amp-hawaii-01 --wifi-ssid <OKI_SSID> --wifi-pass <OKI_PASS>
+  ./flash-sd.sh --device-id koe-amp-hawaii-02 --wifi-ssid <OKI_SSID> --wifi-pass <OKI_PASS>
+  ./flash-sd.sh --device-id koe-amp-hawaii-03 --wifi-ssid <OKI_SSID> --wifi-pass <OKI_PASS>
+  ./flash-sd.sh --device-id koe-amp-hawaii-04 --wifi-ssid <OKI_SSID> --wifi-pass <OKI_PASS>
+  ```
+- [ ] Insert flashed SD cards into Pi 5 units, attach ReSpeaker USB mic arrays
+
+### 0-C: Bench verification (Tokyo)
+- [ ] Verify 4× Pi 5 units boot and appear in `koe.live/api/v1/room/state`
+  ```bash
+  curl -s https://koe.live/api/v1/room/state | python3 -m json.tool
+  # Expected: koe-amp-hawaii-01 through -04 listed with last_seen < 30s
+  ```
+- [ ] Verify ReSpeaker shows as audio device on each unit via SSH:
+  ```bash
+  ssh pi@<unit-ip> arecord -l
+  # Expected: "ReSpeaker" or "UAC1.0 HID" listed as card
+  ```
+- [ ] Test onset detection: play guitar near Pi, verify session appears in `koe.live`
+  - Clap or strum within 2m → session should appear in dashboard within 5 seconds
+
+### 0-D: Server check
 - [ ] Verify `koe.live` server is healthy: `curl https://koe.live/health`
 - [ ] Confirm `KOE_ADMIN_TOKEN` is set: `fly ssh console -a koe-live --command "printenv KOE_ADMIN_TOKEN"`
-- [ ] Deploy latest firmware OTA binary:
-  ```bash
-  cd /Users/yuki/workspace/koe-device/firmware/amp
-  ./deploy-ota.sh --release --token $KOE_ADMIN_TOKEN
-  ```
-- [ ] Pack: ESP32-S3 devkits × 4, INMP441 mics × 8, MAX98357A × 4, WS2812B × 4, USB-C supplies × 4, breadboards, jumpers, USB-UART programmer, soldering iron, solder, foam tape
-- [ ] Pack: nRF5340-DK × 2, 3W speakers × 2
-- [ ] Pack: ESP32-C3 SuperMini × 1 (Pick unit for guitar)
+
+### 0-E: Packing and shipping
+- [ ] Box all 4 Pi 5 units (SD cards inserted, ReSpeaker attached, PSU + USB-A cable per unit)
+- [ ] Ship to Oki's Hawaii address via FedEx International Priority by **June 22**
+  - Transit: ~3–5 business days → arrive by June 27 (1-day buffer before setup day)
 - [ ] Print this checklist
 
 ---
@@ -31,19 +63,18 @@
 
 | Room | Device | Device ID | Role |
 |------|--------|-----------|------|
-| Living room | Amp-1 | `koe-amp-hawaii-01` | Primary listening — main PA feed |
-| Rehearsal room | Amp-2 | `koe-amp-hawaii-02` | Guitar onset detection anchor |
-| Master bedroom | Amp-3 | `koe-amp-hawaii-03` | Ambient |
-| Lanai / outdoor | Amp-4 | `koe-amp-hawaii-04` | Outdoor fill |
-| Living room | Stone-1 | `koe-stone-hawaii-01` | Auracast broadcast (earphone listening) |
-| Rehearsal room | Stone-2 | `koe-stone-hawaii-02` | Auracast broadcast |
+| Living room | Amp-1 (Pi 5) | `koe-amp-hawaii-01` | Primary session capture — main PA feed |
+| Rehearsal room | Amp-2 (Pi 5) | `koe-amp-hawaii-02` | Guitar onset detection anchor (place within 2m of guitar) |
+| Master bedroom | Amp-3 (Pi 5) | `koe-amp-hawaii-03` | Ambient |
+| Lanai / outdoor | Amp-4 (Pi 5) | `koe-amp-hawaii-04` | Outdoor fill |
+| Living room | Stone (Sonos/SYMFONISK) | — | AirPlay 2 playback (optional) |
+| Rehearsal room | Stone (Sonos/SYMFONISK) | — | AirPlay 2 playback (optional) |
 
-- [ ] Place Amp-1 in living room — near power outlet, mic facing into room, LED visible
-- [ ] Place Amp-2 in rehearsal room — within 2m of guitar playing position
+- [ ] Place Amp-1 in living room — near power outlet, ReSpeaker mic facing into room
+- [ ] Place Amp-2 in rehearsal room — **within 2m of guitar playing position** (critical for onset detection)
 - [ ] Place Amp-3 in master bedroom — on bedside shelf or dresser
-- [ ] Place Amp-4 on lanai — weatherproof placement (keep out of direct rain/sun)
-- [ ] Place Stone-1 on living room bookshelf or TV stand — 1PPS GPS antenna near window if available
-- [ ] Place Stone-2 on rehearsal room shelf — clear line-of-sight to ceiling
+- [ ] Place Amp-4 on lanai — keep out of direct rain/sun; Pi 5 is not weatherproof
+- [ ] Place Stone speakers (if available) per room — pair with AirPlay 2 via Sonos app
 
 ### 1-B: WiFi Configuration
 
@@ -55,94 +86,67 @@ SSID: ___________________________
 Pass: ___________________________
 ```
 
-- [ ] Confirm 2.4 GHz band available (ESP32-S3 does not support 5 GHz)
+- [ ] Confirm WiFi band — Pi 5 supports both 2.4 GHz and 5 GHz (5 GHz preferred for lower latency)
 - [ ] Confirm all device placement locations have signal ≥ -70 dBm (test with phone)
 - [ ] Confirm internet reachability: `curl https://koe.live/health` from WiFi
 
 ### 1-C: Power
 
-- [ ] Amp-1: USB-C 5V 2A wall adapter → DevKit USB-C port
-- [ ] Amp-2: USB-C 5V 2A wall adapter
-- [ ] Amp-3: USB-C 5V 2A wall adapter
-- [ ] Amp-4: USB-C 5V 2A wall adapter (outdoor-rated extension cable if needed)
-- [ ] Stone-1: USB Micro-B from USB wall adapter
-- [ ] Stone-2: USB Micro-B from USB wall adapter
+- [ ] Amp-1: Raspberry Pi 27W USB-C power supply → Pi 5 USB-C port
+- [ ] Amp-2: Raspberry Pi 27W USB-C power supply
+- [ ] Amp-3: Raspberry Pi 27W USB-C power supply
+- [ ] Amp-4: Raspberry Pi 27W USB-C power supply (outdoor-rated extension cable if needed)
+- [ ] Stone speakers (if Sonos/SYMFONISK): standard power brick per unit
 - [ ] All cables are strain-relieved / taped down to avoid accidental disconnection
 - [ ] No device is on an outlet controlled by a light switch
 
 ---
 
-## Phase 2 — Firmware Flashing & NVS Provisioning
+## Phase 2 — On-site Boot Verification
 
-Run these commands on each device before placing in its room.
-Requires: `espflash` + `esptool.py` + `cargo` (Rust toolchain) on the deployment laptop.
+All SD cards are pre-flashed in Tokyo (see Phase 0-B). No firmware flashing or serial
+cables required on-site. Just plug in power and verify connectivity.
 
-### 2-A: Flash firmware binary (first time only)
+### 2-A: Power on and wait
 
-```bash
-# Connect ESP32-S3 DevKit via USB-UART programmer
-# Check port: ls /dev/tty.usbserial-* or ls /dev/ttyUSB*
+- [ ] Plug in Amp-1 (Pi 5 27W USB-C PSU) — wait 60 seconds for full boot
+- [ ] Plug in Amp-2 — wait 60 seconds
+- [ ] Plug in Amp-3 — wait 60 seconds
+- [ ] Plug in Amp-4 — wait 60 seconds
 
-cd /Users/yuki/workspace/koe-device/firmware/amp
-
-# Build release binary
-cargo build --release
-
-# Flash to device (replace /dev/tty.usbserial-0001 with actual port)
-espflash flash --chip esp32s3 --port /dev/tty.usbserial-0001 \
-  target/xtensa-esp32s3-espidf/release/koe-firmware
-```
-
-- [ ] Amp-1 flashed
-- [ ] Amp-2 flashed
-- [ ] Amp-3 flashed
-- [ ] Amp-4 flashed
-
-### 2-B: Provision NVS (WiFi + device_id)
-
-NVS namespace: `koe`, keys: `wifi_ssid`, `wifi_pass`, `device_id`
+### 2-B: Verify all units appear in koe.live
 
 ```bash
-# Generate NVS CSV for each device:
-# nvs_partition_gen.py from esp-idf tools
-
-# Example for Amp-1 (repeat per device, change device_id each time):
-python3 $IDF_PATH/components/nvs_flash/nvs_partition_generator/nvs_partition_gen.py \
-  generate nvs_amp1.csv nvs_amp1.bin 0x6000
-
-# nvs_amp1.csv contents:
-# key,type,encoding,value
-# koe,namespace,,
-# wifi_ssid,data,string,<OKI_WIFI_SSID>
-# wifi_pass,data,string,<OKI_WIFI_PASS>
-# device_id,data,string,koe-amp-hawaii-01
-
-# Flash NVS partition (offset 0x9000):
-esptool.py --port /dev/tty.usbserial-0001 write_flash 0x9000 nvs_amp1.bin
+# Run from any laptop/phone on Oki's WiFi (or via mobile data):
+curl -s https://koe.live/api/v1/room/state | python3 -m json.tool
+# Expected: all 4 device IDs listed with last_seen < 30s
 ```
 
-- [ ] Amp-1 NVS: `device_id=koe-amp-hawaii-01` + Oki WiFi
-- [ ] Amp-2 NVS: `device_id=koe-amp-hawaii-02` + Oki WiFi
-- [ ] Amp-3 NVS: `device_id=koe-amp-hawaii-03` + Oki WiFi
-- [ ] Amp-4 NVS: `device_id=koe-amp-hawaii-04` + Oki WiFi
-- [ ] Securely delete all `nvs_amp*.csv` files after flashing
+- [ ] `koe-amp-hawaii-01` appears in `koe.live/api/v1/room/state`
+- [ ] `koe-amp-hawaii-02` appears in `koe.live/api/v1/room/state`
+- [ ] `koe-amp-hawaii-03` appears in `koe.live/api/v1/room/state`
+- [ ] `koe-amp-hawaii-04` appears in `koe.live/api/v1/room/state`
 
-### 2-C: Stone NVS (serial number)
+### 2-C: Verify ReSpeaker mic array on each unit
 
-Stone firmware uses NVS key `serial` (NVS_KEY_SERIAL = 1) in Zephyr NVS.
+SSH into each unit (IPs shown in `koe.live/api/v1/room/state` or check router DHCP):
 
 ```bash
-# Flash Stone firmware via nRF Connect Programmer or west
-cd /Users/yuki/workspace/koe-device/firmware/stone
-west build -b nrf5340dk/nrf5340/cpuapp
-west flash
-
-# Set serial via UART shell after boot:
-uart:~$ nvs write 1 "KOE-STONE-HI-01"
+ssh pi@<unit-ip> arecord -l
+# Expected output includes something like:
+#   card N: ..., device 0: USB Audio [ReSpeaker Mic Array v2.0], ...
 ```
 
-- [ ] Stone-1 serial: `KOE-STONE-HI-01`
-- [ ] Stone-2 serial: `KOE-STONE-HI-02`
+- [ ] Amp-1: ReSpeaker listed as audio device
+- [ ] Amp-2: ReSpeaker listed as audio device
+- [ ] Amp-3: ReSpeaker listed as audio device
+- [ ] Amp-4: ReSpeaker listed as audio device
+
+### 2-D: Onset detection smoke test
+
+- [ ] Bring guitar near Amp-2 (rehearsal room, within 2m)
+- [ ] Strum or clap loudly → verify a session appears in `koe.live` dashboard within 5s
+- [ ] Gentle background noise → confirm no false session triggers
 
 ---
 
@@ -258,34 +262,17 @@ Share link with band manager before July 1.
 
 ---
 
-## Phase 6 — Pick Attachment (Guitar)
+## Phase 6 — Pick (skipped for Hawaii July 1)
 
-The Pick unit attaches to the guitar body and detects string onset via piezo transducer.
+The Pick piezo sensor requires a custom PCB that is not yet manufactured.
+For this deployment, Amp-2 captures guitar onset via room microphone.
 
-### 6-A: Attach to guitar
+**Action required**: Position Amp-2 within **2m of guitar playing position** in the
+rehearsal room. The ReSpeaker array's beamforming gives reliable acoustic onset
+detection without a contact piezo.
 
-- [ ] Identify guitar to instrument (Taka's acoustic or house guitar — confirm with Oki)
-- [ ] Clean guitar body surface near lower bout with isopropyl alcohol — dry completely
-- [ ] Attach 27mm piezo disk to guitar top (near bridge, not on seam) using 3M foam tape
-- [ ] Route thin silicone strap around guitar body (below sound hole) to hold Pick unit
-- [ ] Secure ESP32-C3 SuperMini unit in strap pocket — USB-C charge port accessible
-- [ ] Confirm piezo wire connection is secure (hot-glue strain relief if needed)
-
-### 6-B: Verify onset detection
-
-```bash
-# Monitor BLE advertisements from Pick (use phone BLE scanner or nRF Connect app)
-# Or check Amp-2 logs if Pick is paired: LED on Amp-2 should flash on guitar strum
-
-# Manual API check after a strum:
-curl -s "https://koe.live/api/devices" | python3 -m json.tool | grep -A5 "amp-hawaii-02"
-# Expect: audio_level > 0.1 within 2s of strum
-```
-
-- [ ] Pick is physically secure — does not rattle or buzz
-- [ ] Hard strum → LED flash visible on Amp-2 within 2 seconds
-- [ ] Gentle fingerpicking → no false triggers
-- [ ] Pick battery charged to 100% (check USB-C indicator LED)
+Verify onset detection works via Phase 2-D smoke test. Pick hardware will ship
+in a later production revision after JLCPCB PCBs are back.
 
 ---
 
@@ -294,9 +281,10 @@ curl -s "https://koe.live/api/devices" | python3 -m json.tool | grep -A5 "amp-ha
 Run through this final list the morning of June 28 before guests arrive July 1.
 
 ### Hardware
-- [ ] All 4 Amp units powered on and LED showing idle pattern (slow pulse)
-- [ ] Both Stone units powered on and Auracast broadcast active (verify with BLE scanner: look for "KOE-STONE-HI-01" in LE Audio broadcasts)
-- [ ] Pick unit charged, attached to guitar, onset detection working
+- [ ] All 4 Amp units (Pi 5) powered on — green LED on board, active in `koe.live/api/v1/room/state`
+- [ ] All 4 ReSpeaker mic arrays connected and listed in `arecord -l` (SSH spot-check one unit)
+- [ ] Stone speakers (if Sonos/SYMFONISK) powered on and reachable from Oki's network
+- [ ] Amp-2 placed within 2m of guitar playing position (room mic onset detection)
 - [ ] No loose cables visible in common areas
 
 ### Network
@@ -313,7 +301,8 @@ Run through this final list the morning of June 28 before guests arrive July 1.
 
 ### Backup
 - [ ] Extra USB-C cable accessible in a drawer (in case of cable failure)
-- [ ] Oki knows the factory reset procedure: hold button 5 seconds (LED goes red then reboot)
+- [ ] Oki knows the recovery procedure: unplug USB-C, wait 10s, replug (Pi 5 reboots cleanly)
+- [ ] Oki knows SSH access: `ssh pi@<unit-ip>` (password set during SD flash)
 - [ ] Oki has contact for remote support (see Phase 8)
 
 ---
@@ -322,17 +311,15 @@ Run through this final list the morning of June 28 before guests arrive July 1.
 
 ### Device offline (no heartbeat for > 2 minutes)
 
-1. Check WiFi — reconnect if router was restarted
-2. Power-cycle device: unplug USB-C, wait 10 seconds, replug
-3. If still offline: factory reset (hold button 5 seconds — LED flashes red)
-   - Device will reboot and reconnect using stored NVS WiFi credentials
-   - NVS credentials are NOT erased by normal reboot — only by factory reset
-4. If factory reset needed, NVS must be reflashed with WiFi + device_id (contact Yuki)
-
-### OTA firmware hung (device restarting loop)
-
-- The OTA system writes to `ota_0`/`ota_1` partitions only — NVS is never erased
-- If boot loop: hold button during power-on to stay in factory partition (contact Yuki for recovery)
+1. Check WiFi — reconnect router if it was restarted
+2. Power-cycle Pi 5: unplug USB-C, wait 10 seconds, replug
+   - Pi 5 boots in ~45 seconds; allow 60s before checking `koe.live/api/v1/room/state`
+3. If still offline after reboot: SSH into unit and check logs:
+   ```bash
+   ssh pi@<unit-ip> journalctl -u koe-hub --since "5 min ago"
+   ```
+4. If unit won't boot or SD card is corrupt: contact Yuki — a replacement SD can be
+   shipped overnight or re-flashed remotely via image download
 
 ### Session data not appearing on koe.live
 
