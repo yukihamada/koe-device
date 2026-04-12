@@ -1,0 +1,24 @@
+version: "2.1"
+services:
+  koe-amp:
+    build: .
+    network_mode: host
+    privileged: true  # needed for audio device access
+    volumes:
+      - koe-config:/etc/koe
+    environment:
+      - KOE_API_URL=https://koe.live
+      - KOE_ROOM=living_room
+    restart: always
+
+  wifi-connect:
+    image: bh.cr/balenalabs/wifi-connect-rpi
+    network_mode: host
+    labels:
+      io.balena.features.dbus: "1"
+    environment:
+      - PORTAL_SSID=Koe Setup
+      - PORTAL_PASSPHRASE=koedevice
+
+volumes:
+  koe-config: {}
