@@ -61,8 +61,8 @@ fn make_symbol(one: bool) -> Symbol {
         (T0H_TICKS, T0L_TICKS)
     };
     Symbol::new(
-        Pulse::new(PinState::High, PulseTicks::new(h_ticks)),
-        Pulse::new(PinState::Low, PulseTicks::new(l_ticks)),
+        Pulse::new(PinState::High, PulseTicks::new(h_ticks).unwrap()),
+        Pulse::new(PinState::Low, PulseTicks::new(l_ticks).unwrap()),
     )
 }
 

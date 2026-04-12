@@ -20,7 +20,7 @@
 use anyhow::{anyhow, Result};
 use esp_idf_hal::{
     i2s::{
-        config::{DataBitWidth, SlotMode, StdClkConfig, StdConfig, StdSlotConfig},
+        config::{Config as I2sConfig, DataBitWidth, SlotMode, StdClkConfig, StdConfig, StdGpioConfig, StdSlotConfig},
         I2sDriver, I2sRx, I2S0,
     },
     gpio::{AnyIOPin, Gpio14, Gpio15, Gpio32},
@@ -188,7 +188,7 @@ fn run_audio_task(
 
     let clk_cfg  = StdClkConfig::from_sample_rate_hz(16_000);
     let slot_cfg = StdSlotConfig::philips_slot_default(DataBitWidth::Bits16, SlotMode::Mono);
-    let std_cfg  = StdConfig::new(clk_cfg, slot_cfg, Default::default());
+    let std_cfg  = StdConfig::new(I2sConfig::default(), clk_cfg, slot_cfg, StdGpioConfig::default());
 
     let no_mclk: Option<AnyIOPin> = None;
     let mut driver = match I2sDriver::<I2sRx>::new_std_rx(i2s0, &std_cfg, bclk, din, no_mclk, ws) {
@@ -379,7 +379,6 @@ fn main() -> Result<()> {
 
     // SNTP time sync — wait up to 2 s for first sync
     let _sntp = EspSntp::new(&SntpConf {
-        servers: ["pool.ntp.org", "time.cloudflare.com", "time.aws.com", "time.google.com"],
         sync_mode: SyncMode::Immediate,
         ..Default::default()
     })?;

@@ -934,7 +934,7 @@ dependencies = [
  "embuild 0.32.0",
  "esp-idf-hal",
  "esp-idf-svc",
- "heapless 0.8.0",
+ "heapless 0.9.2",
  "log",
  "serde",
  "serde_json",

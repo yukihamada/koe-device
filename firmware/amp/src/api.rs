@@ -38,8 +38,9 @@ fn post_json(url: &str, body: &str) -> Result<(u16, heapless::String<4096>)> {
         ("Content-Type", "application/json"),
         ("Accept", "application/json"),
     ];
-    let request = client.request(Method::Post, url, &headers)?;
-    let mut response = request.send_bytes(body_bytes)?;
+    let mut request = client.request(Method::Post, url, &headers)?;
+    request.write(body_bytes)?;
+    let mut response = request.submit()?;
 
     let status = response.status();
     let mut resp_buf = heapless::String::<4096>::new();
