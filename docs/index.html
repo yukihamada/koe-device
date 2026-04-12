@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Koe</title>
-<meta name="description" content="A home that becomes a single speaker. Koe Stone — Limited to 100.">
+<meta name="description" content="The take that happened before you pressed record. Koe Stone — Limited to 100.">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="canonical" href="https://koe.live/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Koe">
-<meta property="og:description" content="A home that becomes a single speaker.">
+<meta property="og:description" content="The take that happened before you pressed record.">
 <meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
 <meta property="og:url" content="https://koe.live/">
 <meta property="og:site_name" content="Koe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Koe">
-<meta name="twitter:description" content="A home that becomes a single speaker.">
+<meta name="twitter:description" content="The take that happened before you pressed record.">
 <meta name="twitter:image" content="https://koe.live/brand/hero/01_stone.png">
 
 <style>
@@ -161,6 +161,194 @@ nav ul a.archive { opacity: 0.35; }
     50% { opacity: 0.5; transform: translate(-50%, 4px); }
 }
 
+/* ── Solo Loop Artist Section ─────────────────────────── */
+.loop-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+@media (max-width: 720px) {
+    .loop-section { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+}
+.loop-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+}
+.loop-headline {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 200;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: #fff;
+    margin-bottom: 1.6rem;
+}
+.loop-body {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
+}
+.loop-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.loop-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+}
+.loop-steps li .step-num {
+    flex-shrink: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: #8B5CF6;
+    margin-top: 0.1rem;
+}
+.loop-visual {
+    background: rgba(139,92,246,0.04);
+    border: 1px solid rgba(139,92,246,0.12);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+}
+.loop-visual::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+}
+.loop-visual .highlight {
+    color: rgba(255,255,255,0.9);
+    font-weight: 400;
+}
+.loop-visual .caption {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+}
+
+/* ── Artist Quotes ───────────────────────────────────── */
+.quotes-section {
+    padding: 6rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.quotes-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+.quotes-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+.quotes-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.85);
+}
+.quotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.quote-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 16px;
+    padding: 2rem 1.8rem;
+    position: relative;
+    transition: all 0.25s;
+}
+.quote-card:hover {
+    border-color: rgba(139,92,246,0.35);
+    background: rgba(139,92,246,0.03);
+    transform: translateY(-2px);
+}
+.quote-card::before {
+    content: '\201C';
+    position: absolute;
+    top: 1.2rem;
+    left: 1.8rem;
+    font-size: 3rem;
+    font-weight: 100;
+    color: rgba(139,92,246,0.3);
+    line-height: 1;
+}
+.quote-text {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+    margin-top: 1.8rem;
+    margin-bottom: 1.8rem;
+    font-style: italic;
+}
+.quote-author {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+.quote-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.25);
+    flex-shrink: 0;
+}
+.quote-name {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: small-caps;
+    color: rgba(255,255,255,0.6);
+}
+.quote-role {
+    font-size: 0.68rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.15rem;
+    letter-spacing: 0.03em;
+}
+
+/* ── Specs ───────────────────────────────────────────── */
 .specs {
     padding: 8rem 1.5rem;
     max-width: 1100px;
@@ -302,13 +490,107 @@ footer .links {
 <section class="hero">
     <div class="hero-badge">Limited &middot; 100</div>
     <h1>Koe</h1>
-    <h2>A home that becomes<br>a single speaker.</h2>
+    <h2>The take that happened<br>before you pressed record.</h2>
     <div class="hero-image"></div>
     <div class="cta-row">
-        <a href="/start" class="cta cta-primary">How it works</a>
+        <a href="/sessions" class="cta cta-primary">See how Sessions works</a>
         <a href="/3d" class="cta cta-secondary">Explore in 3D</a>
     </div>
     <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- Solo Loop Artist Workflow -->
+<section class="loop-section">
+    <div class="loop-copy">
+        <div class="loop-label">Solo Artist Workflow</div>
+        <h2 class="loop-headline">The room was already recording.</h2>
+        <p class="loop-body">
+            Pick up a guitar. Start a loop. Find the groove.
+            The house was already recording &mdash; from five seconds before you found it.
+        </p>
+        <ul class="loop-steps">
+            <li>
+                <span class="step-num">1</span>
+                <span>Play freely &mdash; no phones, no DAWs, no interruptions.</span>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <span>Koe keeps a rolling buffer. The magic moment is already captured.</span>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <span>Touch once to commit. Walk away with a stem, not a memory.</span>
+            </li>
+            <li>
+                <span class="step-num">4</span>
+                <span>Check out of the hotel room with your session intact.</span>
+            </li>
+        </ul>
+    </div>
+    <div class="loop-visual">
+        <div>
+            <span class="highlight">02:14 AM</span><br>
+            Guitar loop, key of E<br>
+            <span class="highlight">Buffer: rolling 30s</span>
+        </div>
+        <br>
+        <div>
+            Groove found at 02:17<br>
+            <span class="highlight">Captured: 5s before intent</span>
+        </div>
+        <br>
+        <div>
+            Single tap &rarr; stem saved<br>
+            <span class="highlight">koe-session-230412.wav</span>
+        </div>
+        <div class="caption">No DAW. No latency. No lost takes.</div>
+    </div>
+</section>
+
+<!-- Artist Quotes -->
+<section class="quotes-section">
+    <div class="quotes-header">
+        <div class="quotes-label">As used by</div>
+        <h3 class="quotes-title">Artists who stop losing the good stuff.</h3>
+    </div>
+    <div class="quotes-grid">
+        <div class="quote-card">
+            <div class="quote-text">
+                I write on guitar at 2am. I used to lose everything by morning. Not anymore.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Solo Artist</div>
+                    <div class="quote-role">London</div>
+                </div>
+            </div>
+        </div>
+        <div class="quote-card">
+            <div class="quote-text">
+                We jammed for three hours. Koe caught the 40 seconds that became the single.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Band</div>
+                    <div class="quote-role">Tokyo</div>
+                </div>
+            </div>
+        </div>
+        <div class="quote-card">
+            <div class="quote-text">
+                The room at Aman had a Koe setup. I checked out with stems.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Touring Artist</div>
+                    <div class="quote-role">NYC</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section class="specs">
@@ -373,7 +655,7 @@ footer .links {
         Serial numbered 001 &mdash; 100.<br>
         First shipments Summer 2026.
     </div>
-    <a href="/start" class="cta cta-primary">Learn more</a>
+    <a href="/sessions" class="cta cta-primary">See how Sessions works</a>
 </section>
 
 <footer>
