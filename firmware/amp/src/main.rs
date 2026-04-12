@@ -20,10 +20,10 @@
 use anyhow::{anyhow, Result};
 use esp_idf_hal::{
     i2s::{
-        config::{DataBitWidth, SlotMode, StdConfig, StdClkConfig, StdSlotConfig, StdGpioConfig},
-        I2sDriver, I2S0,
+        config::{DataBitWidth, SlotMode, StdClkConfig, StdConfig, StdSlotConfig},
+        I2sDriver, I2sRx, I2S0,
     },
-    gpio::{Gpio14, Gpio15, Gpio32},
+    gpio::{AnyIOPin, Gpio14, Gpio15, Gpio32},
     peripherals::Peripherals,
 };
 use esp_idf_svc::{
@@ -188,10 +188,10 @@ fn run_audio_task(
 
     let clk_cfg  = StdClkConfig::from_sample_rate_hz(16_000);
     let slot_cfg = StdSlotConfig::philips_slot_default(DataBitWidth::Bits16, SlotMode::Mono);
-    let gpio_cfg = StdGpioConfig::default().bclk(bclk).ws(ws).din(din);
-    let std_cfg  = StdConfig::new(clk_cfg, slot_cfg, gpio_cfg);
+    let std_cfg  = StdConfig::new(clk_cfg, slot_cfg, Default::default());
 
-    let mut driver = match I2sDriver::new_std_rx(i2s0, &std_cfg) {
+    let no_mclk: Option<AnyIOPin> = None;
+    let mut driver = match I2sDriver::<I2sRx>::new_std_rx(i2s0, &std_cfg, bclk, din, no_mclk, ws) {
         Ok(d) => d,
         Err(e) => {
             warn!("[audio] I2S init failed: {:?}", e);
@@ -390,18 +390,16 @@ fn main() -> Result<()> {
     let shared_state = Arc::new(Mutex::new(SharedState::new()));
 
     // --- LED task (spawned thread) ---
-    // Wrap !Send peripherals in SendWrap so they can be moved into the thread.
-    // SAFETY: only this thread will ever access RMT channel 0 and GPIO2.
+    // Wrap the !Send GPIO pin in SendWrap so it can be moved into the thread.
+    // SAFETY: only the led thread will ever access GPIO2 after the move.
     let led_state_clone = Arc::clone(&shared_state);
-    let sw_ch  = SendWrap(peripherals.rmt.channel0);
     let sw_pin = SendWrap(peripherals.pins.gpio2);
     thread::Builder::new()
         .name("led".into())
         .stack_size(4096)
         .spawn(move || {
-            let SendWrap(ch)  = sw_ch;
             let SendWrap(pin) = sw_pin;
-            match WS2812Driver::new(ch, pin) {
+            match WS2812Driver::new(pin) {
                 Ok(driver) => led::led_task(driver, move || {
                     led_state_clone.lock().unwrap().led_state
                 }),
