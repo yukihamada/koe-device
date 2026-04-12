@@ -218,10 +218,22 @@ async fn main() {
             last_seen INTEGER NOT NULL DEFAULT (strftime('%s','now'))
         );
         CREATE INDEX IF NOT EXISTS idx_hb_seen ON device_heartbeats(last_seen);
+        CREATE TABLE IF NOT EXISTS waitlist (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT NOT NULL,
+            artist_name TEXT,
+            use_case TEXT DEFAULT 'home_studio',
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email);
     ").expect("Failed to init DB");
     // Column migrations (ignored if already exist)
     db.execute("ALTER TABLE koe_sessions ADD COLUMN is_active INTEGER NOT NULL DEFAULT 0", []).ok();
     db.execute("ALTER TABLE koe_sessions ADD COLUMN audio_rms REAL NOT NULL DEFAULT 0.0", []).ok();
+    db.execute("ALTER TABLE koe_sessions ADD COLUMN detected_instrument TEXT", []).ok();
+    db.execute("ALTER TABLE koe_sessions ADD COLUMN loop_count INTEGER NOT NULL DEFAULT 0", []).ok();
+    db.execute("ALTER TABLE koe_sessions ADD COLUMN energy_profile TEXT", []).ok();
     info!("SQLite DB initialized at {}", db_path);
 
     // Generate self-signed cert for WebTransport
@@ -288,9 +300,13 @@ async fn main() {
         .route("/family",                          get(handle_page_family))
         .route("/sessions",                        get(handle_page_sessions))
         .route("/sessions/hawaii-2026-07",         get(handle_page_sessions_hawaii))
+        .route("/artist",                          get(handle_page_artist))
         .route("/room",                            get(handle_page_room))
         .route("/archive",                         get(handle_page_archive))
         .route("/key",                             get(handle_page_key))
+        .route("/waitlist",                        get(handle_page_waitlist))
+        .route("/api/v1/waitlist",                 post(handle_waitlist_submit))
+        .route("/admin/waitlist",                  get(handle_admin_waitlist))
         .route("/api/devices",                     get(handle_devices))
         .route("/api/v1/device/firmware",          get(handle_firmware_check))
         .route(
@@ -372,6 +388,8 @@ async fn handle_page_sessions_hawaii() -> impl IntoResponse { serve_html("sessio
 async fn handle_page_room() -> impl IntoResponse { serve_html("room.html").await }
 async fn handle_page_archive() -> impl IntoResponse { serve_html("archive.html").await }
 async fn handle_page_key() -> impl IntoResponse { serve_html("key.html").await }
+async fn handle_page_artist() -> impl IntoResponse { serve_html("artist.html").await }
+async fn handle_page_waitlist() -> impl IntoResponse { serve_html("waitlist.html").await }
 
 async fn serve_html(filename: &str) -> axum::response::Response {
     let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "/app/docs".to_string());
@@ -1759,6 +1777,94 @@ async fn handle_admin_orders_export(
     ).into_response()
 }
 
+// ---- Waitlist ----
+
+#[derive(Debug, Deserialize)]
+struct WaitlistSubmit {
+    #[serde(default)]
+    name: Option<String>,
+    email: String,
+    #[serde(default)]
+    artist_name: Option<String>,
+    #[serde(default = "default_use_case")]
+    use_case: String,
+}
+
+fn default_use_case() -> String { "home_studio".to_string() }
+
+/// POST /api/v1/waitlist — public, no auth
+async fn handle_waitlist_submit(
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<WaitlistSubmit>,
+) -> impl IntoResponse {
+    let email = body.email.trim().to_string();
+    if email.is_empty() {
+        return (StatusCode::BAD_REQUEST, axum::Json(json!({"error": "email is required"}))).into_response();
+    }
+
+    let valid_cases = ["home_studio", "touring", "venue", "other"];
+    let use_case = if valid_cases.contains(&body.use_case.as_str()) {
+        body.use_case.clone()
+    } else {
+        "home_studio".to_string()
+    };
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": "db lock"}))).into_response(),
+    };
+
+    match db.execute(
+        "INSERT INTO waitlist (name, email, artist_name, use_case) VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![body.name, email, body.artist_name, use_case],
+    ) {
+        Ok(_) => (StatusCode::OK, axum::Json(json!({"ok": true}))).into_response(),
+        Err(e) => {
+            warn!("waitlist insert error: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": "failed to save"}))).into_response()
+        }
+    }
+}
+
+/// GET /admin/waitlist — list all waitlist entries (Bearer token required)
+async fn handle_admin_waitlist(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_admin_auth(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error": "Unauthorized"}))).into_response();
+    }
+
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": "db lock"}))).into_response(),
+    };
+
+    let mut stmt = match db.prepare(
+        "SELECT id, name, email, artist_name, use_case, created_at FROM waitlist ORDER BY id DESC"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": e.to_string()}))).into_response(),
+    };
+
+    let rows: Vec<Value> = match stmt.query_map([], |row| {
+        Ok(json!({
+            "id":          row.get::<_, i64>(0)?,
+            "name":        row.get::<_, Option<String>>(1)?,
+            "email":       row.get::<_, String>(2)?,
+            "artist_name": row.get::<_, Option<String>>(3)?,
+            "use_case":    row.get::<_, Option<String>>(4)?,
+            "created_at":  row.get::<_, Option<String>>(5)?,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => Vec::new(),
+    };
+
+    (StatusCode::OK, axum::Json(json!({"waitlist": rows, "total": rows.len()}))).into_response()
+}
+
 async fn call_groq(api_key: &str, prompt: &str, max_tokens: u32) -> Result<String, String> {
     let client = reqwest::Client::new();
     let body = json!({
@@ -1849,7 +1955,9 @@ async fn handle_sessions_list(
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
     };
     let mut stmt = match db.prepare(
-        "SELECT id, room, label, start_time, end_time, duration_secs, tracks, instruments, is_silence, source FROM koe_sessions ORDER BY start_time DESC LIMIT 100"
+        "SELECT id, room, label, start_time, end_time, duration_secs, tracks, instruments, is_silence, source, \
+         detected_instrument, loop_count, energy_profile \
+         FROM koe_sessions ORDER BY start_time DESC LIMIT 100"
     ) {
         Ok(s) => s,
         Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
@@ -1866,6 +1974,9 @@ async fn handle_sessions_list(
             "instruments": row.get::<_,String>(7)?,
             "is_silence": row.get::<_,i64>(8)?,
             "source": row.get::<_,String>(9)?,
+            "detected_instrument": row.get::<_,Option<String>>(10)?,
+            "loop_count": row.get::<_,i64>(11)?,
+            "energy_profile": row.get::<_,Option<String>>(12)?,
         }))
     }) {
         Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
@@ -2064,22 +2175,26 @@ async fn handle_morning_mix(State(state): State<AppState>) -> impl IntoResponse 
     let now = unix_now() as i64;
     let cutoff = now - 86400;
 
-    // Best session: longest × most tracks, completed, real audio
+    // Best session: longest × most tracks × loop bonus (×1.5 if loop_count > 0), completed, real audio
+    // Loop sessions score higher because they represent more intentional, layered performances.
     let session: Option<Value> = db.query_row(
-        "SELECT id,room,label,start_time,end_time,duration_secs,tracks,instruments \
+        "SELECT id,room,label,start_time,end_time,duration_secs,tracks,instruments,loop_count,detected_instrument,energy_profile \
          FROM koe_sessions \
          WHERE start_time >= ?1 AND is_active=0 AND is_silence=0 AND duration_secs IS NOT NULL \
-         ORDER BY (duration_secs * tracks) DESC LIMIT 1",
+         ORDER BY (duration_secs * tracks * CASE WHEN loop_count > 0 THEN 1.5 ELSE 1.0 END) DESC LIMIT 1",
         rusqlite::params![cutoff],
         |r| Ok(json!({
-            "id":            r.get::<_,String>(0)?,
-            "room":          r.get::<_,String>(1)?,
-            "label":         r.get::<_,Option<String>>(2)?,
-            "start_time":    r.get::<_,i64>(3)?,
-            "end_time":      r.get::<_,Option<i64>>(4)?,
-            "duration_secs": r.get::<_,i64>(5)?,
-            "tracks":        r.get::<_,i64>(6)?,
-            "instruments":   r.get::<_,String>(7)?,
+            "id":                  r.get::<_,String>(0)?,
+            "room":                r.get::<_,String>(1)?,
+            "label":               r.get::<_,Option<String>>(2)?,
+            "start_time":          r.get::<_,i64>(3)?,
+            "end_time":            r.get::<_,Option<i64>>(4)?,
+            "duration_secs":       r.get::<_,i64>(5)?,
+            "tracks":              r.get::<_,i64>(6)?,
+            "instruments":         r.get::<_,String>(7)?,
+            "loop_count":          r.get::<_,i64>(8)?,
+            "detected_instrument": r.get::<_,Option<String>>(9)?,
+            "energy_profile":      r.get::<_,Option<String>>(10)?,
         }))
     ).ok();
 
@@ -2115,18 +2230,20 @@ async fn handle_session_start(
         Ok(d) => d,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
     };
-    let now         = unix_now() as i64;
-    let room        = body["room"].as_str().unwrap_or("living_room").to_string();
-    let tracks      = body["tracks"].as_i64().unwrap_or(6);
-    let instruments = body.get("instruments").map(|v| v.to_string()).unwrap_or_else(|| "[]".to_string());
-    let source      = body["source"].as_str().unwrap_or("device").to_string();
+    let now                 = unix_now() as i64;
+    let room                = body["room"].as_str().unwrap_or("living_room").to_string();
+    let tracks              = body["tracks"].as_i64().unwrap_or(6);
+    let instruments         = body.get("instruments").map(|v| v.to_string()).unwrap_or_else(|| "[]".to_string());
+    let source              = body["source"].as_str().unwrap_or("device").to_string();
+    let detected_instrument = body["detected_instrument"].as_str().map(|s| s.to_string());
+    let loop_count          = body["loop_count"].as_i64().unwrap_or(0);
 
     db.execute(
-        "INSERT OR REPLACE INTO koe_sessions(id,room,start_time,tracks,instruments,is_active,source) \
-         VALUES(?1,?2,?3,?4,?5,1,?6)",
-        rusqlite::params![session_id, room, now, tracks, instruments, source],
+        "INSERT OR REPLACE INTO koe_sessions(id,room,start_time,tracks,instruments,is_active,source,detected_instrument,loop_count) \
+         VALUES(?1,?2,?3,?4,?5,1,?6,?7,?8)",
+        rusqlite::params![session_id, room, now, tracks, instruments, source, detected_instrument, loop_count],
     ).ok();
-    info!("session_start: {} room={} tracks={}", session_id, room, tracks);
+    info!("session_start: {} room={} tracks={} instrument={:?} loops={}", session_id, room, tracks, detected_instrument, loop_count);
     (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"started_at":now}))).into_response()
 }
 
@@ -2140,14 +2257,17 @@ async fn handle_session_end(
         Ok(d) => d,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
     };
-    let now       = unix_now() as i64;
-    let audio_rms = body["audio_rms"].as_f64().unwrap_or(0.0);
+    let now            = unix_now() as i64;
+    let audio_rms      = body["audio_rms"].as_f64().unwrap_or(0.0);
+    let loop_count     = body["loop_count"].as_i64().unwrap_or(0);
+    let energy_profile = body["energy_profile"].as_str().map(|s| s.to_string());
 
     db.execute(
-        "UPDATE koe_sessions SET is_active=0, end_time=?1, duration_secs=(?1-start_time), audio_rms=?2 WHERE id=?3",
-        rusqlite::params![now, audio_rms, session_id],
+        "UPDATE koe_sessions SET is_active=0, end_time=?1, duration_secs=(?1-start_time), \
+         audio_rms=?2, loop_count=?3, energy_profile=?4 WHERE id=?5",
+        rusqlite::params![now, audio_rms, loop_count, energy_profile, session_id],
     ).ok();
-    info!("session_end: {} ended_at={}", session_id, now);
+    info!("session_end: {} ended_at={} loops={} energy={:?}", session_id, now, loop_count, energy_profile);
     (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"ended_at":now}))).into_response()
 }
 
