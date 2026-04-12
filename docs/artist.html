@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; For Artists</title>
+<meta name="description" content="Koe Sessions captures the moment you found the groove — not the moment you remembered to press record.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/artist">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe — For Artists">
+<meta property="og:description" content="The room has been recording since before you picked it up.">
+<meta property="og:image" content="https://koe.live/brand/keynote/03_touch_music.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://koe.live/brand/keynote/03_touch_music.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover, nav ul a.active { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
+
+.hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 6rem 1.5rem 4rem;
+    text-align: center;
+    position: relative;
+    background:
+        radial-gradient(ellipse 80% 50% at center 30%, rgba(139,92,246,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse at center top, #1a1a2e 0%, #0a0a0a 60%);
+}
+.hero-badge {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+}
+.hero h1 {
+    font-size: clamp(2.4rem, 6.5vw, 5rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 2rem;
+    max-width: 860px;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.5) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero h2 {
+    font-size: clamp(0.95rem, 2vw, 1.3rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.55;
+    max-width: 580px;
+    margin-bottom: 0;
+}
+
+.section {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem;
+}
+.section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+}
+.section .sub {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    max-width: 640px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+.section p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: rgba(255,255,255,0.75);
+    font-weight: 200;
+    max-width: 680px;
+    margin-bottom: 1.5rem;
+}
+
+/* Waveform timeline */
+.timeline {
+    margin: 4rem 0;
+    padding: 2.5rem;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.timeline-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+.waveform-wrap {
+    position: relative;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.waveform-segment {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.waveform-segment.lookback {
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 8px 0 0 8px;
+}
+.waveform-segment.active {
+    background: rgba(139,92,246,0.18);
+    border: 1px solid rgba(139,92,246,0.4);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+}
+.waveform-bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 60px;
+    padding: 0 1rem;
+}
+.bar {
+    width: 3px;
+    background: rgba(139,92,246,0.5);
+    border-radius: 2px;
+    animation: pulse-bar 1.4s ease-in-out infinite;
+}
+.waveform-segment.lookback .bar {
+    background: rgba(139,92,246,0.3);
+}
+.waveform-segment.active .bar {
+    background: rgba(139,92,246,0.75);
+}
+@keyframes pulse-bar {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+}
+.bar:nth-child(1)  { height: 24px; animation-delay: 0.0s; }
+.bar:nth-child(2)  { height: 38px; animation-delay: 0.1s; }
+.bar:nth-child(3)  { height: 52px; animation-delay: 0.2s; }
+.bar:nth-child(4)  { height: 44px; animation-delay: 0.15s; }
+.bar:nth-child(5)  { height: 30px; animation-delay: 0.25s; }
+.bar:nth-child(6)  { height: 46px; animation-delay: 0.05s; }
+.bar:nth-child(7)  { height: 58px; animation-delay: 0.3s; }
+.bar:nth-child(8)  { height: 40px; animation-delay: 0.2s; }
+.bar:nth-child(9)  { height: 28px; animation-delay: 0.35s; }
+.bar:nth-child(10) { height: 50px; animation-delay: 0.1s; }
+.bar:nth-child(11) { height: 60px; animation-delay: 0.0s; }
+.bar:nth-child(12) { height: 48px; animation-delay: 0.18s; }
+.bar:nth-child(13) { height: 36px; animation-delay: 0.28s; }
+.bar:nth-child(14) { height: 54px; animation-delay: 0.08s; }
+.bar:nth-child(15) { height: 42px; animation-delay: 0.22s; }
+.timeline-annotations {
+    display: flex;
+    margin-top: 1.2rem;
+    gap: 0;
+}
+.ann {
+    flex: 1;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    padding: 0 0.25rem;
+}
+.ann.left { text-align: left; }
+.ann.mid { text-align: center; color: #8B5CF6; }
+.ann.right { text-align: right; }
+
+/* Band tracks */
+.tracks {
+    margin: 4rem 0 3rem;
+    padding: 2.5rem;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+}
+.tracks h3 {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+.track-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.82rem;
+    align-items: baseline;
+}
+.track-row:last-child { border-bottom: none; }
+.track-row .num {
+    color: rgba(255,255,255,0.35);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+}
+.track-row .src {
+    color: #fff;
+    font-weight: 300;
+}
+.track-row .loc {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.74rem;
+    font-weight: 300;
+    text-align: right;
+}
+
+/* Spec grid */
+.spec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 3rem 0;
+}
+@media (min-width: 640px) {
+    .spec-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.spec-item {
+    background: #0a0a0a;
+    padding: 1.8rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.spec-item .spec-value {
+    font-size: 1.5rem;
+    font-weight: 100;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1;
+}
+.spec-item .spec-label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 400;
+}
+
+/* Pricing tiers */
+.tiers {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 4rem 0;
+}
+@media (min-width: 768px) {
+    .tiers { grid-template-columns: repeat(3, 1fr); }
+}
+.tier {
+    padding: 2.5rem 2rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    transition: border-color 0.2s;
+}
+.tier:hover {
+    border-color: rgba(139,92,246,0.3);
+}
+.tier.featured {
+    background: rgba(139,92,246,0.05);
+    border-color: rgba(139,92,246,0.25);
+}
+.tier-name {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+}
+.tier-price {
+    font-size: 2.4rem;
+    font-weight: 100;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+.tier-price span {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 300;
+}
+.tier-desc {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    line-height: 1.55;
+}
+.tier-items {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1;
+}
+.tier-items li {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 300;
+    padding-left: 1.2rem;
+    position: relative;
+}
+.tier-items li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #8B5CF6;
+}
+.tier-cta {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.35);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: #c4b5fd;
+    letter-spacing: 0.05em;
+    text-align: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.tier-cta:hover {
+    background: rgba(139,92,246,0.28);
+    border-color: rgba(139,92,246,0.6);
+}
+
+.closing {
+    text-align: center;
+    padding: 7rem 1.5rem;
+    max-width: 680px;
+    margin: 0 auto;
+}
+.closing p {
+    font-size: clamp(1.15rem, 2.5vw, 1.6rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+}
+
+footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/family">Family</a></li>
+        <li><a href="/sessions">Sessions</a></li>
+        <li><a href="/business" class="hide-mobile">Business</a></li>
+        <li><a href="/artist" class="active hide-mobile">Artist</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="hero-badge">For Artists</div>
+    <h1>The room has been recording<br>since before you picked it up.</h1>
+    <h2>Koe Sessions captures the moment you found the groove &mdash; not the moment you remembered to press record.</h2>
+</section>
+
+<section class="section">
+    <h2>Every loop artist knows this feeling.</h2>
+    <div class="sub">The Ed Sheeran Problem</div>
+    <p>
+        You pick up the guitar. You find something. Thirty seconds later it&rsquo;s gone &mdash; because you were playing, not reaching for your phone. Koe&rsquo;s 5-second lookback means the house started recording before you did. That loop is already saved.
+    </p>
+
+    <div class="timeline">
+        <div class="timeline-label">Session timeline — acoustic guitar, living room</div>
+        <div class="waveform-wrap">
+            <div class="waveform-segment lookback">
+                <div class="waveform-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <div class="waveform-segment active">
+                <div class="waveform-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="timeline-annotations">
+            <div class="ann left">recording started here (5s earlier)</div>
+            <div class="ann mid">&#x2191; you started playing here</div>
+            <div class="ann right">now</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>You&rsquo;re never in the same studio twice.</h2>
+    <div class="sub">For bands on the road</div>
+    <p>
+        Koe sets up in any house in under ten minutes. Four Amps, one Pick on the guitar, and the room becomes a multi-track recording studio. Every jam between shows. Six tracks, 48 kHz, stems ready for your producer.
+    </p>
+
+    <div class="tracks">
+        <h3>A typical session &mdash; rental house, tour stop</h3>
+        <div class="track-row">
+            <div class="num">01</div>
+            <div class="src">Pick &mdash; lead guitar</div>
+            <div class="loc">direct piezo</div>
+        </div>
+        <div class="track-row">
+            <div class="num">02</div>
+            <div class="src">Pick &mdash; bass</div>
+            <div class="loc">direct piezo</div>
+        </div>
+        <div class="track-row">
+            <div class="num">03</div>
+            <div class="src">Amp &mdash; main room L</div>
+            <div class="loc">stereo pair, room reference</div>
+        </div>
+        <div class="track-row">
+            <div class="num">04</div>
+            <div class="src">Amp &mdash; main room R</div>
+            <div class="loc">stereo pair, room reference</div>
+        </div>
+        <div class="track-row">
+            <div class="num">05</div>
+            <div class="src">Amp &mdash; hallway L</div>
+            <div class="loc">ambient bleed / drums</div>
+        </div>
+        <div class="track-row">
+            <div class="num">06</div>
+            <div class="src">Amp &mdash; hallway R</div>
+            <div class="loc">ambient bleed / drums</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>What you get.</h2>
+    <div class="sub">Every Artist Set includes</div>
+
+    <div class="spec-grid">
+        <div class="spec-item">
+            <div class="spec-value">Auto</div>
+            <div class="spec-label">Session recording</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">5s</div>
+            <div class="spec-label">Lookback buffer</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">6</div>
+            <div class="spec-label">Track count</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">48k</div>
+            <div class="spec-label">Sample rate / 24 bit</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">Local</div>
+            <div class="spec-label">Storage — never cloud</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">30</div>
+            <div class="spec-label">Day archive window</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">Stems</div>
+            <div class="spec-label">Download per track</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-value">Mix</div>
+            <div class="spec-label">Morning Mix AI blend</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Artist Sets.</h2>
+    <div class="sub">Choose your configuration</div>
+
+    <div class="tiers">
+        <div class="tier">
+            <div class="tier-name">Solo</div>
+            <div class="tier-price">$3,500 <span>USD</span></div>
+            <div class="tier-desc">Home studio. Writing room. Tour Airbnb. Everything a solo artist needs to never miss a take.</div>
+            <ul class="tier-items">
+                <li>Stone &times; 2</li>
+                <li>Pick &times; 1</li>
+                <li>Amp &times; 1</li>
+                <li>Sessions auto-recording</li>
+                <li>5-second lookback</li>
+                <li>30-day archive</li>
+            </ul>
+            <a href="/waitlist" class="tier-cta">Join waitlist</a>
+        </div>
+
+        <div class="tier featured">
+            <div class="tier-name">Band</div>
+            <div class="tier-price">$6,800 <span>USD</span></div>
+            <div class="tier-desc">Four musicians. Any rental. Every jam between shows captured in multi-track.</div>
+            <ul class="tier-items">
+                <li>Stone &times; 4</li>
+                <li>Pick &times; 2</li>
+                <li>Amp &times; 2</li>
+                <li>6-track synchronized recording</li>
+                <li>Stems download</li>
+                <li>Morning Mix AI blend</li>
+            </ul>
+            <a href="/waitlist" class="tier-cta">Join waitlist</a>
+        </div>
+
+        <div class="tier">
+            <div class="tier-name">Venue</div>
+            <div class="tier-price">$14,500 <span>USD</span></div>
+            <div class="tier-desc">Dedicated hub, full spatial coverage. For residencies, studios, and performance spaces.</div>
+            <ul class="tier-items">
+                <li>Stone &times; 8</li>
+                <li>Pick &times; 4</li>
+                <li>Amp &times; 4</li>
+                <li>Dedicated hub hardware</li>
+                <li>Priority setup support</li>
+                <li>Extended 90-day archive</li>
+            </ul>
+            <a href="/waitlist" class="tier-cta">Join waitlist</a>
+        </div>
+    </div>
+</section>
+
+<section class="closing">
+    <p>The best songs don&rsquo;t start in studios.<br>They start in the three seconds before anyone thought to press record.</p>
+</section>
+
+<footer>
+    Koe &mdash; For Artists &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="/sessions">Sessions</a> &middot; <a href="mailto:business@koe.live">business@koe.live</a>
+</footer>
+
+</body>
+</html>
