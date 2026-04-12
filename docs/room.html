@@ -141,12 +141,131 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     font-size: 0.58rem; letter-spacing: 0.2em;
     color: rgba(255,255,255,0.15); text-transform: uppercase;
 }
+
+/* ── Voice indicator (top-left) ── */
+.voice-pill {
+    position: fixed; top: 1.8rem; left: 2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.65rem;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+}
+.voice-pill.active {
+    background: rgba(139,92,246,0.1);
+    border-color: rgba(139,92,246,0.3);
+    color: #8B5CF6;
+}
+.voice-pill.heard {
+    background: rgba(139,92,246,0.22);
+    border-color: rgba(139,92,246,0.7);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(139,92,246,0.25);
+}
+.voice-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+    flex-shrink: 0;
+}
+.voice-pill.active .voice-dot {
+    background: #8B5CF6;
+    animation: blinkDot 1.2s ease-in-out infinite;
+}
+.voice-pill.heard .voice-dot {
+    background: #fff;
+    animation: none;
+    box-shadow: 0 0 8px #fff;
+}
+
+/* ── Keyboard hint (bottom-right) ── */
+.kb-hint {
+    position: fixed; bottom: 2.2rem; right: 2rem;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;
+    opacity: 0; transition: opacity 0.4s;
+}
+.kb-hint.show { opacity: 1; }
+.kb-row {
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.kb-key {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 20px; padding: 0 5px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 0.52rem; color: rgba(255,255,255,0.4);
+    letter-spacing: 0;
+}
+.kb-label {
+    font-size: 0.52rem; color: rgba(255,255,255,0.18);
+    letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+/* ── Toast ── */
+.toast {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.88);
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.4);
+    backdrop-filter: blur(20px);
+    border-radius: 100px;
+    padding: 0.7rem 1.6rem;
+    font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: #fff; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+}
+.toast.show {
+    opacity: 1; transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Wake flash overlay ── */
+.wake-flash {
+    position: fixed; inset: 0;
+    background: rgba(139,92,246,0.08);
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 90;
+}
+.wake-flash.on { opacity: 1; }
 </style>
 </head>
 <body>
 
 <canvas id="c"></canvas>
 <div class="logo">KOE</div>
+
+<!-- Voice indicator -->
+<div class="voice-pill" id="voicePill">
+    <div class="voice-dot"></div>
+    <span id="voiceLabel">Voice</span>
+</div>
+
+<!-- Keyboard hint (shows on first keydown) -->
+<div class="kb-hint" id="kbHint">
+    <div class="kb-row">
+        <span class="kb-key">Enter</span><span class="kb-label">Record</span>
+    </div>
+    <div class="kb-row">
+        <span class="kb-key">Space</span><span class="kb-label">Toggle</span>
+    </div>
+    <div class="kb-row">
+        <span class="kb-key">Esc</span><span class="kb-label">Stop</span>
+    </div>
+    <div class="kb-row">
+        <span class="kb-key">↑↓</span><span class="kb-label">Volume</span>
+    </div>
+</div>
+
+<!-- Wake flash -->
+<div class="wake-flash" id="wakeFlash"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <div class="ui">
     <div class="ring-wrap">
@@ -181,15 +300,12 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
 </div>
 
 <script>
-// Ambient particle field
+// ── Ambient particle field ──────────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 let W, H, pts = [];
 
-function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-}
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 resize();
 window.addEventListener('resize', resize);
 
@@ -214,8 +330,10 @@ for (let i = 0; i < 50; i++) pts.push({
     requestAnimationFrame(frame);
 })();
 
-// State
+// ── State ───────────────────────────────────────────────────────────────────
 let state = 'ready';
+// volume: 0–100
+let volume = 70;
 
 function setReady() {
     state = 'ready';
@@ -234,15 +352,178 @@ function setRecording(tracks) {
     document.getElementById('wave').classList.add('on');
 }
 
-// Press R to toggle recording state (demo / manual trigger)
+function toggle() { state === 'ready' ? setRecording(6) : setReady(); }
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// ── Wake flash ──────────────────────────────────────────────────────────────
+function wakeFlash() {
+    const el = document.getElementById('wakeFlash');
+    el.classList.add('on');
+    setTimeout(() => el.classList.remove('on'), 300);
+}
+
+// ── Volume display ──────────────────────────────────────────────────────────
+function changeVolume(delta) {
+    volume = Math.max(0, Math.min(100, volume + delta));
+    showToast('Volume  ' + volume + '%');
+}
+
+// ── Keyboard ────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-    if (e.key.toLowerCase() === 'r') state === 'ready' ? setRecording(6) : setReady();
+    // Show KB hint on first key
+    document.getElementById('kbHint').classList.add('show');
+
+    switch (e.key) {
+        case 'Enter':
+            e.preventDefault();
+            if (state === 'ready') { setRecording(6); showToast('Recording started'); }
+            break;
+        case ' ':
+            e.preventDefault();
+            toggle();
+            showToast(state === 'recording' ? 'Recording started' : 'Session stopped');
+            break;
+        case 'Escape':
+        case 'Backspace':
+            e.preventDefault();
+            if (state === 'recording') { setReady(); showToast('Session stopped'); }
+            break;
+        case 'r':
+        case 'R':
+            toggle();
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            changeVolume(+5);
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            changeVolume(-5);
+            break;
+    }
 });
 
-// Tap / click anywhere to toggle (for tablet touch control)
+// Tap / click anywhere
 document.addEventListener('click', () => {
-    state === 'ready' ? setRecording(6) : setReady();
+    toggle();
 });
+
+// ── Web Speech API — wake word ───────────────────────────────────────────────
+const pill   = document.getElementById('voicePill');
+const vLabel = document.getElementById('voiceLabel');
+
+// Wake phrases (EN + JA)
+const WAKE    = ['hey koe', 'ヘイコエ', 'ヘイ声', 'hey ko', 'hey ko e', 'koe'];
+const START   = ['record', 'start', 'begin', '録音', '始めて', 'start recording', 'rec'];
+const STOP    = ['stop', 'done', 'finish', 'end', 'pause', '止めて', '停止', 'stop recording'];
+const VOL_UP  = ['volume up', 'louder', '音量上げて', 'up'];
+const VOL_DN  = ['volume down', 'quieter', '音量下げて', 'down'];
+
+let SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let wakeActive = false; // two-step: wake word first, then command
+
+if (SpeechRec) {
+    const rec = new SpeechRec();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'ja-JP'; // recognizes both JP and EN
+
+    pill.classList.add('active');
+    vLabel.textContent = 'Listening';
+
+    rec.onresult = e => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            const t = e.results[i][0].transcript.toLowerCase().trim();
+            if (e.results[i].isFinal) {
+                handleCommand(t);
+            } else {
+                interim = t;
+            }
+        }
+        // Show interim faintly in label
+        if (interim.length > 0 && interim.length < 20) {
+            vLabel.textContent = interim;
+        }
+    };
+
+    rec.onend = () => {
+        // Restart continuously
+        try { rec.start(); } catch (_) {}
+        pill.classList.add('active');
+        pill.classList.remove('heard');
+        vLabel.textContent = 'Listening';
+    };
+
+    rec.onerror = e => {
+        if (e.error === 'not-allowed') {
+            pill.classList.remove('active');
+            vLabel.textContent = 'Mic off';
+        }
+    };
+
+    try { rec.start(); } catch (_) {}
+
+    function handleCommand(text) {
+        const match = s => s.some(p => text.includes(p));
+
+        if (match(WAKE)) {
+            // Wake word detected
+            wakeActive = true;
+            pill.classList.add('heard');
+            vLabel.textContent = 'Hey Koe';
+            wakeFlash();
+            showToast('Hey Koe — say "Record" or "Stop"');
+            setTimeout(() => {
+                pill.classList.remove('heard');
+                vLabel.textContent = 'Listening';
+                wakeActive = false;
+            }, 5000);
+            return;
+        }
+
+        // After wake OR direct command when recording-aware
+        if (match(START)) {
+            if (state === 'ready') {
+                setRecording(6);
+                wakeFlash();
+                showToast('Recording started');
+            }
+            wakeActive = false;
+        } else if (match(STOP)) {
+            if (state === 'recording') {
+                setReady();
+                wakeFlash();
+                showToast('Session stopped');
+            }
+            wakeActive = false;
+        } else if (match(VOL_UP)) {
+            changeVolume(+10);
+            wakeActive = false;
+        } else if (match(VOL_DN)) {
+            changeVolume(-10);
+            wakeActive = false;
+        } else if (wakeActive) {
+            // Wake active but unrecognized — reset after timeout (already scheduled)
+        }
+
+        pill.classList.remove('heard');
+        vLabel.textContent = 'Listening';
+    }
+
+} else {
+    // Browser doesn't support Speech API
+    vLabel.textContent = 'No mic API';
+}
 </script>
 </body>
 </html>
