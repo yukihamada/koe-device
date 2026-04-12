@@ -16,6 +16,8 @@
 ///   GET  /quick-start                    → docs/quick-start.html (packaging QR target)
 ///   GET  /ws/signal                      → WebRTC signaling (room-based broadcast)
 ///   GET  /ws/soluna                      → Soluna protocol relay (WS ↔ UDP multicast bridge)
+///   GET  /ws/room                        → Room audio-level live feed (broadcast to /room page)
+///   POST /api/v1/room/audio-level        → koe-amp.py posts level every 100ms → broadcast
 
 use axum::{
     Router,
@@ -87,6 +89,8 @@ struct AppState {
     wt_cert_hash: Arc<String>,
     /// Broadcast channel for Shared Brain events (KOE × KAGI integration)
     brain_tx: broadcast::Sender<String>,
+    /// Broadcast channel for room audio-level updates (koe-amp.py → /ws/room → /room page)
+    room_tx: broadcast::Sender<String>,
 }
 
 // ---- Shared Brain types ----
@@ -279,6 +283,7 @@ async fn main() {
     info!("WebTransport cert hash: {}", cert_hash_b64);
 
     let (brain_tx, _) = broadcast::channel::<String>(256);
+    let (room_tx, _)  = broadcast::channel::<String>(256);
 
     let state = AppState {
         rooms: Arc::new(DashMap::new()),
@@ -288,6 +293,7 @@ async fn main() {
         db: Arc::new(Mutex::new(db)),
         wt_cert_hash: Arc::new(cert_hash_b64),
         brain_tx,
+        room_tx,
     };
 
     // Spawn WebTransport QUIC server on port 4443
@@ -393,6 +399,8 @@ async fn main() {
         .route("/api/v1/brain/events",             get(handle_brain_events))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
+        .route("/ws/room",    get(handle_ws_room))
+        .route("/api/v1/room/audio-level", post(handle_room_audio_level))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
         .with_state(state);
 
@@ -678,6 +686,82 @@ async fn handle_soluna_socket(
     }
 
     info!("soluna-ws: client left channel '{}'", channel);
+}
+
+// ---- WebSocket: Room audio-level live feed ----
+
+/// GET /ws/room — subscribe to live audio levels and recording-state changes for /room page.
+/// No auth needed (read-only public feed).
+async fn handle_ws_room(
+    ws: WebSocketUpgrade,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    ws.on_upgrade(move |socket| handle_room_socket(socket, state))
+}
+
+async fn handle_room_socket(socket: WebSocket, state: AppState) {
+    let mut rx = state.room_tx.subscribe();
+    let (mut ws_tx, mut ws_rx) = socket.split();
+
+    info!("ws/room: client connected");
+    loop {
+        tokio::select! {
+            // Forward broadcast messages to client
+            bcast = rx.recv() => {
+                match bcast {
+                    Ok(text) => {
+                        if ws_tx.send(Message::Text(text)).await.is_err() { break; }
+                    }
+                    Err(broadcast::error::RecvError::Closed) => break,
+                    Err(broadcast::error::RecvError::Lagged(_)) => continue,
+                }
+            }
+            // Handle client pings / disconnects (no client→server messages expected)
+            msg = ws_rx.next() => {
+                match msg {
+                    Some(Ok(Message::Ping(p))) => {
+                        let _ = ws_tx.send(Message::Pong(p)).await;
+                    }
+                    None | Some(Ok(Message::Close(_))) | Some(Err(_)) => break,
+                    _ => {}
+                }
+            }
+        }
+    }
+    info!("ws/room: client disconnected");
+}
+
+// ---- Room audio-level HTTP endpoint (koe-amp.py) ----
+
+/// POST /api/v1/room/audio-level
+/// Body: {"device_id":"...","room":"...","level":0.42,"is_recording":true}
+/// koe-amp.py calls this every 100ms; the server broadcasts to /ws/room subscribers.
+#[derive(Debug, Deserialize)]
+struct AudioLevelRequest {
+    #[serde(default)]
+    device_id: String,
+    #[serde(default)]
+    room: String,
+    level: f32,
+    #[serde(default)]
+    is_recording: bool,
+}
+
+async fn handle_room_audio_level(
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<AudioLevelRequest>,
+) -> impl IntoResponse {
+    let msg = json!({
+        "type": "audio_level",
+        "device_id": body.device_id,
+        "room": body.room,
+        "level": body.level,
+        "is_recording": body.is_recording,
+        "ts": unix_now(),
+    });
+    // Ignore SendError (no subscribers is fine)
+    let _ = state.room_tx.send(msg.to_string());
+    (StatusCode::OK, axum::Json(json!({"ok": true})))
 }
 
 // ---- UDP → WS bridge (Soluna multicast listener) ----
@@ -2135,6 +2219,19 @@ async fn handle_device_heartbeat(
     let is_rec      = if body["is_recording"].as_bool().unwrap_or(false) { 1i64 } else { 0i64 };
     let battery     = body["battery_pct"].as_i64().unwrap_or(100);
 
+    // Fetch previous recording state to detect changes
+    let prev_is_rec: Option<i64> = {
+        if let Ok(d) = state.db.lock() {
+            d.query_row(
+                "SELECT is_recording FROM device_heartbeats WHERE device_id = ?1",
+                rusqlite::params![device_id],
+                |r| r.get(0),
+            ).ok()
+        } else {
+            None
+        }
+    };
+
     let db = match state.db.lock() {
         Ok(d) => d,
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
@@ -2144,6 +2241,22 @@ async fn handle_device_heartbeat(
          VALUES(?1,?2,?3,?4,?5,?6,?7,strftime('%s','now'))",
         rusqlite::params![device_id, room, device_type, firmware, audio_level, is_rec, battery],
     ).ok();
+    drop(db);
+
+    // Broadcast to /ws/room whenever is_recording changes
+    let recording_changed = prev_is_rec.map(|p| p != is_rec).unwrap_or(true);
+    if recording_changed {
+        let msg = json!({
+            "type": "recording_state",
+            "device_id": device_id,
+            "room": room,
+            "is_recording": is_rec == 1,
+            "audio_level": audio_level,
+            "ts": unix_now(),
+        });
+        let _ = state.room_tx.send(msg.to_string());
+    }
+
     (StatusCode::OK, axum::Json(json!({"ok":true}))).into_response()
 }
 

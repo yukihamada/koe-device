@@ -57,6 +57,7 @@ REFRACTORY_FRAMES = 48           # ~1.5 s at 32 ms/frame
 
 SILENCE_END_SECS   = 5.0         # seconds of silence before session ends
 HEARTBEAT_INTERVAL = 5.0         # seconds between heartbeat POSTs
+LEVEL_INTERVAL     = 0.1         # seconds between audio-level POSTs (100ms)
 
 KOE_API_BASE = "https://koe.live"
 FIRMWARE_VER = "python-1.0.0"
@@ -290,6 +291,31 @@ def send_session_end(
 
 
 # ---------------------------------------------------------------------------
+# Audio-level streaming thread
+# ---------------------------------------------------------------------------
+
+def _level_thread(device_id: str, room: str, state: dict) -> None:
+    """Posts audio level every 100ms for live /room display."""
+    while not state['shutdown'].is_set():
+        level  = state.get('current_level', 0.0)
+        is_rec = state.get('is_recording', False)
+        try:
+            requests.post(
+                f"{KOE_API_BASE}/api/v1/room/audio-level",
+                json={
+                    "device_id":    device_id,
+                    "room":         room,
+                    "level":        round(float(level), 3),
+                    "is_recording": is_rec,
+                },
+                timeout=0.5,
+            )
+        except Exception:
+            pass
+        time.sleep(LEVEL_INTERVAL)
+
+
+# ---------------------------------------------------------------------------
 # Heartbeat background thread
 # ---------------------------------------------------------------------------
 
@@ -356,10 +382,25 @@ class AmpService:
         self._heartbeat     = HeartbeatThread(device_id, room)
         self._shutdown      = threading.Event()
 
+        # Shared state dict for the level-streaming thread.
+        # Python GIL makes single float/bool writes atomic, but we store them
+        # in a dict to pass by reference to the thread function.
+        self._level_state: dict = {
+            'shutdown':      self._shutdown,
+            'current_level': 0.0,
+            'is_recording':  False,
+        }
+
     # -- public ----------------------------------------------------------------
 
     def run(self) -> None:
         self._heartbeat.start()
+        threading.Thread(
+            target=_level_thread,
+            args=(self._device_id, self._room, self._level_state),
+            daemon=True,
+            name="audio-level",
+        ).start()
         log.info(
             "starting audio capture device_id=%s room=%s rate=%d frame=%d",
             self._device_id, self._room, SAMPLE_RATE, FRAME_SAMPLES,
@@ -409,13 +450,16 @@ class AmpService:
         current_rms = _rms(samples * 32767.0)
 
         # Update heartbeat state (thread-safe)
+        is_recording = self._session_id is not None
+        normalized_level = current_rms / 32767.0  # normalise to 0..1 for API
         with self._state_lock:
             self._current_rms  = current_rms
-            self._is_recording = self._session_id is not None
-        self._heartbeat.update_state(
-            current_rms / 32767.0,  # normalise to 0..1 for API
-            self._session_id is not None,
-        )
+            self._is_recording = is_recording
+        self._heartbeat.update_state(normalized_level, is_recording)
+
+        # Update level-streaming state (atomic float write — GIL-safe)
+        self._level_state['current_level'] = normalized_level
+        self._level_state['is_recording']  = is_recording
 
         now = time.monotonic()
 
