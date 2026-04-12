@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Koe · Sessions</title>
+<title>Koe · Room</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#05050a">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
     width: 100vw; height: 100vh; overflow: hidden;
@@ -19,117 +19,156 @@ html, body {
 
 canvas { position: fixed; inset: 0; pointer-events: none; }
 
+/* ── Logo ── */
 .logo {
     font-size: 0.8rem; font-weight: 200; letter-spacing: 0.45em;
     color: rgba(255,255,255,0.18);
     text-transform: uppercase;
     position: fixed; top: 2rem; left: 50%; transform: translateX(-50%);
+    z-index: 10;
 }
 
+/* ── WS status dot (top-right) ── */
+.ws-indicator {
+    position: fixed; top: 1.9rem; right: 2rem;
+    display: flex; align-items: center; gap: 0.4rem;
+    z-index: 20;
+}
+.ws-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.4s, box-shadow 0.4s;
+}
+.ws-dot.connected {
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34,197,94,0.7);
+}
+.ws-dot.reconnecting {
+    background: rgba(255,255,255,0.25);
+    animation: wsBlink 0.9s ease-in-out infinite;
+}
+@keyframes wsBlink { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+.ws-label {
+    font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    transition: color 0.4s;
+}
+.ws-dot.connected + .ws-label { color: rgba(34,197,94,0.6); }
+
+/* ── Main layout ── */
 .ui {
     position: fixed; inset: 0;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 0;
+    z-index: 5;
 }
 
-.ring-wrap {
+/* ── Session timer ── */
+.session-timer {
+    font-size: clamp(3.5rem, 9vw, 6rem);
+    font-weight: 100; letter-spacing: -0.04em;
+    color: rgba(255,255,255,0.95);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.6s;
+    margin-bottom: 0.5rem;
+}
+.session-timer.recording {
+    color: #a78bfa;
+    text-shadow: 0 0 40px rgba(167,139,250,0.4);
+}
+
+/* ── Waveform sweep bar ── */
+.sweep-wrap {
+    width: min(680px, 88vw);
+    margin: 1.4rem 0 1.2rem;
+}
+.sweep-bar {
+    width: 100%; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
     position: relative;
-    width: 240px; height: 240px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
 }
-.ring {
-    position: absolute; border-radius: 50%;
-    border: 1px solid rgba(139,92,246,0.12);
-    width: 100%; height: 100%;
-    animation: expand 4s ease-out infinite;
+.sweep-fill {
+    height: 100%; border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+    width: 0%;
+    transition: width 0.08s linear, background 0.4s;
+    transform-origin: left;
 }
-.ring:nth-child(2) { animation-delay: 1.33s; }
-.ring:nth-child(3) { animation-delay: 2.66s; }
-@keyframes expand {
-    0%   { transform: scale(0.25); opacity: 0.9; border-color: rgba(139,92,246,0.5); }
-    100% { transform: scale(2);    opacity: 0;   border-color: rgba(139,92,246,0); }
-}
-.dot {
-    width: 9px; height: 9px; border-radius: 50%;
+.sweep-fill.recording {
     background: #8B5CF6;
-    box-shadow: 0 0 18px rgba(139,92,246,0.9), 0 0 50px rgba(139,92,246,0.3);
-    animation: dotPulse 3s ease-in-out infinite;
-    z-index: 1;
-}
-@keyframes dotPulse {
-    0%,100% { transform: scale(1);   box-shadow: 0 0 18px rgba(139,92,246,0.9), 0 0 50px rgba(139,92,246,0.3); }
-    50%     { transform: scale(1.4); box-shadow: 0 0 28px rgba(139,92,246,1),   0 0 80px rgba(139,92,246,0.5); }
+    box-shadow: 0 0 12px rgba(139,92,246,0.6);
 }
 
-.status { text-align: center; margin-top: 2.5rem; }
+/* ── VU bars ── */
+.vu-wrap {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 4px;
+    height: 80px;
+    width: min(680px, 88vw);
+    margin-bottom: 1.6rem;
+}
+.vu-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    background: rgba(139,92,246,0.18);
+    height: 4px;
+    transition: height 0.07s ease-out, background 0.4s;
+    max-height: 80px;
+}
+.vu-bar.recording {
+    background: linear-gradient(to top, #8B5CF6, #c084fc);
+}
+
+/* ── Status line ── */
+.status-line {
+    font-size: 0.78rem; font-weight: 300;
+    color: rgba(255,255,255,0.35); letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.6;
+    min-height: 1.4em;
+    transition: color 0.4s;
+}
+.status-line.recording {
+    color: rgba(167,139,250,0.7);
+}
+
+/* ── Badge ── */
 .badge {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: #8B5CF6; margin-bottom: 1.2rem;
-    animation: fadePulse 3s ease-in-out infinite;
+    font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: rgba(255,255,255,0.22);
+    margin-bottom: 1.2rem;
+    transition: color 0.4s;
 }
-.badge .blink {
+.badge.recording { color: #8B5CF6; }
+.badge-dot {
     width: 5px; height: 5px; border-radius: 50%;
-    background: #8B5CF6;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.badge.recording .badge-dot {
+    opacity: 1;
     animation: blinkDot 1s ease-in-out infinite;
 }
 @keyframes blinkDot { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-@keyframes fadePulse { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
 
-.main-text {
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 100; letter-spacing: -0.04em;
-    color: rgba(255,255,255,0.92); line-height: 1.1;
-    margin-bottom: 1.2rem;
-}
-.sub-text {
-    font-size: 0.85rem; font-weight: 200;
-    color: rgba(255,255,255,0.32); letter-spacing: 0.02em;
-    line-height: 1.7;
-}
-
-/* Waveform — shown when recording */
-.waveform {
-    display: flex; align-items: center; gap: 3px;
-    height: 44px; margin-top: 2rem;
-    opacity: 0; transition: opacity 1s;
-}
-.waveform.on { opacity: 1; }
-.bar {
-    width: 3px; border-radius: 2px;
-    background: rgba(139,92,246,0.65);
-    animation: wv 1.1s ease-in-out infinite;
-}
-.bar:nth-child(odd)  { animation-direction: alternate; }
-.bar:nth-child(even) { animation-direction: alternate-reverse; }
-@keyframes wv { 0%{transform:scaleY(0.2);} 100%{transform:scaleY(1);} }
-.bar:nth-child(1)  { height:10px; animation-delay:0s;    }
-.bar:nth-child(2)  { height:24px; animation-delay:0.08s; }
-.bar:nth-child(3)  { height:38px; animation-delay:0.16s; }
-.bar:nth-child(4)  { height:28px; animation-delay:0.05s; }
-.bar:nth-child(5)  { height:16px; animation-delay:0.24s; }
-.bar:nth-child(6)  { height:34px; animation-delay:0.12s; }
-.bar:nth-child(7)  { height:42px; animation-delay:0.2s;  }
-.bar:nth-child(8)  { height:22px; animation-delay:0.04s; }
-.bar:nth-child(9)  { height:12px; animation-delay:0.28s; }
-.bar:nth-child(10) { height:32px; animation-delay:0.16s; }
-.bar:nth-child(11) { height:20px; animation-delay:0.08s; }
-.bar:nth-child(12) { height:8px;  animation-delay:0.22s; }
-
-/* bottom device row */
+/* ── Bottom device row ── */
 .bottom {
     position: fixed; bottom: 2.5rem;
     left: 50%; transform: translateX(-50%);
     text-align: center;
+    z-index: 10;
 }
 .device-row {
     display: flex; gap: 0.45rem; justify-content: center; margin-bottom: 0.5rem;
 }
 .dev {
     width: 5px; height: 5px; border-radius: 50%;
-    background: rgba(139,92,246,0.25);
+    background: rgba(139,92,246,0.22);
 }
 .dev.on {
     background: rgba(139,92,246,0.7);
@@ -142,7 +181,7 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     color: rgba(255,255,255,0.15); text-transform: uppercase;
 }
 
-/* ── Voice indicator (top-left) ── */
+/* ── Voice pill (top-left) ── */
 .voice-pill {
     position: fixed; top: 1.8rem; left: 2rem;
     display: flex; align-items: center; gap: 0.5rem;
@@ -153,6 +192,7 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
     color: rgba(255,255,255,0.2);
     transition: all 0.3s;
+    z-index: 20;
 }
 .voice-pill.active {
     background: rgba(139,92,246,0.1);
@@ -186,11 +226,10 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     position: fixed; bottom: 2.2rem; right: 2rem;
     display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;
     opacity: 0; transition: opacity 0.4s;
+    z-index: 10;
 }
 .kb-hint.show { opacity: 1; }
-.kb-row {
-    display: flex; align-items: center; gap: 0.5rem;
-}
+.kb-row { display: flex; align-items: center; gap: 0.5rem; }
 .kb-key {
     display: inline-flex; align-items: center; justify-content: center;
     min-width: 22px; height: 20px; padding: 0 5px;
@@ -198,7 +237,6 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.12);
     font-size: 0.52rem; color: rgba(255,255,255,0.4);
-    letter-spacing: 0;
 }
 .kb-label {
     font-size: 0.52rem; color: rgba(255,255,255,0.18);
@@ -219,9 +257,7 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     opacity: 0; transition: opacity 0.2s, transform 0.2s;
     z-index: 100;
 }
-.toast.show {
-    opacity: 1; transform: translate(-50%, -50%) scale(1);
-}
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 /* ── Wake flash overlay ── */
 .wake-flash {
@@ -239,26 +275,24 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
 <canvas id="c"></canvas>
 <div class="logo">KOE</div>
 
-<!-- Voice indicator -->
+<!-- WS status indicator (top-right) -->
+<div class="ws-indicator">
+    <div class="ws-dot reconnecting" id="wsDot"></div>
+    <span class="ws-label" id="wsLabel">—</span>
+</div>
+
+<!-- Voice pill (top-left) -->
 <div class="voice-pill" id="voicePill">
     <div class="voice-dot"></div>
     <span id="voiceLabel">Voice</span>
 </div>
 
-<!-- Keyboard hint (shows on first keydown) -->
+<!-- Keyboard hint -->
 <div class="kb-hint" id="kbHint">
-    <div class="kb-row">
-        <span class="kb-key">Enter</span><span class="kb-label">Record</span>
-    </div>
-    <div class="kb-row">
-        <span class="kb-key">Space</span><span class="kb-label">Toggle</span>
-    </div>
-    <div class="kb-row">
-        <span class="kb-key">Esc</span><span class="kb-label">Stop</span>
-    </div>
-    <div class="kb-row">
-        <span class="kb-key">↑↓</span><span class="kb-label">Volume</span>
-    </div>
+    <div class="kb-row"><span class="kb-key">Enter</span><span class="kb-label">Record</span></div>
+    <div class="kb-row"><span class="kb-key">Space</span><span class="kb-label">Toggle</span></div>
+    <div class="kb-row"><span class="kb-key">Esc</span><span class="kb-label">Stop</span></div>
+    <div class="kb-row"><span class="kb-key">↑↓</span><span class="kb-label">Volume</span></div>
 </div>
 
 <!-- Wake flash -->
@@ -268,31 +302,43 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
 <div class="toast" id="toast"></div>
 
 <div class="ui">
-    <div class="ring-wrap">
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="dot"></div>
+    <div class="badge" id="badge">
+        <span class="badge-dot"></span>
+        <span id="badge-txt">Sessions · Ready</span>
     </div>
 
-    <div class="status">
-        <div class="badge" id="badge">
-            <span class="blink"></span>
-            <span id="badge-txt">Sessions · Ready</span>
-        </div>
-        <div class="main-text" id="main">Start playing.<br>We're listening.</div>
-        <div class="sub-text" id="sub">Pick up an instrument.<br>The house begins recording automatically.</div>
-        <div class="waveform" id="wave">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <!-- Large session timer -->
+    <div class="session-timer" id="sessionTimer">—</div>
+
+    <!-- Full-width sweep bar -->
+    <div class="sweep-wrap">
+        <div class="sweep-bar">
+            <div class="sweep-fill" id="sweepFill"></div>
         </div>
     </div>
+
+    <!-- VU level bars (12 bars) -->
+    <div class="vu-wrap" id="vuWrap">
+        <div class="vu-bar" id="b0"></div>
+        <div class="vu-bar" id="b1"></div>
+        <div class="vu-bar" id="b2"></div>
+        <div class="vu-bar" id="b3"></div>
+        <div class="vu-bar" id="b4"></div>
+        <div class="vu-bar" id="b5"></div>
+        <div class="vu-bar" id="b6"></div>
+        <div class="vu-bar" id="b7"></div>
+        <div class="vu-bar" id="b8"></div>
+        <div class="vu-bar" id="b9"></div>
+        <div class="vu-bar" id="b10"></div>
+        <div class="vu-bar" id="b11"></div>
+    </div>
+
+    <!-- Status line -->
+    <div class="status-line" id="statusLine">Ready · pick up an instrument</div>
 </div>
 
 <div class="bottom">
-    <div class="device-row">
+    <div class="device-row" id="deviceRow">
         <div class="dev on"></div><div class="dev on"></div>
         <div class="dev"></div><div class="dev"></div><div class="dev"></div>
     </div>
@@ -303,7 +349,8 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
 // ── Ambient particle field ──────────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-let W, H, pts = [];
+let W, H;
+const pts = [];
 
 function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 resize();
@@ -331,28 +378,205 @@ for (let i = 0; i < 50; i++) pts.push({
 })();
 
 // ── State ───────────────────────────────────────────────────────────────────
-let state = 'ready';
-// volume: 0–100
-let volume = 70;
+const NUM_BARS = 12;
+let isRecording  = false;
+let sessionStart = null;    // Date (wall clock) when session began
+let sessionId    = null;
+let volume       = 70;
+let lastLevel    = 0.0;
 
-function setReady() {
-    state = 'ready';
-    document.getElementById('badge-txt').textContent = 'Sessions · Ready';
-    document.getElementById('main').innerHTML = 'Start playing.<br>We\'re listening.';
-    document.getElementById('sub').textContent = 'Pick up an instrument. The house begins recording automatically.';
-    document.getElementById('wave').classList.remove('on');
+// Per-bar variation seeds (randomized once, fixed per bar for organic look)
+const barSeeds = Array.from({length: NUM_BARS}, () => 0.55 + Math.random() * 0.45);
+
+// ── DOM refs ────────────────────────────────────────────────────────────────
+const timerEl   = document.getElementById('sessionTimer');
+const sweepFill = document.getElementById('sweepFill');
+const statusEl  = document.getElementById('statusLine');
+const badgeEl   = document.getElementById('badge');
+const badgeTxt  = document.getElementById('badge-txt');
+const vuBars    = Array.from({length: NUM_BARS}, (_, i) => document.getElementById('b' + i));
+
+// ── Level update (called from WS or fallback poll) ──────────────────────────
+function updateLevel(level, rec) {
+    // Smooth the level slightly so it doesn't look jittery on the bar
+    lastLevel = lastLevel * 0.4 + level * 0.6;
+
+    // Sweep bar — full width proportional to level
+    sweepFill.style.width = (lastLevel * 100).toFixed(1) + '%';
+
+    // VU bars — each gets level × per-bar variation × some height randomness
+    const baseHeight = Math.max(lastLevel, 0.02); // floor so bars are always visible
+    for (let i = 0; i < NUM_BARS; i++) {
+        // Add a little per-frame random flutter on top of the seed variation
+        const flutter = 0.75 + Math.random() * 0.5;
+        const h = Math.min(80, Math.max(3, baseHeight * barSeeds[i] * flutter * 80));
+        vuBars[i].style.height = h.toFixed(1) + 'px';
+    }
+
+    if (rec !== isRecording) {
+        setRecordingState(rec);
+    }
 }
 
-function setRecording(tracks) {
-    state = 'recording';
-    const t = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('badge-txt').textContent = '● Recording · ' + t;
-    document.getElementById('main').innerHTML = 'Session in progress.';
-    document.getElementById('sub').textContent = (tracks || 6) + ' tracks · 48 kHz / 24 bit · local only';
-    document.getElementById('wave').classList.add('on');
+// ── Recording state change ──────────────────────────────────────────────────
+function setRecordingState(rec, startTime) {
+    isRecording = rec;
+
+    timerEl.classList.toggle('recording', rec);
+    sweepFill.classList.toggle('recording', rec);
+    statusEl.classList.toggle('recording', rec);
+    badgeEl.classList.toggle('recording', rec);
+    vuBars.forEach(b => b.classList.toggle('recording', rec));
+
+    if (rec) {
+        if (startTime) {
+            sessionStart = new Date(startTime * 1000);
+        } else if (!sessionStart) {
+            sessionStart = new Date();
+        }
+        badgeTxt.textContent = '● Recording';
+    } else {
+        sessionStart = null;
+        timerEl.textContent = '—';
+        statusEl.textContent = 'Ready · pick up an instrument';
+        badgeTxt.textContent = 'Sessions · Ready';
+    }
 }
 
-function toggle() { state === 'ready' ? setRecording(6) : setReady(); }
+// ── Session timer tick ──────────────────────────────────────────────────────
+setInterval(() => {
+    if (!isRecording || !sessionStart) return;
+    const elapsed = Math.floor((Date.now() - sessionStart.getTime()) / 1000);
+    const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const ss = String(elapsed % 60).padStart(2, '0');
+    timerEl.textContent = mm + ':' + ss;
+    // Update status line with elapsed time
+    statusEl.textContent = 'Session in progress · ' + mm + ':' + ss;
+}, 500);
+
+// Idle bars decay slowly when not receiving live data
+let lastWsMessage = 0;
+setInterval(() => {
+    if (Date.now() - lastWsMessage > 300) {
+        // No WS data for 300ms — decay bars
+        lastLevel *= 0.85;
+        for (let i = 0; i < NUM_BARS; i++) {
+            const h = Math.max(3, parseFloat(vuBars[i].style.height || '3') * 0.85);
+            vuBars[i].style.height = h.toFixed(1) + 'px';
+        }
+        sweepFill.style.width = (lastLevel * 100).toFixed(1) + '%';
+    }
+}, 80);
+
+// ── WebSocket live level feed ────────────────────────────────────────────────
+const wsDot   = document.getElementById('wsDot');
+const wsLabel = document.getElementById('wsLabel');
+let ws        = null;
+let wsRetry   = null;
+
+function wsConnect() {
+    if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(proto + '://' + location.host + '/ws/room');
+
+    wsDot.className = 'ws-dot reconnecting';
+    wsLabel.textContent = '…';
+
+    ws.onopen = () => {
+        wsDot.className = 'ws-dot connected';
+        wsLabel.textContent = 'Live';
+        clearTimeout(wsRetry);
+    };
+
+    ws.onmessage = (e) => {
+        lastWsMessage = Date.now();
+        try {
+            const d = JSON.parse(e.data);
+            // d.level = 0.0-1.0 audio RMS
+            // d.is_recording = bool
+            // d.device_id = string
+            if (typeof d.level === 'number') {
+                updateLevel(d.level, !!d.is_recording);
+            }
+        } catch (_) {}
+    };
+
+    ws.onclose = () => {
+        wsDot.className = 'ws-dot reconnecting';
+        wsLabel.textContent = '—';
+        wsRetry = setTimeout(wsConnect, 3000);
+    };
+
+    ws.onerror = () => {
+        ws.close();
+    };
+}
+
+wsConnect();
+
+// ── Poll /api/v1/room/state every 5s (fallback + device count) ───────────────
+let lastSessionId = null;
+
+async function pollRoomState() {
+    try {
+        const res = await fetch('/api/v1/room/state', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Device dots
+        const active = data.active_devices || 0;
+        const total  = data.total_devices  || 5;
+        const row    = document.getElementById('deviceRow');
+        const label  = document.getElementById('dev-label');
+        if (row) {
+            row.innerHTML = '';
+            for (let i = 0; i < Math.min(total, 10); i++) {
+                const d = document.createElement('div');
+                d.className = 'dev' + (i < active ? ' on' : '');
+                row.appendChild(d);
+            }
+        }
+        if (label) label.textContent = active + ' of ' + total + ' devices active';
+
+        // Session state (fallback when WS not available)
+        if (data.active_session) {
+            const s = data.active_session;
+            if (s.id !== lastSessionId) {
+                lastSessionId = s.id;
+                sessionId = s.id;
+                if (!isRecording) {
+                    setRecordingState(true, s.start_time);
+                } else if (!sessionStart && s.start_time) {
+                    sessionStart = new Date(s.start_time * 1000);
+                }
+                // Update status with track count
+                const tracks = s.tracks || 1;
+                const elapsed = sessionStart
+                    ? Math.floor((Date.now() - sessionStart.getTime()) / 1000)
+                    : 0;
+                const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const ss = String(elapsed % 60).padStart(2, '0');
+                statusEl.textContent = 'Session in progress · ' + tracks + ' track' + (tracks !== 1 ? 's' : '') + ' · ' + mm + ':' + ss;
+            }
+        } else if (!data.active_session && lastSessionId && isRecording) {
+            lastSessionId = null;
+            sessionId = null;
+            setRecordingState(false);
+        }
+
+        // Sessions today badge (idle state)
+        if (data.sessions_today > 0 && !isRecording) {
+            if (!badgeTxt.textContent.includes('session')) {
+                badgeTxt.textContent = 'Sessions · ' + data.sessions_today + ' today';
+            }
+        }
+
+    } catch (_) {}
+}
+
+pollRoomState();
+setInterval(pollRoomState, 5000);
 
 // ── Toast ───────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -371,31 +595,40 @@ function wakeFlash() {
     setTimeout(() => el.classList.remove('on'), 300);
 }
 
-// ── Volume display ──────────────────────────────────────────────────────────
+// ── Volume ──────────────────────────────────────────────────────────────────
 function changeVolume(delta) {
     volume = Math.max(0, Math.min(100, volume + delta));
     showToast('Volume  ' + volume + '%');
 }
 
+// ── Manual toggle (keyboard / click) ────────────────────────────────────────
+function toggle() {
+    if (isRecording) {
+        setRecordingState(false);
+        showToast('Session stopped');
+    } else {
+        setRecordingState(true);
+        showToast('Recording started');
+    }
+}
+
 // ── Keyboard ────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-    // Show KB hint on first key
     document.getElementById('kbHint').classList.add('show');
 
     switch (e.key) {
         case 'Enter':
             e.preventDefault();
-            if (state === 'ready') { setRecording(6); showToast('Recording started'); }
+            if (!isRecording) { setRecordingState(true); showToast('Recording started'); }
             break;
         case ' ':
             e.preventDefault();
             toggle();
-            showToast(state === 'recording' ? 'Recording started' : 'Session stopped');
             break;
         case 'Escape':
         case 'Backspace':
             e.preventDefault();
-            if (state === 'recording') { setReady(); showToast('Session stopped'); }
+            if (isRecording) { setRecordingState(false); showToast('Session stopped'); }
             break;
         case 'r':
         case 'R':
@@ -412,93 +645,28 @@ document.addEventListener('keydown', e => {
     }
 });
 
-// Tap / click anywhere
 document.addEventListener('click', () => {
     toggle();
 });
-
-// ── Live state polling (/api/v1/room/state every 3s) ────────────────────────
-let lastSessionId = null;
-let liveOverride  = false; // true = manually toggled, don't auto-flip
-
-async function pollRoomState() {
-    try {
-        const res = await fetch('/api/v1/room/state', { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-
-        // ── Device dots ──────────────────────────────────────────────────────
-        const active = data.active_devices || 0;
-        const total  = data.total_devices  || 5;
-        const row    = document.querySelector('.device-row');
-        const label  = document.getElementById('dev-label');
-        if (row) {
-            row.innerHTML = '';
-            for (let i = 0; i < Math.min(total, 10); i++) {
-                const d = document.createElement('div');
-                d.className = 'dev' + (i < active ? ' on' : '');
-                row.appendChild(d);
-            }
-        }
-        if (label) label.textContent = active + ' of ' + total + ' devices active';
-
-        // ── Active session → auto recording state ────────────────────────────
-        if (!liveOverride) {
-            if (data.active_session && data.active_session.id !== lastSessionId) {
-                const s = data.active_session;
-                lastSessionId = s.id;
-                // Switch to recording without toggle() to avoid user confusion
-                state = 'recording';
-                const t = new Date(s.start_time * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('badge-txt').textContent = '● Recording · ' + t;
-                document.getElementById('main').innerHTML = 'Session in progress.';
-                const instr = (() => {
-                    try { const a = JSON.parse(s.instruments); return a.length ? a.join(', ') : null; } catch { return null; }
-                })();
-                document.getElementById('sub').textContent =
-                    s.tracks + ' tracks · ' + (instr || '48 kHz / 24 bit') + ' · local only';
-                document.getElementById('wave').classList.add('on');
-            } else if (!data.active_session && lastSessionId && state === 'recording') {
-                // Session ended remotely
-                lastSessionId = null;
-                setReady();
-            }
-        }
-
-        // ── Morning Mix badge (sessions_today) ──────────────────────────────
-        if (data.sessions_today > 0 && state === 'ready') {
-            const badge = document.getElementById('badge-txt');
-            if (!badge.textContent.includes('session')) {
-                badge.textContent = 'Sessions · ' + data.sessions_today + ' today';
-            }
-        }
-
-    } catch (_) { /* network error — silent */ }
-}
-
-// Start polling immediately then every 3 seconds
-pollRoomState();
-setInterval(pollRoomState, 3000);
 
 // ── Web Speech API — wake word ───────────────────────────────────────────────
 const pill   = document.getElementById('voicePill');
 const vLabel = document.getElementById('voiceLabel');
 
-// Wake phrases (EN + JA)
-const WAKE    = ['hey koe', 'ヘイコエ', 'ヘイ声', 'hey ko', 'hey ko e', 'koe'];
-const START   = ['record', 'start', 'begin', '録音', '始めて', 'start recording', 'rec'];
-const STOP    = ['stop', 'done', 'finish', 'end', 'pause', '止めて', '停止', 'stop recording'];
-const VOL_UP  = ['volume up', 'louder', '音量上げて', 'up'];
-const VOL_DN  = ['volume down', 'quieter', '音量下げて', 'down'];
+const WAKE   = ['hey koe', 'ヘイコエ', 'ヘイ声', 'hey ko', 'hey ko e', 'koe'];
+const START  = ['record', 'start', 'begin', '録音', '始めて', 'start recording', 'rec'];
+const STOP   = ['stop', 'done', 'finish', 'end', 'pause', '止めて', '停止', 'stop recording'];
+const VOL_UP = ['volume up', 'louder', '音量上げて', 'up'];
+const VOL_DN = ['volume down', 'quieter', '音量下げて', 'down'];
 
-let SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-let wakeActive = false; // two-step: wake word first, then command
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let wakeActive = false;
 
 if (SpeechRec) {
     const rec = new SpeechRec();
     rec.continuous = true;
     rec.interimResults = true;
-    rec.lang = 'ja-JP'; // recognizes both JP and EN
+    rec.lang = 'ja-JP';
 
     pill.classList.add('active');
     vLabel.textContent = 'Listening';
@@ -513,14 +681,12 @@ if (SpeechRec) {
                 interim = t;
             }
         }
-        // Show interim faintly in label
         if (interim.length > 0 && interim.length < 20) {
             vLabel.textContent = interim;
         }
     };
 
     rec.onend = () => {
-        // Restart continuously
         try { rec.start(); } catch (_) {}
         pill.classList.add('active');
         pill.classList.remove('heard');
@@ -540,7 +706,6 @@ if (SpeechRec) {
         const match = s => s.some(p => text.includes(p));
 
         if (match(WAKE)) {
-            // Wake word detected
             wakeActive = true;
             pill.classList.add('heard');
             vLabel.textContent = 'Hey Koe';
@@ -554,29 +719,16 @@ if (SpeechRec) {
             return;
         }
 
-        // After wake OR direct command when recording-aware
         if (match(START)) {
-            if (state === 'ready') {
-                setRecording(6);
-                wakeFlash();
-                showToast('Recording started');
-            }
+            if (!isRecording) { setRecordingState(true); wakeFlash(); showToast('Recording started'); }
             wakeActive = false;
         } else if (match(STOP)) {
-            if (state === 'recording') {
-                setReady();
-                wakeFlash();
-                showToast('Session stopped');
-            }
+            if (isRecording) { setRecordingState(false); wakeFlash(); showToast('Session stopped'); }
             wakeActive = false;
         } else if (match(VOL_UP)) {
-            changeVolume(+10);
-            wakeActive = false;
+            changeVolume(+10); wakeActive = false;
         } else if (match(VOL_DN)) {
-            changeVolume(-10);
-            wakeActive = false;
-        } else if (wakeActive) {
-            // Wake active but unrecognized — reset after timeout (already scheduled)
+            changeVolume(-10); wakeActive = false;
         }
 
         pill.classList.remove('heard');
@@ -584,7 +736,6 @@ if (SpeechRec) {
     }
 
 } else {
-    // Browser doesn't support Speech API
     vLabel.textContent = 'No mic API';
 }
 </script>
