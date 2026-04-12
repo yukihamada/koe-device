@@ -207,7 +207,21 @@ async fn main() {
             ('PD-002','pendant','KOE-D02','entry');
         INSERT OR IGNORE INTO koe_sessions(id,room,label,start_time,end_time,duration_secs,tracks,instruments,source)
         VALUES('seed_june28','living_room','Before you arrived',1751090460,1751091780,1320,2,'[\"acoustic_guitar\"]','seed');
+        CREATE TABLE IF NOT EXISTS device_heartbeats (
+            device_id TEXT PRIMARY KEY,
+            room TEXT NOT NULL DEFAULT 'unknown',
+            device_type TEXT NOT NULL DEFAULT 'stone',
+            firmware_ver TEXT NOT NULL DEFAULT '0.0.0',
+            audio_level REAL NOT NULL DEFAULT 0.0,
+            is_recording INTEGER NOT NULL DEFAULT 0,
+            battery_pct INTEGER NOT NULL DEFAULT 100,
+            last_seen INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_hb_seen ON device_heartbeats(last_seen);
     ").expect("Failed to init DB");
+    // Column migrations (ignored if already exist)
+    db.execute("ALTER TABLE koe_sessions ADD COLUMN is_active INTEGER NOT NULL DEFAULT 0", []).ok();
+    db.execute("ALTER TABLE koe_sessions ADD COLUMN audio_rms REAL NOT NULL DEFAULT 0.0", []).ok();
     info!("SQLite DB initialized at {}", db_path);
 
     // Generate self-signed cert for WebTransport
@@ -310,7 +324,12 @@ async fn main() {
         .route("/api/v1/stone/:id",                get(handle_stone_api))
         .route("/api/v1/stone/:id/tap",            post(handle_stone_tap))
         .route("/api/v1/sessions",                 get(handle_sessions_list).post(handle_session_create))
+        .route("/api/v1/sessions/morning-mix",     get(handle_morning_mix))
         .route("/api/v1/sessions/timeline",        get(handle_sessions_timeline))
+        .route("/api/v1/sessions/:id/start",       post(handle_session_start))
+        .route("/api/v1/sessions/:id/end",         post(handle_session_end))
+        .route("/api/v1/device/heartbeat",         post(handle_device_heartbeat))
+        .route("/api/v1/room/state",               get(handle_room_state))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
@@ -1917,6 +1936,219 @@ async fn handle_sessions_timeline(
         Err(_) => vec![],
     };
     (StatusCode::OK, axum::Json(json!({"days": days}))).into_response()
+}
+
+// ---- Device heartbeat ----
+
+/// POST /api/v1/device/heartbeat — device reports presence, audio level, recording state
+async fn handle_device_heartbeat(
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<Value>,
+) -> impl IntoResponse {
+    let device_id   = body["device_id"].as_str().unwrap_or("unknown").to_string();
+    let room        = body["room"].as_str().unwrap_or("unknown").to_string();
+    let device_type = body["device_type"].as_str().unwrap_or("stone").to_string();
+    let firmware    = body["firmware_ver"].as_str().unwrap_or("0.0.0").to_string();
+    let audio_level = body["audio_level"].as_f64().unwrap_or(0.0);
+    let is_rec      = if body["is_recording"].as_bool().unwrap_or(false) { 1i64 } else { 0i64 };
+    let battery     = body["battery_pct"].as_i64().unwrap_or(100);
+
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    db.execute(
+        "INSERT OR REPLACE INTO device_heartbeats(device_id,room,device_type,firmware_ver,audio_level,is_recording,battery_pct,last_seen) \
+         VALUES(?1,?2,?3,?4,?5,?6,?7,strftime('%s','now'))",
+        rusqlite::params![device_id, room, device_type, firmware, audio_level, is_rec, battery],
+    ).ok();
+    (StatusCode::OK, axum::Json(json!({"ok":true}))).into_response()
+}
+
+// ---- Room state (polling endpoint for /room display) ----
+
+/// GET /api/v1/room/state — snapshot of active devices + current session (for /room display)
+async fn handle_room_state(State(state): State<AppState>) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now = unix_now() as i64;
+    let cutoff = now - 30; // devices alive in last 30s
+
+    // Active device count
+    let active: i64 = db.query_row(
+        "SELECT COUNT(*) FROM device_heartbeats WHERE last_seen > ?1",
+        rusqlite::params![cutoff], |r| r.get(0),
+    ).unwrap_or(0);
+
+    // Total registered devices
+    let total: i64 = db.query_row(
+        "SELECT COUNT(*) FROM stone_devices", [], |r| r.get(0),
+    ).unwrap_or(0);
+
+    // Device list
+    let devices: Vec<Value> = {
+        let mut st = db.prepare(
+            "SELECT device_id,room,device_type,audio_level,is_recording,battery_pct,last_seen \
+             FROM device_heartbeats WHERE last_seen > ?1 ORDER BY last_seen DESC LIMIT 20"
+        ).unwrap();
+        st.query_map(rusqlite::params![cutoff], |r| Ok(json!({
+            "device_id":    r.get::<_,String>(0)?,
+            "room":         r.get::<_,String>(1)?,
+            "device_type":  r.get::<_,String>(2)?,
+            "audio_level":  r.get::<_,f64>(3)?,
+            "is_recording": r.get::<_,i64>(4)? == 1,
+            "battery_pct":  r.get::<_,i64>(5)?,
+            "last_seen":    r.get::<_,i64>(6)?,
+        }))).ok()
+        .map(|rows| rows.filter_map(|r| r.ok()).collect())
+        .unwrap_or_default()
+    };
+
+    // Active session (is_active = 1)
+    let active_session: Option<Value> = db.query_row(
+        "SELECT id,room,label,start_time,tracks,instruments FROM koe_sessions WHERE is_active=1 ORDER BY start_time DESC LIMIT 1",
+        [], |r| Ok(json!({
+            "id":          r.get::<_,String>(0)?,
+            "room":        r.get::<_,String>(1)?,
+            "label":       r.get::<_,Option<String>>(2)?,
+            "start_time":  r.get::<_,i64>(3)?,
+            "tracks":      r.get::<_,i64>(4)?,
+            "instruments": r.get::<_,String>(5)?,
+        }))
+    ).ok();
+
+    // Last completed session
+    let last_session: Option<Value> = db.query_row(
+        "SELECT id,room,label,start_time,end_time,duration_secs,tracks FROM koe_sessions WHERE is_active=0 AND is_silence=0 ORDER BY start_time DESC LIMIT 1",
+        [], |r| Ok(json!({
+            "id":            r.get::<_,String>(0)?,
+            "room":          r.get::<_,String>(1)?,
+            "label":         r.get::<_,Option<String>>(2)?,
+            "start_time":    r.get::<_,i64>(3)?,
+            "end_time":      r.get::<_,Option<i64>>(4)?,
+            "duration_secs": r.get::<_,Option<i64>>(5)?,
+            "tracks":        r.get::<_,i64>(6)?,
+        }))
+    ).ok();
+
+    // Sessions today
+    let today_start = (now / 86400) * 86400;
+    let sessions_today: i64 = db.query_row(
+        "SELECT COUNT(*) FROM koe_sessions WHERE start_time >= ?1 AND is_silence=0",
+        rusqlite::params![today_start], |r| r.get(0),
+    ).unwrap_or(0);
+
+    (StatusCode::OK, [("content-type","application/json"),("cache-control","no-cache,no-store")],
+     serde_json::to_string(&json!({
+        "active_devices":  active,
+        "total_devices":   total,
+        "devices":         devices,
+        "active_session":  active_session,
+        "last_session":    last_session,
+        "sessions_today":  sessions_today,
+        "timestamp":       now,
+    })).unwrap_or_default()
+    ).into_response()
+}
+
+// ---- Morning Mix ----
+
+/// GET /api/v1/sessions/morning-mix — best session from last 24 hours
+async fn handle_morning_mix(State(state): State<AppState>) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now = unix_now() as i64;
+    let cutoff = now - 86400;
+
+    // Best session: longest × most tracks, completed, real audio
+    let session: Option<Value> = db.query_row(
+        "SELECT id,room,label,start_time,end_time,duration_secs,tracks,instruments \
+         FROM koe_sessions \
+         WHERE start_time >= ?1 AND is_active=0 AND is_silence=0 AND duration_secs IS NOT NULL \
+         ORDER BY (duration_secs * tracks) DESC LIMIT 1",
+        rusqlite::params![cutoff],
+        |r| Ok(json!({
+            "id":            r.get::<_,String>(0)?,
+            "room":          r.get::<_,String>(1)?,
+            "label":         r.get::<_,Option<String>>(2)?,
+            "start_time":    r.get::<_,i64>(3)?,
+            "end_time":      r.get::<_,Option<i64>>(4)?,
+            "duration_secs": r.get::<_,i64>(5)?,
+            "tracks":        r.get::<_,i64>(6)?,
+            "instruments":   r.get::<_,String>(7)?,
+        }))
+    ).ok();
+
+    if let Some(s) = session {
+        let dur = s["duration_secs"].as_i64().unwrap_or(0);
+        let highlight_start = if dur > 90 { (dur as f64 * 0.2) as i64 } else { 0 };
+        let highlight_dur   = 60i64.min(dur);
+        (StatusCode::OK, axum::Json(json!({
+            "ready": true,
+            "session": s,
+            "highlight_start_secs":    highlight_start,
+            "highlight_duration_secs": highlight_dur,
+            "generated_at": now,
+        }))).into_response()
+    } else {
+        (StatusCode::OK, axum::Json(json!({
+            "ready": false,
+            "session": null,
+            "message": "No sessions in the last 24 hours",
+        }))).into_response()
+    }
+}
+
+// ---- Session lifecycle (device-driven) ----
+
+/// POST /api/v1/sessions/:id/start — device signals onset detected, session begins
+async fn handle_session_start(
+    Path(session_id): Path<String>,
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<Value>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now         = unix_now() as i64;
+    let room        = body["room"].as_str().unwrap_or("living_room").to_string();
+    let tracks      = body["tracks"].as_i64().unwrap_or(6);
+    let instruments = body.get("instruments").map(|v| v.to_string()).unwrap_or_else(|| "[]".to_string());
+    let source      = body["source"].as_str().unwrap_or("device").to_string();
+
+    db.execute(
+        "INSERT OR REPLACE INTO koe_sessions(id,room,start_time,tracks,instruments,is_active,source) \
+         VALUES(?1,?2,?3,?4,?5,1,?6)",
+        rusqlite::params![session_id, room, now, tracks, instruments, source],
+    ).ok();
+    info!("session_start: {} room={} tracks={}", session_id, room, tracks);
+    (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"started_at":now}))).into_response()
+}
+
+/// POST /api/v1/sessions/:id/end — device signals session ended (silence or manual stop)
+async fn handle_session_end(
+    Path(session_id): Path<String>,
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<Value>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now       = unix_now() as i64;
+    let audio_rms = body["audio_rms"].as_f64().unwrap_or(0.0);
+
+    db.execute(
+        "UPDATE koe_sessions SET is_active=0, end_time=?1, duration_secs=(?1-start_time), audio_rms=?2 WHERE id=?3",
+        rusqlite::params![now, audio_rms, session_id],
+    ).ok();
+    info!("session_end: {} ended_at={}", session_id, now);
+    (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"ended_at":now}))).into_response()
 }
 
 // ---- Helpers ----

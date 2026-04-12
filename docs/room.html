@@ -417,6 +417,69 @@ document.addEventListener('click', () => {
     toggle();
 });
 
+// ── Live state polling (/api/v1/room/state every 3s) ────────────────────────
+let lastSessionId = null;
+let liveOverride  = false; // true = manually toggled, don't auto-flip
+
+async function pollRoomState() {
+    try {
+        const res = await fetch('/api/v1/room/state', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // ── Device dots ──────────────────────────────────────────────────────
+        const active = data.active_devices || 0;
+        const total  = data.total_devices  || 5;
+        const row    = document.querySelector('.device-row');
+        const label  = document.getElementById('dev-label');
+        if (row) {
+            row.innerHTML = '';
+            for (let i = 0; i < Math.min(total, 10); i++) {
+                const d = document.createElement('div');
+                d.className = 'dev' + (i < active ? ' on' : '');
+                row.appendChild(d);
+            }
+        }
+        if (label) label.textContent = active + ' of ' + total + ' devices active';
+
+        // ── Active session → auto recording state ────────────────────────────
+        if (!liveOverride) {
+            if (data.active_session && data.active_session.id !== lastSessionId) {
+                const s = data.active_session;
+                lastSessionId = s.id;
+                // Switch to recording without toggle() to avoid user confusion
+                state = 'recording';
+                const t = new Date(s.start_time * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('badge-txt').textContent = '● Recording · ' + t;
+                document.getElementById('main').innerHTML = 'Session in progress.';
+                const instr = (() => {
+                    try { const a = JSON.parse(s.instruments); return a.length ? a.join(', ') : null; } catch { return null; }
+                })();
+                document.getElementById('sub').textContent =
+                    s.tracks + ' tracks · ' + (instr || '48 kHz / 24 bit') + ' · local only';
+                document.getElementById('wave').classList.add('on');
+            } else if (!data.active_session && lastSessionId && state === 'recording') {
+                // Session ended remotely
+                lastSessionId = null;
+                setReady();
+            }
+        }
+
+        // ── Morning Mix badge (sessions_today) ──────────────────────────────
+        if (data.sessions_today > 0 && state === 'ready') {
+            const badge = document.getElementById('badge-txt');
+            if (!badge.textContent.includes('session')) {
+                badge.textContent = 'Sessions · ' + data.sessions_today + ' today';
+            }
+        }
+
+    } catch (_) { /* network error — silent */ }
+}
+
+// Start polling immediately then every 3 seconds
+pollRoomState();
+setInterval(pollRoomState, 3000);
+
 // ── Web Speech API — wake word ───────────────────────────────────────────────
 const pill   = document.getElementById('voicePill');
 const vLabel = document.getElementById('voiceLabel');
