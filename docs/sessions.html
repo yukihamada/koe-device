@@ -254,6 +254,64 @@ nav ul a.archive { opacity: 0.35; }
     letter-spacing: -0.01em;
 }
 
+.personas-section .sub {
+    margin-bottom: 2.5rem;
+}
+.persona-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+    margin: 0;
+}
+@media (min-width: 768px) {
+    .persona-cards { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+}
+.persona-card {
+    padding: 2rem 1.75rem 1.75rem;
+    background: rgba(139,92,246,0.04);
+    border: 1px solid rgba(139,92,246,0.18);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.persona-card:hover {
+    background: rgba(139,92,246,0.07);
+    border-color: rgba(139,92,246,0.28);
+    transition: background 0.2s, border-color 0.2s;
+}
+.persona-type {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+}
+.persona-quote {
+    font-size: 0.98rem;
+    font-weight: 300;
+    color: #fff;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    font-style: italic;
+}
+.persona-body {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.62);
+    line-height: 1.6;
+    font-weight: 300;
+    flex: 1;
+}
+.persona-use {
+    font-size: 0.7rem;
+    color: rgba(139,92,246,0.7);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    border-top: 1px solid rgba(139,92,246,0.1);
+    padding-top: 0.9rem;
+    margin-top: auto;
+}
+
 footer {
     padding: 3rem 1.5rem;
     text-align: center;
@@ -299,24 +357,55 @@ footer a { color: rgba(255,255,255,0.5); }
     <h2>Four steps, zero gestures.</h2>
     <div class="flow">
         <div class="flow-step">
-            <div class="n">01 &middot; Detect</div>
+            <div class="n">01 &middot; Before the loop locks</div>
             <div class="h">Instrument recognized</div>
-            <div class="d">On-device ML listens for guitar, bass, vocals, drums &mdash; and ignores conversation.</div>
+            <div class="d">On-device ML listens for guitar, bass, vocals, drums &mdash; and ignores conversation. The moment you reach for an instrument, Sessions is already paying attention.</div>
         </div>
         <div class="flow-step">
-            <div class="n">02 &middot; Capture</div>
+            <div class="n">02 &middot; Five seconds ago</div>
             <div class="h">5-second lookback</div>
-            <div class="d">Recording begins from five seconds before detection. The first note is never lost.</div>
+            <div class="d">Recording begins from five seconds before detection. The groove you found at beat three was already in the buffer. The first note is never lost.</div>
         </div>
         <div class="flow-step">
-            <div class="n">03 &middot; Sync</div>
+            <div class="n">03 &middot; Every instrument, every room</div>
             <div class="h">Every Amp in time</div>
-            <div class="d">All Amp units in the house record in perfect sync. Each becomes its own track.</div>
+            <div class="d">All Amp units in the house record in perfect sync &mdash; guitar in the bedroom, bass in the hallway, voice in the kitchen. Each room becomes its own stem. The spatial field of where you made it stays intact.</div>
         </div>
         <div class="flow-step">
-            <div class="n">04 &middot; Deliver</div>
+            <div class="n">04 &middot; Yours forever</div>
             <div class="h">Private URL, 30 days</div>
-            <div class="d">Access multi-track recordings from a private URL. Auto-deleted after 30 days unless preserved.</div>
+            <div class="d">A private link. Multi-track stems, labeled by room, ready to drop into any DAW. Auto-deleted after 30 days unless you choose to keep it. Koe holds no rights to anything you made.</div>
+        </div>
+    </div>
+</section>
+
+<section class="section personas-section">
+    <h2>Who it&rsquo;s for.</h2>
+    <div class="sub">Sessions was designed around three kinds of people. You probably know which one you are.</div>
+    <div class="persona-cards">
+        <div class="persona-card">
+            <div class="persona-type">The solo maker</div>
+            <div class="persona-quote">&ldquo;The take that happened before I knew it was a take.&rdquo;</div>
+            <div class="persona-body">
+                You build loops alone. You find the groove 3 seconds in. You press record too late &mdash; every time. Sessions puts 5 seconds of your life back before every idea. Your home studio no longer has a record button. It just records.
+            </div>
+            <div class="persona-use">Home studio &middot; acoustic guitar &middot; loop-first writing</div>
+        </div>
+        <div class="persona-card">
+            <div class="persona-type">The band on the road</div>
+            <div class="persona-quote">&ldquo;Every room we&rsquo;ve stayed in has had music left in the walls.&rdquo;</div>
+            <div class="persona-body">
+                You jam in Airbnbs between shows. Nobody sets up a mobile studio after a flight. Sessions turns the house into a multi-track rig the moment one guitar sounds &mdash; every room synchronized, every stem production-ready, nothing asked of you.
+            </div>
+            <div class="persona-use">Touring band &middot; house jams &middot; multi-track stems for producer</div>
+        </div>
+        <div class="persona-card">
+            <div class="persona-type">The venue</div>
+            <div class="persona-quote">&ldquo;Your session is waiting for you at checkout.&rdquo;</div>
+            <div class="persona-body">
+                A music suite. An artist residency. A boutique property that offers something no studio can: ambient, invisible capture across every room. Guests arrive with instruments and ideas. They leave with a private URL. The room remembered everything.
+            </div>
+            <div class="persona-use">Boutique hotel &middot; artist residency &middot; B2B license</div>
         </div>
     </div>
 </section>
