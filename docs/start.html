@@ -67,10 +67,126 @@ nav ul a.archive { opacity: 0.35; }
     font-size: 1rem;
     color: rgba(255,255,255,0.55);
     font-weight: 300;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
     max-width: 540px;
     line-height: 1.5;
 }
+
+/* Persona selector */
+.persona-selector {
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto 4rem;
+    text-align: center;
+}
+.persona-selector .ps-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+.persona-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+.persona-tab {
+    padding: 0.6rem 1.25rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+.persona-tab:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
+}
+.persona-tab.active {
+    color: #c4b5fd;
+    background: rgba(139,92,246,0.12);
+    border-color: rgba(139,92,246,0.45);
+}
+
+/* Persona flows */
+.persona-flow {
+    display: none;
+    text-align: left;
+    padding: 2rem 2rem 2.5rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    animation: flow-in 0.2s ease;
+}
+.persona-flow.visible { display: block; }
+@keyframes flow-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.flow-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.28em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+}
+.flow-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.flow-step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+.flow-step .fn {
+    font-size: 1.1rem;
+    font-weight: 100;
+    color: #8B5CF6;
+    min-width: 1.8rem;
+    line-height: 1.4;
+}
+.flow-step .fc {
+    flex: 1;
+}
+.flow-step .fh {
+    font-size: 0.92rem;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 0.2rem;
+}
+.flow-step .fd {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    line-height: 1.5;
+}
+.flow-cta {
+    display: inline-block;
+    margin-top: 1.8rem;
+    padding: 0.7rem 1.4rem;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.35);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    color: #c4b5fd;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+}
+.flow-cta:hover { background: rgba(139,92,246,0.24); }
 
 .video-placeholder {
     width: min(85vw, 520px);
@@ -186,6 +302,7 @@ footer a { color: rgba(255,255,255,0.5); }
         <li><a href="/3d">Stone</a></li>
         <li><a href="/family">Family</a></li>
         <li><a href="/sessions">Sessions</a></li>
+        <li><a href="/artist" class="hide-mobile">Artist</a></li>
         <li><a href="/business" class="hide-mobile">Business</a></li>
         <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
     </ul>
@@ -194,6 +311,157 @@ footer a { color: rgba(255,255,255,0.5); }
 <section class="hero-start">
     <h1>Touch the top.<br>Music plays.</h1>
     <div class="sub">No app. No setup. No account. The entire instruction manual is 30 seconds long.</div>
+
+    <div class="persona-selector">
+        <div class="ps-label">How are you using Koe?</div>
+        <div class="persona-tabs">
+            <div class="persona-tab active" data-persona="solo">Solo Artist</div>
+            <div class="persona-tab" data-persona="band">Band</div>
+            <div class="persona-tab" data-persona="venue">Venue</div>
+            <div class="persona-tab" data-persona="hotel">Hotel</div>
+        </div>
+
+        <div class="persona-flow visible" id="flow-solo">
+            <div class="flow-title">Solo Artist &mdash; Quick Start</div>
+            <ul class="flow-steps">
+                <li class="flow-step">
+                    <div class="fn">1</div>
+                    <div class="fc">
+                        <div class="fh">Attach Pick to your guitar.</div>
+                        <div class="fd">Clip it to the body. No cables. Sessions starts automatically the moment you play.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">2</div>
+                    <div class="fc">
+                        <div class="fh">Place one Amp in the room.</div>
+                        <div class="fd">Any surface works. The room is now recording, 5 seconds behind you at all times.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">3</div>
+                    <div class="fc">
+                        <div class="fh">Play something.</div>
+                        <div class="fd">Don&rsquo;t think about recording. The take that happened before you knew it was a take is already saved.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">4</div>
+                    <div class="fc">
+                        <div class="fh">Open Morning Mix tomorrow.</div>
+                        <div class="fd">Sessions surfaces the best moments from the night. 30 seconds of your best loop, waiting with coffee.</div>
+                    </div>
+                </li>
+            </ul>
+            <a href="/artist" class="flow-cta">See Solo Artist set &rarr;</a>
+        </div>
+
+        <div class="persona-flow" id="flow-band">
+            <div class="flow-title">Band &mdash; Quick Start</div>
+            <ul class="flow-steps">
+                <li class="flow-step">
+                    <div class="fn">1</div>
+                    <div class="fc">
+                        <div class="fh">Place 4 Stones in the room.</div>
+                        <div class="fd">Spread them around &mdash; corners, floor, any surface. They sync automatically over WiFi.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">2</div>
+                    <div class="fc">
+                        <div class="fh">Pick up any instrument.</div>
+                        <div class="fd">No one needs to configure anything. The moment someone plays, all Amps are recording synchronized multi-track.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">3</div>
+                    <div class="fc">
+                        <div class="fh">Jam. Every room is now a track.</div>
+                        <div class="fd">Vocals in the hallway, drums in the main room &mdash; each Amp is a labeled stem at 48kHz/24-bit.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">4</div>
+                    <div class="fc">
+                        <div class="fh">Export stems to your producer.</div>
+                        <div class="fd">Six labeled tracks, synced to under 2ms. Ready for any DAW, no conversion needed.</div>
+                    </div>
+                </li>
+            </ul>
+            <a href="/artist" class="flow-cta">See Band set &rarr;</a>
+        </div>
+
+        <div class="persona-flow" id="flow-venue">
+            <div class="flow-title">Venue &mdash; Quick Start</div>
+            <ul class="flow-steps">
+                <li class="flow-step">
+                    <div class="fn">1</div>
+                    <div class="fc">
+                        <div class="fh">Admin setup: mount Amps in each space.</div>
+                        <div class="fd">Permanent installation. Sessions runs headless &mdash; no one needs to start or stop anything.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">2</div>
+                    <div class="fc">
+                        <div class="fh">Share consent link with guests at check-in.</div>
+                        <div class="fd">One tap on any phone. No app install. Guest consent is logged with timestamp for your legal team.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">3</div>
+                    <div class="fc">
+                        <div class="fh">Sessions run automatically.</div>
+                        <div class="fd">Everything captured from the moment the space is in use. No staff involvement required.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">4</div>
+                    <div class="fc">
+                        <div class="fh">Guest receives private archive URL at checkout.</div>
+                        <div class="fd">Everything from their stay, stems and all. Your "gift" to every artist who walks through.</div>
+                    </div>
+                </li>
+            </ul>
+            <a href="/business" class="flow-cta">See Venue licensing &rarr;</a>
+        </div>
+
+        <div class="persona-flow" id="flow-hotel">
+            <div class="flow-title">Hotel &mdash; Quick Start</div>
+            <ul class="flow-steps">
+                <li class="flow-step">
+                    <div class="fn">1</div>
+                    <div class="fc">
+                        <div class="fh">Enable House mode from the admin panel.</div>
+                        <div class="fd">One switch. All Amps in the property enter ambient recording mode. Zero per-room configuration.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">2</div>
+                    <div class="fc">
+                        <div class="fh">All guests are auto-notified on WiFi join.</div>
+                        <div class="fd">The moment a guest connects to your network, they receive a consent prompt. No front-desk friction.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">3</div>
+                    <div class="fc">
+                        <div class="fh">Sessions capture begins invisibly.</div>
+                        <div class="fd">Guests play. The suite records. No buttons, no modes, no staff involvement whatsoever.</div>
+                    </div>
+                </li>
+                <li class="flow-step">
+                    <div class="fn">4</div>
+                    <div class="fc">
+                        <div class="fh">Private URL delivered at checkout.</div>
+                        <div class="fd">"Your session is waiting for you." A URL with everything from the stay. Your brand differentiator.</div>
+                    </div>
+                </li>
+            </ul>
+            <a href="/business" class="flow-cta">See Hotel licensing &rarr;</a>
+        </div>
+    </div>
+
     <div class="video-placeholder">
         <div class="play"></div>
         <div class="label">30 seconds</div>
@@ -258,6 +526,26 @@ footer a { color: rgba(255,255,255,0.5); }
 <footer>
     Koe &mdash; Enabler Inc., Tokyo. <a href="/">Home</a> &middot; <a href="mailto:hello@koe.live">hello@koe.live</a>
 </footer>
+
+<script>
+(function () {
+    const tabs = document.querySelectorAll('.persona-tab');
+    const flows = document.querySelectorAll('.persona-flow');
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            const persona = tab.getAttribute('data-persona');
+
+            tabs.forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+
+            flows.forEach(function (f) { f.classList.remove('visible'); });
+            const target = document.getElementById('flow-' + persona);
+            if (target) { target.classList.add('visible'); }
+        });
+    });
+})();
+</script>
 
 </body>
 </html>

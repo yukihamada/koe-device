@@ -13,6 +13,7 @@
 ///   GET  /admin/orders                   → Admin order list (Bearer token)
 ///   PUT  /admin/orders/:id               → Update order status (Bearer token)
 ///   GET  /admin/orders/export            → CSV export (Bearer token)
+///   GET  /quick-start                    → docs/quick-start.html (packaging QR target)
 ///   GET  /ws/signal                      → WebRTC signaling (room-based broadcast)
 ///   GET  /ws/soluna                      → Soluna protocol relay (WS ↔ UDP multicast bridge)
 
@@ -83,6 +84,17 @@ struct AppState {
     db: Arc<Mutex<Connection>>,
     /// WebTransport certificate hash (base64, for client serverCertificateHashes)
     wt_cert_hash: Arc<String>,
+    /// Broadcast channel for Shared Brain events (KOE × KAGI integration)
+    brain_tx: broadcast::Sender<String>,
+}
+
+// ---- Shared Brain types ----
+
+#[derive(Debug, Deserialize)]
+struct BrainEventRequest {
+    source_app: String,
+    event_type: String,
+    payload: Option<Value>,
 }
 
 // ---- Signal message types ----
@@ -227,6 +239,25 @@ async fn main() {
             created_at TEXT DEFAULT (datetime('now'))
         );
         CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email);
+        CREATE TABLE IF NOT EXISTS session_consents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT NOT NULL UNIQUE,
+            guest_name TEXT,
+            guest_email TEXT,
+            ip_addr TEXT,
+            consented_at INTEGER,
+            revoked_at INTEGER,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_consents_token ON session_consents(token);
+        CREATE TABLE IF NOT EXISTS brain_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_app TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            payload TEXT,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_brain_created ON brain_events(created_at DESC);
     ").expect("Failed to init DB");
     // Column migrations (ignored if already exist)
     db.execute("ALTER TABLE koe_sessions ADD COLUMN is_active INTEGER NOT NULL DEFAULT 0", []).ok();
@@ -246,6 +277,8 @@ async fn main() {
         &base64::engine::general_purpose::STANDARD, cert_hash_raw.as_ref());
     info!("WebTransport cert hash: {}", cert_hash_b64);
 
+    let (brain_tx, _) = broadcast::channel::<String>(256);
+
     let state = AppState {
         rooms: Arc::new(DashMap::new()),
         peers: Arc::new(DashMap::new()),
@@ -253,6 +286,7 @@ async fn main() {
         soluna_rooms: Arc::new(DashMap::new()),
         db: Arc::new(Mutex::new(db)),
         wt_cert_hash: Arc::new(cert_hash_b64),
+        brain_tx,
     };
 
     // Spawn WebTransport QUIC server on port 4443
@@ -305,6 +339,7 @@ async fn main() {
         .route("/archive",                         get(handle_page_archive))
         .route("/key",                             get(handle_page_key))
         .route("/waitlist",                        get(handle_page_waitlist))
+        .route("/quick-start",                     get(handle_page_quick_start))
         .route("/api/v1/waitlist",                 post(handle_waitlist_submit))
         .route("/admin/waitlist",                  get(handle_admin_waitlist))
         .route("/api/devices",                     get(handle_devices))
@@ -346,6 +381,15 @@ async fn main() {
         .route("/api/v1/sessions/:id/end",         post(handle_session_end))
         .route("/api/v1/device/heartbeat",         post(handle_device_heartbeat))
         .route("/api/v1/room/state",               get(handle_room_state))
+        .route("/consent/:token",                  get(handle_consent_page))
+        .route("/api/v1/consent/generate",         post(handle_consent_generate))
+        .route("/api/v1/consent/pon-webhook",      post(handle_consent_pon_webhook))
+        .route("/api/v1/consent/:token",           get(handle_consent_check).post(handle_consent_submit))
+        .route("/api/v1/consent/:token/revoke",    post(handle_consent_revoke))
+        .route("/admin/consents",                  get(handle_admin_consents))
+        .route("/brain",                           get(handle_page_brain))
+        .route("/api/v1/brain/event",              post(handle_brain_event))
+        .route("/api/v1/brain/events",             get(handle_brain_events))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
@@ -390,6 +434,8 @@ async fn handle_page_archive() -> impl IntoResponse { serve_html("archive.html")
 async fn handle_page_key() -> impl IntoResponse { serve_html("key.html").await }
 async fn handle_page_artist() -> impl IntoResponse { serve_html("artist.html").await }
 async fn handle_page_waitlist() -> impl IntoResponse { serve_html("waitlist.html").await }
+async fn handle_page_quick_start() -> impl IntoResponse { serve_html("quick-start.html").await }
+async fn handle_page_brain() -> impl IntoResponse { serve_html("brain.html").await }
 
 async fn serve_html(filename: &str) -> axum::response::Response {
     let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "/app/docs".to_string());
@@ -2269,6 +2315,98 @@ async fn handle_session_end(
     ).ok();
     info!("session_end: {} ended_at={} loops={} energy={:?}", session_id, now, loop_count, energy_profile);
     (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"ended_at":now}))).into_response()
+}
+
+// ---- Shared Brain (KOE × KAGI) ----
+
+/// POST /api/v1/brain/event — accept an event from KOE or KAGI, store it, and broadcast to WS clients
+async fn handle_brain_event(
+    State(state): State<AppState>,
+    axum::Json(body): axum::Json<BrainEventRequest>,
+) -> impl IntoResponse {
+    // Validate source_app
+    let source_app = body.source_app.trim().to_string();
+    let event_type = body.event_type.trim().to_string();
+    if source_app.is_empty() || event_type.is_empty() {
+        return (StatusCode::BAD_REQUEST, axum::Json(json!({"error":"source_app and event_type are required"}))).into_response();
+    }
+
+    let payload_str = body.payload
+        .as_ref()
+        .map(|v| v.to_string())
+        .unwrap_or_default();
+
+    let now = unix_now() as i64;
+
+    // Persist to DB
+    let row_id = {
+        let db = match state.db.lock() {
+            Ok(d) => d,
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+        };
+        db.execute(
+            "INSERT INTO brain_events(source_app, event_type, payload, created_at) VALUES(?1,?2,?3,?4)",
+            rusqlite::params![source_app, event_type, payload_str, now],
+        ).ok();
+        db.last_insert_rowid()
+    };
+
+    // Broadcast to all connected WebSocket listeners
+    let broadcast_msg = json!({
+        "id":         row_id,
+        "source_app": source_app,
+        "event_type": event_type,
+        "payload":    payload_str,
+        "created_at": now,
+    });
+    let _ = state.brain_tx.send(broadcast_msg.to_string());
+
+    info!("brain_event: [{}] {} from {}", row_id, event_type, source_app);
+    (StatusCode::OK, axum::Json(json!({
+        "ok": true,
+        "id": row_id,
+        "event_type": event_type,
+        "created_at": now,
+    }))).into_response()
+}
+
+/// GET /api/v1/brain/events — return last 50 brain events (Bearer token required)
+async fn handle_brain_events(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_admin_auth(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"unauthorized"}))).into_response();
+    }
+
+    let db = match state.db.lock() {
+        Ok(d) => d,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+
+    let mut stmt = match db.prepare(
+        "SELECT id, source_app, event_type, payload, created_at \
+         FROM brain_events ORDER BY created_at DESC LIMIT 50"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": e.to_string()}))).into_response(),
+    };
+
+    let events: Vec<Value> = match stmt.query_map([], |row| {
+        Ok(json!({
+            "id":         row.get::<_, i64>(0)?,
+            "source_app": row.get::<_, String>(1)?,
+            "event_type": row.get::<_, String>(2)?,
+            "payload":    row.get::<_, Option<String>>(3)?.unwrap_or_default(),
+            "created_at": row.get::<_, i64>(4)?,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => vec![],
+    };
+
+    (StatusCode::OK, axum::Json(json!(events))).into_response()
 }
 
 // ---- Helpers ----

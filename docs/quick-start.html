@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe &mdash; Quick Start</title>
+<meta name="description" content="Place. Attach. Open. Play. That's it. The house is recording.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/quick-start">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe &mdash; Quick Start">
+<meta property="og:description" content="Place. Attach. Open. Play. That's it. The house is recording.">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://koe.live/brand/hero/01_stone.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* No nav — standalone page */
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem 3rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Top wordmark — minimal */
+.wordmark {
+    font-size: 0.75rem;
+    font-weight: 200;
+    letter-spacing: 0.4em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 4rem;
+    align-self: flex-start;
+}
+
+/* Steps */
+.qs-steps {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.qs-step {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0;
+    padding: 2.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+    animation: slide-up 0.5s ease both;
+}
+.qs-step:last-child { border-bottom: none; }
+
+.qs-step:nth-child(1) { animation-delay: 0.05s; }
+.qs-step:nth-child(2) { animation-delay: 0.15s; }
+.qs-step:nth-child(3) { animation-delay: 0.25s; }
+.qs-step:nth-child(4) { animation-delay: 0.35s; }
+
+@keyframes slide-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.qs-num {
+    font-size: clamp(3rem, 7vw, 5rem);
+    font-weight: 100;
+    color: rgba(139,92,246,0.4);
+    line-height: 1;
+    padding-top: 0.15em;
+    letter-spacing: -0.04em;
+}
+
+.qs-content {
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.qs-title {
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 0.6rem;
+}
+
+.qs-detail {
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.6;
+    max-width: 420px;
+}
+
+.qs-detail strong {
+    color: rgba(255,255,255,0.7);
+    font-weight: 300;
+}
+
+/* Musician qualifier for step 2 */
+.qs-qualifier {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+/* Closing line */
+.qs-closing {
+    width: 100%;
+    padding: 4rem 0 2rem;
+    text-align: center;
+}
+.qs-closing p {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 100;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+.qs-closing p em {
+    font-style: normal;
+    color: rgba(255,255,255,0.95);
+}
+
+.qs-links {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.qs-link {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 2px;
+    transition: color 0.15s;
+}
+.qs-link:hover { color: rgba(255,255,255,0.7); }
+
+@media (max-width: 480px) {
+    .qs-step {
+        grid-template-columns: 2.5rem 1fr;
+        padding: 2rem 0;
+    }
+    .qs-num { font-size: 2.2rem; }
+    .qs-content { padding-left: 1rem; }
+    .page { padding: 3rem 1.25rem 2.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+    <div class="wordmark">KOE</div>
+
+    <div class="qs-steps">
+
+        <div class="qs-step">
+            <div class="qs-num">1</div>
+            <div class="qs-content">
+                <div class="qs-title">Place Stones.</div>
+                <div class="qs-detail">Set them anywhere in the room &mdash; floor, shelf, table. They find each other automatically over WiFi and sync to <strong>under 2 milliseconds</strong>.</div>
+            </div>
+        </div>
+
+        <div class="qs-step">
+            <div class="qs-num">2</div>
+            <div class="qs-content">
+                <div class="qs-qualifier">If you&rsquo;re a musician</div>
+                <div class="qs-title">Attach Pick.</div>
+                <div class="qs-detail">Clip the Pick to your guitar, bass, or any acoustic instrument. No cables. No DI box. Direct contact capture &mdash; the signal is already in before the air moves.</div>
+            </div>
+        </div>
+
+        <div class="qs-step">
+            <div class="qs-num">3</div>
+            <div class="qs-content">
+                <div class="qs-title">Open koe.live/room on any screen.</div>
+                <div class="qs-detail">Your phone, laptop, the TV &mdash; any browser. You&rsquo;ll see the room go live. No account required. No app to install.</div>
+            </div>
+        </div>
+
+        <div class="qs-step">
+            <div class="qs-num">4</div>
+            <div class="qs-content">
+                <div class="qs-title">Play something.</div>
+                <div class="qs-detail">Anything. The room is already 5 seconds ahead of you. Whatever you play is already in the buffer &mdash; including the three seconds before you thought to press record.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="qs-closing">
+        <p><em>That&rsquo;s it.</em><br>The house is recording.</p>
+        <div class="qs-links">
+            <a href="/sessions" class="qs-link">What is Sessions?</a>
+            <a href="/artist" class="qs-link">Artist sets</a>
+            <a href="/start" class="qs-link">Full guide</a>
+            <a href="/" class="qs-link">koe.live</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
