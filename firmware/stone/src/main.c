@@ -155,7 +155,7 @@ static int nvs_init_fs(void)
     g_nvs.flash_device = flash_dev;
     g_nvs.offset       = NVS_PARTITION_OFFSET;
     g_nvs.sector_size  = 4096; /* nRF5340 internal flash page size */
-    g_nvs.sector_count = CONFIG_NVS_SECTOR_COUNT;
+    g_nvs.sector_count = 2; /* two 4 kB pages for NVS */
 
     err = nvs_mount(&g_nvs);
     if (err) {
@@ -191,7 +191,11 @@ static void nvs_read_serial(char *buf, size_t len)
  * Replace with real audio capture when hardware delivers I2S RX audio.
  * -------------------------------------------------------------------------
  */
+#define _USE_MATH_DEFINES
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 #define TONE_FREQ_HZ    440.0f
 #define TONE_AMPLITUDE  (32767 * 0.1f) /* -20 dBFS ≈ 10% of full scale */

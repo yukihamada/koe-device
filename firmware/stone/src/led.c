@@ -25,8 +25,13 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 LOG_MODULE_REGISTER(koe_led, LOG_LEVEL_INF);
 

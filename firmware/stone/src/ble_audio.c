@@ -40,6 +40,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/net/buf.h>
+#include <lc3.h>
 #include <string.h>
 
 LOG_MODULE_REGISTER(koe_ble_audio, LOG_LEVEL_INF);
@@ -66,10 +67,10 @@ static struct bt_bap_lc3_preset g_preset =
 #define SUBGROUP_COUNT  1
 #define BIS_PER_SUBGROUP 2
 
-static struct bt_bap_broadcast_source         *g_source;
-static struct bt_bap_broadcast_source_stream   g_streams[BIS_PER_SUBGROUP];
-static struct bt_bap_broadcast_source_subgroup g_subgroups[SUBGROUP_COUNT];
-static struct bt_bap_broadcast_source_param    g_source_param;
+static struct bt_bap_broadcast_source              *g_source;
+static struct bt_bap_stream                         g_streams[BIS_PER_SUBGROUP];
+static struct bt_bap_broadcast_source_subgroup_param g_subgroups[SUBGROUP_COUNT];
+static struct bt_bap_broadcast_source_param          g_source_param;
 static struct bt_le_ext_adv                   *g_ext_adv;
 
 static bool g_broadcasting;
@@ -100,7 +101,8 @@ static struct k_fifo iso_tx_fifo[BIS_PER_SUBGROUP];
  */
 
 static lc3_encoder_t g_enc[BIS_PER_SUBGROUP];
-static uint8_t       g_enc_mem[BIS_PER_SUBGROUP][LC3_ENCODER_SIZE(BLE_AUDIO_SAMPLE_RATE, 10000)];
+/* Use the built-in 48 kHz / 10 ms compile-time memory type from liblc3 */
+static lc3_encoder_mem_48k_t g_enc_mem[BIS_PER_SUBGROUP];
 
 /* -------------------------------------------------------------------------
  * Auracast broadcast name AD data
@@ -143,13 +145,15 @@ static void bt_ready_cb(int err)
  * -------------------------------------------------------------------------
  */
 
-static void iso_sent_cb(struct bt_bap_stream *stream,
-                        struct bt_iso_tx_info *info)
+/* Per-BIS sequence number counters */
+static uint16_t g_seq_num[BIS_PER_SUBGROUP];
+
+static void iso_sent_cb(struct bt_bap_stream *stream)
 {
     /* Identify which BIS this is */
     int bis_idx = -1;
     for (int i = 0; i < BIS_PER_SUBGROUP; i++) {
-        if (&g_streams[i].stream == stream) {
+        if (&g_streams[i] == stream) {
             bis_idx = i;
             break;
         }
@@ -166,7 +170,7 @@ static void iso_sent_cb(struct bt_bap_stream *stream,
         return;
     }
 
-    int err = bt_bap_stream_send(stream, buf, info->seq_num + 1);
+    int err = bt_bap_stream_send(stream, buf, g_seq_num[bis_idx]++);
     if (err) {
         LOG_WRN("BIS%d: bt_bap_stream_send err %d", bis_idx, err);
         net_buf_unref(buf);
@@ -184,7 +188,7 @@ static void stream_stopped_cb(struct bt_bap_stream *stream,
     LOG_INF("BIS stream stopped, reason 0x%02x", reason);
 }
 
-static const struct bt_bap_stream_ops g_stream_ops = {
+static struct bt_bap_stream_ops g_stream_ops = {
     .sent    = iso_sent_cb,
     .started = stream_started_cb,
     .stopped = stream_stopped_cb,
@@ -223,7 +227,7 @@ int ble_audio_init(void)
         g_enc[i] = lc3_setup_encoder(10000,          /* frame duration µs */
                                      BLE_AUDIO_SAMPLE_RATE,
                                      0,              /* hrmode off */
-                                     g_enc_mem[i]);
+                                     &g_enc_mem[i]);
         if (g_enc[i] == NULL) {
             LOG_ERR("lc3_setup_encoder[%d] failed", i);
             return -ENOMEM;
@@ -232,15 +236,16 @@ int ble_audio_init(void)
 
     /* Configure streams */
     for (int i = 0; i < BIS_PER_SUBGROUP; i++) {
-        bt_bap_stream_cb_register(&g_streams[i].stream, &g_stream_ops);
+        bt_bap_stream_cb_register(&g_streams[i], &g_stream_ops);
     }
 
     /* Configure subgroup: one subgroup, two streams (L+R) */
-    g_subgroups[0].params_count = BIS_PER_SUBGROUP;
-    g_subgroups[0].params       = (struct bt_bap_broadcast_source_stream_param[BIS_PER_SUBGROUP]) {
-        [0] = { .stream = &g_streams[0], .data_count = 0 },
-        [1] = { .stream = &g_streams[1], .data_count = 0 },
+    static struct bt_bap_broadcast_source_stream_param stream_params[BIS_PER_SUBGROUP] = {
+        [0] = { .stream = &g_streams[0] },
+        [1] = { .stream = &g_streams[1] },
     };
+    g_subgroups[0].params_count = BIS_PER_SUBGROUP;
+    g_subgroups[0].params       = stream_params;
     g_subgroups[0].codec_cfg    = &g_preset.codec_cfg;
 
     /* Configure broadcast source */
