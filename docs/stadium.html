@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Stadium — 55,000 Voices, One Heartbeat</title>
+<meta name="description" content="Koe Stadium Edition: GPS-synced audio delivery for 55,000 COIN Lite devices at Tokyo Dome. 3-layer architecture with Dante backbone, 5G distribution, and per-seat delay compensation.">
+<meta name="keywords" content="Koe Stadium, COIN Lite, Tokyo Dome, GPS sync, 5G broadcast, eMBMS, delay compensation, LED orchestration, EnablerDAO">
+<meta name="author" content="EnablerDAO">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/stadium.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Stadium — 55,000 Voices, One Heartbeat">
+<meta property="og:description" content="GPS-synced audio for 55,000 devices. Every seat hears the same beat at the same moment.">
+<meta property="og:url" content="https://koe.live/stadium.html">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Stadium — 55,000 Voices, One Heartbeat">
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:2rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+.lang-toggle{padding:0.35rem 0.8rem;border-radius:100px;border:1px solid #333;background:transparent;color:#888;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.lang-toggle:hover{border-color:#8B5CF6;color:#8B5CF6;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7rem 2rem 4rem;position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(239,68,68,0.10) 0%,rgba(139,92,246,0.08) 30%,rgba(6,182,212,0.04) 60%,transparent 80%);}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:100;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.5rem;}
+.hero h1 .purple{color:#8B5CF6;}
+.hero h1 .red{color:#ef4444;}
+.hero h1 .cyan{color:#06B6D4;}
+.hero .tagline{font-size:clamp(1rem,2.5vw,1.3rem);color:#888;font-weight:300;letter-spacing:0.02em;margin-bottom:0.5rem;}
+.hero .tagline-ja{font-size:clamp(0.85rem,2vw,1rem);color:#666;font-weight:300;letter-spacing:0.05em;margin-bottom:2rem;}
+
+/* COUNTER */
+.sync-counter{display:flex;align-items:baseline;gap:0.3rem;margin-bottom:3rem;position:relative;z-index:1;}
+.sync-counter .count{font-size:clamp(3rem,8vw,5rem);font-weight:100;color:#8B5CF6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+.sync-counter .label{font-size:1rem;color:#666;font-weight:300;}
+
+/* SECTIONS */
+section{padding:6rem 2rem;max-width:1000px;margin:0 auto;}
+section h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;letter-spacing:-0.02em;margin-bottom:1rem;text-align:center;}
+section h2 .purple{color:#8B5CF6;}
+section h2 .cyan{color:#06B6D4;}
+section h2 .red{color:#ef4444;}
+.section-sub{text-align:center;color:#888;font-size:0.95rem;margin-bottom:3rem;max-width:650px;margin-left:auto;margin-right:auto;line-height:1.6;}
+
+/* PROBLEM CARDS */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem;}
+.problem-card{background:linear-gradient(165deg,rgba(239,68,68,0.06) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(239,68,68,0.12);border-radius:16px;padding:2rem 1.5rem;text-align:center;transition:all 0.3s;}
+.problem-card:hover{transform:translateY(-2px);border-color:rgba(239,68,68,0.25);}
+.problem-card .icon{font-size:2rem;margin-bottom:1rem;}
+.problem-card h4{font-size:1rem;font-weight:400;margin-bottom:0.5rem;color:#ef4444;}
+.problem-card p{font-size:0.82rem;color:#888;line-height:1.6;}
+.problem-card .stat{font-size:1.8rem;font-weight:200;color:#ef4444;margin:0.5rem 0;}
+
+/* ARCHITECTURE LAYERS */
+.arch-layers{display:flex;flex-direction:column;gap:1.5rem;margin:2rem 0;}
+.arch-layer{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2rem;transition:all 0.3s;position:relative;overflow:hidden;}
+.arch-layer:hover{border-color:rgba(139,92,246,0.2);transform:translateY(-2px);}
+.arch-layer::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;border-radius:4px 0 0 4px;}
+.arch-layer.backbone::before{background:linear-gradient(to bottom,#ef4444,#f59e0b);}
+.arch-layer.distribution::before{background:linear-gradient(to bottom,#8B5CF6,#06B6D4);}
+.arch-layer.crowd::before{background:linear-gradient(to bottom,#06B6D4,#22c55e);}
+.arch-layer .layer-num{font-size:0.7rem;letter-spacing:0.15em;color:#666;margin-bottom:0.3rem;}
+.arch-layer h3{font-size:1.3rem;font-weight:300;letter-spacing:0.03em;margin-bottom:0.8rem;}
+.arch-layer h3 .purple{color:#8B5CF6;}
+.arch-layer h3 .cyan{color:#06B6D4;}
+.arch-layer h3 .red{color:#ef4444;}
+.arch-layer p{font-size:0.85rem;color:#aaa;line-height:1.7;}
+.arch-layer code{background:rgba(139,92,246,0.1);padding:0.15rem 0.5rem;border-radius:4px;font-size:0.8rem;color:#A78BFA;font-family:'SF Mono',monospace;}
+
+/* ZONE MAP */
+.zone-map-container{display:flex;flex-direction:column;align-items:center;margin:2rem 0;}
+.zone-map-container svg{max-width:100%;height:auto;}
+.zone-tooltip{position:absolute;background:rgba(10,10,10,0.95);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:0.8rem 1rem;font-size:0.8rem;color:#e8e8e8;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:50;white-space:nowrap;}
+.zone-tooltip .tt-zone{color:#8B5CF6;font-weight:500;}
+.zone-tooltip .tt-delay{color:#06B6D4;}
+
+/* DELAY TABLE */
+.delay-chart{display:flex;flex-direction:column;gap:0.8rem;max-width:700px;margin:2rem auto;}
+.delay-row{display:flex;align-items:center;gap:1rem;}
+.delay-label{width:140px;text-align:right;font-size:0.82rem;color:#aaa;flex-shrink:0;}
+.delay-bar-wrap{flex:1;height:28px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;position:relative;}
+.delay-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:0.72rem;font-weight:500;color:#fff;width:0;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
+.delay-bar.animated{width:100%;}
+.delay-value{font-size:0.78rem;color:#888;width:70px;flex-shrink:0;}
+.delay-result{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.15);border-radius:12px;padding:1.5rem 2rem;text-align:center;margin:2rem auto;max-width:500px;}
+.delay-result h4{color:#22c55e;font-size:1.1rem;font-weight:300;margin-bottom:0.5rem;}
+.delay-result p{color:#888;font-size:0.85rem;line-height:1.6;}
+
+/* LED SECTION */
+.led-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;}
+.led-card{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.8rem;transition:all 0.3s;}
+.led-card:hover{border-color:rgba(139,92,246,0.15);transform:translateY(-2px);}
+.led-card h4{font-size:1rem;font-weight:400;margin-bottom:0.5rem;}
+.led-card p{font-size:0.82rem;color:#888;line-height:1.6;}
+.led-card .led-stat{font-size:1.4rem;font-weight:200;color:#06B6D4;margin:0.3rem 0;}
+
+/* REDUNDANCY */
+.redundancy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:2rem;}
+.redundancy-item{background:linear-gradient(165deg,rgba(34,197,94,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(34,197,94,0.1);border-radius:14px;padding:1.5rem;transition:all 0.3s;}
+.redundancy-item:hover{border-color:rgba(34,197,94,0.25);}
+.redundancy-item h4{font-size:0.95rem;font-weight:400;color:#22c55e;margin-bottom:0.4rem;}
+.redundancy-item p{font-size:0.82rem;color:#888;line-height:1.5;}
+
+/* TABLES */
+.cost-table,.scale-table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:0.82rem;}
+.cost-table th,.scale-table th{text-align:left;padding:0.8rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);color:#888;font-weight:400;letter-spacing:0.05em;font-size:0.75rem;}
+.cost-table td,.scale-table td{padding:0.7rem 1rem;border-bottom:1px solid rgba(255,255,255,0.03);color:#ccc;}
+.cost-table tr:last-child td{border-bottom:2px solid rgba(139,92,246,0.3);font-weight:500;color:#8B5CF6;}
+.cost-table td:last-child,.scale-table td:last-child{text-align:right;font-variant-numeric:tabular-nums;}
+.scale-table tr:nth-child(4){background:rgba(139,92,246,0.06);}
+.scale-table td:first-child{font-weight:400;}
+.compare-box{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:1.5rem 2rem;text-align:center;margin:1.5rem auto;max-width:600px;}
+.compare-box .vs{color:#888;font-size:0.85rem;margin-bottom:0.5rem;}
+.compare-box .saving{font-size:1.3rem;font-weight:200;color:#8B5CF6;}
+.compare-box p{color:#888;font-size:0.82rem;margin-top:0.5rem;line-height:1.5;}
+
+/* CTA */
+.cta-section{text-align:center;padding:5rem 2rem;margin-top:2rem;}
+.cta-section h2{margin-bottom:1rem;}
+.cta-section p{color:#888;font-size:0.95rem;margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto;}
+.cta-btn{display:inline-block;padding:0.9rem 2.5rem;border-radius:100px;border:1px solid rgba(139,92,246,0.4);background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(6,182,212,0.1));color:#e8e8e8;font-size:0.9rem;font-weight:400;letter-spacing:0.05em;cursor:pointer;transition:all 0.3s;text-decoration:none;}
+.cta-btn:hover{border-color:rgba(139,92,246,0.7);background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(6,182,212,0.15));transform:translateY(-2px);box-shadow:0 10px 40px rgba(139,92,246,0.15);color:#fff;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:4rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.75rem;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav .nav-links{display:none;}
+  .problem-grid{grid-template-columns:1fr;}
+  .led-grid{grid-template-columns:1fr;}
+  .redundancy-grid{grid-template-columns:1fr;}
+  .delay-label{width:100px;font-size:0.75rem;}
+  .cost-table,.scale-table{font-size:0.72rem;}
+  .cost-table th,.cost-table td,.scale-table th,.scale-table td{padding:0.5rem 0.6rem;}
+}
+@media(max-width:480px){
+  .hero{padding:5rem 1.2rem 3rem;}
+  section{padding:4rem 1.2rem;}
+}
+
+/* JA MODE */
+body.ja .en{display:none;}
+body.ja .ja-text{display:inline;}
+body:not(.ja) .ja-text{display:none;}
+body:not(.ja) .en{display:inline;}
+
+/* ZONE MAP HOVER */
+.zone-ring{cursor:pointer;transition:all 0.3s;}
+.zone-ring:hover{filter:brightness(1.4);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/pro">Pro + Hub</a>
+    <a href="/design">Design</a>
+    <a href="/order">Order</a>
+    <a href="/busker">Apps</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <button class="lang-toggle" onclick="toggleLang()">
+      <span class="en">JA</span><span class="ja-text">EN</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="tagline fade-in" style="font-size:0.85rem;color:#555;margin-bottom:0.5rem;">
+    <span class="en">Wireless audio devices for musicians, educators, and festivals</span>
+    <span class="ja-text">ミュージシャン、教育者、フェスティバルのためのワイヤレスオーディオデバイス</span>
+  </p>
+  <h1 class="fade-in">
+    <span class="en">Koe <span class="purple">Stadium</span></span>
+    <span class="ja-text">Koe <span class="purple">Stadium</span></span>
+  </h1>
+  <p class="tagline fade-in">
+    <span class="en">55,000 Voices, One Heartbeat</span>
+    <span class="ja-text">55,000 Voices, One Heartbeat</span>
+  </p>
+  <p class="tagline-ja fade-in">
+    <span class="en">55,000 COIN Lite devices. GPS-synced. Zero delay difference.</span>
+    <span class="ja-text">55,000の声、ひとつの鼓動</span>
+  </p>
+
+  <!-- Animated sync counter -->
+  <div class="sync-counter fade-in">
+    <span class="count" id="syncCount">0</span>
+    <span class="label">
+      <span class="en">devices synced</span>
+      <span class="ja-text">台 同期済み</span>
+    </span>
+  </div>
+</section>
+
+<!-- THE PROBLEM -->
+<section class="fade-in">
+  <h2>
+    <span class="en">The <span class="red">Problem</span></span>
+    <span class="ja-text"><span class="red">課題</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Traditional PA systems can't deliver synchronized audio to every seat in a stadium. Physics wins.</span>
+    <span class="ja-text">従来のPAシステムでは、スタジアム全席に同期した音声を届けることができません。物理法則には勝てない。</span>
+  </p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="icon">📡</div>
+      <h4>
+        <span class="en">WiFi Multicast Limit</span>
+        <span class="ja-text">WiFiマルチキャストの限界</span>
+      </h4>
+      <div class="stat">~500</div>
+      <p>
+        <span class="en">WiFi multicast fails above ~500 devices. Packet loss becomes catastrophic. 55,000 is impossible.</span>
+        <span class="ja-text">WiFiマルチキャストは約500台を超えるとパケットロスが致命的に。55,000台は不可能。</span>
+      </p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">🔊</div>
+      <h4>
+        <span class="en">Speed of Sound</span>
+        <span class="ja-text">音速の壁</span>
+      </h4>
+      <div class="stat">630ms</div>
+      <p>
+        <span class="en">Sound travels 343 m/s. At Tokyo Dome (216m stage-to-back), the back row hears audio 630ms late. Nearly 2/3 of a second behind.</span>
+        <span class="ja-text">音速は343m/s。東京ドーム（ステージから最後列216m）では最後列が630ms遅れて聞こえる。</span>
+      </p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">🏟️</div>
+      <h4>
+        <span class="en">PA Can't Compensate</span>
+        <span class="ja-text">PAでは補正不可</span>
+      </h4>
+      <div class="stat">216m</div>
+      <p>
+        <span class="en">Delay towers help, but still can't eliminate the fundamental physics. Back rows always hear a delayed, muddy mess.</span>
+        <span class="ja-text">ディレイタワーは改善するが根本解決にはならない。後列は常に遅延した不明瞭な音を聞く。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 3-LAYER ARCHITECTURE -->
+<section class="fade-in">
+  <h2>
+    <span class="en">The <span class="purple">Solution</span> — 3-Layer Architecture</span>
+    <span class="ja-text"><span class="purple">ソリューション</span> — 3層アーキテクチャ</span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Fiber backbone. 5G distribution. GPS-scheduled playback. Every seat, same moment.</span>
+    <span class="ja-text">光ファイバー基幹。5G配信。GPS同期再生。全席、同じ瞬間。</span>
+  </p>
+
+  <div class="arch-layers">
+    <!-- Layer 1: BACKBONE -->
+    <div class="arch-layer backbone">
+      <div class="layer-num">LAYER 1</div>
+      <h3>
+        <span class="en"><span class="red">BACKBONE</span> — Fiber + Dante</span>
+        <span class="ja-text"><span class="red">BACKBONE</span> — 光ファイバー + Dante</span>
+      </h3>
+      <p>
+        <span class="en">
+          The Koe Hub connects to a redundant Dante audio network over fiber optic ring.
+          48 zone processors receive audio with <code>&lt;1ms</code> latency across the entire venue.
+          Dual fiber paths ensure zero single-point-of-failure.
+        </span>
+        <span class="ja-text">
+          Koe Hubは冗長化されたDanteオーディオネットワークに光ファイバーリングで接続。
+          48台のゾーンプロセッサが<code>1ms未満</code>のレイテンシで音声を受信。
+          デュアルファイバーでSPOFゼロ。
+        </span>
+      </p>
+    </div>
+
+    <!-- Layer 2: DISTRIBUTION -->
+    <div class="arch-layer distribution">
+      <div class="layer-num">LAYER 2</div>
+      <h3>
+        <span class="en"><span class="purple">DISTRIBUTION</span> — 5G Broadcast + GPS</span>
+        <span class="ja-text"><span class="purple">DISTRIBUTION</span> — 5Gブロードキャスト + GPS</span>
+      </h3>
+      <p>
+        <span class="en">
+          Each zone processor drives 12 5G small cells via eMBMS (evolved Multimedia Broadcast Multicast Service).
+          Each small cell multicasts to ~100 COINs. GPS 1PPS on every zone processor provides
+          <code>atomic clock</code> synchronization. 576 small cells total cover the entire dome.
+        </span>
+        <span class="ja-text">
+          各ゾーンプロセッサがeMBMS経由で12台の5Gスモールセルを駆動。
+          各セルが約100台のCOINにマルチキャスト。GPS 1PPSが全ゾーンプロセッサに
+          <code>原子時計</code>同期を提供。576台のセルでドーム全体をカバー。
+        </span>
+      </p>
+    </div>
+
+    <!-- Layer 3: CROWD -->
+    <div class="arch-layer crowd">
+      <div class="layer-num">LAYER 3</div>
+      <h3>
+        <span class="en"><span class="cyan">CROWD</span> — 55,000 COIN Lite + LED</span>
+        <span class="ja-text"><span class="cyan">CROWD</span> — 55,000 COIN Lite + LED</span>
+      </h3>
+      <p>
+        <span class="en">
+          Each COIN Lite receives audio via 5G/LTE-M and syncs to GPS time.
+          Playback is <code>GPS-scheduled</code> (not network-triggered) with per-zone delay compensation.
+          LED commands are embedded in the audio stream metadata. The result: every seat hears
+          the same beat at the same moment.
+        </span>
+        <span class="ja-text">
+          各COIN Liteが5G/LTE-M経由で音声受信、GPS時刻に同期。
+          再生は<code>GPS同期スケジュール</code>（ネットワークトリガーではない）でゾーン毎の遅延補正付き。
+          LEDコマンドは音声ストリームのメタデータに組み込み。全席が同じ瞬間に同じビートを聴く。
+        </span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ZONE MAP -->
+<section class="fade-in">
+  <h2>
+    <span class="en"><span class="cyan">Zone Map</span> — Tokyo Dome</span>
+    <span class="ja-text"><span class="cyan">ゾーンマップ</span> — 東京ドーム</span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">48 zones (8 radial x 6 concentric rings). Each zone: ~1,150 seats, 1 zone processor, 12 5G small cells. Hover to see delay per zone.</span>
+    <span class="ja-text">48ゾーン（放射8 x 同心円6リング）。各ゾーン: 約1,150席、ゾーンプロセッサ1台、5Gスモールセル12台。ホバーで遅延を表示。</span>
+  </p>
+
+  <div class="zone-map-container" style="position:relative;">
+    <div class="zone-tooltip" id="zoneTooltip"></div>
+    <svg viewBox="0 0 600 600" width="520" height="520" id="zoneMap">
+      <!-- Stage -->
+      <rect x="230" y="520" width="140" height="35" rx="6" fill="#8B5CF6" opacity="0.7"/>
+      <text x="300" y="542" text-anchor="middle" fill="#fff" font-size="13" font-weight="300" letter-spacing="0.1em">STAGE</text>
+
+      <!-- Zone rings (concentric, from outer to inner) -->
+      <!-- Ring F: 180-216m -->
+      <g class="zone-ring" data-ring="F" data-distance="180-216m" data-delay="+413ms" data-seats="~1,150/zone">
+        <path d="M300 530 A230 230 0 0 1 70 300" fill="none" stroke="#ef4444" stroke-width="30" opacity="0.15"/>
+        <path d="M70 300 A230 230 0 0 1 300 70" fill="none" stroke="#ef4444" stroke-width="30" opacity="0.15"/>
+        <path d="M300 70 A230 230 0 0 1 530 300" fill="none" stroke="#ef4444" stroke-width="30" opacity="0.15"/>
+        <path d="M530 300 A230 230 0 0 1 300 530" fill="none" stroke="#ef4444" stroke-width="30" opacity="0.15"/>
+      </g>
+      <!-- Ring E: 130-180m -->
+      <g class="zone-ring" data-ring="E" data-distance="130-180m" data-delay="+321ms" data-seats="~1,150/zone">
+        <path d="M300 500 A200 200 0 0 1 100 300" fill="none" stroke="#f59e0b" stroke-width="28" opacity="0.15"/>
+        <path d="M100 300 A200 200 0 0 1 300 100" fill="none" stroke="#f59e0b" stroke-width="28" opacity="0.15"/>
+        <path d="M300 100 A200 200 0 0 1 500 300" fill="none" stroke="#f59e0b" stroke-width="28" opacity="0.15"/>
+        <path d="M500 300 A200 200 0 0 1 300 500" fill="none" stroke="#f59e0b" stroke-width="28" opacity="0.15"/>
+      </g>
+      <!-- Ring D: 90-130m -->
+      <g class="zone-ring" data-ring="D" data-distance="90-130m" data-delay="+204ms" data-seats="~1,150/zone">
+        <path d="M300 470 A170 170 0 0 1 130 300" fill="none" stroke="#eab308" stroke-width="26" opacity="0.18"/>
+        <path d="M130 300 A170 170 0 0 1 300 130" fill="none" stroke="#eab308" stroke-width="26" opacity="0.18"/>
+        <path d="M300 130 A170 170 0 0 1 470 300" fill="none" stroke="#eab308" stroke-width="26" opacity="0.18"/>
+        <path d="M470 300 A170 170 0 0 1 300 470" fill="none" stroke="#eab308" stroke-width="26" opacity="0.18"/>
+      </g>
+      <!-- Ring C: 50-90m -->
+      <g class="zone-ring" data-ring="C" data-distance="50-90m" data-delay="+117ms" data-seats="~1,150/zone">
+        <path d="M300 440 A140 140 0 0 1 160 300" fill="none" stroke="#22c55e" stroke-width="24" opacity="0.18"/>
+        <path d="M160 300 A140 140 0 0 1 300 160" fill="none" stroke="#22c55e" stroke-width="24" opacity="0.18"/>
+        <path d="M300 160 A140 140 0 0 1 440 300" fill="none" stroke="#22c55e" stroke-width="24" opacity="0.18"/>
+        <path d="M440 300 A140 140 0 0 1 300 440" fill="none" stroke="#22c55e" stroke-width="24" opacity="0.18"/>
+      </g>
+      <!-- Ring B: 20-50m -->
+      <g class="zone-ring" data-ring="B" data-distance="20-50m" data-delay="+58ms" data-seats="~1,150/zone">
+        <path d="M300 410 A110 110 0 0 1 190 300" fill="none" stroke="#06B6D4" stroke-width="22" opacity="0.2"/>
+        <path d="M190 300 A110 110 0 0 1 300 190" fill="none" stroke="#06B6D4" stroke-width="22" opacity="0.2"/>
+        <path d="M300 190 A110 110 0 0 1 410 300" fill="none" stroke="#06B6D4" stroke-width="22" opacity="0.2"/>
+        <path d="M410 300 A110 110 0 0 1 300 410" fill="none" stroke="#06B6D4" stroke-width="22" opacity="0.2"/>
+      </g>
+      <!-- Ring A: 0-20m -->
+      <g class="zone-ring" data-ring="A" data-distance="0-20m" data-delay="0ms" data-seats="~1,150/zone">
+        <circle cx="300" cy="300" r="75" fill="none" stroke="#8B5CF6" stroke-width="20" opacity="0.25"/>
+      </g>
+
+      <!-- Ring labels -->
+      <text x="300" y="305" text-anchor="middle" fill="#8B5CF6" font-size="14" font-weight="300" opacity="0.8">A</text>
+      <text x="300" y="218" text-anchor="middle" fill="#06B6D4" font-size="12" font-weight="300" opacity="0.7">B</text>
+      <text x="300" y="178" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="300" opacity="0.7">C</text>
+      <text x="300" y="148" text-anchor="middle" fill="#eab308" font-size="12" font-weight="300" opacity="0.7">D</text>
+      <text x="300" y="118" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="300" opacity="0.7">E</text>
+      <text x="300" y="88" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="300" opacity="0.7">F</text>
+
+      <!-- Radial dividers (8 sectors) -->
+      <line x1="300" y1="70" x2="300" y2="250" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="300" y1="350" x2="300" y2="530" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="70" y1="300" x2="250" y2="300" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="350" y1="300" x2="530" y2="300" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="137" y1="137" x2="250" y2="250" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="350" y1="350" x2="463" y2="463" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="463" y1="137" x2="350" y2="250" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+      <line x1="250" y1="350" x2="137" y2="463" stroke="#333" stroke-width="0.5" opacity="0.4"/>
+
+      <!-- Center hub icon -->
+      <circle cx="300" cy="300" r="18" fill="#0a0a0a" stroke="#8B5CF6" stroke-width="1.5" opacity="0.6"/>
+      <text x="300" y="304" text-anchor="middle" fill="#8B5CF6" font-size="8" font-weight="400" letter-spacing="0.05em">HUB</text>
+    </svg>
+  </div>
+</section>
+
+<!-- DELAY COMPENSATION -->
+<section class="fade-in">
+  <h2>
+    <span class="en">Delay <span class="cyan">Compensation</span></span>
+    <span class="ja-text">遅延<span class="cyan">補正</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Each COIN plays audio at: <code style="background:rgba(139,92,246,0.1);padding:0.15rem 0.5rem;border-radius:4px;color:#A78BFA;">GPS_timestamp + zone_delay</code>. The further from stage, the earlier the COIN starts playback.</span>
+    <span class="ja-text">各COINの再生タイミング: <code style="background:rgba(139,92,246,0.1);padding:0.15rem 0.5rem;border-radius:4px;color:#A78BFA;">GPSタイムスタンプ + ゾーン遅延</code>。ステージから遠いほど早く再生開始。</span>
+  </p>
+
+  <div class="delay-chart" id="delayChart">
+    <div class="delay-row">
+      <span class="delay-label">Zone A (0-20m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#8B5CF6,#A78BFA);max-width:2%;">0ms</div>
+      </div>
+      <span class="delay-value">0ms delay</span>
+    </div>
+    <div class="delay-row">
+      <span class="delay-label">Zone B (20-50m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#06B6D4,#22d3ee);max-width:14%;">+58ms</div>
+      </div>
+      <span class="delay-value">+58ms</span>
+    </div>
+    <div class="delay-row">
+      <span class="delay-label">Zone C (50-90m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#22c55e,#4ade80);max-width:28%;">+117ms</div>
+      </div>
+      <span class="delay-value">+117ms</span>
+    </div>
+    <div class="delay-row">
+      <span class="delay-label">Zone D (90-130m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#eab308,#facc15);max-width:49%;">+204ms</div>
+      </div>
+      <span class="delay-value">+204ms</span>
+    </div>
+    <div class="delay-row">
+      <span class="delay-label">Zone E (130-180m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);max-width:78%;">+321ms</div>
+      </div>
+      <span class="delay-value">+321ms</span>
+    </div>
+    <div class="delay-row">
+      <span class="delay-label">Zone F (180-216m)</span>
+      <div class="delay-bar-wrap">
+        <div class="delay-bar" style="background:linear-gradient(90deg,#ef4444,#f87171);max-width:100%;">+413ms</div>
+      </div>
+      <span class="delay-value">+413ms</span>
+    </div>
+  </div>
+
+  <div class="delay-result">
+    <h4>
+      <span class="en">Result: Zero Perceived Delay</span>
+      <span class="ja-text">結果: 体感遅延ゼロ</span>
+    </h4>
+    <p>
+      <span class="en">Every seat hears the same beat at the same moment. The COIN near the stage waits longer; the COIN at the back plays immediately. GPS accuracy: +/-30ns.</span>
+      <span class="ja-text">全席が同じ瞬間に同じビートを聴く。ステージ近くのCOINは長く待機、後方のCOINは即座に再生。GPS精度: +/-30ns。</span>
+    </p>
+  </div>
+</section>
+
+<!-- LED ORCHESTRATION -->
+<section class="fade-in">
+  <h2>
+    <span class="en">LED <span class="purple">Orchestration</span></span>
+    <span class="ja-text">LED <span class="purple">オーケストレーション</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">55,000 synchronized LEDs. The world's largest crowd-powered light show.</span>
+    <span class="ja-text">55,000台の同期LED。世界最大の観客参加型ライトショー。</span>
+  </p>
+
+  <div class="led-grid">
+    <div class="led-card">
+      <h4>
+        <span class="en">Show File Throughput</span>
+        <span class="ja-text">ショーファイルスループット</span>
+      </h4>
+      <div class="led-stat">3.3M <span style="font-size:0.7rem;color:#888;">cmd/sec</span></div>
+      <p>
+        <span class="en">60fps LED commands x 55,000 devices = 3.3 million commands per second. Solved by zone-based addressing: 48 zones x 60fps = 2,880 commands/sec.</span>
+        <span class="ja-text">60fps LEDコマンド x 55,000台 = 毎秒330万コマンド。ゾーンベースで解決: 48ゾーン x 60fps = 2,880コマンド/秒。</span>
+      </p>
+    </div>
+    <div class="led-card">
+      <h4>
+        <span class="en">Per-Device Effects</span>
+        <span class="ja-text">デバイス単位エフェクト</span>
+      </h4>
+      <div class="led-stat" style="font-size:1rem;">hash(device_id) % period</div>
+      <p>
+        <span class="en">Wave, ripple, and cascade effects within each zone. Each COIN applies a hash-based offset to the zone command, creating organic patterns without per-device addressing.</span>
+        <span class="ja-text">ゾーン内のウェーブ、リプル、カスケード効果。各COINがデバイスハッシュに基づくオフセットを適用し、個別アドレス不要で有機的なパターンを生成。</span>
+      </p>
+    </div>
+    <div class="led-card">
+      <h4>
+        <span class="en">Camera-Visible Patterns</span>
+        <span class="ja-text">カメラ映えパターン</span>
+      </h4>
+      <p>
+        <span class="en">Spell words, draw images, create synchronized waves across the entire crowd. Zone-to-zone coordination creates stadium-wide visual patterns visible from broadcast cameras.</span>
+        <span class="ja-text">文字を表示、画像を描画、観客全体で同期ウェーブ。ゾーン間連携でスタジアム規模のビジュアルパターンを放送カメラから視認可能。</span>
+      </p>
+    </div>
+    <div class="led-card">
+      <h4>
+        <span class="en">GPS-Timed Execution</span>
+        <span class="ja-text">GPS同期実行</span>
+      </h4>
+      <p>
+        <span class="en">LED commands carry a GPS timestamp. All 55,000 COINs execute the pattern at the exact same microsecond. No visible propagation delay.</span>
+        <span class="ja-text">LEDコマンドにGPSタイムスタンプを付与。全55,000台のCOINが同一マイクロ秒にパターンを実行。伝搬遅延ゼロ。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- REDUNDANCY -->
+<section class="fade-in">
+  <h2>
+    <span class="en"><span class="cyan">Redundancy</span> — Zero Downtime</span>
+    <span class="ja-text"><span class="cyan">冗長性</span> — ダウンタイムゼロ</span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Stadium shows can't fail. Every component has a backup.</span>
+    <span class="ja-text">スタジアム公演は停止できない。全コンポーネントにバックアップ。</span>
+  </p>
+
+  <div class="redundancy-grid">
+    <div class="redundancy-item">
+      <h4>
+        <span class="en">Dual Fiber Ring</span>
+        <span class="ja-text">デュアルファイバーリング</span>
+      </h4>
+      <p>
+        <span class="en">Primary + backup fiber paths. If one is cut, traffic reroutes in &lt;10ms. The show continues.</span>
+        <span class="ja-text">プライマリ + バックアップの光ファイバーパス。片方が切断されても10ms未満で再ルーティング。</span>
+      </p>
+    </div>
+    <div class="redundancy-item">
+      <h4>
+        <span class="en">Dual Zone Processors</span>
+        <span class="ja-text">デュアルゾーンプロセッサ</span>
+      </h4>
+      <p>
+        <span class="en">Each zone processor has dual power and dual network uplinks. 4 spare units on standby for immediate swap.</span>
+        <span class="ja-text">各ゾーンプロセッサはデュアル電源 + デュアルネットワーク。予備4台がスタンバイ。</span>
+      </p>
+    </div>
+    <div class="redundancy-item">
+      <h4>
+        <span class="en">COIN Fallback</span>
+        <span class="ja-text">COINフォールバック</span>
+      </h4>
+      <p>
+        <span class="en">If 5G fails, each COIN falls back to WiFi mesh mode (degraded quality, but audio continues). Graceful degradation.</span>
+        <span class="ja-text">5G障害時はWiFiメッシュにフォールバック（品質低下するが音声は継続）。グレースフルデグラデーション。</span>
+      </p>
+    </div>
+    <div class="redundancy-item">
+      <h4>
+        <span class="en">Hub Hot Standby</span>
+        <span class="ja-text">ハブ ホットスタンバイ</span>
+      </h4>
+      <p>
+        <span class="en">Redundant Koe Hub pair. Hot standby takes over in &lt;100ms. Audience won't notice.</span>
+        <span class="ja-text">冗長Koe Hubペア。ホットスタンバイが100ms未満でテイクオーバー。観客は気づかない。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CAPACITY PLANNING -->
+<section class="fade-in">
+  <h2>
+    <span class="en">Capacity <span class="purple">Planning</span></span>
+    <span class="ja-text">キャパシティ<span class="purple">プランニング</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Full Tokyo Dome deployment: $2.1M. 30% cheaper than traditional PA — and every person gets a personal speaker + LED.</span>
+    <span class="ja-text">東京ドームフル導入: $2.1M。従来PA比30%安価 — かつ全員にパーソナルスピーカー + LED。</span>
+  </p>
+
+  <table class="cost-table">
+    <thead>
+      <tr>
+        <th>
+          <span class="en">Item</span>
+          <span class="ja-text">アイテム</span>
+        </th>
+        <th>
+          <span class="en">Quantity</span>
+          <span class="ja-text">数量</span>
+        </th>
+        <th>
+          <span class="en">Unit Cost</span>
+          <span class="ja-text">単価</span>
+        </th>
+        <th>
+          <span class="en">Total</span>
+          <span class="ja-text">合計</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Koe Hub (redundant pair)</td><td>2</td><td>$349</td><td>$698</td></tr>
+      <tr><td>Zone Processor (Pi CM5)</td><td>48 + 4 spare</td><td>$120</td><td>$6,240</td></tr>
+      <tr><td>5G Small Cell</td><td>576</td><td>$800</td><td>$460,800</td></tr>
+      <tr><td>COIN Lite</td><td>55,000</td><td>$29</td><td>$1,595,000</td></tr>
+      <tr><td>Fiber ring + switches</td><td>1</td><td>$15,000</td><td>$15,000</td></tr>
+      <tr><td>GPS receivers (zone proc)</td><td>52</td><td>$50</td><td>$2,600</td></tr>
+      <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>$2,080,338</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="compare-box">
+    <div class="vs">
+      <span class="en">Traditional L-Acoustics K2 for Tokyo Dome</span>
+      <span class="ja-text">従来の L-Acoustics K2 東京ドーム構成</span>
+    </div>
+    <div class="saving">
+      <span class="en">$3,000,000+ vs <span style="color:#06B6D4;">$2,080,338</span></span>
+      <span class="ja-text">$3,000,000+ vs <span style="color:#06B6D4;">$2,080,338</span></span>
+    </div>
+    <p>
+      <span class="en">Koe Stadium is 30% cheaper AND gives every person a personal speaker + synchronized LED</span>
+      <span class="ja-text">Koe Stadiumは30%安価、かつ全員にパーソナルスピーカー + 同期LEDを提供</span>
+    </p>
+  </div>
+</section>
+
+<!-- SCALABILITY -->
+<section class="fade-in">
+  <h2>
+    <span class="en"><span class="cyan">Scalability</span></span>
+    <span class="ja-text"><span class="cyan">スケーラビリティ</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">From 300-person live houses to 100,000-person festivals. Same architecture, different scale.</span>
+    <span class="ja-text">300人のライブハウスから10万人のフェスティバルまで。同じアーキテクチャ、異なるスケール。</span>
+  </p>
+
+  <table class="scale-table">
+    <thead>
+      <tr>
+        <th>
+          <span class="en">Venue</span>
+          <span class="ja-text">会場</span>
+        </th>
+        <th>
+          <span class="en">Capacity</span>
+          <span class="ja-text">収容数</span>
+        </th>
+        <th>
+          <span class="en">Zones</span>
+          <span class="ja-text">ゾーン</span>
+        </th>
+        <th>
+          <span class="en">5G Cells</span>
+          <span class="ja-text">5Gセル</span>
+        </th>
+        <th>COINs</th>
+        <th>
+          <span class="en">Cost</span>
+          <span class="ja-text">コスト</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Live House</td><td>300</td><td>1</td><td>WiFi only</td><td>300</td><td>$12K</td></tr>
+      <tr><td>Zepp</td><td>2,500</td><td>4</td><td>48</td><td>2,500</td><td>$120K</td></tr>
+      <tr><td>Budokan</td><td>14,000</td><td>16</td><td>192</td><td>14,000</td><td>$590K</td></tr>
+      <tr><td><strong>Tokyo Dome</strong></td><td><strong>55,000</strong></td><td><strong>48</strong></td><td><strong>576</strong></td><td><strong>55,000</strong></td><td><strong>$2.1M</strong></td></tr>
+      <tr><td>Festival (outdoor)</td><td>100,000</td><td>80</td><td>960</td><td>100,000</td><td>$3.8M</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CTA -->
+<section class="cta-section fade-in">
+  <h2>
+    <span class="en">Ready for <span class="purple">Stadium Scale</span>?</span>
+    <span class="ja-text"><span class="purple">スタジアム規模</span>の準備は?</span>
+  </h2>
+  <p>
+    <span class="en">Contact us for stadium deployment planning, custom integration, and volume pricing.</span>
+    <span class="ja-text">スタジアム導入計画、カスタム統合、ボリューム価格についてお問い合わせください。</span>
+  </p>
+  <a href="mailto:stadium@koe.live" class="cta-btn">
+    <span class="en">Contact for Stadium Solutions</span>
+    <span class="ja-text">スタジアムソリューションのお問い合わせ</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/pro.html">Pro + Hub</a>
+    <a href="/busker.html">Busker</a>
+    <a href="/classroom.html">Classroom</a>
+    <a href="/soluna-os.html">SolunaOS</a>
+    <a href="https://github.com/yukihamada/koe-device">GitHub</a>
+  </div>
+  <p class="copyright">
+    &copy; 2026 EnablerDAO &mdash; Open Hardware for Everyone
+  </p>
+</footer>
+
+<script>
+// Language toggle
+function toggleLang(){document.body.classList.toggle('ja');}
+
+// Fade-in on scroll
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+
+// Animated sync counter
+(function(){
+  const el=document.getElementById('syncCount');
+  const target=55000;
+  const duration=3000;
+  const start=performance.now();
+  function tick(now){
+    const elapsed=now-start;
+    const progress=Math.min(elapsed/duration,1);
+    // ease-out cubic
+    const eased=1-Math.pow(1-progress,3);
+    el.textContent=Math.floor(eased*target).toLocaleString();
+    if(progress<1)requestAnimationFrame(tick);
+  }
+  // Start when hero is visible
+  const heroObs=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){requestAnimationFrame(tick);heroObs.disconnect();}
+  });
+  heroObs.observe(el);
+})();
+
+// Delay chart animation
+const delayObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.delay-bar').forEach(bar=>{bar.classList.add('animated');});
+      delayObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.2});
+const dc=document.getElementById('delayChart');
+if(dc)delayObs.observe(dc);
+
+// Zone map tooltip
+(function(){
+  const svg=document.getElementById('zoneMap');
+  const tooltip=document.getElementById('zoneTooltip');
+  if(!svg||!tooltip)return;
+  const container=svg.parentElement;
+
+  svg.querySelectorAll('.zone-ring').forEach(ring=>{
+    ring.addEventListener('mouseenter',e=>{
+      const r=ring.dataset;
+      const isJa=document.body.classList.contains('ja');
+      tooltip.innerHTML=isJa
+        ?`<span class="tt-zone">リング ${r.ring}</span> &mdash; ${r.distance}<br>遅延補正: <span class="tt-delay">${r.delay}</span> &middot; ${r.seats}`
+        :`<span class="tt-zone">Ring ${r.ring}</span> &mdash; ${r.distance}<br>Delay offset: <span class="tt-delay">${r.delay}</span> &middot; ${r.seats}`;
+      tooltip.style.opacity='1';
+    });
+    ring.addEventListener('mousemove',e=>{
+      const rect=container.getBoundingClientRect();
+      tooltip.style.left=(e.clientX-rect.left+15)+'px';
+      tooltip.style.top=(e.clientY-rect.top-10)+'px';
+    });
+    ring.addEventListener('mouseleave',()=>{tooltip.style.opacity='0';});
+  });
+})();
+</script>
+
+</body>
+</html>

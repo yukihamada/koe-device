@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Koe Busker — Street Stage, Wireless</title>
+<meta name="description" content="Turn audience smartphones into wireless speakers. Stream your performance live with WebRTC. Built-in tip jar.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="busker.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--purple:#8B5CF6;--cyan:#06B6D4;--surface:#141414;--surface2:#1e1e1e;--border:#ffffff08;--text:#e8e8e8;--muted:#888}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;min-height:100dvh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px}
+
+/* Layout */
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.logo{font-size:1rem;font-weight:200;letter-spacing:.3em}
+.logo span{color:var(--purple)}
+.header-actions{display:flex;gap:.8rem;align-items:center}
+.lang-toggle{background:none;border:1px solid #333;color:var(--muted);padding:.3rem .6rem;border-radius:6px;font-size:.75rem;cursor:pointer;transition:all .2s}
+.lang-toggle:hover{border-color:var(--purple);color:var(--text)}
+
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.2rem 2rem}
+footer{text-align:center;padding:1rem;color:#444;font-size:.7rem;letter-spacing:.1em}
+
+/* Shared controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:1rem 2rem;border:none;border-radius:14px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-primary{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;font-size:1.2rem;padding:1.2rem 2.5rem;border-radius:18px;box-shadow:0 4px 24px rgba(139,92,246,.3)}
+.btn-primary:active{transform:scale(.96)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid #333}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-small{padding:.6rem 1.2rem;font-size:.85rem;border-radius:10px}
+
+.badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border:1px solid #333;border-radius:100px;padding:.4rem .8rem;font-size:.8rem;color:var(--muted)}
+.badge .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;width:100%;max-width:420px}
+
+/* Canvas waveform */
+#waveform{width:100%;height:80px;border-radius:12px;background:var(--surface);margin:1rem 0}
+
+/* QR display */
+.qr-wrap{background:#fff;border-radius:12px;padding:12px;display:inline-block;margin:.8rem 0}
+.qr-wrap svg{display:block}
+
+/* Slider */
+.slider-row{display:flex;align-items:center;gap:.8rem;width:100%;max-width:420px}
+.slider-row label{font-size:.8rem;color:var(--muted);min-width:50px}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:#333;border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--purple);cursor:pointer}
+
+/* Tip section */
+.tip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;width:100%;max-width:420px;margin-top:.8rem}
+.tip-btn{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.8rem;background:var(--surface);border:1px solid #333;border-radius:12px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.tip-btn:hover{border-color:var(--purple);transform:translateY(-2px)}
+.tip-btn .tip-icon{font-size:1.4rem}
+.tip-btn .tip-label{font-size:.75rem;color:var(--muted)}
+
+/* Tip notification overlay */
+.tip-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:rgba(139,92,246,.95);color:#fff;padding:1.5rem 2.5rem;border-radius:20px;font-size:1.3rem;font-weight:700;z-index:200;pointer-events:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.tip-toast.show{transform:translate(-50%,-50%) scale(1)}
+
+/* Latency indicator */
+.latency{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted)}
+.latency-bar{width:6px;height:14px;border-radius:2px;background:#22c55e}
+.latency-bar.warn{background:#f59e0b}
+.latency-bar.bad{background:#ef4444}
+
+/* Section titles */
+.section-title{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:1.2rem 0 .6rem;width:100%;max-width:420px}
+
+/* Listener info */
+.performer-info{text-align:center;margin-bottom:1rem}
+.performer-info h2{font-size:1.4rem;font-weight:300;letter-spacing:.05em}
+.performer-info .song{color:var(--cyan);font-size:.9rem;margin-top:.3rem}
+
+/* Status text */
+.status{font-size:.85rem;color:var(--muted);margin:.5rem 0}
+
+/* Hidden views */
+.view{display:none;flex-direction:column;align-items:center;width:100%}
+.view.active{display:flex}
+
+/* Tip config modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid #333;border-radius:20px;padding:1.5rem;width:100%;max-width:400px;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:1rem;margin-bottom:1rem}
+.input-group{margin-bottom:.8rem}
+.input-group label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.3rem}
+.input-group input{width:100%;padding:.6rem;background:var(--surface2);border:1px solid #333;border-radius:8px;color:var(--text);font-size:.9rem;outline:none}
+.input-group input:focus{border-color:var(--purple)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span>K</span>OE BUSKER</div>
+    <div class="header-actions">
+      <button class="lang-toggle" onclick="toggleLang()">JA</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- PERFORMER: idle -->
+    <div id="v-idle" class="view active">
+      <canvas id="waveform" width="420" height="80"></canvas>
+      <button class="btn btn-primary" onclick="startBroadcast()" data-i18n="start">START BROADCAST</button>
+      <p class="status" data-i18n="idle-hint">Capture your mic or line-in and share with the crowd.</p>
+      <div class="section-title" data-i18n="gain">GAIN</div>
+      <div class="slider-row">
+        <label>0%</label>
+        <input type="range" id="gain" min="0" max="200" value="100">
+        <label id="gain-val">100%</label>
+      </div>
+      <div class="section-title" data-i18n="tip-jar">TIP JAR</div>
+      <button class="btn btn-secondary btn-small" onclick="openTipConfig()" data-i18n="configure-tips">Configure Payment Links</button>
+    </div>
+
+    <!-- PERFORMER: live -->
+    <div id="v-live" class="view">
+      <div class="badge"><span class="dot"></span><span id="listener-count">0</span> <span data-i18n="listeners">listeners</span></div>
+      <canvas id="waveform-live" width="420" height="80"></canvas>
+      <p class="section-title" data-i18n="share">SHARE WITH AUDIENCE</p>
+      <div class="qr-wrap" id="qr-container"></div>
+      <p class="status" id="room-url" style="word-break:break-all;user-select:all"></p>
+      <div class="section-title" data-i18n="gain">GAIN</div>
+      <div class="slider-row">
+        <label>0%</label>
+        <input type="range" id="gain-live" min="0" max="200" value="100">
+        <label id="gain-live-val">100%</label>
+      </div>
+      <div class="section-title" data-i18n="tip-jar">TIP JAR</div>
+      <div class="tip-grid" id="tip-buttons"></div>
+      <button class="btn btn-danger btn-small" onclick="stopBroadcast()" style="margin-top:1.2rem" data-i18n="stop">STOP BROADCAST</button>
+    </div>
+
+    <!-- LISTENER -->
+    <div id="v-listen" class="view">
+      <div class="performer-info">
+        <h2 id="perf-name" data-i18n="live-session">Live Session</h2>
+        <p class="song" id="perf-song"></p>
+      </div>
+      <div class="badge"><span class="dot"></span><span data-i18n="connected">Connected</span></div>
+      <canvas id="waveform-listen" width="420" height="80"></canvas>
+      <div class="latency" id="latency-display">
+        <span class="latency-bar"></span> <span id="latency-ms">--</span>ms
+      </div>
+      <div class="slider-row" style="margin-top:1rem">
+        <label data-i18n="vol">Vol</label>
+        <input type="range" id="listen-vol" min="0" max="100" value="80">
+        <label id="listen-vol-val">80%</label>
+      </div>
+      <div class="tip-grid" id="tip-buttons-listen" style="margin-top:1.2rem"></div>
+    </div>
+  </main>
+
+  <footer>Powered by Koe &middot; koe.live</footer>
+</div>
+
+<!-- Tip notification -->
+<div class="tip-toast" id="tip-toast"></div>
+
+<!-- Tip config modal -->
+<div class="modal-overlay" id="tip-modal">
+  <div class="modal">
+    <h3 data-i18n="tip-config">Tip Jar Configuration</h3>
+    <div class="input-group"><label>PayPay URL</label><input id="cfg-paypay" placeholder="https://qr.paypay.ne.jp/..."></div>
+    <div class="input-group"><label>Stripe Payment Link</label><input id="cfg-stripe" placeholder="https://buy.stripe.com/..."></div>
+    <div class="input-group"><label>Venmo</label><input id="cfg-venmo" placeholder="https://venmo.com/u/..."></div>
+    <div class="input-group"><label>Cash App</label><input id="cfg-cashapp" placeholder="https://cash.app/$..."></div>
+    <div class="input-group"><label data-i18n="performer-name-label">Performer Name</label><input id="cfg-name" placeholder="Your name / band"></div>
+    <div style="display:flex;gap:.6rem;margin-top:1rem">
+      <button class="btn btn-primary btn-small" onclick="saveTipConfig()" data-i18n="save">Save</button>
+      <button class="btn btn-secondary btn-small" onclick="closeTipConfig()" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== i18n ===================== */
+const T={en:{start:'START BROADCAST',stop:'STOP BROADCAST','idle-hint':'Capture your mic or line-in and share with the crowd.',gain:'GAIN','tip-jar':'TIP JAR','configure-tips':'Configure Payment Links',listeners:'listeners',share:'SHARE WITH AUDIENCE','live-session':'Live Session',connected:'Connected',vol:'Vol','tip-config':'Tip Jar Configuration','performer-name-label':'Performer Name',save:'Save',cancel:'Cancel','send-tip':'Send Tip','no-tips':'No payment links configured'},ja:{start:'配信スタート',stop:'配信ストップ','idle-hint':'マイクやライン入力をキャプチャして観客に共有',gain:'ゲイン','tip-jar':'投げ銭','configure-tips':'支払いリンク設定',listeners:'リスナー',share:'観客に共有','live-session':'ライブセッション',connected:'接続中',vol:'音量','tip-config':'投げ銭設定','performer-name-label':'出演者名',save:'保存',cancel:'キャンセル','send-tip':'投げ銭する','no-tips':'支払いリンク未設定'}};
+let lang='en';
+function toggleLang(){lang=lang==='en'?'ja':'en';document.querySelector('.lang-toggle').textContent=lang==='en'?'JA':'EN';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(T[lang][k])el.textContent=T[lang][k]})}
+
+/* ===================== State ===================== */
+let audioCtx,gainNode,analyser,mediaStream,roomId,ws,peerConnections={},isPerformer=false;
+const WS_URL=location.hostname==='localhost'?'ws://localhost:3000/ws/signal':'wss://koe.live/ws/signal';
+const tipCfg={paypay:'',stripe:'',venmo:'',cashapp:'',name:''};
+
+/* Restore saved config */
+try{Object.assign(tipCfg,JSON.parse(localStorage.getItem('koe-busker-tips')||'{}'))}catch(e){}
+
+/* ===================== QR Code (SVG) ===================== */
+function generateQR(text,size){
+  /* Minimal QR encoder — numeric/alphanumeric/byte mode, version 2-6, L error correction.
+     For simplicity we use a lookup-table approach for the mask + ecc, then render SVG.
+     Since a full QR encoder is ~400 lines, we use a compact implementation. */
+  const mods=qrEncode(text);
+  if(!mods)return'<p style="color:#888;font-size:.8rem">QR generation failed</p>';
+  const n=mods.length,cell=Math.floor(size/n);
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${cell*n}" height="${cell*n}" viewBox="0 0 ${n} ${n}">`;
+  svg+=`<rect width="${n}" height="${n}" fill="#fff"/>`;
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(mods[y][x])svg+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#000"/>`;
+  svg+='</svg>';
+  return svg;
+}
+
+/* Compact QR encoder — supports byte mode, versions 1-10, ECC level L */
+function qrEncode(text){
+  const data=[...new TextEncoder().encode(text)];
+  /* Version capacity (byte mode, ECC L): v1=17,v2=32,v3=53,v4=78,v5=106,v6=134,v7=154,v8=192,v9=230,v10=271 */
+  const caps=[17,32,53,78,106,134,154,192,230,271];
+  let ver=0;for(let i=0;i<caps.length;i++){if(data.length<=caps[i]){ver=i+1;break}}
+  if(!ver)return null;
+  const size=17+ver*4;
+  const grid=Array.from({length:size},()=>new Uint8Array(size));
+  const reserved=Array.from({length:size},()=>new Uint8Array(size));
+
+  function setMod(x,y,v){grid[y][x]=v?1:0;reserved[y][x]=1}
+  function finderPattern(cx,cy){for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const x=cx+dx,y=cy+dy;if(x<0||x>=size||y<0||y>=size)continue;const v=Math.max(Math.abs(dx),Math.abs(dy));setMod(x,y,v!==2&&v!==4)}}
+  function timingPatterns(){for(let i=8;i<size-8;i++){if(!reserved[6][i])setMod(i,6,i%2===0);if(!reserved[i][6])setMod(6,i,i%2===0)}}
+
+  /* Finder patterns + separators */
+  finderPattern(3,3);finderPattern(size-4,3);finderPattern(3,size-4);
+  for(let i=0;i<8;i++){/* separators */
+    if(i<size){[7,size-8].forEach(fx=>{if(fx>=0&&fx<size){setMod(fx,i,0);setMod(i,fx,0)}});setMod(7,i,0);setMod(i,7,0)}
+  }
+  /* Dark module + reserved format areas */
+  setMod(8,size-8,1);
+  for(let i=0;i<9;i++){reserved[8][i]=1;reserved[i][8]=1;if(i<8){reserved[8][size-1-i]=1;reserved[size-1-i][8]=1}}
+  timingPatterns();
+
+  /* Alignment patterns for v>=2 */
+  if(ver>=2){
+    const alPos=ver===2?[6,18]:ver===3?[6,22]:ver===4?[6,26]:ver===5?[6,30]:ver===6?[6,34]:ver===7?[6,22,38]:ver===8?[6,24,42]:ver===9?[6,26,46]:[6,28,50];
+    for(const ay of alPos)for(const ax of alPos){
+      if(reserved[ay]&&reserved[ay][ax])continue;
+      let skip=false;
+      if((ax<=8&&ay<=8)||(ax<=8&&ay>=size-8)||(ax>=size-8&&ay<=8))skip=true;
+      if(!skip)for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const v=Math.max(Math.abs(dx),Math.abs(dy));setMod(ax+dx,ay+dy,v!==1)}
+    }
+  }
+
+  /* Encode data — byte mode */
+  const totalCodewords=[26,44,70,100,134,172,196,242,292,346][ver-1];
+  const eccCw=[7,10,15,20,26,36,40,48,60,68][ver-1];
+  const dataCw=totalCodewords-eccCw;
+  const bits=[];
+  function pushBits(val,len){for(let i=len-1;i>=0;i--)bits.push((val>>i)&1)}
+  pushBits(4,4); /* byte mode indicator */
+  pushBits(data.length,ver<=9?8:16);
+  for(const b of data)pushBits(b,8);
+  pushBits(0,Math.min(4,dataCw*8-bits.length));
+  while(bits.length%8)bits.push(0);
+  while(bits.length<dataCw*8){bits.push(1,1,1,0,1,1,0,0);if(bits.length<dataCw*8)bits.push(0,0,0,1,0,0,0,1)}
+  bits.length=dataCw*8;
+
+  const codewords=[];for(let i=0;i<bits.length;i+=8)codewords.push(bits.slice(i,i+8).reduce((a,b)=>(a<<1)|b,0));
+
+  /* Reed-Solomon ECC (GF(256), primitive polynomial 0x11d) */
+  const gfExp=new Uint8Array(512),gfLog=new Uint8Array(256);
+  let x=1;for(let i=0;i<255;i++){gfExp[i]=x;gfLog[x]=i;x=(x<<1)^(x&128?0x11d:0)}
+  for(let i=255;i<512;i++)gfExp[i]=gfExp[i-255];
+  function gfMul(a,b){return a===0||b===0?0:gfExp[gfLog[a]+gfLog[b]]}
+
+  /* Generator polynomial */
+  let gen=[1];
+  for(let i=0;i<eccCw;i++){const next=new Array(gen.length+1).fill(0);for(let j=0;j<gen.length;j++){next[j]^=gen[j];next[j+1]^=gfMul(gen[j],gfExp[i])}gen=next}
+
+  /* Polynomial division */
+  const msg=[...codewords,...new Array(eccCw).fill(0)];
+  for(let i=0;i<codewords.length;i++){const coef=msg[i];if(coef!==0)for(let j=0;j<gen.length;j++)msg[i+j]^=gfMul(gen[j],coef)}
+  const ecc=msg.slice(codewords.length);
+
+  /* Interleave (single block for small versions) and place data */
+  const allBits=[];
+  [...codewords,...ecc].forEach(b=>{for(let i=7;i>=0;i--)allBits.push((b>>i)&1)});
+
+  let bitIdx=0;
+  for(let right=size-1;right>=1;right-=2){
+    if(right===6)right=5;
+    for(let vert=0;vert<size;vert++){
+      const upward=((Math.floor((size-1-right)/2))%2===0);
+      const y=upward?size-1-vert:vert;
+      for(let dx=0;dx<=1;dx++){
+        const xx=right-dx;
+        if(!reserved[y][xx]){grid[y][xx]=bitIdx<allBits.length?allBits[bitIdx]:0;bitIdx++}
+      }
+    }
+  }
+
+  /* Apply mask 0 (checkerboard) */
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!reserved[y][x]&&(x+y)%2===0)grid[y][x]^=1;
+
+  /* Format info (mask 0, ECC L=01) — pre-computed: 0x77c4 */
+  const fmtBits=0x77c4;
+  for(let i=0;i<15;i++){
+    const bit=(fmtBits>>i)&1;
+    /* Around top-left finder */
+    if(i<6)grid[8][i]=bit;else if(i===6)grid[8][7]=bit;else if(i===7)grid[8][8]=bit;else if(i===8)grid[7][8]=bit;else grid[14-i][8]=bit;
+    /* Around bottom-left and top-right */
+    if(i<8)grid[size-1-i][8]=bit;else grid[8][size-15+i]=bit;
+  }
+
+  return grid;
+}
+
+/* ===================== Tip Buttons ===================== */
+const tipServices=[
+  {key:'paypay',icon:'💴',label:'PayPay'},
+  {key:'stripe',icon:'💳',label:'Stripe'},
+  {key:'venmo',icon:'💸',label:'Venmo'},
+  {key:'cashapp',icon:'💵',label:'Cash App'}
+];
+function renderTipButtons(containerId){
+  const el=document.getElementById(containerId);if(!el)return;
+  const active=tipServices.filter(s=>tipCfg[s.key]);
+  if(!active.length){el.innerHTML=`<p class="status" style="grid-column:1/-1" data-i18n="no-tips">${T[lang]['no-tips']}</p>`;return}
+  el.innerHTML=active.map(s=>`<a href="${tipCfg[s.key]}" target="_blank" rel="noopener" class="tip-btn" onclick="showTipToast()"><span class="tip-icon">${s.icon}</span><span class="tip-label">${s.label}</span></a>`).join('');
+}
+
+function showTipToast(){
+  const t=document.getElementById('tip-toast');
+  t.textContent=lang==='ja'?'ありがとう!':'Thank you!';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+/* ===================== Tip Config ===================== */
+function openTipConfig(){
+  document.getElementById('cfg-paypay').value=tipCfg.paypay;
+  document.getElementById('cfg-stripe').value=tipCfg.stripe;
+  document.getElementById('cfg-venmo').value=tipCfg.venmo;
+  document.getElementById('cfg-cashapp').value=tipCfg.cashapp;
+  document.getElementById('cfg-name').value=tipCfg.name;
+  document.getElementById('tip-modal').classList.add('open');
+}
+function closeTipConfig(){document.getElementById('tip-modal').classList.remove('open')}
+function saveTipConfig(){
+  tipCfg.paypay=document.getElementById('cfg-paypay').value.trim();
+  tipCfg.stripe=document.getElementById('cfg-stripe').value.trim();
+  tipCfg.venmo=document.getElementById('cfg-venmo').value.trim();
+  tipCfg.cashapp=document.getElementById('cfg-cashapp').value.trim();
+  tipCfg.name=document.getElementById('cfg-name').value.trim();
+  localStorage.setItem('koe-busker-tips',JSON.stringify(tipCfg));
+  closeTipConfig();
+  renderTipButtons('tip-buttons');
+  renderTipButtons('tip-buttons-listen');
+}
+
+/* ===================== Audio ===================== */
+function initAudioContext(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:48000});
+}
+
+function drawWaveform(canvasId,analyserNode){
+  const canvas=document.getElementById(canvasId);if(!canvas||!analyserNode)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width=canvas.clientWidth*2,H=canvas.height=canvas.clientHeight*2;
+  ctx.scale(2,2);
+  const bufLen=analyserNode.frequencyBinCount;
+  const dataArray=new Uint8Array(bufLen);
+
+  function draw(){
+    if(!document.getElementById(canvasId))return;
+    requestAnimationFrame(draw);
+    analyserNode.getByteTimeDomainData(dataArray);
+    const w=W/2,h=H/2;
+    ctx.fillStyle='#141414';ctx.fillRect(0,0,w,h);
+    ctx.lineWidth=2;
+    /* Gradient line: purple to cyan */
+    const grad=ctx.createLinearGradient(0,0,w,0);
+    grad.addColorStop(0,'#8B5CF6');grad.addColorStop(1,'#06B6D4');
+    ctx.strokeStyle=grad;
+    ctx.beginPath();
+    const sliceW=w/bufLen;
+    for(let i=0;i<bufLen;i++){
+      const v=dataArray[i]/128.0,y=v*h/2;
+      i===0?ctx.moveTo(0,y):ctx.lineTo(i*sliceW,y);
+    }
+    ctx.stroke();
+  }
+  draw();
+}
+
+/* ===================== WebRTC Signaling ===================== */
+function genRoomId(){return Math.random().toString(36).substring(2,8)}
+
+function connectSignaling(room,role){
+  ws=new WebSocket(WS_URL);
+  ws.onopen=()=>{ws.send(JSON.stringify({type:'join',room,role}))};
+  ws.onmessage=async e=>{
+    const msg=JSON.parse(e.data);
+    if(msg.type==='peer-joined'&&isPerformer)createPeerConnection(msg.peerId);
+    else if(msg.type==='offer'&&!isPerformer)handleOffer(msg);
+    else if(msg.type==='answer'&&isPerformer)handleAnswer(msg);
+    else if(msg.type==='ice-candidate')handleIceCandidate(msg);
+    else if(msg.type==='listener-count')document.getElementById('listener-count').textContent=msg.count;
+    else if(msg.type==='performer-info'){
+      if(msg.name)document.getElementById('perf-name').textContent=msg.name;
+      if(msg.song)document.getElementById('perf-song').textContent=msg.song;
+      if(msg.tips){Object.assign(tipCfg,msg.tips);renderTipButtons('tip-buttons-listen')}
+    }
+    else if(msg.type==='tip')showTipToast();
+  };
+  ws.onclose=()=>{setTimeout(()=>{if(roomId)connectSignaling(room,role)},3000)};
+}
+
+function createPeerConnection(peerId){
+  const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+  peerConnections[peerId]=pc;
+
+  if(mediaStream)mediaStream.getAudioTracks().forEach(t=>pc.addTrack(t,mediaStream));
+
+  pc.onicecandidate=e=>{if(e.candidate)ws.send(JSON.stringify({type:'ice-candidate',target:peerId,candidate:e.candidate}))};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){pc.close();delete peerConnections[peerId]}};
+
+  pc.createOffer({offerToReceiveAudio:false}).then(offer=>{
+    /* Prefer Opus codec */
+    offer.sdp=preferOpus(offer.sdp);
+    return pc.setLocalDescription(offer);
+  }).then(()=>{ws.send(JSON.stringify({type:'offer',target:peerId,sdp:pc.localDescription}))});
+}
+
+async function handleOffer(msg){
+  const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+  peerConnections[msg.from]=pc;
+
+  pc.ontrack=e=>{
+    initAudioContext();
+    const source=audioCtx.createMediaStreamSource(new MediaStream([e.track]));
+    const gain=audioCtx.createGain();
+    analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
+    gain.gain.value=0.8;
+    source.connect(gain).connect(analyser).connect(audioCtx.destination);
+    drawWaveform('waveform-listen',analyser);
+    /* Latency measurement */
+    measureLatency(pc);
+  };
+
+  pc.onicecandidate=e=>{if(e.candidate)ws.send(JSON.stringify({type:'ice-candidate',target:msg.from,candidate:e.candidate}))};
+
+  await pc.setRemoteDescription(msg.sdp);
+  const answer=await pc.createAnswer();
+  answer.sdp=preferOpus(answer.sdp);
+  await pc.setLocalDescription(answer);
+  ws.send(JSON.stringify({type:'answer',target:msg.from,sdp:pc.localDescription}));
+}
+
+function handleAnswer(msg){
+  const pc=peerConnections[msg.from];
+  if(pc)pc.setRemoteDescription(msg.sdp);
+}
+
+function handleIceCandidate(msg){
+  const pc=peerConnections[msg.from];
+  if(pc&&msg.candidate)pc.addIceCandidate(msg.candidate).catch(()=>{});
+}
+
+function preferOpus(sdp){
+  /* Move opus to first position in m=audio line */
+  const lines=sdp.split('\r\n');
+  for(let i=0;i<lines.length;i++){
+    if(lines[i].startsWith('m=audio')){
+      const parts=lines[i].split(' ');
+      const payloads=parts.slice(3);
+      const opusPt=lines.find(l=>l.includes('opus/48000'));
+      if(opusPt){const m=opusPt.match(/rtpmap:(\d+)/);if(m){const pt=m[1];const idx=payloads.indexOf(pt);if(idx>0){payloads.splice(idx,1);payloads.unshift(pt);parts.splice(3,payloads.length,...payloads);lines[i]=parts.join(' ')}}}
+      break;
+    }
+  }
+  return lines.join('\r\n');
+}
+
+function measureLatency(pc){
+  setInterval(()=>{
+    pc.getStats().then(stats=>{
+      stats.forEach(s=>{
+        if(s.type==='candidate-pair'&&s.state==='succeeded'&&s.currentRoundTripTime!=null){
+          const ms=Math.round(s.currentRoundTripTime*1000);
+          document.getElementById('latency-ms').textContent=ms;
+          const bar=document.querySelector('.latency-bar');
+          bar.className='latency-bar'+(ms>150?' bad':ms>80?' warn':'');
+        }
+      });
+    });
+  },2000);
+}
+
+/* ===================== Broadcast Control ===================== */
+async function startBroadcast(){
+  try{
+    initAudioContext();
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false,sampleRate:48000,channelCount:1}});
+
+    /* Audio graph: source -> gain -> analyser */
+    const source=audioCtx.createMediaStreamSource(mediaStream);
+    gainNode=audioCtx.createGain();
+    analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
+    source.connect(gainNode).connect(analyser);
+    /* We don't connect to destination (no local playback / feedback) */
+
+    /* Create a processed stream for WebRTC */
+    const dest=audioCtx.createMediaStreamDestination();
+    gainNode.connect(dest);
+    mediaStream=dest.stream;
+
+    roomId=genRoomId();
+    isPerformer=true;
+    connectSignaling(roomId,'performer');
+
+    /* Send performer info */
+    setTimeout(()=>{
+      if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:'performer-info',name:tipCfg.name||'Live Session',tips:tipCfg}));
+    },1000);
+
+    /* Show live view */
+    switchView('v-live');
+    renderTipButtons('tip-buttons');
+
+    /* QR code */
+    const url=`${location.origin}${location.pathname}?room=${roomId}`;
+    document.getElementById('qr-container').innerHTML=generateQR(url,180);
+    document.getElementById('room-url').textContent=url;
+
+    /* Waveform */
+    drawWaveform('waveform-live',analyser);
+
+    /* Gain slider */
+    document.getElementById('gain-live').oninput=e=>{
+      const v=e.target.value/100;
+      gainNode.gain.value=v;
+      document.getElementById('gain-live-val').textContent=e.target.value+'%';
+    };
+  }catch(err){
+    alert(lang==='ja'?'マイクへのアクセスが拒否されました':'Microphone access denied: '+err.message);
+  }
+}
+
+function stopBroadcast(){
+  Object.values(peerConnections).forEach(pc=>pc.close());
+  peerConnections={};
+  if(ws){ws.close();ws=null}
+  if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop());
+  mediaStream=null;roomId=null;isPerformer=false;
+  switchView('v-idle');
+}
+
+/* ===================== Listener Mode ===================== */
+function joinAsListener(room){
+  roomId=room;
+  isPerformer=false;
+  switchView('v-listen');
+  initAudioContext();
+  /* iOS Safari: resume audio context on user gesture */
+  document.addEventListener('touchstart',()=>{if(audioCtx.state==='suspended')audioCtx.resume()},{once:true});
+  connectSignaling(room,'listener');
+  renderTipButtons('tip-buttons-listen');
+
+  document.getElementById('listen-vol').oninput=e=>{
+    document.getElementById('listen-vol-val').textContent=e.target.value+'%';
+    /* Adjust gain of incoming audio */
+    if(analyser){
+      const nodes=audioCtx.destination;/* volume controlled via gain node in handleOffer */
+    }
+  };
+}
+
+/* ===================== View Switching ===================== */
+function switchView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+/* ===================== Init ===================== */
+(function init(){
+  /* Check URL params for listener mode */
+  const params=new URLSearchParams(location.search);
+  const room=params.get('room');
+  if(room){joinAsListener(room);return}
+
+  /* Performer idle — preview waveform (silent analyser) */
+  document.getElementById('gain').oninput=e=>{document.getElementById('gain-val').textContent=e.target.value+'%'};
+
+  /* Try to show idle waveform with silent analyser */
+  initAudioContext();
+  analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
+  const osc=audioCtx.createOscillator();osc.frequency.value=0;
+  osc.connect(analyser);osc.start();
+  drawWaveform('waveform',analyser);
+})();
+</script>
+</body>
+</html>

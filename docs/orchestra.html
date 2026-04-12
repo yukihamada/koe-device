@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Orchestra（開発中）— ワイヤレスモニターシステムのビジョン</title>
+<meta name="description" content="オーケストラ向け双方向ワイヤレスモニターシステムの構想。全て開発段階。レイテンシ7ms（理論値）を目標。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/orchestra">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Orchestra（開発中）— ワイヤレスモニターのビジョン">
+<meta property="og:description" content="100人の奏者。ケーブルゼロ。7ミリ秒（理論値）。双方向ワイヤレスインイヤーモニターの構想。">
+<meta property="og:url" content="https://koe.live/orchestra">
+<meta property="og:image" content="https://koe.live/images/C3-festival-aerial.png">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Orchestra（開発中）— ワイヤレスモニターのビジョン">
+<meta name="twitter:description" content="100人の奏者。ケーブルゼロ。7ミリ秒（理論値）。双方向ワイヤレスインイヤーモニターの構想。">
+<meta name="twitter:image" content="https://koe.live/images/C3-festival-aerial.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:#0a0a0a;color:#e8e8e8;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:1.0rem;line-height:1.8;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+.en-sub{font-size:0.75rem;color:#666;display:block;margin-top:0.2rem;letter-spacing:0.02em;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:2rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+nav .nav-links a.active{color:#8B5CF6;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 80px;position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.15) 0%,rgba(6,182,212,0.06) 35%,transparent 70%);}
+.hero .circuit-bg{position:absolute;inset:0;opacity:0.04;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%238B5CF6' stroke-width='0.5'%3E%3Cpath d='M0 30h20M40 30h20M30 0v20M30 40v20'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3Ccircle cx='20' cy='30' r='1.5'/%3E%3Ccircle cx='40' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='20' r='1.5'/%3E%3Ccircle cx='30' cy='40' r='1.5'/%3E%3C/g%3E%3C/svg%3E");background-size:60px 60px;pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;}
+.hero h1{font-size:clamp(2.2rem,7vw,4.5rem);font-weight:100;letter-spacing:-0.02em;line-height:1.2;margin-bottom:1rem;}
+.hero h1 .purple{color:#8B5CF6;}
+.hero h1 .cyan{color:#06B6D4;}
+.hero h1 .gold{color:#F59E0B;}
+.hero-stats{display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;}
+.hero-stat{text-align:center;}
+.hero-stat .num{font-size:clamp(2rem,5vw,3.5rem);font-weight:100;color:#fff;line-height:1;}
+.hero-stat .num .purple{color:#8B5CF6;}
+.hero-stat .num .cyan{color:#06B6D4;}
+.hero-stat .label{font-size:0.75rem;color:#666;letter-spacing:0.1em;margin-top:0.3rem;}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1100px;margin:0 auto;}
+section h2{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:100;letter-spacing:-0.02em;margin-bottom:0.8rem;text-align:center;line-height:1.4;}
+section h2 .purple{color:#8B5CF6;}
+section h2 .cyan{color:#06B6D4;}
+section h2 .gold{color:#F59E0B;}
+.section-sub{text-align:center;color:#888;font-size:0.95rem;margin-bottom:3rem;max-width:700px;margin-left:auto;margin-right:auto;line-height:1.8;}
+
+/* AVAILABLE NOW */
+.available-now{background:linear-gradient(165deg,rgba(34,197,94,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(34,197,94,0.2);border-radius:20px;padding:2.5rem;max-width:800px;margin:0 auto 3rem;text-align:center;}
+.available-now h3{font-size:1.2rem;font-weight:300;margin-bottom:0.8rem;color:#22c55e;}
+.available-now p{font-size:0.9rem;color:#aaa;line-height:1.8;margin-bottom:1rem;}
+.available-now .price-now{font-size:1.8rem;font-weight:100;color:#fff;margin-bottom:0.5rem;}
+.badge-available{color:#22c55e;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.1);font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:100px;display:inline-block;margin-bottom:0.8rem;}
+
+/* DIAGRAM */
+.diagram-section{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:2.5rem;margin:0 auto 3rem;max-width:1000px;overflow-x:auto;}
+.diagram-title{font-size:0.7rem;color:#666;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem;text-align:center;}
+.diagram-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;min-width:700px;}
+.diagram-box{background:linear-gradient(165deg,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.02) 100%);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1.5rem 1.2rem;text-align:center;min-width:180px;position:relative;}
+.diagram-box h4{font-size:0.85rem;font-weight:400;margin-bottom:0.6rem;color:#fff;}
+.diagram-box .box-detail{font-size:0.7rem;color:#888;line-height:1.6;}
+.diagram-box.purple-border{border-color:rgba(139,92,246,0.3);}
+.diagram-box.cyan-border{border-color:rgba(6,182,212,0.3);}
+.diagram-box.gold-border{border-color:rgba(245,158,11,0.3);}
+.diagram-arrow{display:flex;flex-direction:column;align-items:center;padding:0 0.8rem;flex-shrink:0;}
+.diagram-arrow .arrow-line{width:60px;height:2px;background:linear-gradient(90deg,#8B5CF6,#06B6D4);position:relative;}
+.diagram-arrow .arrow-line::after{content:'';position:absolute;right:-4px;top:-4px;border:5px solid transparent;border-left-color:#06B6D4;}
+.diagram-arrow .arrow-label{font-size:0.6rem;color:#888;margin-top:0.3rem;white-space:nowrap;letter-spacing:0.05em;}
+
+/* WHY UWB */
+.why-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:2rem;}
+.why-card{background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2rem;transition:all 0.3s;}
+.why-card:hover{border-color:rgba(139,92,246,0.2);transform:translateY(-2px);}
+.why-card h4{font-size:1rem;font-weight:400;margin-bottom:0.6rem;color:#fff;}
+.why-card .metric{font-size:2rem;font-weight:100;margin-bottom:0.3rem;}
+.why-card .metric.good{color:#22c55e;}
+.why-card .metric.bad{color:#ef4444;}
+.why-card p{font-size:0.8rem;color:#888;line-height:1.8;}
+
+/* LATENCY BUDGET */
+.latency-table{width:100%;border-collapse:collapse;margin:2rem 0;}
+.latency-table th{text-align:left;font-size:0.7rem;color:#666;letter-spacing:0.1em;text-transform:uppercase;padding:0.8rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+.latency-table td{padding:0.7rem 1rem;font-size:0.85rem;color:#ccc;border-bottom:1px solid rgba(255,255,255,0.03);}
+.latency-table tr:hover td{background:rgba(139,92,246,0.03);}
+.latency-table .stage{color:#aaa;}
+.latency-table .ms{font-family:'SF Mono',monospace;color:#06B6D4;font-weight:400;text-align:right;}
+.latency-table .total td{border-top:2px solid rgba(139,92,246,0.3);font-weight:400;color:#fff;}
+.latency-table .total .ms{color:#8B5CF6;font-size:1.1rem;}
+.latency-bar{height:6px;border-radius:3px;background:linear-gradient(90deg,#8B5CF6,#06B6D4);margin-left:0.5rem;display:inline-block;vertical-align:middle;}
+
+/* INSTRUMENT PROFILES */
+.profiles-section{margin-top:3rem;}
+.profile-toggle{display:flex;justify-content:center;gap:0.5rem;margin-bottom:2rem;}
+.profile-toggle button{padding:0.5rem 1.5rem;border-radius:100px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#888;font-size:0.8rem;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+.profile-toggle button.active{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);color:#A78BFA;}
+.profile-toggle button:hover{border-color:rgba(139,92,246,0.3);color:#ccc;}
+.profile-table{width:100%;border-collapse:collapse;}
+.profile-table th{text-align:left;font-size:0.65rem;color:#666;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+.profile-table td{padding:0.6rem 0.8rem;font-size:0.78rem;color:#ccc;border-bottom:1px solid rgba(255,255,255,0.03);}
+.profile-table tr:hover td{background:rgba(139,92,246,0.03);}
+.profile-table .inst{font-weight:400;color:#fff;}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin:2rem 0;}
+.price-card{background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2rem 1.5rem;text-align:center;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);position:relative;}
+.price-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.25);box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 40px rgba(139,92,246,0.05);}
+.price-card.featured{border-color:rgba(139,92,246,0.3);background:linear-gradient(165deg,rgba(139,92,246,0.08) 0%,rgba(255,255,255,0.02) 100%);}
+.price-card.featured::before{content:'おすすめ';position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:0.2rem 1rem;border-radius:100px;font-size:0.6rem;letter-spacing:0.1em;color:#8B5CF6;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);}
+.price-card h3{font-size:1.1rem;font-weight:300;letter-spacing:0.05em;margin-bottom:0.5rem;}
+.price-card .price{font-size:1.8rem;font-weight:100;color:#fff;margin-bottom:0.2rem;}
+.price-card .price-jpy{font-size:0.75rem;color:#888;margin-bottom:0.3rem;}
+.price-card .price-per{font-size:0.75rem;color:#06B6D4;margin-bottom:1rem;}
+.price-card .includes{font-size:0.78rem;color:#888;line-height:1.8;text-align:left;list-style:none;}
+.price-card .includes li{padding-left:1.2rem;position:relative;}
+.price-card .includes li::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border-radius:50%;background:#8B5CF6;}
+
+/* COMPARISON */
+.compare-block{background:linear-gradient(165deg,rgba(139,92,246,0.06) 0%,rgba(6,182,212,0.03) 100%);border:1px solid rgba(139,92,246,0.15);border-radius:20px;padding:3rem;margin:3rem auto 0;max-width:800px;}
+.compare-block h3{font-size:1.3rem;font-weight:200;margin-bottom:1.5rem;text-align:center;line-height:1.6;}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.compare-row:last-child{border-bottom:none;}
+.compare-label{font-size:0.85rem;color:#aaa;}
+.compare-value{font-size:0.85rem;color:#ccc;text-align:right;}
+.compare-value.koe{color:#8B5CF6;font-weight:400;}
+.compare-value.old{color:#666;text-decoration:line-through;}
+
+/* SPECS TABLE */
+.specs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin:2rem auto;max-width:700px;border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;}
+.spec-row{display:flex;justify-content:space-between;padding:0.9rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;}
+.spec-row:nth-child(odd){background:rgba(255,255,255,0.02);}
+.spec-label{color:#888;}
+.spec-value{color:#fff;font-weight:300;text-align:right;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.7rem 1.8rem;border-radius:12px;font-size:0.85rem;letter-spacing:0.03em;border:none;cursor:pointer;transition:all 0.3s;text-decoration:none;font-family:inherit;}
+.btn-primary{background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;}
+.btn-primary:hover{background:linear-gradient(135deg,#A78BFA,#8B5CF6);color:#fff;transform:translateY(-2px);box-shadow:0 8px 30px rgba(139,92,246,0.3);}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.12);color:#aaa;}
+.btn-outline:hover{border-color:#8B5CF6;color:#8B5CF6;}
+.btn-large{padding:1rem 2.5rem;font-size:1rem;border-radius:14px;}
+
+/* CONTACT BUTTON */
+.btn-contact{display:inline-block;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:white;padding:0.7rem 1.5rem;border-radius:10px;font-size:0.85rem;font-weight:600;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;text-align:center;width:100%;margin-top:1rem;}
+.btn-contact:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(139,92,246,0.4);color:white;}
+.btn-contact .btn-sub{display:block;font-size:0.65rem;font-weight:400;opacity:0.8;margin-top:0.2rem;}
+
+/* CTA */
+.cta-section{text-align:center;padding:6rem 2rem;position:relative;}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(139,92,246,0.1) 0%,transparent 60%);pointer-events:none;}
+.cta-section h2{margin-bottom:1rem;position:relative;}
+.cta-section p{color:#888;font-size:0.95rem;margin-bottom:2rem;position:relative;line-height:1.8;}
+.cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:2rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.75rem;}
+footer .tagline-footer{color:#555;font-size:0.8rem;font-style:italic;margin-top:0.8rem;}
+
+/* BADGES */
+.badge-dev{
+  color:#f59e0b;border:1px solid rgba(245,158,11,0.3);
+  background:rgba(245,158,11,0.08);font-size:0.65rem;
+  padding:0.2rem 0.6rem;border-radius:100px;display:inline-block;
+}
+.concept-note{
+  color:#666;font-size:0.7rem;font-style:italic;margin-top:0.3rem;
+}
+.dev-banner{
+  background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);
+  border-radius:12px;padding:1rem 1.5rem;margin:1rem auto;max-width:800px;
+  text-align:center;font-size:0.82rem;color:#f59e0b;line-height:1.6;
+}
+.theory-note{
+  color:#f59e0b;font-size:0.7rem;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .pricing-grid{grid-template-columns:repeat(2,1fr);}
+  .why-grid{grid-template-columns:1fr;}
+  .specs-grid{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  .pricing-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto;}
+  .diagram-section{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .profile-table{display:block;overflow-x:auto;}
+  nav .nav-links{gap:1rem;}
+  nav .nav-links a.hide-mobile{display:none;}
+  .hero-stats{gap:2rem;}
+}
+@media(max-width:480px){
+  nav{padding:1rem;}
+  nav .nav-links{gap:0.6rem;}
+  .hero{padding:100px 1.5rem 60px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/order" class="hide-mobile">製品</a>
+    <a href="/gallery" class="hide-mobile">ギャラリー</a>
+    <a href="/3d" class="hide-mobile">3D</a>
+    <a href="/business" class="hide-mobile">法人</a>
+    <a href="/orchestra" class="active">オケ</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="circuit-bg"></div>
+  <p style="font-size:0.85rem;color:#666;margin-bottom:0.5rem;" class="fade-in">
+    双方向ワイヤレス・インイヤーモニターシステムのビジョン <span class="badge-dev">開発中</span>
+  </p>
+  <p style="font-size:0.65rem;color:#555;margin-bottom:1rem;" class="fade-in">A vision for bidirectional wireless in-ear monitoring</p>
+  <h1 class="fade-in">
+    <span class="purple">100</span>人の奏者。<br><span class="cyan">ケーブルゼロ</span>。<span class="gold">7</span>ミリ秒。
+  </h1>
+  <p style="font-size:0.75rem;color:#555;margin-bottom:1.5rem;" class="fade-in">100 Musicians. Zero Cables. 7 Milliseconds (theoretical).</p>
+  <div class="dev-banner fade-in">これは開発中のビジョンです。Tx+Rx双方向コンセプトはPro v2ハードウェアで対応予定ですが、まだ実地テストは行っていません。</div>
+  <img src="images/seed-orchestra.jpg" alt="Koe Orchestra" style="width:100%;max-width:800px;border-radius:12px;margin:2rem 0 0.3rem 0" loading="lazy" class="fade-in">
+  <p class="concept-note fade-in" style="text-align:center;margin-bottom:2rem;">※コンセプトイメージ</p>
+  <p style="font-size:clamp(0.9rem,2vw,1.1rem);color:#888;font-weight:300;margin-bottom:0.5rem;max-width:700px;line-height:1.8;" class="fade-in">
+    全ての奏者が楽器音を送信し、モニターミックスを受信。全てワイヤレス。<br>
+    ステージボックス不要。ケーブル不要。ラック機器不要。
+  </p>
+
+  <div class="hero-stats fade-in">
+    <div class="hero-stat">
+      <div class="num"><span class="purple">7</span>ms</div>
+      <div class="label">目標レイテンシ <span class="theory-note">（理論値）</span></div>
+    </div>
+    <div class="hero-stat">
+      <div class="num"><span class="cyan">100</span></div>
+      <div class="label">目標チャンネル数</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">&yen;<span class="gold">14,250</span></div>
+      <div class="label">目標価格/奏者 <span class="theory-note">（量産時）</span></div>
+    </div>
+  </div>
+
+  <div class="fade-in" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+    <a href="mailto:hello@koe.live?subject=Orchestra%20お問い合わせ" class="btn btn-primary btn-large">興味がある方はお問い合わせ</a>
+    <a href="#how-it-works" class="btn btn-outline btn-large">ビジョンを見る</a>
+  </div>
+</div>
+
+<!-- AVAILABLE NOW -->
+<section>
+  <div class="available-now fade-in">
+    <span class="badge-available">今すぐ体験可能</span>
+    <h3>DK Editionで Auracast受信を体験できます</h3>
+    <p>オーケストラモードの双方向通信はまだ開発中ですが、<br>DK Edition（&yen;29,800）でAuracastブロードキャスト受信の体験・検証が今すぐ可能です。<br>nRF5340 Audio DKベースの開発者向けキット。</p>
+    <span class="en-sub">Experience Auracast reception today with the DK Edition.</span>
+    <div style="margin-top:1.5rem;">
+      <a href="/order" class="btn btn-primary" style="display:inline-flex;width:auto;padding:0.7rem 2rem;">DK Edition を見る &mdash; &yen;29,800</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <h2 class="fade-in"><span class="purple">オーケストラ</span>モードの構想</h2>
+  <p class="section-sub fade-in">
+    各Koe Proは送信機と受信機の両方になる構想です。楽器音はUWBでHubへ送信。<br>ミックスされたモニターはAuracastブロードキャストで返ってきます。
+    <span class="en-sub">Each Koe Pro is envisioned as both transmitter and receiver.</span>
+  </p>
+
+  <div class="diagram-section fade-in">
+    <div class="diagram-title">信号フロー：楽器から耳まで 約7ms（理論値）</div>
+    <div class="diagram-flow">
+      <!-- Musician's Pro (Tx) -->
+      <div class="diagram-box purple-border">
+        <h4>Koe Pro (送信)</h4>
+        <div class="box-detail">
+          3.5mm入力<br>AK5720 24bit ADC<br>Opus/LC3エンコード<br>DW3000 UWB送信
+        </div>
+      </div>
+
+      <!-- Arrow: UWB -->
+      <div class="diagram-arrow">
+        <div class="arrow-line" style="width:80px;"></div>
+        <div class="arrow-label">UWB &lt;1ms（理論値）</div>
+      </div>
+
+      <!-- Hub -->
+      <div class="diagram-box gold-border" style="min-width:200px;">
+        <h4 style="color:#F59E0B;">Hub (ミックスエンジン)</h4>
+        <div class="box-detail">
+          100チャンネル受信<br>チャンネル別EQ+コンプ<br>パーソナルモニターミックス<br>Auracastブロードキャスト
+        </div>
+      </div>
+
+      <!-- Arrow: Auracast -->
+      <div class="diagram-arrow">
+        <div class="arrow-line" style="width:80px;background:linear-gradient(90deg,#F59E0B,#06B6D4);"></div>
+        <div class="arrow-label">Auracast ~3ms（理論値）</div>
+      </div>
+
+      <!-- Musician's Pro (Rx) -->
+      <div class="diagram-box cyan-border">
+        <h4>Koe Pro (受信)</h4>
+        <div class="box-detail">
+          BLE ISO受信<br>LC3デコード<br>PCM5102A 32bit DAC<br>3.5mmヘッドホン出力
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY UWB -->
+<section>
+  <h2 class="fade-in">なぜ送信に<span class="purple">UWB</span>を使うのか</h2>
+  <p class="section-sub fade-in">
+    BLEはブロードキャスト受信には十分。<br>しかしライブ楽器ミキシングにはサブミリ秒の精度が必要です。UWBがその鍵になると考えています。
+    <span class="en-sub">BLE is fine for broadcast (Rx), but live instrument mixing demands sub-millisecond precision.</span>
+  </p>
+
+  <div class="why-grid fade-in">
+    <div class="why-card">
+      <h4>BLEオーディオのレイテンシ</h4>
+      <div class="metric bad">20-40ms</div>
+      <p>プリミックスされたブロードキャスト受信には許容範囲。しかしライブ楽器をミキサーに送信するには不適格 &#8212; 奏者は自分の音が遅れて聞こえてしまいます。</p>
+    </div>
+    <div class="why-card">
+      <h4>UWB (DW3000) のレイテンシ（理論値）</h4>
+      <div class="metric good">&lt;1ms</div>
+      <p>DW3000は6.8Mbps、ナノ秒精度のタイミングで動作。48kHz/16bitモノラルの場合、1楽器に必要な帯域はわずか768kbps。サブマイクロ秒のクロック同期で高精度なミキシングが理論上可能です。</p>
+    </div>
+    <div class="why-card">
+      <h4>UWBの帯域容量</h4>
+      <div class="metric good">6.8 Mbps</div>
+      <p>各HubのDW3000はTDM（時分割多重）で約8チャンネルを処理可能と想定。4台のHubでフルオーケストラ100人分をカバーする構想です。位置情報データも付随 &#8212; Hubは各奏者の位置を把握できます。</p>
+    </div>
+    <div class="why-card">
+      <h4>Auracastブロードキャスト（受信）</h4>
+      <div class="metric" style="color:#06B6D4;">30-50m</div>
+      <p>BLE Auracastはリターンパスに最適：1つのブロードキャストが全奏者に同時到達。ペアリング不要。接続数制限なし。DK版で体験可能。PA/LNA搭載版で距離拡大を計画中。</p>
+    </div>
+  </div>
+</section>
+
+<!-- LATENCY BUDGET -->
+<section>
+  <h2 class="fade-in"><span class="cyan">レイテンシ</span>バジェット（理論値）</h2>
+  <p class="section-sub fade-in">
+    7msはライブ演奏では感知不能レベルです。現行の有線システムは3-5ms。<br>
+    現行のワイヤレスIEM（Shure PSM、Sennheiser）は受信のみで3-5ms &#8212; 送信はできません。<br>
+    Koeは両方を目指します。
+    <span class="en-sub">All latency figures are theoretical targets, not measured values.</span>
+  </p>
+
+  <div class="fade-in" style="max-width:700px;margin:0 auto;">
+    <table class="latency-table">
+      <thead>
+        <tr>
+          <th>ステージ</th>
+          <th>コンポーネント</th>
+          <th style="text-align:right;">遅延（理論値）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="stage">楽器 → ADC</td>
+          <td>AK5720 <span style="color:#666;">group delay</span></td>
+          <td class="ms">0.5 ms <span class="latency-bar" style="width:14px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">ADC → 圧縮</td>
+          <td>Opus / LC3 <span style="color:#666;">encode, 480 samples</span></td>
+          <td class="ms">1.0 ms <span class="latency-bar" style="width:28px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">UWB送信</td>
+          <td>DW3000 <span style="color:#666;">6.8 Mbps, ~100B frame</span></td>
+          <td class="ms">0.2 ms <span class="latency-bar" style="width:6px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">Hub受信 + ミックス</td>
+          <td><span style="color:#666;">Nチャンネル合算、EQ適用</span></td>
+          <td class="ms">1.0 ms <span class="latency-bar" style="width:28px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">Auracastエンコード</td>
+          <td>LC3 <span style="color:#666;">encode</span></td>
+          <td class="ms">1.0 ms <span class="latency-bar" style="width:28px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">BLEブロードキャスト</td>
+          <td><span style="color:#666;">BLE ISO interval</span></td>
+          <td class="ms">2.0 ms <span class="latency-bar" style="width:56px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">受信 + デコード</td>
+          <td>LC3 <span style="color:#666;">decode</span></td>
+          <td class="ms">1.0 ms <span class="latency-bar" style="width:28px;"></span></td>
+        </tr>
+        <tr>
+          <td class="stage">DAC出力</td>
+          <td>PCM5102A</td>
+          <td class="ms">0.5 ms <span class="latency-bar" style="width:14px;"></span></td>
+        </tr>
+        <tr class="total">
+          <td colspan="2" style="font-size:0.9rem;">合計往復（理論値）</td>
+          <td class="ms">~7.2 ms</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="text-align:center;font-size:0.75rem;color:#f59e0b;margin-top:0.5rem;">※全て理論値です。実測値は実装完了後に公開予定。</p>
+  </div>
+</section>
+
+<!-- INSTRUMENT PROFILES -->
+<section>
+  <h2 class="fade-in">楽器別<span class="gold">プロファイル</span>（構想）</h2>
+  <p class="section-sub fade-in">
+    各Proはフラッシュに楽器タイプを保存する構想です。入力処理は送信前に信号を整形。<br>出力EQは各楽器の周波数帯域に合わせてモニターミックスを調整します。
+  </p>
+
+  <div class="profiles-section fade-in">
+    <div class="profile-toggle">
+      <button class="active" onclick="showProfile('input',this)">入力（Tx）処理</button>
+      <button onclick="showProfile('output',this)">出力（Rx）EQ</button>
+    </div>
+
+    <!-- INPUT profiles -->
+    <div id="profile-input">
+      <table class="profile-table">
+        <thead>
+          <tr>
+            <th>楽器</th>
+            <th>入力EQ</th>
+            <th>コンプレッサー</th>
+            <th>ゲート</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="inst">バイオリン</td><td>HPF 200Hz, +3dB @3kHz</td><td>3:1, -20dB thresh</td><td>-40dB</td></tr>
+          <tr><td class="inst">チェロ</td><td>HPF 80Hz, +2dB @250Hz</td><td>2:1, -18dB</td><td>-45dB</td></tr>
+          <tr><td class="inst">トランペット</td><td>HPF 150Hz, -3dB @1kHz</td><td>4:1, -15dB</td><td>-35dB</td></tr>
+          <tr><td class="inst">フルート</td><td>HPF 250Hz, +4dB @8kHz</td><td>2:1, -22dB</td><td>-38dB</td></tr>
+          <tr><td class="inst">ボーカル</td><td>HPF 100Hz, +3dB @3kHz</td><td>3:1, -18dB</td><td>-40dB</td></tr>
+          <tr><td class="inst">ドラム OH</td><td>Full range, -2dB @400Hz</td><td>6:1, -12dB</td><td>-30dB</td></tr>
+          <tr><td class="inst">ピアノ</td><td>HPF 40Hz, flat</td><td>2:1, -20dB</td><td>-50dB</td></tr>
+          <tr><td class="inst">ギター DI</td><td>HPF 80Hz, +2dB @3kHz</td><td>3:1, -16dB</td><td>-42dB</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- OUTPUT profiles -->
+    <div id="profile-output" style="display:none;">
+      <table class="profile-table">
+        <thead>
+          <tr>
+            <th>楽器</th>
+            <th>モニターEQ</th>
+            <th>リミッター</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="inst">バイオリン</td><td>-2dB @3kHz, +1dB @200Hz</td><td>-6dBFS</td><td>IEM内の高倍音を抑制</td></tr>
+          <tr><td class="inst">チェロ</td><td>+2dB @120Hz, flat mids</td><td>-6dBFS</td><td>低域基音を強化</td></tr>
+          <tr><td class="inst">トランペット</td><td>-4dB @2kHz, +1dB @8kHz</td><td>-8dBFS</td><td>きつさ軽減、空気感追加</td></tr>
+          <tr><td class="inst">フルート</td><td>+2dB @1kHz, -1dB @6kHz</td><td>-6dBFS</td><td>プレゼンス強調、歯擦音制御</td></tr>
+          <tr><td class="inst">ボーカル</td><td>+2dB @3kHz, HPF 80Hz</td><td>-6dBFS</td><td>ピッチ参照のためのクリアさ</td></tr>
+          <tr><td class="inst">ドラム OH</td><td>-3dB @4kHz, +2dB @80Hz</td><td>-10dBFS</td><td>トランジェントから耳を保護</td></tr>
+          <tr><td class="inst">ピアノ</td><td>Flat, gentle rolloff >12kHz</td><td>-6dBFS</td><td>ニュートラルな広帯域モニタリング</td></tr>
+          <tr><td class="inst">ギター DI</td><td>+1dB @1kHz, -2dB @5kHz</td><td>-6dBFS</td><td>自然な中域強調</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <h2 class="fade-in">量産時の<span class="purple">目標価格</span></h2>
+  <p class="section-sub fade-in">
+    全て開発段階の目標価格です。最終価格は変更の可能性があります。
+    <span class="en-sub">Target pricing for production. Subject to change.</span>
+  </p>
+
+  <div class="pricing-grid fade-in">
+    <div class="price-card">
+      <h3>Solo</h3>
+      <div class="price">$65</div>
+      <div class="price-jpy">約&yen;9,750</div>
+      <div class="price-per">1人</div>
+      <ul class="includes">
+        <li>Koe Pro 1台</li>
+        <li>USB Hub接続</li>
+        <li>個人練習用モニター</li>
+      </ul>
+      <a href="mailto:hello@koe.live?subject=Koe%20Pro%20Solo%20お問い合わせ" class="btn-contact">お問い合わせ<span class="btn-sub">※目標価格 $65 &mdash; 開発中</span></a>
+    </div>
+
+    <div class="price-card featured">
+      <h3>Band (5人)</h3>
+      <div class="price">$650</div>
+      <div class="price-jpy">約&yen;97,500</div>
+      <div class="price-per">1人 $130 (約&yen;19,500)</div>
+      <ul class="includes">
+        <li>Koe Pro 5台</li>
+        <li>Hub 1台（25ch対応）</li>
+        <li>Hubダッシュボードアクセス</li>
+        <li>パーソナルモニターミックス</li>
+      </ul>
+      <a href="mailto:hello@koe.live?subject=Band%20Pack%20お問い合わせ" class="btn-contact">お問い合わせ<span class="btn-sub">※目標価格 $650 &mdash; 開発中</span></a>
+    </div>
+
+    <div class="price-card">
+      <h3>Chamber (20人)</h3>
+      <div class="price">$2,200</div>
+      <div class="price-jpy">約&yen;330,000</div>
+      <div class="price-per">1人 $110 (約&yen;16,500)</div>
+      <ul class="includes">
+        <li>Koe Pro 20台</li>
+        <li>Hub 1台</li>
+        <li>楽器プロファイルプリロード済み</li>
+        <li>キャリングケース付き</li>
+      </ul>
+      <a href="mailto:hello@koe.live?subject=Koe%20Chamber%20Pack%20お問い合わせ" class="btn-contact">お問い合わせ<span class="btn-sub">※目標価格 $2,200 &mdash; 開発中</span></a>
+    </div>
+
+    <div class="price-card">
+      <h3>Orchestra (100人)</h3>
+      <div class="price">$9,500</div>
+      <div class="price-jpy">約&yen;1,425,000</div>
+      <div class="price-per">1人 $95 (約&yen;14,250)</div>
+      <ul class="includes">
+        <li>Koe Pro 100台</li>
+        <li>Hub 4台（各25ch）</li>
+        <li>ロードケース + 充電ラック</li>
+        <li>優先サポート</li>
+      </ul>
+      <a href="mailto:hello@koe.live?subject=Orchestra%20Pack%20お問い合わせ" class="btn-contact">お問い合わせ<span class="btn-sub">※目標価格 $9,500 &mdash; 開発中</span></a>
+    </div>
+  </div>
+
+  <!-- Comparison -->
+  <div class="compare-block fade-in">
+    <h3>従来システムとの比較（100人編成）<br><span style="font-size:0.75rem;color:#f59e0b;">※想定価格での比較</span></h3>
+    <div class="compare-row">
+      <span class="compare-label">Dante / AVB有線システム</span>
+      <span class="compare-value old">$80,000 - $150,000<br><span style="font-size:0.7rem;color:#555;text-decoration:none;">(&yen;1,200万~2,250万)</span></span>
+    </div>
+    <div class="compare-row">
+      <span class="compare-label">Aviomパーソナルモニターシステム</span>
+      <span class="compare-value old">$20,000 - $50,000<br><span style="font-size:0.7rem;color:#555;text-decoration:none;">(&yen;300万~750万)</span></span>
+    </div>
+    <div class="compare-row">
+      <span class="compare-label">Shure PSM 1000 ワイヤレスIEM</span>
+      <span class="compare-value old">$200,000+ <span style="color:#888;text-decoration:none;font-size:0.75rem;">(受信のみ)</span><br><span style="font-size:0.7rem;color:#555;text-decoration:none;">(&yen;3,000万+)</span></span>
+    </div>
+    <div class="compare-row" style="border-bottom:none;padding-top:1rem;">
+      <span class="compare-label" style="font-weight:400;color:#fff;">Koe Orchestra（送受信、ワイヤレス）</span>
+      <span class="compare-value koe" style="font-size:1.2rem;">$9,500<br><span style="font-size:0.8rem;">約&yen;1,425,000（目標価格）</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNICAL SPECS -->
+<section>
+  <h2 class="fade-in"><span class="cyan">技術</span>仕様（目標値）</h2>
+  <p class="section-sub fade-in">全て開発目標の仕様です。実測値は開発完了後に公開予定。
+    <span class="en-sub">All specifications are development targets.</span>
+  </p>
+
+  <div class="specs-grid fade-in">
+    <div class="spec-row">
+      <span class="spec-label">入力オーディオ</span>
+      <span class="spec-value">48 kHz / 24-bit</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">出力オーディオ</span>
+      <span class="spec-value">48 kHz / 16-bit</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">Txレイテンシ（Hub行き）</span>
+      <span class="spec-value">&lt;3 ms（理論値）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">Rxレイテンシ（Hub発）</span>
+      <span class="spec-value">&lt;5 ms（理論値）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">合計往復</span>
+      <span class="spec-value" style="color:#8B5CF6;">&lt;8 ms（理論値）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">送信距離（UWB）</span>
+      <span class="spec-value">50 m（目標）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">受信距離（Auracast）</span>
+      <span class="spec-value">30-50m（DK版実測）/ PA搭載版は開発中</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">バッテリー駆動時間</span>
+      <span class="spec-value">8時間以上（目標）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">バッテリー容量</span>
+      <span class="spec-value">800 mAh</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">同時チャンネル数</span>
+      <span class="spec-value">100 (Hub 4台)（目標）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">モニターミックス</span>
+      <span class="spec-value">奏者ごとにパーソナル</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">MCU</span>
+      <span class="spec-value">nRF5340 (BLE 5.3)</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">UWB</span>
+      <span class="spec-value">DW3000 (Qorvo)</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">ADC</span>
+      <span class="spec-value">AK5720 (24-bit)</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">DAC</span>
+      <span class="spec-value">PCM5102A (32-bit)</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">コネクタ</span>
+      <span class="spec-value">3.5mm TRS, USB-C</span>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2 class="fade-in">この<span class="purple">ビジョン</span>に興味がありますか</h2>
+  <p style="font-size:0.75rem;color:#555;margin-bottom:0.5rem;" class="fade-in">Interested in this vision?</p>
+  <p class="fade-in">この未来を一緒に作りませんか。パートナーシップ・共同開発のお問い合わせを歓迎します。<br>まずはDK Editionで Auracast受信を体験してみてください。</p>
+  <div class="cta-actions fade-in">
+    <a href="mailto:hello@koe.live?subject=Orchestra%20パートナーシップ" class="btn btn-primary btn-large">興味がある方はお問い合わせ</a>
+    <a href="/order" class="btn btn-outline btn-large">DK Editionを見る</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" class="btn btn-outline btn-large">GitHub（オープンソース）</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="/">ホーム</a>
+    <a href="/order">製品</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/3d">3D</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:hello@koe.live">hello@koe.live</a>
+  </div>
+  <p class="copyright">Koe — 東京 | <a href="mailto:hello@koe.live" style="color:#666;">hello@koe.live</a> | <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" style="color:#666;">GitHub</a></p>
+</footer>
+
+<script>
+// Fade-in on scroll
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// Profile tab toggle
+function showProfile(which,btn){
+  document.getElementById('profile-input').style.display=which==='input'?'':'none';
+  document.getElementById('profile-output').style.display=which==='output'?'':'none';
+  document.querySelectorAll('.profile-toggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

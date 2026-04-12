@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe 製品ラインナップ — Auracast対応ワイヤレスオーディオ</title>
+<meta name="description" content="Koe: Auracast対応ワイヤレスオーディオ。DK Edition今すぐ購入可能。カスタム基板版は開発中。オープンソース。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/order">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe 製品ラインナップ">
+<meta property="og:description" content="Auracast対応ワイヤレスオーディオ。DK Edition購入可能、Seed/Pro/Hub開発中。">
+<meta property="og:url" content="https://koe.live/order">
+<meta property="og:image" content="https://koe.live/images/B1-palm-dark.png">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe 製品ラインナップ — Auracast対応ワイヤレスオーディオ">
+<meta name="twitter:description" content="Auracast対応ワイヤレスオーディオ。DK Edition購入可能、Seed/Pro/Hub開発中。">
+<meta name="twitter:image" content="https://koe.live/images/B1-palm-dark.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter','Hiragino Sans','Hiragino Kaku Gothic ProN',-apple-system,sans-serif;
+  background:#0a0a0a;color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.7;
+}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+.en-sub{color:#555;font-size:0.78rem;font-weight:300;display:block;margin-top:0.3rem;letter-spacing:0.04em;}
+.en-inline{color:#666;font-size:0.75em;font-weight:300;}
+.purple{color:#8B5CF6;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.3rem;font-weight:200;letter-spacing:0.4em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:1.8rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+nav .nav-links a.active{color:#8B5CF6;}
+nav .nav-cta{padding:0.5rem 1.4rem;border-radius:10px;font-size:0.82rem;font-weight:600;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+nav .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(139,92,246,0.4);}
+
+/* HERO */
+.hero{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 80px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;z-index:2;}
+.hero-img{position:absolute;inset:0;z-index:0;}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:0.4;}
+.hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,0.3) 0%,rgba(10,10,10,0.7) 60%,#0a0a0a 100%);}
+.hero-content{position:relative;z-index:1;}
+.hero h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:100;letter-spacing:0.05em;line-height:1.3;margin-bottom:1rem;color:#fff;}
+.hero .subtitle{font-size:clamp(0.9rem,2vw,1.1rem);color:#aaa;font-weight:300;margin-bottom:0.3rem;}
+.hero .subtitle-en{font-size:clamp(0.75rem,1.5vw,0.85rem);color:#555;font-weight:300;}
+
+/* PRODUCT CARD */
+.product-section{padding:3rem 2rem;max-width:1100px;margin:0 auto;}
+.product-card{
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;
+  margin-bottom:3rem;padding:3rem;
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:24px;
+}
+.product-card.reverse{direction:rtl;}
+.product-card.reverse > *{direction:ltr;}
+.product-card img{width:100%;border-radius:16px;}
+.product-info h3{font-size:clamp(1.5rem,3vw,2rem);font-weight:200;margin-bottom:0.3rem;}
+.product-info .product-subtitle{font-size:0.95rem;color:#888;margin-bottom:1rem;font-weight:300;}
+.product-info .product-desc{font-size:0.92rem;color:#aaa;line-height:1.8;margin-bottom:1.2rem;}
+.product-info ul{list-style:none;margin-bottom:1.5rem;}
+.product-info ul li{font-size:0.88rem;color:#bbb;padding:0.4rem 0 0.4rem 1.5rem;position:relative;line-height:1.5;}
+.product-info ul li::before{content:'';position:absolute;left:0;top:0.7em;width:6px;height:6px;border-radius:50%;background:#8B5CF6;}
+.product-info ul li.green::before{background:#22c55e;}
+.product-price{font-size:2rem;font-weight:100;color:#fff;margin-bottom:0.3rem;}
+.product-price .yen{color:#8B5CF6;}
+.product-price .green{color:#22c55e;}
+.product-price-note{font-size:0.82rem;color:#666;display:block;margin-top:0.1rem;}
+
+/* BUTTONS */
+.btn-buy{
+  display:inline-block;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;
+  padding:1rem 2.5rem;border-radius:12px;font-size:1.1rem;font-weight:600;
+  text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;text-align:center;
+  border:none;cursor:pointer;font-family:inherit;
+}
+.btn-buy:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(34,197,94,0.4);color:white;}
+.btn-buy .btn-sub{display:block;font-size:0.72rem;font-weight:400;opacity:0.85;margin-top:0.25rem;}
+.btn-inquiry{
+  display:inline-block;background:transparent;color:#8B5CF6;
+  padding:0.8rem 2rem;border-radius:12px;font-size:0.9rem;font-weight:500;
+  text-decoration:none;transition:all 0.3s;border:1px solid rgba(139,92,246,0.3);
+}
+.btn-inquiry:hover{background:rgba(139,92,246,0.1);border-color:#8B5CF6;color:#8B5CF6;}
+
+/* BADGES */
+.badge-dev{color:#f59e0b;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:100px;display:inline-block;margin-left:0.3rem;}
+.badge-available{color:#22c55e;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:100px;display:inline-block;margin-left:0.3rem;}
+.concept-note{color:#666;font-size:0.7rem;font-style:italic;margin-top:0.3rem;}
+
+/* SECTION DIVIDER */
+.section-divider{text-align:center;padding:3rem 2rem 1rem;max-width:1100px;margin:0 auto;}
+.section-divider h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:100;color:#fff;margin-bottom:0.3rem;}
+
+/* FIVE FORMS */
+.forms-showcase{
+  max-width:1100px;margin:2rem auto;padding:0 2rem;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;
+}
+.form-card{
+  text-align:center;padding:1.5rem 0.8rem;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;transition:all 0.3s;
+}
+.form-card:hover{border-color:rgba(139,92,246,0.3);transform:translateY(-3px);}
+.form-card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;margin-bottom:0.8rem;}
+.form-card h4{font-size:0.95rem;font-weight:400;color:#fff;margin-bottom:0.2rem;}
+.form-card p{font-size:0.72rem;color:#888;line-height:1.4;}
+
+/* FULL WIDTH IMAGE */
+.full-img-section{position:relative;margin:2rem 0;overflow:hidden;}
+.full-img-section img{width:100%;display:block;max-height:55vh;object-fit:cover;}
+.full-img-section .overlay-text{position:absolute;bottom:0;left:0;right:0;padding:3rem 2rem;background:linear-gradient(transparent,rgba(10,10,10,0.9));text-align:center;}
+.full-img-section .overlay-text p{font-size:clamp(1.2rem,3vw,2rem);font-weight:200;color:#fff;letter-spacing:0.03em;line-height:1.5;}
+
+/* CTA */
+.cta-section{text-align:center;padding:6rem 2rem;position:relative;}
+.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:100;margin-bottom:1rem;position:relative;color:#fff;}
+.cta-section p{color:#888;font-size:0.9rem;margin-bottom:0.5rem;position:relative;}
+.cta-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;position:relative;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:2rem;}
+footer .footer-brand{font-size:1.1rem;font-weight:200;letter-spacing:0.3em;color:#666;margin-bottom:0.6rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.72rem;}
+
+@keyframes pulse-green{
+  0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.3);}
+  50%{box-shadow:0 0 0 8px rgba(34,197,94,0);}
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .product-card{grid-template-columns:1fr;gap:1.5rem;padding:1.5rem;}
+  .product-card.reverse{direction:ltr;}
+  .forms-showcase{grid-template-columns:repeat(3,1fr);}
+  nav{padding:1rem 1.2rem;}
+  nav .nav-links{gap:0.8rem;}
+  .hero{min-height:60vh;padding:100px 1.5rem 60px;}
+  .cta-links{flex-direction:column;align-items:center;}
+}
+@media(max-width:480px){
+  nav{padding:1rem;}
+  nav .nav-links{gap:0.5rem;}
+  nav .nav-links a{font-size:0.75rem;}
+  .forms-showcase{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/order" class="active">製品</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/3d">3D</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+  </div>
+  <a href="javascript:void(0)" onclick="koeCheckout('dk_edition')" class="nav-cta">購入する</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-img">
+    <img src="images/E1-lineup-float.png" alt="Koe 製品ラインナップ">
+  </div>
+  <div class="hero-content fade-in">
+    <h1>製品ラインナップ</h1>
+    <p class="subtitle">DK Edition 今すぐ購入可能。Seed / Pro / Hub は開発中。</p>
+    <p class="subtitle-en">DK Edition available now. Seed / Pro / Hub in development.</p>
+  </div>
+</div>
+
+<!-- ==================== DK EDITION ==================== -->
+<div class="product-section">
+  <div class="product-card fade-in" style="border:1px solid rgba(34,197,94,0.25);background:linear-gradient(165deg,rgba(34,197,94,0.06) 0%,rgba(255,255,255,0.01) 100%);position:relative;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:center;padding:2rem;background:rgba(34,197,94,0.03);border-radius:16px;">
+      <div style="text-align:center;">
+        <div style="font-size:4rem;margin-bottom:1rem;">&#128225;</div>
+        <div style="font-size:0.85rem;color:#22c55e;letter-spacing:0.1em;font-weight:600;">nRF5340 AUDIO DK</div>
+        <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">130 x 60mm 開発ボード</div>
+        <div style="font-size:0.7rem;color:#666;margin-top:0.2rem;">Auracast firmware pre-flashed</div>
+      </div>
+    </div>
+    <div class="product-info">
+      <div style="display:inline-block;padding:0.35rem 1rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);border-radius:20px;color:#22c55e;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;margin-bottom:0.8rem;animation:pulse-green 2s infinite;">購入可能 / AVAILABLE NOW</div>
+      <h3>Koe Seed DK Edition</h3>
+      <p class="product-subtitle">nRF5340 Audio DKにAuracastファームウェアを書き込み済み</p>
+      <span class="en-sub">Pre-flashed Auracast Dev Kit</span>
+      <p class="product-desc" style="margin-top:0.8rem;">箱を開けて電源を入れるだけ。Auracastの音が即座に届きます。開発者・アーリーアダプター向けの限定エディションです。</p>
+
+      <!-- What's in the box -->
+      <div style="padding:0.8rem 1rem;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);margin-bottom:1rem;">
+        <div style="font-size:0.82rem;font-weight:600;color:#ccc;margin-bottom:0.4rem;">何が届く?</div>
+        <div style="font-size:0.8rem;color:#aaa;line-height:1.6;">nRF5340 Audio DK (Auracastファームウェア書込済み) + 3Dプリントケース + USB-Cケーブル + クイックスタートカード</div>
+      </div>
+
+      <ul>
+        <li class="green">nRF5340 Audio DK（130x60mm開発ボード）</li>
+        <li class="green">Auracast受信（電源ONで自動再生）</li>
+        <li class="green">BLE 5.3、到達距離 30-50m</li>
+        <li class="green">USB-C給電（バッテリーなし）</li>
+        <li class="green">スピーカー+マイク内蔵</li>
+        <li class="green">オープンソースファームウェア</li>
+      </ul>
+      <div class="product-price"><span class="green">¥29,800</span></div>
+      <span class="product-price-note">$199 USD</span>
+      <div style="margin-top:1rem;">
+        <button class="btn-buy" onclick="koeCheckout('dk_edition')">今すぐ購入する — ¥29,800<span class="btn-sub">3日以内に発送</span></button>
+      </div>
+      <p style="margin-top:0.8rem;font-size:0.72rem;color:#666;">※ nRF5340 Audio DKベース（130x60mm）。28mmカスタムPCB版（Koe Seed）は別製品として開発中。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIVIDER: DEVELOPMENT ==================== -->
+<div class="section-divider fade-in">
+  <h2>開発中のプロダクト</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Products in Development</span>
+  <p style="color:#888;font-size:0.88rem;margin-top:0.8rem;">以下の製品は全て開発中です。予定価格は変更の可能性があります。</p>
+</div>
+
+<!-- ==================== KOE SEED ==================== -->
+<div class="product-section">
+  <div class="product-card fade-in">
+    <div>
+      <img src="images/G-lineup-all.png" alt="Koe Seed 5つの数学的デザイン" loading="lazy">
+      <p class="concept-note" style="text-align:center;">※コンセプトイメージ</p>
+    </div>
+    <div class="product-info">
+      <h3>Koe Seed <span class="badge-dev">開発中</span></h3>
+      <p class="product-subtitle">28mm丸基板 Auracastレシーバー</p>
+      <span class="en-sub">28mm Round PCB Auracast Receiver</span>
+      <p class="product-desc" style="margin-top:0.8rem;">
+        Auracast対応ワイヤレスオーディオレシーバー。電源を入れるだけ。アプリ不要、ペアリング不要、設定ゼロ。
+        5つの数学的デザインバリエーション: The Stone, The Drop, The Lens, The Seed, The Plectrum。
+      </p>
+      <div style="font-size:0.82rem;color:#f59e0b;margin-bottom:1rem;padding:0.5rem 0.8rem;background:rgba(245,158,11,0.06);border-radius:8px;display:inline-block;">
+        PCBWay製造中（W1046165AS1JP1）
+      </div>
+      <ul>
+        <li>nRF5340 + nRF21540（PA/LNA）</li>
+        <li>28mm丸基板カスタムPCB</li>
+        <li>バッテリー駆動（開発中）</li>
+        <li>BLE 5.3 Auracast受信</li>
+        <li>設定ゼロ — 電源入れるだけ</li>
+        <li>オープンソース</li>
+      </ul>
+      <div class="product-price">予定価格 <span class="yen">¥12,800</span></div>
+      <span class="product-price-note">量産時の目標価格</span>
+      <div style="margin-top:1rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
+        <a href="/gallery" class="btn-inquiry">ギャラリーで見る</a>
+        <a href="/3d" class="btn-inquiry">3Dビューアで見る</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Mathematical Forms -->
+  <div style="text-align:center;margin:2rem 0 1rem;" class="fade-in">
+    <h3 style="font-size:1.3rem;font-weight:200;color:#fff;">5つの数学的デザイン</h3>
+    <span class="en-sub">Five Mathematical Forms</span>
+  </div>
+  <div class="forms-showcase fade-in">
+    <div class="form-card">
+      <img src="images/G2-pebble-pure.png" alt="The Stone" loading="lazy">
+      <h4>The Stone</h4>
+      <p>河原の石。自然が磨いた曲線。</p>
+    </div>
+    <div class="form-card">
+      <img src="images/G8-crescent.png" alt="The Drop" loading="lazy">
+      <h4>The Drop</h4>
+      <p>水滴。表面張力の造形。</p>
+    </div>
+    <div class="form-card">
+      <img src="images/G11-orb.png" alt="The Lens" loading="lazy">
+      <h4>The Lens</h4>
+      <p>レンズ。光を集める形。</p>
+    </div>
+    <div class="form-card">
+      <img src="images/G7-capsule.png" alt="The Seed" loading="lazy">
+      <h4>The Seed</h4>
+      <p>種子。生命の始まりの形。</p>
+    </div>
+    <div class="form-card">
+      <img src="images/G1-pick-shape.png" alt="The Plectrum" loading="lazy">
+      <h4>The Plectrum</h4>
+      <p>ピック。音楽を奏でる形。</p>
+    </div>
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:0.5rem;">※全てコンセプトイメージ。STL設計のみ、物理ユニット未製造。</p>
+</div>
+
+<!-- ==================== KOE SEED OUTDOOR ==================== -->
+<div class="product-section">
+  <div class="product-card reverse fade-in" style="border:1px solid rgba(6,182,212,0.2);background:linear-gradient(165deg,rgba(6,182,212,0.04) 0%,rgba(255,255,255,0.01) 100%);">
+    <div>
+      <img src="images/seed-outdoor.png" alt="Koe Seed Outdoor" loading="lazy">
+      <p class="concept-note" style="text-align:center;">※コンセプトイメージ</p>
+    </div>
+    <div class="product-info">
+      <h3>Koe Seed Outdoor <span class="badge-dev">開発中</span></h3>
+      <p class="product-subtitle">極寒対応 — スキー場、屋外ライブに</p>
+      <span class="en-sub">Extreme Weather Edition</span>
+      <p class="product-desc" style="margin-top:0.8rem;">-30°Cの極寒環境でも動作する耐寒仕様のSeed。IP67防水防塵、低温対応バッテリー。</p>
+      <ul>
+        <li>動作温度: -30°C ~ +60°C</li>
+        <li>IP67 防水防塵（雪・雨OK）</li>
+        <li>低温対応LiPoバッテリー</li>
+        <li>PA12ナイロン耐衝撃ケース</li>
+        <li>カラビナ付き</li>
+        <li>Auracast受信</li>
+      </ul>
+      <div class="product-price">予定価格 <span class="yen">¥9,500</span></div>
+      <span class="product-price-note">量産時の目標価格</span>
+      <p style="margin-top:0.8rem;font-size:0.82rem;color:#f59e0b;">開発中 — 製造時期未定</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== KOE PRO ==================== -->
+<div class="product-section">
+  <div class="product-card fade-in">
+    <div>
+      <img src="images/F8-musician.png" alt="Koe Pro" loading="lazy">
+      <p class="concept-note" style="text-align:center;">※コンセプトイメージ</p>
+    </div>
+    <div class="product-info">
+      <h3>Koe Pro <span class="badge-dev">開発中</span></h3>
+      <p class="product-subtitle">Tx+Rx双方向ワイヤレスオーディオ</p>
+      <span class="en-sub">Bidirectional Wireless Audio</span>
+      <p class="product-desc" style="margin-top:0.8rem;">楽器の音をUWB超低遅延で送信しながら、Auracastでモニターミックスを受信する構想。全て設計段階です。</p>
+      <ul>
+        <li>UWB送信 + Auracast受信（設計中）</li>
+        <li>UWB超低遅延（設計中）</li>
+        <li>楽器別音響プロファイル（設計中）</li>
+        <li>バッテリー駆動（開発中）</li>
+      </ul>
+      <div class="product-price">予定価格 <span class="yen">¥19,500</span></div>
+      <span class="product-price-note">量産時の目標価格</span>
+      <p style="margin-top:0.8rem;font-size:0.82rem;color:#f59e0b;">開発中 — 製造時期未定</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== KOE HUB ==================== -->
+<div class="product-section">
+  <div class="product-card reverse fade-in">
+    <div>
+      <img src="images/H2-band-multi-channel.png" alt="Koe Hub" loading="lazy">
+      <p class="concept-note" style="text-align:center;">※コンセプトイメージ</p>
+    </div>
+    <div class="product-info">
+      <h3>Koe Hub <span class="badge-dev">開発中</span></h3>
+      <p class="product-subtitle">100ch入力ミキサー + Auracastブロードキャスト</p>
+      <span class="en-sub">Mixing Station</span>
+      <p class="product-desc" style="margin-top:0.8rem;">マルチチャンネル入力をリアルタイムでミキシングし、Auracastでブロードキャストする構想。設計段階です。</p>
+      <ul>
+        <li>100chマルチチャンネル入力（設計中）</li>
+        <li>リアルタイムミキシング（設計中）</li>
+        <li>XLR + 3.5mm入力（設計中）</li>
+        <li>Auracastブロードキャスト</li>
+      </ul>
+      <div class="product-price">予定価格 <span class="yen">¥45,000</span></div>
+      <span class="product-price-note">量産時の目標価格</span>
+      <div style="margin-top:1rem;">
+        <a href="mailto:hello@koe.live?subject=Koe%20Hub%20お問い合わせ" class="btn-inquiry">お問い合わせ</a>
+      </div>
+      <p style="margin-top:0.8rem;font-size:0.82rem;color:#f59e0b;">開発中 — 製造時期未定</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MUSICIAN EDITIONS ==================== -->
+<div class="product-section">
+  <div style="text-align:center;margin-bottom:2rem;" class="fade-in">
+    <h2 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:100;color:#fff;">ミュージシャンエディション <span class="badge-dev">開発中</span></h2>
+    <span class="en-sub" style="text-align:center;display:block;">Musician Editions — Coming Later</span>
+    <p style="color:#888;font-size:0.88rem;margin-top:0.5rem;">楽器向けフォームファクター。ギタリストならピック型、ドラマーならドラムキー型。</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:1100px;margin:0 auto;" class="fade-in">
+    <div class="form-card">
+      <img src="images/G1-pick-shape.png" alt="ピック型" loading="lazy">
+      <h4>ピック型</h4>
+      <p>ギタリストのために</p>
+    </div>
+    <div class="form-card">
+      <img src="images/seed-pick.jpg" alt="ドラムキー型" loading="lazy">
+      <h4>ドラムキー型</h4>
+      <p>ドラマーのために</p>
+    </div>
+    <div class="form-card">
+      <img src="images/F8-musician.png" alt="カポクリップ型" loading="lazy">
+      <h4>カポクリップ型</h4>
+      <p>万能クリップ</p>
+    </div>
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:0.5rem;">※全てコンセプトイメージ。開発中 — 製造時期未定。</p>
+</div>
+
+<!-- ==================== FESTIVAL FULL WIDTH ==================== -->
+<div class="full-img-section fade-in">
+  <img src="images/C3-festival-aerial.png" alt="フェスティバル空撮" loading="lazy">
+  <div class="overlay-text">
+    <p>5,000人が同じドロップを、同じ瞬間に感じる。</p>
+    <p style="color:#888;font-size:0.75rem;margin-top:0.3rem;font-style:italic;">※コンセプトイメージ</p>
+  </div>
+</div>
+
+<!-- ==================== SIZE COMPARISON ==================== -->
+<div style="text-align:center;padding:4rem 2rem;max-width:1100px;margin:0 auto;" class="fade-in">
+  <h2 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:100;color:#fff;">目指すサイズ感</h2>
+  <span class="en-sub" style="margin-bottom:1.5rem;display:block;text-align:center;">Target Form Factor</span>
+  <img src="images/VIS-size-compare.png" alt="サイズ比較" loading="lazy" style="width:100%;max-width:800px;border-radius:16px;margin:1rem auto 0;">
+  <p class="concept-note" style="margin-top:0.5rem;">※コンセプトイメージ。現在のDK版は130x60mmです。Seedは28mm丸基板を目指しています。</p>
+</div>
+
+<!-- ==================== CTA ==================== -->
+<div class="cta-section">
+  <h2 class="fade-in">音の未来を、<span class="purple">一緒に作り</span>ませんか。</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Join us in building the future of sound.</span>
+  <div class="cta-links fade-in">
+    <button class="btn-buy" onclick="koeCheckout('dk_edition')">DK Edition — ¥29,800<span class="btn-sub">今すぐ購入可能</span></button>
+    <a href="/business" class="btn-inquiry">法人・イベント向け</a>
+    <a href="mailto:hello@koe.live?subject=Koe%20デモ依頼" class="btn-inquiry">デモを予約する</a>
+    <a href="/key" class="btn-inquiry">&#x1F511; スマートキー機能 &rarr;</a>
+  </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="footer-brand">KOE</div>
+  <div class="footer-links">
+    <a href="/">ホーム</a>
+    <a href="/order">製品</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/3d">3D</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+    <a href="mailto:hello@koe.live">hello@koe.live</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <p class="copyright">Koe — 東京 | <a href="mailto:hello@koe.live" style="color:#666;">hello@koe.live</a> | <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" style="color:#666;">GitHub</a></p>
+</footer>
+
+<!-- SCROLL ANIMATION + CHECKOUT -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+async function koeCheckout(product, quantity) {
+  var btn = event && event.target ? event.target.closest('button,a') : null;
+  if (btn) { btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none'; }
+  try {
+    var resp = await fetch('/api/v1/checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({product: product, quantity: quantity || 1})
+    });
+    var data = await resp.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert(data.error || 'エラーが発生しました。');
+      if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+    }
+  } catch(e) {
+    alert('接続エラー: ' + e.message);
+    if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+  }
+}
+</script>
+
+</body>
+</html>

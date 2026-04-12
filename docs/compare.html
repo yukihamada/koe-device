@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Koe? — Honest Competitor Comparison</title>
+<meta name="description" content="How Koe stacks up against Shure, Sennheiser, PixMob, Allen & Heath. An honest comparison — we show where we win and where we lose.">
+<meta name="keywords" content="Koe, comparison, Shure GLXD, Sennheiser EW-D, PixMob, Xylobands, wireless audio, crowd tech">
+<meta name="author" content="EnablerDAO">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/compare">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why Koe? — Honest Competitor Comparison">
+<meta property="og:description" content="An honest look at how Koe compares to Shure, Sennheiser, PixMob, and more.">
+<meta property="og:url" content="https://koe.live/compare">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Why Koe? — Honest Competitor Comparison">
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:2rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+.lang-toggle{padding:0.35rem 0.8rem;border-radius:100px;border:1px solid #333;background:transparent;color:#888;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.lang-toggle:hover{border-color:#8B5CF6;color:#8B5CF6;}
+
+/* HERO */
+.hero{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7rem 2rem 4rem;position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.12) 0%,rgba(6,182,212,0.05) 40%,transparent 70%);}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:100;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.5rem;}
+.hero h1 .purple{color:#8B5CF6;}
+.hero h1 .cyan{color:#06B6D4;}
+.hero .tagline{font-size:clamp(1rem,2.5vw,1.3rem);color:#888;font-weight:300;letter-spacing:0.02em;margin-bottom:0.5rem;}
+.hero .tagline-ja{font-size:clamp(0.85rem,2vw,1rem);color:#666;font-weight:300;letter-spacing:0.05em;margin-bottom:2rem;}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1100px;margin:0 auto;}
+section h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;letter-spacing:-0.02em;margin-bottom:1rem;text-align:center;}
+section h2 .purple{color:#8B5CF6;}
+section h2 .cyan{color:#06B6D4;}
+.section-sub{text-align:center;color:#888;font-size:0.95rem;margin-bottom:3rem;max-width:650px;margin-left:auto;margin-right:auto;}
+
+/* COMPARISON TABLES */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:2rem 0;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);}
+.table-wrap table{width:100%;border-collapse:collapse;min-width:700px;}
+.table-wrap th,.table-wrap td{padding:0.75rem 1rem;font-size:0.82rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;}
+.table-wrap thead{position:sticky;top:0;z-index:2;}
+.table-wrap th{background:#111;color:#aaa;font-weight:500;letter-spacing:0.05em;font-size:0.75rem;text-transform:uppercase;}
+.table-wrap th:first-child{color:#666;}
+.table-wrap th.koe-col{color:#8B5CF6;background:rgba(139,92,246,0.08);border-bottom:2px solid rgba(139,92,246,0.3);}
+.table-wrap td:first-child{color:#aaa;font-weight:500;}
+.table-wrap tbody tr:hover{background:rgba(255,255,255,0.02);}
+.table-wrap td.koe-col{background:rgba(139,92,246,0.03);}
+
+/* COLOR CODED CELLS */
+.cell-win{color:#22c55e;}
+.cell-tie{color:#f59e0b;}
+.cell-lose{color:#ef4444;}
+.cell-win::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;}
+.cell-tie::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:middle;}
+.cell-lose::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:middle;}
+
+/* VISUAL BARS */
+.bar-chart{display:flex;flex-direction:column;gap:1.2rem;max-width:700px;margin:2rem auto;}
+.bar-row{display:flex;align-items:center;gap:1rem;}
+.bar-label{width:140px;text-align:right;font-size:0.82rem;color:#aaa;flex-shrink:0;}
+.bar-track{flex:1;height:28px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:0.72rem;font-weight:500;color:#fff;width:0;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
+.bar-fill.animated{width:var(--w);}
+.bar-fill.koe{background:linear-gradient(90deg,#8B5CF6,#06B6D4);}
+.bar-fill.shure{background:linear-gradient(90deg,#6366f1,#818cf8);}
+.bar-fill.senn{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.bar-fill.xvive{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.bar-fill.stagewave{background:linear-gradient(90deg,#22c55e,#4ade80);}
+.bar-fill.pixmob{background:linear-gradient(90deg,#ec4899,#f472b6);}
+.bar-fill.xylo{background:linear-gradient(90deg,#14b8a6,#2dd4bf);}
+.bar-fill.ah{background:linear-gradient(90deg,#f97316,#fb923c);}
+.bar-fill.behr{background:linear-gradient(90deg,#a3a3a3,#d4d4d4);}
+.bar-value{font-size:0.78rem;color:#888;width:60px;flex-shrink:0;}
+
+/* HONESTY SECTIONS */
+.honesty-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;}
+.honesty-card{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2rem;transition:all 0.3s;}
+.honesty-card:hover{transform:translateY(-2px);}
+.honesty-card.loses{border-color:rgba(239,68,68,0.15);}
+.honesty-card.loses:hover{border-color:rgba(239,68,68,0.3);}
+.honesty-card.wins{border-color:rgba(34,197,94,0.15);}
+.honesty-card.wins:hover{border-color:rgba(34,197,94,0.3);}
+.honesty-card h3{font-size:1.3rem;font-weight:200;margin-bottom:1.5rem;letter-spacing:0.02em;}
+.honesty-card.loses h3{color:#ef4444;}
+.honesty-card.wins h3{color:#22c55e;}
+.honesty-item{margin-bottom:1.2rem;}
+.honesty-item h4{font-size:0.9rem;font-weight:500;margin-bottom:0.3rem;color:#ccc;}
+.honesty-item p{font-size:0.82rem;color:#888;line-height:1.6;}
+
+/* LEGEND */
+.legend{display:flex;gap:2rem;justify-content:center;margin-bottom:2rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:#888;}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.legend-dot.green{background:#22c55e;}
+.legend-dot.yellow{background:#f59e0b;}
+.legend-dot.red{background:#ef4444;}
+
+/* CTA */
+.cta-section{text-align:center;padding:5rem 2rem;position:relative;}
+.cta-section h2{margin-bottom:1.5rem;}
+.cta-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;}
+.cta-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.8rem 2rem;border-radius:100px;font-size:0.9rem;font-weight:400;letter-spacing:0.03em;transition:all 0.3s;text-decoration:none;}
+.cta-btn.primary{background:linear-gradient(135deg,#8B5CF6,#06B6D4);color:#fff;}
+.cta-btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(139,92,246,0.3);}
+.cta-btn.secondary{border:1px solid #333;color:#aaa;background:transparent;}
+.cta-btn.secondary:hover{border-color:#8B5CF6;color:#8B5CF6;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:4rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.75rem;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav .nav-links{display:none;}
+  .honesty-grid{grid-template-columns:1fr;}
+  .bar-label{width:100px;font-size:0.75rem;}
+  section{padding:3rem 1rem;}
+}
+@media(max-width:480px){
+  .hero{padding:5rem 1.2rem 3rem;}
+  .bar-label{width:80px;font-size:0.7rem;}
+}
+
+/* JA MODE */
+body.ja .en{display:none;}
+body.ja .ja-text{display:inline;}
+body:not(.ja) .ja-text{display:none;}
+body:not(.ja) .en{display:inline;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/pro">Pro + Hub</a>
+    <a href="/design">Design</a>
+    <a href="/compare" style="color:#8B5CF6;">Compare</a>
+    <a href="/order">Order</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <button class="lang-toggle" onclick="toggleLang()">
+      <span class="en">JA</span><span class="ja-text">EN</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 class="fade-in">
+    <span class="en">Why <span class="purple">Koe</span>?</span>
+    <span class="ja-text"><span class="purple">Koe</span><span class="cyan"></span></span>
+  </h1>
+  <p class="tagline fade-in">
+    <span class="en">Honest comparison with existing solutions</span>
+    <span class="ja-text"></span>
+  </p>
+  <p class="tagline-ja fade-in">
+    <span class="en">We show where we win — and where we don't</span>
+    <span class="ja-text"></span>
+  </p>
+</div>
+
+<!-- COMPARISON 1: WIRELESS AUDIO -->
+<section>
+  <h2 class="fade-in">
+    <span class="en">Wireless Audio for <span class="purple">Musicians</span></span>
+    <span class="ja-text"><span class="purple"></span></span>
+  </h2>
+  <p class="section-sub fade-in">
+    <span class="en">How Koe Pro v2 compares to established wireless systems</span>
+    <span class="ja-text">Koe Pro v2</span>
+  </p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot green"></div> <span class="en">Koe wins</span><span class="ja-text">Koe</span></div>
+    <div class="legend-item"><div class="legend-dot yellow"></div> <span class="en">Comparable</span><span class="ja-text"></span></div>
+    <div class="legend-item"><div class="legend-dot red"></div> <span class="en">Competitor wins</span><span class="ja-text"></span></div>
+  </div>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en">Feature</span><span class="ja-text"></span></th>
+          <th class="koe-col">Koe Pro v2</th>
+          <th>Shure GLXD+</th>
+          <th>Sennheiser EW-D</th>
+          <th>Xvive U4</th>
+          <th>StageWave</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="en">Price</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">$179</td>
+          <td>$500-800</td>
+          <td>$600-1,200</td>
+          <td>$200</td>
+          <td><span class="en">Free app</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Latency</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-lose">12ms</td>
+          <td>2.9ms</td>
+          <td>1.9ms</td>
+          <td>5ms</td>
+          <td>~30ms</td>
+        </tr>
+        <tr>
+          <td><span class="en">Range</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-lose">30m (BLE)</td>
+          <td>60m</td>
+          <td>100m</td>
+          <td>30m</td>
+          <td><span class="en">WiFi dep.</span><span class="ja-text">WiFi</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Battery</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">50h</td>
+          <td>12h</td>
+          <td>8h</td>
+          <td>5h</td>
+          <td><span class="en">Phone</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Channels</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">7 simul.</span><span class="ja-text">7</span></td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>16 (WiFi)</td>
+        </tr>
+        <tr>
+          <td><span class="en">Audio Quality</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-tie">24bit/48kHz LC3</td>
+          <td>24bit analog</td>
+          <td>24bit digital</td>
+          <td>24bit</td>
+          <td><span class="en">Depends</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td>UWB Sync</td>
+          <td class="koe-col cell-win"><span class="en">Yes (&lt;1us)</span><span class="ja-text"> (&lt;1us)</span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">On-device FX</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">5 effects</span><span class="ja-text">5</span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+          <td><span class="en">App-based</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Gesture Control</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Crowd Mode</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Open Source</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes (MIT)</span><span class="ja-text"> (MIT)</span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Form Factor</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">45x30mm</td>
+          <td><span class="en">Bodypack</span><span class="ja-text"></span></td>
+          <td><span class="en">Bodypack</span><span class="ja-text"></span></td>
+          <td><span class="en">Plug-in</span><span class="ja-text"></span></td>
+          <td><span class="en">Phone</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Input Type</span><span class="ja-text">入力タイプ</span></td>
+          <td class="koe-col cell-win"><span class="en">6.35mm / 3.5mm / XLR<br>(3 SKUs)</span><span class="ja-text">6.35mm / 3.5mm / XLR<br>(3 SKU)</span></td>
+          <td>XLR / 1/4"</td>
+          <td>XLR / 1/4"</td>
+          <td>1/4" <span class="en">only</span><span class="ja-text">のみ</span></td>
+          <td><span class="en">Phone mic</span><span class="ja-text">スマホマイク</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LATENCY BAR CHART -->
+  <h3 style="text-align:center;font-weight:200;font-size:1.1rem;color:#aaa;margin:3rem 0 1.5rem;">
+    <span class="en">Latency Comparison</span><span class="ja-text"></span>
+  </h3>
+  <div class="bar-chart fade-in" data-chart>
+    <div class="bar-row">
+      <div class="bar-label">StageWave</div>
+      <div class="bar-track"><div class="bar-fill stagewave" style="--w:100%">30ms</div></div>
+      <div class="bar-value">30ms</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label" style="color:#A78BFA;font-weight:500;">Koe Pro v2</div>
+      <div class="bar-track"><div class="bar-fill koe" style="--w:40%">12ms</div></div>
+      <div class="bar-value" style="color:#A78BFA;">12ms</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Xvive U4</div>
+      <div class="bar-track"><div class="bar-fill xvive" style="--w:17%">5ms</div></div>
+      <div class="bar-value">5ms</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Shure GLXD+</div>
+      <div class="bar-track"><div class="bar-fill shure" style="--w:10%">2.9ms</div></div>
+      <div class="bar-value">2.9ms</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Sennheiser EW-D</div>
+      <div class="bar-track"><div class="bar-fill senn" style="--w:6%">1.9ms</div></div>
+      <div class="bar-value">1.9ms</div>
+    </div>
+  </div>
+
+  <!-- PRICE BAR CHART -->
+  <h3 style="text-align:center;font-weight:200;font-size:1.1rem;color:#aaa;margin:3rem 0 1.5rem;">
+    <span class="en">Price Comparison</span><span class="ja-text"></span>
+  </h3>
+  <div class="bar-chart fade-in" data-chart>
+    <div class="bar-row">
+      <div class="bar-label">Sennheiser EW-D</div>
+      <div class="bar-track"><div class="bar-fill senn" style="--w:100%">$600-1,200</div></div>
+      <div class="bar-value">$1,200</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Shure GLXD+</div>
+      <div class="bar-track"><div class="bar-fill shure" style="--w:67%">$500-800</div></div>
+      <div class="bar-value">$800</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Xvive U4</div>
+      <div class="bar-track"><div class="bar-fill xvive" style="--w:17%">$200</div></div>
+      <div class="bar-value">$200</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label" style="color:#A78BFA;font-weight:500;">Koe Pro v2</div>
+      <div class="bar-track"><div class="bar-fill koe" style="--w:15%">$179</div></div>
+      <div class="bar-value" style="color:#A78BFA;">$179</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">StageWave</div>
+      <div class="bar-track"><div class="bar-fill stagewave" style="--w:2%"></div></div>
+      <div class="bar-value">Free</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON 2: CROWD/FESTIVAL TECH -->
+<section>
+  <h2 class="fade-in">
+    <span class="en">Crowd & <span class="cyan">Festival</span> Tech</span>
+    <span class="ja-text"><span class="cyan"></span></span>
+  </h2>
+  <p class="section-sub fade-in">
+    <span class="en">LED wristbands and crowd interaction devices</span>
+    <span class="ja-text">LED</span>
+  </p>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en">Feature</span><span class="ja-text"></span></th>
+          <th class="koe-col">Koe COIN</th>
+          <th>PixMob</th>
+          <th>Xylobands</th>
+          <th>CrowdSync</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="en">Price/unit</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-lose">$29 ($6 BOM)</td>
+          <td>~$3-5 rental</td>
+          <td>~$2-4 rental</td>
+          <td>~$3 rental</td>
+        </tr>
+        <tr>
+          <td>LED</td>
+          <td class="koe-col cell-tie"><span class="en">Yes (RGB)</span><span class="ja-text"> (RGB)</span></td>
+          <td>Yes (RGB)</td>
+          <td>Yes (RGB)</td>
+          <td>Yes (RGB)</td>
+        </tr>
+        <tr>
+          <td><span class="en">Speaker</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Microphone</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Optional</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Control</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">WiFi/5G/GPS</td>
+          <td>IR</td>
+          <td>RF</td>
+          <td>BLE</td>
+        </tr>
+        <tr>
+          <td><span class="en">Range</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Unlimited (cellular)</span><span class="ja-text"> ()</span></td>
+          <td>~50m (IR LoS)</td>
+          <td>~200m (RF)</td>
+          <td>~100m (BLE)</td>
+        </tr>
+        <tr>
+          <td><span class="en">Reusable</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td><span class="en">Single event</span><span class="ja-text">1</span></td>
+          <td><span class="en">Single event</span><span class="ja-text">1</span></td>
+          <td><span class="en">Single event</span><span class="ja-text">1</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Open Source</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Crowd Audio</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes (revolutionary)</span><span class="ja-text"> ()</span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>GPS Sync</td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- COMPARISON 3: PERSONAL MONITOR MIXER -->
+<section>
+  <h2 class="fade-in">
+    <span class="en">Personal Monitor <span class="purple">Mixer</span></span>
+    <span class="ja-text"><span class="purple"></span></span>
+  </h2>
+  <p class="section-sub fade-in">
+    <span class="en">How Koe Hub v2 compares to dedicated monitor mixers</span>
+    <span class="ja-text">Koe Hub v2</span>
+  </p>
+
+  <div class="table-wrap fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en">Feature</span><span class="ja-text"></span></th>
+          <th class="koe-col">Koe Hub v2</th>
+          <th>A&H ME-1</th>
+          <th>Hear Back PRO</th>
+          <th>Behringer P16-M</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="en">Price</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-tie">$349</td>
+          <td>$400</td>
+          <td>$500</td>
+          <td>$200</td>
+        </tr>
+        <tr>
+          <td><span class="en">Channels</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-tie">32</td>
+          <td>40</td>
+          <td>8-16</td>
+          <td>16</td>
+        </tr>
+        <tr>
+          <td><span class="en">Wireless Input</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">BLE Audio (7)</td>
+          <td>No (Ethernet)</td>
+          <td>No (Ethernet)</td>
+          <td>No (Analog)</td>
+        </tr>
+        <tr>
+          <td><span class="en">DAC Quality</span><span class="ja-text">DAC</span></td>
+          <td class="koe-col cell-win">ES9038Q2M 129dB</td>
+          <td><span class="en">Integrated</span><span class="ja-text"></span></td>
+          <td><span class="en">Integrated</span><span class="ja-text"></span></td>
+          <td><span class="en">Integrated</span><span class="ja-text"></span></td>
+        </tr>
+        <tr>
+          <td>ADAT I/O</td>
+          <td class="koe-col cell-tie"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Effects</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">EQ+Rev+Comp+Gate+DeEss</td>
+          <td>EQ only</td>
+          <td>None</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><span class="en">Streaming</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win">SRT/RTMP</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Recording</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">NVMe multi-track</span><span class="ja-text">NVMe </span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Web UI</td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><span class="en">Open Source</span><span class="ja-text"></span></td>
+          <td class="koe-col cell-win"><span class="en">Yes</span><span class="ja-text"></span></td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- HONESTY SECTIONS -->
+<section>
+  <h2 class="fade-in">
+    <span class="en">The <span class="cyan">Honest</span> Truth</span>
+    <span class="ja-text"><span class="cyan"></span></span>
+  </h2>
+  <p class="section-sub fade-in">
+    <span class="en">We believe transparency builds trust. Here's what you need to know.</span>
+    <span class="ja-text"></span>
+  </p>
+
+  <div class="honesty-grid fade-in">
+    <!-- WHERE KOE LOSES -->
+    <div class="honesty-card loses">
+      <h3>
+        <span class="en">Where Koe Loses</span>
+        <span class="ja-text">Koe</span>
+      </h3>
+
+      <div class="honesty-item">
+        <h4><span class="en">Latency</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">12ms is good, but NOT studio-grade. Shure (2.9ms) and Sennheiser (1.9ms) are significantly better for critical monitoring where every millisecond matters.</span>
+          <span class="ja-text">12ms Shure (2.9ms)  Sennheiser (1.9ms) 1ms</span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Range</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">BLE tops out at ~30m. Sennheiser does 100m with RF. For large stages, you may need our WiFi fallback mode, which adds latency.</span>
+          <span class="ja-text">BLE 30m Sennheiser RF 100m WiFi</span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Maturity</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">Koe is a prototype. Shure has 100 years of proven reliability. They've been battle-tested on thousands of stages worldwide.</span>
+          <span class="ja-text">Koe Shure 100</span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Ecosystem</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">Shure and Sennheiser integrate with every mixing console on the planet. Koe is a standalone system — integration will take time.</span>
+          <span class="ja-text">Shure/Sennheiser Koe </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Certification</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">Koe doesn't have FCC/CE/MIC certification yet. We can't legally sell in most markets without them. This is actively in progress.</span>
+          <span class="ja-text">Koe FCC/CE/MIC </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- WHERE KOE WINS -->
+    <div class="honesty-card wins">
+      <h3>
+        <span class="en">Where Koe Wins</span>
+        <span class="ja-text">Koe</span>
+      </h3>
+
+      <div class="honesty-item">
+        <h4><span class="en">Price</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">2-4x cheaper than comparable wireless systems. $179 vs $500-1,200 for Shure/Sennheiser. Pro-grade audio shouldn't require a mortgage.</span>
+          <span class="ja-text">2-4 $179 vs $500-1,200 </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Open Source</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">The only fully open-source professional wireless audio system. Hardware schematics, firmware, and software — all MIT licensed.</span>
+          <span class="ja-text"> MIT </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Crowd Participation</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">No competitor does bidirectional crowd audio. Turn 4,000 audience members into a synchronized instrument. This category didn't exist before Koe.</span>
+          <span class="ja-text"> 4,000 Koe </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">Gesture Control</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">Motion-based effect control via IMU. Tilt, shake, or wave to control reverb, pitch, and filters. No competitor offers this.</span>
+          <span class="ja-text">IMU </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">UWB Sync</span><span class="ja-text">UWB</span></h4>
+        <p>
+          <span class="en">Sub-microsecond synchronization across devices. Unique in the market. Essential for multi-device orchestration.</span>
+          <span class="ja-text"> </span>
+        </p>
+      </div>
+
+      <div class="honesty-item">
+        <h4><span class="en">All-in-One</span><span class="ja-text"></span></h4>
+        <p>
+          <span class="en">Transmitter + mixer + streamer + crowd system in one ecosystem. No other brand covers all these use cases.</span>
+          <span class="ja-text"> + + + 1 </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BATTERY BAR CHART -->
+<section>
+  <h2 class="fade-in">
+    <span class="en">Battery <span class="purple">Life</span></span>
+    <span class="ja-text"><span class="purple"></span></span>
+  </h2>
+  <div class="bar-chart fade-in" data-chart>
+    <div class="bar-row">
+      <div class="bar-label" style="color:#A78BFA;font-weight:500;">Koe Pro v2</div>
+      <div class="bar-track"><div class="bar-fill koe" style="--w:100%">50h</div></div>
+      <div class="bar-value" style="color:#A78BFA;">50h</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Shure GLXD+</div>
+      <div class="bar-track"><div class="bar-fill shure" style="--w:24%">12h</div></div>
+      <div class="bar-value">12h</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Sennheiser EW-D</div>
+      <div class="bar-track"><div class="bar-fill senn" style="--w:16%">8h</div></div>
+      <div class="bar-value">8h</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Xvive U4</div>
+      <div class="bar-track"><div class="bar-fill xvive" style="--w:10%">5h</div></div>
+      <div class="bar-value">5h</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2 class="fade-in">
+    <span class="en">Try it yourself — it's <span class="purple">open source</span></span>
+    <span class="ja-text"><span class="purple"></span></span>
+  </h2>
+  <p class="section-sub fade-in">
+    <span class="en">Don't take our word for it. Read the code, build one, or order a kit.</span>
+    <span class="ja-text"></span>
+  </p>
+  <div class="cta-buttons fade-in">
+    <a href="/order" class="cta-btn primary">
+      <span class="en">Order a Kit</span>
+      <span class="ja-text"></span>
+    </a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" class="cta-btn secondary">
+      <span class="en">View on GitHub</span>
+      <span class="ja-text">GitHub</span>
+    </a>
+    <a href="/design" class="cta-btn secondary">
+      <span class="en">Design Details</span>
+      <span class="ja-text"></span>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/pro">Pro + Hub</a>
+    <a href="/design">Design</a>
+    <a href="/compare">Compare</a>
+    <a href="/order">Order</a>
+    <a href="/busker">Apps</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+  </div>
+  <p class="copyright">&copy; 2026 EnablerDAO. Open hardware, open future.</p>
+</footer>
+
+<script>
+// Language toggle
+function toggleLang(){document.body.classList.toggle('ja');}
+
+// Fade-in on scroll
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');if(e.target.hasAttribute('data-chart')){e.target.querySelectorAll('.bar-fill').forEach(b=>b.classList.add('animated'));}obs.unobserve(e.target);}});},{threshold:0.15});
+document.querySelectorAll('.fade-in,[data-chart]').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

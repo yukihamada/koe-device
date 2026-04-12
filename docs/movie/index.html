@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>声 / KOE — 2026年12月公開</title>
+<meta name="description" content="彼は音が聞こえない。だから、気づいた。— 2026年12月公開予定">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/movie/">
+
+<!-- OGP -->
+<meta property="og:type" content="video.movie">
+<meta property="og:title" content="声 / KOE — CITY OF PULSES">
+<meta property="og:description" content="彼は音が聞こえない。だから、気づいた。人は、誰かが死ぬ瞬間を感じている。2026年12月公開予定。">
+<meta property="og:image" content="https://koe.live/movie/storyboard_gemini/poster_final_v1.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
+<meta property="og:url" content="https://koe.live/movie/">
+<meta property="og:site_name" content="KOE FILM">
+<meta property="og:locale" content="ja_JP">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="声 / KOE — CITY OF PULSES">
+<meta name="twitter:description" content="彼は音が聞こえない。だから、気づいた。2026年12月公開予定。">
+<meta name="twitter:image" content="https://koe.live/movie/storyboard_gemini/poster_final_v1.jpg">
+
+<!-- Structured Data: Movie -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Movie",
+  "name": "声 / KOE",
+  "alternateName": "KOE: City of Pulses",
+  "description": "音響エンジニアの田中蒼は、生まれつき音が聞こえない。3年前、フェスで息子を失った。彼は問う——息子は、一人で死んだのか。",
+  "image": "https://koe.live/movie/storyboard_gemini/poster_final_v1.jpg",
+  "url": "https://koe.live/movie/",
+  "datePublished": "2026-12",
+  "genre": ["Drama", "Science Fiction"],
+  "inLanguage": "ja",
+  "countryOfOrigin": {"@type": "Country", "name": "Japan"},
+  "productionCompany": {"@type": "Organization", "name": "EnablerDAO"}
+}
+</script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --gold: #c9a84c;
+  --orange: #ff6b35;
+  --text: rgba(255,255,255,0.85);
+  --dim: rgba(255,255,255,0.4);
+  --faint: rgba(255,255,255,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Helvetica Neue', 'Hiragino Kaku Gothic Pro', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ======= SCROLL REVEAL ======= */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ======= PROGRESS BAR ======= */
+.prog {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: #0a0a0a;
+  z-index: 200;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), var(--gold));
+  width: 0%;
+  transition: width 0.3s linear;
+}
+
+/* ======= HERO ======= */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 10vh;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('storyboard_gemini/poster_final_v1.jpg');
+  background-size: cover;
+  background-position: center top;
+  transform: scale(1.04);
+  transition: transform 8s ease;
+}
+.hero-bg.loaded { transform: scale(1); }
+
+.hero-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.0) 25%,
+    rgba(0,0,0,0.4) 55%,
+    rgba(0,0,0,0.97) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  animation: heroFade 2s ease forwards;
+}
+
+@keyframes heroFade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-label {
+  font-size: 10px;
+  letter-spacing: 8px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.hero-kanji {
+  font-size: clamp(88px, 16vw, 160px);
+  font-weight: 100;
+  letter-spacing: 16px;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 60px rgba(255,255,255,0.15);
+}
+
+.hero-title-en {
+  font-size: clamp(11px, 1.4vw, 14px);
+  letter-spacing: 10px;
+  color: var(--dim);
+  margin-top: 10px;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.hero-tagline {
+  font-size: clamp(15px, 2vw, 20px);
+  color: rgba(255,255,255,0.8);
+  margin-top: 36px;
+  letter-spacing: 2px;
+  font-weight: 300;
+}
+
+.hero-date {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 6px;
+  color: rgba(255,255,255,0.25);
+  margin-top: 22px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 16px;
+  text-transform: uppercase;
+}
+
+/* scroll hint */
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.3;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+.scroll-hint span {
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #fff);
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ======= STORY ======= */
+.story {
+  background: #000;
+  padding: 100px 24px 80px;
+  text-align: center;
+}
+
+.section-label {
+  font-size: 9px;
+  letter-spacing: 7px;
+  color: #2a2a2a;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.story p {
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 2.3;
+  color: rgba(255,255,255,0.5);
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+.story p strong {
+  color: rgba(255,255,255,0.92);
+  font-weight: 400;
+}
+
+/* ======= STILLS ======= */
+.stills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  background: #000;
+}
+.stills img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.6) saturate(0.8);
+  transition: filter 0.5s;
+  cursor: zoom-in;
+}
+.stills img:hover { filter: brightness(1) saturate(1); }
+
+@media(max-width:600px) {
+  .stills { grid-template-columns: 1fr 1fr; }
+  .stills img:last-child { display: none; }
+}
+
+/* ======= KEY SCENE ======= */
+.key-scene {
+  position: relative;
+  height: 65vh;
+  min-height: 380px;
+  overflow: hidden;
+}
+.key-scene-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.38) saturate(0.6);
+  transition: filter 8s ease, transform 8s ease;
+  transform: scale(1.04);
+}
+.key-scene:hover .key-scene-img {
+  filter: brightness(0.5) saturate(0.8);
+  transform: scale(1);
+}
+.key-scene-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.key-scene-text blockquote {
+  font-size: clamp(19px, 2.8vw, 30px);
+  font-weight: 200;
+  line-height: 2.3;
+  color: rgba(255,255,255,0.92);
+  max-width: 560px;
+  letter-spacing: 1px;
+}
+.key-scene-text blockquote em {
+  display: block;
+  font-size: 0.62em;
+  color: rgba(255,255,255,0.3);
+  font-style: normal;
+  margin-top: 28px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 20px;
+}
+
+/* ======= AUDIO ======= */
+.audio-section {
+  background: #030303;
+  padding: 80px 24px 70px;
+  text-align: center;
+  border-top: 1px solid #0c0c0c;
+  border-bottom: 1px solid #0c0c0c;
+}
+.audio-label {
+  font-size: 9px;
+  letter-spacing: 7px;
+  color: #2a2a2a;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.audio-title {
+  font-size: 17px;
+  color: #555;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin-bottom: 28px;
+}
+audio {
+  width: 100%;
+  max-width: 480px;
+  filter: invert(1) hue-rotate(180deg) brightness(0.45);
+}
+.audio-lyric {
+  margin-top: 28px;
+  font-size: 15px;
+  color: #1e1e1e;
+  min-height: 30px;
+  transition: color 0.5s, transform 0.5s;
+  letter-spacing: 1.5px;
+  font-weight: 300;
+  transform: translateY(4px);
+}
+.audio-lyric.on {
+  color: #606060;
+  transform: translateY(0);
+}
+
+/* ======= EMAIL ======= */
+.email-section {
+  background: #000;
+  padding: 110px 24px 120px;
+  text-align: center;
+}
+.email-section h2 {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 100;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 5px;
+  margin-bottom: 10px;
+}
+.email-section > p {
+  font-size: 12px;
+  color: #2a2a2a;
+  letter-spacing: 4px;
+  margin-bottom: 50px;
+  text-transform: uppercase;
+}
+.email-form {
+  display: flex;
+  gap: 0;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.email-form input {
+  flex: 1;
+  background: #070707;
+  border: 1px solid #181818;
+  border-right: none;
+  color: #fff;
+  padding: 16px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.3s;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+.email-form input::placeholder { color: #2a2a2a; }
+.email-form input:focus { border-color: #2a2a2a; }
+.email-form button {
+  background: rgba(255,255,255,0.9);
+  color: #000;
+  border: 1px solid rgba(255,255,255,0.9);
+  padding: 16px 24px;
+  font-size: 11px;
+  font-family: inherit;
+  letter-spacing: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.3s, color 0.3s;
+  white-space: nowrap;
+  border-radius: 0;
+}
+.email-form button:hover { background: transparent; color: rgba(255,255,255,0.9); }
+
+.email-thanks {
+  display: none;
+  font-size: 13px;
+  color: #444;
+  letter-spacing: 4px;
+  margin-top: 24px;
+}
+.email-thanks.show { display: block; }
+
+.release-badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 7px;
+  color: #1a1a1a;
+  border: 1px solid #0f0f0f;
+  padding: 12px 22px;
+  text-transform: uppercase;
+  margin-top: 52px;
+}
+
+/* ======= FOOTER ======= */
+footer {
+  text-align: center;
+  padding: 48px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #111;
+  border-top: 1px solid #0a0a0a;
+}
+footer a {
+  color: #222;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+footer a:hover { color: #555; }
+
+/* ======= LIGHTBOX ======= */
+#lb {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.97);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+#lb.on { display: flex; }
+#lb img {
+  max-width: 92vw;
+  max-height: 92vh;
+  animation: lbIn 0.2s ease;
+}
+@keyframes lbIn {
+  from { opacity:0; transform:scale(0.96); }
+  to   { opacity:1; transform:scale(1); }
+}
+</style>
+</head>
+<body>
+
+<div class="prog"><div class="prog-fill" id="pf"></div></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-grad"></div>
+  <div class="hero-content">
+    <div class="hero-label">映画 &nbsp;/&nbsp; Film</div>
+    <div class="hero-kanji">声</div>
+    <div class="hero-title-en">KOE &nbsp;/&nbsp; City of Pulses</div>
+    <div class="hero-tagline">彼は音が聞こえない。だから、気づいた。</div>
+    <div class="hero-date">2026年12月 &nbsp;公開予定</div>
+  </div>
+  <div class="scroll-hint"><span></span></div>
+</div>
+
+<!-- STORY -->
+<div class="story reveal">
+  <div class="section-label">Story</div>
+  <p>
+    東京。音響エンジニアの<strong>田中蒼</strong>は、生まれつき音が聞こえない。<br>
+    3年前、フェスで息子を失った。<br><br>
+    彼は3年間、ひとつの問いを抱えて生きてきた。<br><br>
+    <strong>「息子は、一人で死んだのか。」</strong>
+  </p>
+</div>
+
+<!-- STILLS 1 -->
+<div class="stills reveal">
+  <img src="storyboard_gemini/cut01_v1.jpg" alt="Scene" onclick="openLb(this)">
+  <img src="storyboard_gemini/cut03_v1.jpg" alt="Scene" onclick="openLb(this)">
+  <img src="storyboard_gemini/cut04_v2.jpg" alt="Scene" onclick="openLb(this)">
+</div>
+
+<!-- KEY SCENE 1 -->
+<div class="key-scene">
+  <img class="key-scene-img" src="storyboard_gemini/tokyo_v8.jpg" alt="">
+  <div class="key-scene-text">
+    <blockquote class="reveal">
+      人は、誰かが死ぬ瞬間を感じている。<br>
+      ずっと。気づいていないだけで。
+      <em>田中 蒼</em>
+    </blockquote>
+  </div>
+</div>
+
+<!-- STILLS 2 -->
+<div class="stills reveal">
+  <img src="storyboard_gemini/cut06_v2.jpg" alt="Scene" onclick="openLb(this)">
+  <img src="storyboard_gemini/tokyo_v5.jpg" alt="Scene" onclick="openLb(this)">
+  <img src="storyboard_gemini/scene_12_crying.jpg" alt="Scene" onclick="openLb(this)">
+</div>
+
+<!-- KEY SCENE 2 -->
+<div class="key-scene">
+  <img class="key-scene-img" src="storyboard_gemini/scene_11_whisper.jpg" alt="">
+  <div class="key-scene-text">
+    <blockquote class="reveal">
+      お前が死んだとき——<br>
+      5万人が泣いていたよ。<br>
+      誰も、理由がわからなかったけど。
+      <em>田中 蒼</em>
+    </blockquote>
+  </div>
+</div>
+
+<!-- AUDIO -->
+<div class="audio-section reveal">
+  <div class="audio-label">主題歌</div>
+  <div class="audio-title">声 / KOE</div>
+  <audio id="audio" controls preload="none">
+    <source src="koe.mp3" type="audio/mpeg">
+  </audio>
+  <div class="audio-lyric" id="al">——</div>
+</div>
+
+<!-- EMAIL -->
+<div class="email-section">
+  <h2 class="reveal">公開をお知らせします</h2>
+  <p class="reveal">2026年12月 &nbsp;·&nbsp; 公開予定</p>
+  <div class="email-form reveal" id="eform">
+    <input type="email" id="email" placeholder="メールアドレス" autocomplete="email">
+    <button onclick="doSubmit()">通知を受け取る</button>
+  </div>
+  <div class="email-thanks" id="thanks">
+    ご登録ありがとうございます。<br>公開時にご連絡します。
+  </div>
+  <div class="release-badge reveal">2026年12月 &nbsp;·&nbsp; 公開予定</div>
+</div>
+
+<footer>
+  声 / KOE &nbsp;—&nbsp; CITY OF PULSES &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp;
+  <a href="https://koe.live/">koe.live</a>
+</footer>
+
+<div id="lb" onclick="closeLb()"><img id="lbi" src="" alt=""></div>
+
+<script>
+// Hero bg slow zoom
+window.addEventListener('load', () => {
+  document.getElementById('heroBg').classList.add('loaded');
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Lightbox
+function openLb(el) {
+  document.getElementById('lbi').src = el.src;
+  document.getElementById('lb').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function closeLb() {
+  document.getElementById('lb').classList.remove('on');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+// Email submit
+function doSubmit() {
+  const email = document.getElementById('email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('email').focus();
+    return;
+  }
+  fetch('https://formspree.io/f/koe-movie', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, source: 'koe.live/movie' })
+  }).catch(() => {});
+  document.getElementById('eform').style.opacity = '0';
+  document.getElementById('eform').style.pointerEvents = 'none';
+  document.getElementById('thanks').classList.add('show');
+}
+document.getElementById('email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSubmit();
+});
+
+// Audio lyrics sync + progress
+const audio = document.getElementById('audio');
+const al = document.getElementById('al');
+const pf = document.getElementById('pf');
+
+const lyrics = [
+  [7,  '交差点のノイズをすり抜けて'],
+  [13, 'ずっと君の輪郭を探していた'],
+  [19, '波形に変換されたその声の先へ'],
+  [25, '音のない世界で、僕だけが知っている'],
+  [31, '本当はこんなにも、世界が鳴り響いていることを'],
+  [42, '深く冷たいデータの海'],
+  [48, '沈みかけた底でやっと見つけた'],
+  [54, 'わずか0.3秒の揺らぎ'],
+  [59, '——確かに、君はそこにいたんだ'],
+  [66, 'あの日、5万人が泣いていた'],
+  [73, '誰も理由なんて知らないまま'],
+  [80, '見えない君の欠片を、ただ抱きしめていたんだ'],
+  [89, '僕の耳には届かなくても'],
+  [96, '鼓動の奥でずっと鳴り止まない'],
+  [103,'君の声は消えやしない'],
+  [109,'ただ、形を変えて響くだけ'],
+  [120,'見上げる東京の空、ビルの屋上'],
+  [126,'吸い寄せられるように人が集う'],
+  [132,'なぜここにいるのか、誰もわからないけれど'],
+  [138,'胸の奥を揺らす、名もなき周波数'],
+  [144,'それが君が残した、たった一つの証拠'],
+  [154,'ガラクタみたいな機械の奥'],
+  [160,'息を潜めていたノイズの正体'],
+  [166,'ずっとただの雑音だと思っていた'],
+  [172,'——それが、君からの愛だったんだ'],
+  [179,'あの日、5万人が泣いていた'],
+  [186,'誰も理由なんて知らないまま'],
+  [193,'見えない君の欠片を、ただ抱きしめていたんだ'],
+  [202,'僕の耳には届かなくても'],
+  [208,'鼓動の奥でずっと鳴り止まない'],
+  [214,'君の声は消えやしない'],
+  [220,'ただ、形を変えて響くだけ'],
+  [230,'本当は僕ら、ずっと繋がっていたんだ'],
+  [238,'言葉も、意識さえも超えた場所で'],
+  [245,'ひとつの命が空へ還る時'],
+  [251,'世界は0.3秒だけ、そっと息を止める'],
+  [258,'その優しい沈黙に気づくための機械を'],
+  [265,'音を知らない僕が、君のために創ったよ'],
+  [272,'今夜、10万人が泣いている'],
+  [279,'この星の片隅の、この場所で'],
+  [286,'理由なんて、もうわからなくていい'],
+  [293,'ただ涙を流せばいいんだ'],
+  [300,'ねえ、君には聞こえているかな'],
+  [307,'僕のこの祈りが届いているかな'],
+  [314,'音にはならない愛の言葉を'],
+  [321,'ずっと、ずっと、送り続けるよ'],
+  [335,'君の声'],
+  [345,'僕の声'],
+  [354,'響き合う声'],
+  [363,'ずっと、鳴り止まない声……'],
+];
+
+audio.addEventListener('timeupdate', () => {
+  const t = audio.currentTime;
+  const dur = audio.duration || 284.8;
+  pf.style.width = (t / dur * 100) + '%';
+  let cur = '';
+  for (let i = 0; i < lyrics.length; i++) {
+    if (t >= lyrics[i][0] && (i === lyrics.length - 1 || t < lyrics[i+1][0])) {
+      cur = lyrics[i][1];
+      break;
+    }
+  }
+  if (cur !== al.textContent) {
+    al.style.opacity = '0';
+    al.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+      al.textContent = cur || '——';
+      al.classList.toggle('on', !!cur);
+      al.style.opacity = '1';
+      al.style.transform = '';
+    }, 200);
+  }
+});
+</script>
+</body>
+</html>

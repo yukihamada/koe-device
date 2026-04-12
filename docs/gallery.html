@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe ギャラリー — 5つの数学的デザイン</title>
+<meta name="description" content="Koe Seed の5つの数学的デザイン: The Stone, The Drop, The Lens, The Seed, The Plectrum。全てコンセプトデザイン、開発中。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/gallery">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe ギャラリー — 5つの数学的デザイン">
+<meta property="og:description" content="同じ28mm基板、同じAuracast。5つの数学的デザインから選ぶ。全てコンセプト、開発中。">
+<meta property="og:url" content="https://koe.live/gallery">
+<meta property="og:image" content="https://koe.live/images/G-lineup-all.png">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe ギャラリー — 5つの数学的デザイン">
+<meta name="twitter:description" content="同じ28mm基板、同じAuracast。5つの数学的デザインから選ぶ。全てコンセプト、開発中。">
+<meta name="twitter:image" content="https://koe.live/images/G-lineup-all.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter','Hiragino Sans','Hiragino Kaku Gothic ProN',-apple-system,sans-serif;
+  background:#0a0a0a;color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.7;
+}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+.en-sub{color:#555;font-size:0.78rem;font-weight:300;display:block;margin-top:0.3rem;letter-spacing:0.04em;}
+.purple{color:#8B5CF6;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.3rem;font-weight:200;letter-spacing:0.4em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:1.8rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+nav .nav-links a.active{color:#8B5CF6;}
+nav .nav-cta{padding:0.5rem 1.4rem;border-radius:10px;font-size:0.82rem;font-weight:600;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+nav .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(139,92,246,0.4);}
+
+/* HERO */
+.hero{min-height:75vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 60px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;z-index:2;}
+.hero-img{position:absolute;inset:0;z-index:0;}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:0.35;}
+.hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,0.4) 0%,rgba(10,10,10,0.7) 60%,#0a0a0a 100%);}
+.hero-content{position:relative;z-index:1;max-width:700px;}
+.hero h1{font-size:clamp(2rem,6vw,4rem);font-weight:100;letter-spacing:0.05em;line-height:1.3;margin-bottom:1rem;color:#fff;}
+.hero .subtitle{font-size:clamp(0.9rem,2vw,1.1rem);color:#aaa;font-weight:300;margin-bottom:0.3rem;}
+.hero .subtitle-en{font-size:clamp(0.75rem,1.5vw,0.85rem);color:#555;font-weight:300;}
+
+/* DEV BANNER */
+.dev-banner{
+  background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);
+  border-radius:12px;padding:1rem 1.5rem;margin:1.5rem auto 0;max-width:700px;
+  text-align:center;font-size:0.82rem;color:#f59e0b;line-height:1.6;
+}
+
+/* SECTIONS */
+section{padding:4rem 2rem;max-width:1200px;margin:0 auto;}
+section h2{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:100;letter-spacing:0.02em;margin-bottom:0.5rem;text-align:center;color:#fff;}
+.section-sub{text-align:center;color:#888;font-size:0.9rem;margin-bottom:2rem;}
+
+/* FIVE FORMS — HERO GRID */
+.five-forms{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem;
+  max-width:1200px;margin:0 auto;
+}
+.form-hero{
+  background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:24px;
+  overflow:hidden;transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+  position:relative;
+}
+.form-hero:hover{transform:translateY(-6px);border-color:rgba(139,92,246,0.3);box-shadow:0 16px 48px rgba(139,92,246,0.1);}
+.form-hero img{width:100%;aspect-ratio:1;object-fit:cover;transition:transform 0.5s;}
+.form-hero:hover img{transform:scale(1.05);}
+.form-hero .form-body{padding:1.5rem;}
+.form-hero h3{font-size:1.2rem;font-weight:400;color:#fff;margin-bottom:0.2rem;}
+.form-hero .form-jp{font-size:0.85rem;color:#aaa;margin-bottom:0.6rem;}
+.form-hero .form-math{font-size:0.78rem;color:#666;line-height:1.6;margin-bottom:0.8rem;font-style:italic;}
+.form-hero .form-dims{font-size:0.72rem;color:#555;margin-bottom:0.8rem;}
+.form-hero .form-link{
+  display:inline-block;font-size:0.78rem;color:#8B5CF6;
+  border:1px solid rgba(139,92,246,0.3);padding:0.4rem 1rem;
+  border-radius:8px;transition:all 0.3s;
+}
+.form-hero .form-link:hover{background:rgba(139,92,246,0.1);border-color:#8B5CF6;}
+.badge-dev-abs{
+  position:absolute;top:0.75rem;right:0.75rem;z-index:1;
+  color:#f59e0b;border:1px solid rgba(245,158,11,0.3);
+  background:rgba(10,10,10,0.8);font-size:0.6rem;
+  padding:0.15rem 0.5rem;border-radius:100px;backdrop-filter:blur(8px);
+}
+
+/* SCALE SECTION */
+.scale-section{text-align:center;padding:4rem 2rem;}
+.scale-grid{
+  display:flex;align-items:center;justify-content:center;gap:3rem;
+  margin-top:2rem;flex-wrap:wrap;
+}
+.scale-item{text-align:center;}
+.scale-item .scale-circle{
+  width:100px;height:100px;border-radius:50%;
+  border:2px solid rgba(139,92,246,0.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 0.8rem;
+  font-size:0.85rem;color:#aaa;font-weight:300;
+}
+.scale-item .scale-circle.coin{
+  width:52px;height:52px;border-color:rgba(255,215,0,0.4);
+  font-size:0.7rem;
+}
+.scale-item .scale-circle.seed{
+  width:56px;height:56px;border-color:rgba(139,92,246,0.5);
+  font-size:0.7rem;color:#8B5CF6;
+}
+.scale-item p{font-size:0.82rem;color:#888;}
+
+/* WEARABLE GALLERY */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;}
+.card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:18px;
+  overflow:hidden;transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+  position:relative;
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.2);box-shadow:0 8px 30px rgba(139,92,246,0.06);}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;padding:0.6rem;border-radius:14px;transition:transform 0.4s;}
+.card:hover img{transform:scale(1.03);}
+.card-body{padding:0 1rem 1rem;}
+.card h3{font-size:0.95rem;font-weight:400;color:#fff;margin-bottom:0.15rem;}
+.card p{font-size:0.78rem;color:#888;line-height:1.4;}
+
+/* FULL WIDTH IMAGE */
+.full-img-section{position:relative;margin:2rem 0;overflow:hidden;}
+.full-img-section img{width:100%;display:block;max-height:55vh;object-fit:cover;}
+.full-img-section .overlay-text{position:absolute;bottom:0;left:0;right:0;padding:3rem 2rem;background:linear-gradient(transparent,rgba(10,10,10,0.9));text-align:center;}
+.full-img-section .overlay-text p{font-size:clamp(1.2rem,3vw,2rem);font-weight:200;color:#fff;letter-spacing:0.03em;line-height:1.5;}
+
+/* CTA */
+.cta-section{text-align:center;padding:6rem 2rem;position:relative;}
+.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:100;margin-bottom:1rem;position:relative;color:#fff;}
+.cta-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;position:relative;}
+.btn-buy{
+  display:inline-block;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;
+  padding:1rem 2.5rem;border-radius:12px;font-size:1.05rem;font-weight:600;
+  text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;text-align:center;
+  border:none;cursor:pointer;font-family:inherit;
+}
+.btn-buy:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(34,197,94,0.4);color:white;}
+.btn-buy .btn-sub{display:block;font-size:0.72rem;font-weight:400;opacity:0.85;margin-top:0.2rem;}
+.btn-outline{
+  display:inline-block;background:transparent;color:#aaa;
+  padding:0.8rem 2rem;border-radius:12px;font-size:0.9rem;
+  text-decoration:none;transition:all 0.3s;border:1px solid rgba(255,255,255,0.15);
+}
+.btn-outline:hover{border-color:#8B5CF6;color:#8B5CF6;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:2rem;}
+footer .footer-brand{font-size:1.1rem;font-weight:200;letter-spacing:0.3em;color:#666;margin-bottom:0.6rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.72rem;}
+
+/* CONCEPT NOTE */
+.concept-note{color:#666;font-size:0.7rem;font-style:italic;margin-top:0.3rem;}
+
+/* FLOATING CTA */
+.floating-cta{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);z-index:99;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;padding:0.8rem 2rem;border-radius:100px;font-size:0.9rem;font-weight:600;text-decoration:none;box-shadow:0 8px 30px rgba(34,197,94,0.5);transition:transform 0.2s,box-shadow 0.2s;white-space:nowrap;border:none;cursor:pointer;font-family:inherit;}
+.floating-cta:hover{transform:translateX(-50%) translateY(-2px);box-shadow:0 12px 40px rgba(34,197,94,0.6);color:white;}
+.floating-cta .btn-sub{font-size:0.65rem;font-weight:400;opacity:0.8;margin-left:0.5rem;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .five-forms{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:768px){
+  .five-forms{grid-template-columns:repeat(2,1fr);}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:1rem;}
+  nav{padding:1rem 1.2rem;}
+  nav .nav-links{gap:0.8rem;}
+  .hero{min-height:60vh;padding:100px 1.5rem 50px;}
+  .cta-links{flex-direction:column;align-items:center;}
+  .scale-grid{gap:1.5rem;}
+}
+@media(max-width:480px){
+  nav{padding:1rem;}
+  nav .nav-links{gap:0.5rem;}
+  nav .nav-links a{font-size:0.75rem;}
+  .five-forms{grid-template-columns:1fr 1fr;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:0.8rem;}
+  .card-body{padding:0 0.8rem 0.8rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/order">製品</a>
+    <a href="/gallery" class="active">ギャラリー</a>
+    <a href="/3d">3D</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+  </div>
+  <a href="javascript:void(0)" onclick="koeCheckout('dk_edition')" class="nav-cta">購入する</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-img">
+    <img src="images/G-lineup-all.png" alt="Koe Seed 全デザイン">
+  </div>
+  <div class="hero-content fade-in">
+    <h1>5つの数学的デザイン。<br>ひとつの音。</h1>
+    <p class="subtitle">同じ28mm基板、同じAuracast。数学が生んだ5つの造形。</p>
+    <p class="subtitle-en">Five mathematical forms. Same 28mm PCB, same Auracast.</p>
+    <div class="dev-banner">全てコンセプトデザインです。STL設計のみ、物理ユニットは未製造。画像はAI生成のコンセプトレンダリングです。</div>
+  </div>
+</div>
+
+<!-- ==================== 5 MATHEMATICAL FORMS ==================== -->
+<section class="fade-in">
+  <h2>5つのフォーム</h2>
+  <span class="en-sub" style="text-align:center;display:block;margin-bottom:2rem;">Five Forms — The Mathematics of Sound</span>
+
+  <div class="five-forms">
+
+    <!-- The Stone -->
+    <div class="form-hero">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G2-pebble-pure.png" alt="The Stone" loading="lazy">
+      <div class="form-body">
+        <h3>The Stone</h3>
+        <p class="form-jp">石 — 河原の記憶</p>
+        <p class="form-math">スーパー楕円体。水流が何万年もかけて削り出す、最もエネルギー効率の良い曲面。</p>
+        <p class="form-dims">28mm x 28mm x 12mm</p>
+        <a href="/3d" class="form-link">3Dで見る</a>
+      </div>
+    </div>
+
+    <!-- The Drop -->
+    <div class="form-hero">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G8-crescent.png" alt="The Drop" loading="lazy">
+      <div class="form-body">
+        <h3>The Drop</h3>
+        <p class="form-jp">滴 — 表面張力の造形</p>
+        <p class="form-math">ラプラス方程式の解。表面張力が作り出す、数学的に最小表面積の立体。</p>
+        <p class="form-dims">28mm x 22mm x 14mm</p>
+        <a href="/3d" class="form-link">3Dで見る</a>
+      </div>
+    </div>
+
+    <!-- The Lens -->
+    <div class="form-hero">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G11-orb.png" alt="The Lens" loading="lazy">
+      <div class="form-body">
+        <h3>The Lens</h3>
+        <p class="form-jp">透鏡 — 光を集める形</p>
+        <p class="form-math">双凸レンズ曲面。光学と音響が出会う、集束のための幾何学。</p>
+        <p class="form-dims">28mm x 28mm x 8mm</p>
+        <a href="/3d" class="form-link">3Dで見る</a>
+      </div>
+    </div>
+
+    <!-- The Seed -->
+    <div class="form-hero">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G7-capsule.png" alt="The Seed" loading="lazy">
+      <div class="form-body">
+        <h3>The Seed</h3>
+        <p class="form-jp">種 — 生命の始まりの形</p>
+        <p class="form-math">カッシーニ卵形線の回転体。生命が選んだ、保護と拡散を両立する曲面。</p>
+        <p class="form-dims">28mm x 18mm x 14mm</p>
+        <a href="/3d" class="form-link">3Dで見る</a>
+      </div>
+    </div>
+
+    <!-- The Plectrum -->
+    <div class="form-hero">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G1-pick-shape.png" alt="The Plectrum" loading="lazy">
+      <div class="form-body">
+        <h3>The Plectrum</h3>
+        <p class="form-jp">撥 — 音楽を奏でる形</p>
+        <p class="form-math">ルーローの三角形の変形。指先のグリップと弦への接触を最適化した音楽の形。</p>
+        <p class="form-dims">28mm x 24mm x 10mm</p>
+        <a href="/3d" class="form-link">3Dで見る</a>
+      </div>
+    </div>
+
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:1rem;">※全てコンセプトイメージ。28mm基板はPCBWay製造中（W1046165AS1JP1）。</p>
+</section>
+
+<!-- ==================== SCALE COMPARISON ==================== -->
+<section class="scale-section fade-in">
+  <h2>¥500硬貨サイズ</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Same size as a 500-yen coin</span>
+  <div class="scale-grid">
+    <div class="scale-item">
+      <div class="scale-circle coin">¥500</div>
+      <p>¥500硬貨<br><span style="font-size:0.72rem;color:#666;">26.5mm</span></p>
+    </div>
+    <div class="scale-item" style="font-size:1.5rem;color:#555;">&asymp;</div>
+    <div class="scale-item">
+      <div class="scale-circle seed">Koe</div>
+      <p>Koe Seed<br><span style="font-size:0.72rem;color:#666;">28mm</span></p>
+    </div>
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:1rem;">※目標サイズ。現在のDK Editionは130x60mmの開発ボードです。</p>
+</section>
+
+<!-- ==================== WEARABLE VARIATIONS ==================== -->
+<section class="fade-in">
+  <h2>ウェアラブルバリエーション</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Wearable Variations</span>
+  <p class="section-sub">身につける音。日常に溶け込むかたち。全てコンセプトデザイン。</p>
+  <div class="gallery-grid">
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G6-coin.png" alt="コイン" loading="lazy">
+      <div class="card-body">
+        <h3>コイン</h3>
+        <p>定番。ポケットに、テーブルに。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-wristband.jpg" alt="リストバンド" loading="lazy">
+      <div class="card-body">
+        <h3>リストバンド</h3>
+        <p>フェスの定番。つけたら忘れる軽さ。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-keychain.jpg" alt="キーチェーン" loading="lazy">
+      <div class="card-body">
+        <h3>キーチェーン</h3>
+        <p>鍵と一緒に。いつでもどこでも。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/NEW-pendant.png" alt="ペンダント" loading="lazy">
+      <div class="card-body">
+        <h3>ペンダント</h3>
+        <p>首元に揺れる、小さなオーケストラ。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-ring.png" alt="指輪" loading="lazy">
+      <div class="card-body">
+        <h3>指輪</h3>
+        <p>指先から音楽を感じる。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G5-earcuff.png" alt="イヤーカフ" loading="lazy">
+      <div class="card-body">
+        <h3>イヤーカフ</h3>
+        <p>耳に寄り添う、パーソナルな音。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G12-brooch.png" alt="ブローチ" loading="lazy">
+      <div class="card-body">
+        <h3>ブローチ</h3>
+        <p>装いに、音というアクセントを。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G9-band-v2.png" alt="バンド" loading="lazy">
+      <div class="card-body">
+        <h3>バンド</h3>
+        <p>手首で感じる、リズムの鼓動。</p>
+      </div>
+    </div>
+
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:0.8rem;">※全てコンセプトイメージ</p>
+</section>
+
+<!-- ==================== MUSICIAN VARIATIONS ==================== -->
+<section class="fade-in">
+  <h2>ミュージシャンバリエーション</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Musician Variations</span>
+  <p class="section-sub">楽器と共に生きる。ステージを解放するかたち。</p>
+  <div class="gallery-grid">
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/G1-pick-shape.png" alt="ピック" loading="lazy">
+      <div class="card-body">
+        <h3>ピック</h3>
+        <p>弾くたびに、世界とつながる。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-pick.jpg" alt="ドラムキー" loading="lazy">
+      <div class="card-body">
+        <h3>ドラムキー</h3>
+        <p>チューニングしながら、モニターする。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/F8-musician.png" alt="カポクリップ" loading="lazy">
+      <div class="card-body">
+        <h3>カポクリップ</h3>
+        <p>ネックに留めて、自由に演奏。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-pedalboard.png" alt="ペダルボード" loading="lazy">
+      <div class="card-body">
+        <h3>ペダルボード</h3>
+        <p>足元に置く、ワイヤレスの自由。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-miniamp.png" alt="ミニアンプ" loading="lazy">
+      <div class="card-body">
+        <h3>ミニアンプ</h3>
+        <p>手のひらサイズ。どこでもステージ。</p>
+      </div>
+    </div>
+
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:0.8rem;">※全てコンセプトイメージ</p>
+</section>
+
+<!-- ==================== LIFESTYLE VARIATIONS ==================== -->
+<section class="fade-in">
+  <h2>ライフスタイルバリエーション</h2>
+  <span class="en-sub" style="text-align:center;display:block;">Lifestyle Variations</span>
+  <p class="section-sub">暮らしに溶ける音。気づけばそこにある。</p>
+  <div class="gallery-grid">
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-earphone.png" alt="イヤホン" loading="lazy">
+      <div class="card-body">
+        <h3>イヤホン</h3>
+        <p>究極のパーソナルオーディオ。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-headphone.png" alt="ヘッドホン" loading="lazy">
+      <div class="card-body">
+        <h3>ヘッドホン</h3>
+        <p>没入。Auracastで無限チャンネル。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-neckband.png" alt="ネックバンド" loading="lazy">
+      <div class="card-body">
+        <h3>ネックバンド</h3>
+        <p>首にかけて、耳は自由に。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-glasses.png" alt="メガネ" loading="lazy">
+      <div class="card-body">
+        <h3>メガネ</h3>
+        <p>見える世界に、音を重ねる。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-watch.png" alt="ウォッチ" loading="lazy">
+      <div class="card-body">
+        <h3>ウォッチ</h3>
+        <p>時を刻みながら、音も届ける。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="badge-dev-abs">開発中</span>
+      <img src="images/seed-hat-clip.png" alt="ハットクリップ" loading="lazy">
+      <div class="card-body">
+        <h3>ハットクリップ</h3>
+        <p>帽子のツバに。アウトドアの相棒。</p>
+      </div>
+    </div>
+
+  </div>
+  <p class="concept-note" style="text-align:center;margin-top:0.8rem;">※全てコンセプトイメージ</p>
+</section>
+
+<!-- ==================== FESTIVAL FULL WIDTH ==================== -->
+<div class="full-img-section fade-in">
+  <img src="images/seed-festival.jpg" alt="5,000人のフェスティバル" loading="lazy">
+  <div class="overlay-text">
+    <p>5,000人が同じ瞬間を共有する</p>
+    <p style="color:#888;font-size:0.75rem;margin-top:0.3rem;font-style:italic;">※コンセプトイメージ</p>
+  </div>
+</div>
+
+<!-- ==================== ORCHESTRA ==================== -->
+<div style="max-width:1200px;margin:3rem auto;padding:0 2rem;" class="fade-in">
+  <img src="images/seed-orchestra.jpg" alt="オーケストラ" loading="lazy" style="width:100%;border-radius:16px;">
+  <p style="text-align:center;color:#888;font-size:0.88rem;margin-top:1rem;">100人の奏者が、ケーブルゼロで共鳴する。</p>
+  <p class="concept-note" style="text-align:center;">※コンセプトイメージ</p>
+</div>
+
+<!-- ==================== CTA ==================== -->
+<div class="cta-section">
+  <h2 class="fade-in">この未来を、一緒に作りませんか。</h2>
+  <span class="en-sub" style="text-align:center;display:block;margin-bottom:0.5rem;">All designs are concepts. DK Edition available now.</span>
+  <p style="color:#888;font-size:0.85rem;position:relative;">全デザインはコンセプトです。今すぐ体験するなら DK Edition をどうぞ。</p>
+  <div class="cta-links fade-in">
+    <button class="btn-buy" onclick="koeCheckout('dk_edition')">DK Edition — ¥29,800<span class="btn-sub">今すぐ購入可能</span></button>
+    <a href="/order" class="btn-outline">全製品を見る</a>
+    <a href="/3d" class="btn-outline">3Dビューア</a>
+  </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="footer-brand">KOE</div>
+  <div class="footer-links">
+    <a href="/">ホーム</a>
+    <a href="/order">製品</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/3d">3D</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+    <a href="mailto:hello@koe.live">hello@koe.live</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <p class="copyright">Koe — 東京 | <a href="mailto:hello@koe.live" style="color:#666;">hello@koe.live</a> | <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" style="color:#666;">GitHub</a></p>
+</footer>
+
+<!-- FLOATING CTA -->
+<button class="floating-cta" id="floatingCta" style="opacity:0;pointer-events:none;" onclick="koeCheckout('dk_edition')">DK Edition — ¥29,800<span class="btn-sub">購入可能</span></button>
+
+<!-- SCROLL ANIMATION + CHECKOUT -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Show floating CTA after scrolling past hero
+const floatingCta = document.getElementById('floatingCta');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 400) {
+    floatingCta.style.opacity = '1';
+    floatingCta.style.pointerEvents = 'auto';
+  } else {
+    floatingCta.style.opacity = '0';
+    floatingCta.style.pointerEvents = 'none';
+  }
+});
+
+async function koeCheckout(product, quantity) {
+  var btn = event && event.target ? event.target.closest('button,a') : null;
+  if (btn) { btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none'; }
+  try {
+    var resp = await fetch('/api/v1/checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({product: product, quantity: quantity || 1})
+    });
+    var data = await resp.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert(data.error || 'エラーが発生しました。');
+      if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+    }
+  } catch(e) {
+    alert('接続エラー: ' + e.message);
+    if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+  }
+}
+</script>
+
+</body>
+</html>

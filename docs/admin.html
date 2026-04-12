@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Admin — 注文管理</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN',-apple-system,sans-serif;
+  background:#0a0a0a;color:#e8e8e8;-webkit-font-smoothing:antialiased;
+  padding:1.5rem;line-height:1.6;
+}
+h1{font-size:1.4rem;font-weight:200;letter-spacing:0.05em;margin-bottom:1rem;}
+.toolbar{display:flex;gap:0.8rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+.toolbar button,.toolbar a{
+  padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:#e8e8e8;cursor:pointer;font-size:0.82rem;
+  text-decoration:none;transition:all 0.2s;font-family:inherit;
+}
+.toolbar button:hover,.toolbar a:hover{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.3);}
+.toolbar .count{color:#888;font-size:0.82rem;margin-left:auto;}
+#loginForm{max-width:320px;margin:4rem auto;text-align:center;}
+#loginForm input{
+  width:100%;padding:0.7rem 1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);color:#e8e8e8;font-size:0.95rem;margin-bottom:0.8rem;
+  font-family:inherit;
+}
+#loginForm button{
+  width:100%;padding:0.7rem;border-radius:8px;border:none;
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:white;font-size:0.95rem;
+  cursor:pointer;font-family:inherit;font-weight:600;
+}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+th{text-align:left;padding:0.6rem 0.5rem;color:#888;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;}
+td{padding:0.6rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.badge{
+  display:inline-block;padding:0.15rem 0.5rem;border-radius:6px;font-size:0.72rem;font-weight:600;
+}
+.badge-paid{background:rgba(59,130,246,0.2);color:#60A5FA;}
+.badge-confirmed{background:rgba(234,179,8,0.2);color:#FBBF24;}
+.badge-manufacturing{background:rgba(168,85,247,0.2);color:#C084FC;}
+.badge-shipped{background:rgba(34,197,94,0.2);color:#4ADE80;}
+.badge-delivered{background:rgba(34,197,94,0.3);color:#22C55E;}
+.actions button{
+  padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(255,255,255,0.1);
+  background:transparent;color:#aaa;cursor:pointer;font-size:0.72rem;margin:0.1rem;
+  font-family:inherit;
+}
+.actions button:hover{color:#e8e8e8;border-color:rgba(139,92,246,0.4);}
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;
+  padding:2rem;max-width:420px;width:90%;
+}
+.modal h3{font-size:1rem;font-weight:400;margin-bottom:1rem;}
+.modal label{display:block;font-size:0.82rem;color:#888;margin-bottom:0.3rem;margin-top:0.8rem;}
+.modal select,.modal input[type="text"]{
+  width:100%;padding:0.5rem 0.8rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);color:#e8e8e8;font-size:0.88rem;font-family:inherit;
+}
+.modal .btn-row{display:flex;gap:0.5rem;margin-top:1.2rem;}
+.modal .btn-row button{
+  flex:1;padding:0.6rem;border-radius:8px;border:none;cursor:pointer;font-size:0.88rem;font-family:inherit;
+}
+.modal .btn-save{background:#8B5CF6;color:white;font-weight:600;}
+.modal .btn-cancel{background:rgba(255,255,255,0.08);color:#aaa;}
+.empty{text-align:center;color:#666;padding:3rem 0;}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginForm">
+  <h1>Koe Admin</h1>
+  <input type="password" id="tokenInput" placeholder="Admin Token" autofocus>
+  <button onclick="login()">ログイン</button>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display:none;">
+  <h1>Koe — 注文管理</h1>
+  <div class="toolbar">
+    <button onclick="loadOrders()">更新</button>
+    <a id="exportLink" href="#" target="_blank">CSV出力</a>
+    <span class="count" id="orderCount"></span>
+  </div>
+  <div id="orderTable"></div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>注文 #<span id="editId"></span> を更新</h3>
+    <label>ステータス</label>
+    <select id="editStatus">
+      <option value="paid">paid (支払済)</option>
+      <option value="confirmed">confirmed (確認済)</option>
+      <option value="manufacturing">manufacturing (製造中)</option>
+      <option value="shipped">shipped (発送済)</option>
+      <option value="delivered">delivered (配達完了)</option>
+    </select>
+    <label>追跡番号</label>
+    <input type="text" id="editTracking" placeholder="DHL123456789">
+    <label>メモ</label>
+    <input type="text" id="editNotes" placeholder="内部メモ">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveOrder()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let TOKEN = localStorage.getItem('koe_admin_token') || '';
+
+function login() {
+  TOKEN = document.getElementById('tokenInput').value.trim();
+  if (!TOKEN) return;
+  localStorage.setItem('koe_admin_token', TOKEN);
+  checkAuth();
+}
+
+async function checkAuth() {
+  try {
+    const resp = await fetch('/admin/orders?token=' + encodeURIComponent(TOKEN));
+    if (resp.ok) {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('exportLink').href = '/admin/orders/export?token=' + encodeURIComponent(TOKEN);
+      const data = await resp.json();
+      renderOrders(data.orders || []);
+    } else {
+      localStorage.removeItem('koe_admin_token');
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadOrders() {
+  const resp = await fetch('/admin/orders', {
+    headers: { 'Authorization': 'Bearer ' + TOKEN }
+  });
+  if (resp.ok) {
+    const data = await resp.json();
+    renderOrders(data.orders || []);
+  }
+}
+
+function badgeClass(status) {
+  return 'badge badge-' + (status || 'paid');
+}
+
+function renderOrders(orders) {
+  document.getElementById('orderCount').textContent = orders.length + ' 件';
+  if (orders.length === 0) {
+    document.getElementById('orderTable').innerHTML = '<div class="empty">注文はまだありません</div>';
+    return;
+  }
+  let html = '<table><thead><tr>';
+  html += '<th>ID</th><th>日時</th><th>顧客</th><th>商品</th><th>数量</th><th>金額</th><th>ステータス</th><th>追跡番号</th><th>配送先</th><th>操作</th>';
+  html += '</tr></thead><tbody>';
+  for (const o of orders) {
+    const date = (o.created_at || '').replace('T',' ').slice(0,16);
+    const addr = [o.shipping_zip, o.shipping_country, o.shipping_state, o.shipping_city, o.shipping_address].filter(Boolean).join(' ');
+    html += '<tr>';
+    html += '<td>' + o.id + '</td>';
+    html += '<td style="white-space:nowrap;">' + date + '</td>';
+    html += '<td>' + (o.customer_name || '') + '<br><span style="color:#888;font-size:0.72rem;">' + (o.customer_email || '') + '</span></td>';
+    html += '<td>' + o.product + '</td>';
+    html += '<td>' + o.quantity + '</td>';
+    html += '<td style="white-space:nowrap;">' + (o.amount_jpy ? ('¥' + Number(o.amount_jpy).toLocaleString()) : '-') + '</td>';
+    html += '<td><span class="' + badgeClass(o.status) + '">' + o.status + '</span></td>';
+    html += '<td style="font-family:monospace;font-size:0.72rem;">' + (o.tracking_number || '-') + '</td>';
+    html += '<td style="font-size:0.72rem;max-width:180px;">' + addr + '</td>';
+    html += '<td class="actions"><button onclick="openEdit(' + o.id + ',\'' + (o.status||'paid') + '\',\'' + (o.tracking_number||'').replace(/'/g,"\\'") + '\',\'' + (o.notes||'').replace(/'/g,"\\'") + '\')">編集</button></td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('orderTable').innerHTML = html;
+}
+
+let editingId = null;
+function openEdit(id, status, tracking, notes) {
+  editingId = id;
+  document.getElementById('editId').textContent = id;
+  document.getElementById('editStatus').value = status;
+  document.getElementById('editTracking').value = tracking;
+  document.getElementById('editNotes').value = notes;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editingId = null;
+}
+
+async function saveOrder() {
+  if (!editingId) return;
+  const body = {
+    status: document.getElementById('editStatus').value,
+    tracking_number: document.getElementById('editTracking').value || null,
+    notes: document.getElementById('editNotes').value || null,
+  };
+  const resp = await fetch('/admin/orders/' + editingId, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + TOKEN
+    },
+    body: JSON.stringify(body)
+  });
+  if (resp.ok) {
+    closeModal();
+    loadOrders();
+  } else {
+    const err = await resp.json().catch(() => ({}));
+    alert('Error: ' + (err.error || 'Unknown error'));
+  }
+}
+
+// Auto-login if token exists
+if (TOKEN) { checkAuth(); }
+</script>
+</body>
+</html>

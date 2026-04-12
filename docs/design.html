@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Design Language — Hardware Product Visualization</title>
+<meta name="description" content="Koe Design Language: Interactive 3D-like CSS renders of Koe hardware products. Pro, Hub, COIN Lite, and STAGE.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/design.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Design Language">
+<meta property="og:description" content="Interactive hardware product visualization for Koe audio devices.">
+<meta property="og:url" content="https://koe.live/design.html">
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a0a;--purple:#8B5CF6;--cyan:#06B6D4;--pcb-black:#111;--silk:#d4d4d8;--gold:#c8a84e;--silver:#9ca3af;--trace-green:#1a3a1a;--matte-black:#1a1a1a;--component-dark:#222;--pad-silver:#6b7280;}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:#e8e8e8;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+a{color:var(--purple);text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:2rem;align-items:center;}
+nav .nav-links a{color:#888;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+.lang-toggle,.view-toggle,.theme-toggle{padding:0.35rem 0.8rem;border-radius:100px;border:1px solid #333;background:transparent;color:#888;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.lang-toggle:hover,.view-toggle:hover,.theme-toggle:hover{border-color:var(--purple);color:var(--purple);}
+.controls{display:flex;gap:0.6rem;align-items:center;}
+
+/* HERO */
+.hero{min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 2rem 2rem;position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.12) 0%,rgba(6,182,212,0.05) 40%,transparent 70%);}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,var(--bg));pointer-events:none;}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:100;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.5rem;}
+.hero h1 .purple{color:var(--purple);}
+.hero h1 .cyan{color:var(--cyan);}
+.hero .tagline{font-size:clamp(1rem,2.5vw,1.3rem);color:#888;font-weight:300;margin-bottom:0.3rem;}
+.hero .tagline-ja{font-size:clamp(0.85rem,2vw,1rem);color:#666;font-weight:300;letter-spacing:0.05em;margin-bottom:2rem;}
+
+/* FADE IN */
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1200px;margin:0 auto;}
+section h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;letter-spacing:-0.02em;margin-bottom:0.5rem;text-align:center;}
+section h2 .purple{color:var(--purple);}
+section h2 .cyan{color:var(--cyan);}
+.section-sub{text-align:center;color:#888;font-size:0.95rem;margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto;}
+
+/* PRODUCT SECTION */
+.product-section{border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:5rem;}
+.product-header{text-align:center;margin-bottom:3rem;}
+.product-header h2{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:200;margin-bottom:0.3rem;}
+.product-header .dims{font-size:0.9rem;color:var(--cyan);font-weight:300;}
+.product-layout{display:grid;grid-template-columns:1fr 320px;gap:3rem;align-items:start;}
+.product-visual{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px;}
+.product-visual svg{transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);cursor:pointer;}
+.product-visual svg:hover{transform:scale(1.03) translateY(-4px);}
+
+/* SPEC SIDEBAR */
+.spec-sidebar{background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.8rem;position:sticky;top:100px;}
+.spec-sidebar h3{font-size:1rem;font-weight:400;letter-spacing:0.05em;margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid rgba(255,255,255,0.06);color:var(--purple);}
+.spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:0.45rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.spec-row .label{font-size:0.8rem;color:#888;}
+.spec-row .value{font-size:0.8rem;color:#ddd;font-weight:400;text-align:right;}
+
+/* TOOLTIP */
+.component-tooltip{position:absolute;background:rgba(20,20,25,0.95);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:0.8rem 1rem;font-size:0.75rem;color:#ccc;line-height:1.5;pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:50;max-width:220px;backdrop-filter:blur(10px);}
+.component-tooltip.show{opacity:1;}
+.component-tooltip .tt-title{color:var(--purple);font-weight:500;margin-bottom:0.3rem;font-size:0.8rem;}
+
+/* ENCLOSURE VIEW */
+.enclosure-view{display:none;}
+.enclosure-view.active{display:flex;justify-content:center;}
+
+/* VIEW TOGGLE STATE */
+.pcb-view{display:flex;justify-content:center;}
+.pcb-view.hidden{display:none;}
+
+/* INTERACTIVE COMPONENTS */
+.clickable-component{cursor:pointer;transition:opacity 0.2s;}
+.clickable-component:hover{opacity:0.85;filter:brightness(1.2);}
+
+/* PHILOSOPHY */
+.philosophy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2rem;}
+.philosophy-card{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:2rem;text-align:center;transition:all 0.3s;}
+.philosophy-card:hover{border-color:rgba(139,92,246,0.15);transform:translateY(-3px);}
+.philosophy-card h4{font-size:1.1rem;font-weight:300;margin-bottom:0.8rem;}
+.philosophy-card p{font-size:0.8rem;color:#888;line-height:1.6;}
+
+/* COLOR PALETTE */
+.palette{display:flex;gap:1.5rem;justify-content:center;margin-top:2rem;flex-wrap:wrap;}
+.swatch{text-align:center;}
+.swatch-circle{width:64px;height:64px;border-radius:50%;margin:0 auto 0.6rem;border:2px solid rgba(255,255,255,0.1);transition:transform 0.3s;}
+.swatch-circle:hover{transform:scale(1.1);}
+.swatch-name{font-size:0.75rem;color:#aaa;}
+.swatch-hex{font-size:0.7rem;color:#666;margin-top:0.2rem;}
+
+/* THEME VARIANTS */
+body.theme-white{--bg:#f5f5f5;--pcb-black:#1a5c1a;--silk:#333;background:#f5f5f5;color:#222;}
+body.theme-white nav{background:rgba(245,245,245,0.9);}
+body.theme-white nav .logo,body.theme-white nav .nav-links a{color:#333;}
+body.theme-white .spec-sidebar{background:rgba(0,0,0,0.03);border-color:rgba(0,0,0,0.08);}
+body.theme-white .spec-row .label{color:#666;}
+body.theme-white .spec-row .value{color:#333;}
+body.theme-white .philosophy-card{background:rgba(0,0,0,0.02);border-color:rgba(0,0,0,0.06);}
+body.theme-white .philosophy-card p{color:#666;}
+body.theme-purple{--bg:#0d0a14;}
+body.theme-purple .hero{background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.25) 0%,rgba(6,182,212,0.08) 40%,transparent 70%);}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:4rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;transition:color 0.2s;}
+footer .footer-links a:hover{color:var(--purple);}
+footer .copyright{color:#444;font-size:0.75rem;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .product-layout{grid-template-columns:1fr;gap:2rem;}
+  .spec-sidebar{position:static;}
+  .philosophy-grid{grid-template-columns:1fr;}
+  nav .nav-links{display:none;}
+}
+@media(max-width:480px){
+  .hero{padding:5rem 1rem 3rem;}
+  section{padding:3rem 1rem;}
+  .palette{gap:0.8rem;}
+  .swatch-circle{width:48px;height:48px;}
+}
+
+/* JA MODE */
+.ja{display:none;}
+body.lang-ja .en{display:none;}
+body.lang-ja .ja{display:inline;}
+body.lang-ja .ja-block{display:block !important;}
+body.lang-ja .en-block{display:none !important;}
+.ja-block{display:none;}
+.en-block{display:block;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/pro">Pro + Hub</a>
+    <a href="/design" style="color:#fff;">Design</a>
+    <a href="/order">Order</a>
+    <a href="/busker">Apps</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <div class="controls">
+      <button class="theme-toggle" onclick="cycleTheme()">Theme</button>
+      <button class="view-toggle" onclick="toggleView()">
+        <span class="en">Enclosure</span><span class="ja">筐体</span>
+      </button>
+      <button class="lang-toggle" onclick="toggleLang()">JP / EN</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="tagline en" style="font-size:0.85rem;color:#666;margin-bottom:0.5rem;">Wireless audio devices for musicians, educators, and festivals</p>
+  <p class="tagline ja" style="display:none;font-size:0.85rem;color:#666;margin-bottom:0.5rem;">ミュージシャン、教育者、フェスティバルのためのワイヤレスオーディオデバイス</p>
+  <h1><span class="purple">Koe</span> <span class="en">Design Language</span><span class="ja">デザインランゲージ</span></h1>
+  <p class="tagline en">Every detail in service of sound</p>
+  <p class="tagline ja" style="display:none;">音のためのすべてのディテール</p>
+  <p class="tagline-ja en">Four products, one philosophy</p>
+  <p class="tagline-ja ja" style="display:none;">4つのプロダクト、ひとつの哲学</p>
+</div>
+
+<!-- ==================== KOE PRO v2 ==================== -->
+<section class="product-section fade-in" id="pro">
+  <div class="product-header">
+    <h2><span class="purple">Koe Pro</span> v2 &mdash; <span style="font-size:0.7em;color:#888;">3 Input Variants</span></h2>
+    <p class="dims">45 x 30 mm <span class="en">shared base PCB</span><span class="ja">共通ベース基板</span> &mdash; <span class="en">~1/3 credit card</span><span class="ja">クレカの約1/3</span></p>
+  </div>
+  <div class="product-layout">
+    <div class="product-visual" id="pro-visual">
+      <!-- PCB VIEW -->
+      <div class="pcb-view" id="pro-pcb">
+        <svg viewBox="0 0 540 380" width="540" height="380" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="pcb-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#151515"/><stop offset="100%" stop-color="#0d0d0d"/></linearGradient>
+            <linearGradient id="chip-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#666"/><stop offset="100%" stop-color="#444"/></linearGradient>
+            <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4a84e"/><stop offset="100%" stop-color="#a07830"/></linearGradient>
+            <linearGradient id="silver-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b0b0b0"/><stop offset="100%" stop-color="#808080"/></linearGradient>
+            <linearGradient id="usbc-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#999"/><stop offset="100%" stop-color="#666"/></linearGradient>
+            <filter id="glow-purple"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-green"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/></filter>
+            <pattern id="trace-pattern" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="none"/><line x1="0" y1="4" x2="8" y2="4" stroke="#1a2a1a" stroke-width="0.3"/></pattern>
+            <!-- QFN pad pattern -->
+            <clipPath id="pcb-clip"><rect x="40" y="40" width="270" height="180" rx="8"/></clipPath>
+          </defs>
+          <!-- PCB BOARD -->
+          <g filter="url(#shadow)">
+            <rect x="40" y="40" width="270" height="180" rx="8" fill="url(#pcb-grad)" stroke="#2a2a2a" stroke-width="1"/>
+            <!-- Solder mask texture -->
+            <rect x="40" y="40" width="270" height="180" rx="8" fill="url(#trace-pattern)" opacity="0.3"/>
+            <!-- Traces (decorative) -->
+            <g stroke="#1a3a1a" stroke-width="0.6" fill="none" opacity="0.5">
+              <path d="M130,120 L130,90 L160,90"/>
+              <path d="M130,140 L100,140 L100,170"/>
+              <path d="M200,100 L240,100 L240,80"/>
+              <path d="M160,160 L200,160 L200,190"/>
+              <path d="M90,130 L60,130"/>
+              <path d="M250,110 L280,110 L280,140"/>
+              <path d="M170,80 L170,60"/>
+              <path d="M110,100 L80,100 L80,80"/>
+              <path d="M220,160 L260,160"/>
+              <path d="M140,180 L140,200"/>
+            </g>
+            <!-- Ground plane -->
+            <rect x="42" y="42" width="266" height="176" rx="6" fill="none" stroke="#1a2a1a" stroke-width="0.3" stroke-dasharray="2,4"/>
+
+            <!-- === COMPONENTS === -->
+
+            <!-- nRF5340 QFN (center-left, 7x7mm) -->
+            <g class="clickable-component" data-component="nrf5340" onclick="showTooltip(event,'nRF5340','Nordic Semiconductor SoC\nBLE 5.3 + 128MHz Cortex-M33\nAudio codec & mesh networking\nQFN-48 (7x7mm)')">
+              <rect x="100" y="105" width="50" height="50" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <!-- QFN pads -->
+              <g fill="#888">
+                <rect x="103" y="101" width="5" height="3" rx="0.5"/><rect x="111" y="101" width="5" height="3" rx="0.5"/><rect x="119" y="101" width="5" height="3" rx="0.5"/><rect x="127" y="101" width="5" height="3" rx="0.5"/><rect x="135" y="101" width="5" height="3" rx="0.5"/><rect x="143" y="101" width="5" height="3" rx="0.5"/>
+                <rect x="103" y="156" width="5" height="3" rx="0.5"/><rect x="111" y="156" width="5" height="3" rx="0.5"/><rect x="119" y="156" width="5" height="3" rx="0.5"/><rect x="127" y="156" width="5" height="3" rx="0.5"/><rect x="135" y="156" width="5" height="3" rx="0.5"/><rect x="143" y="156" width="5" height="3" rx="0.5"/>
+                <rect x="96" y="108" width="3" height="5" rx="0.5"/><rect x="96" y="116" width="3" height="5" rx="0.5"/><rect x="96" y="124" width="3" height="5" rx="0.5"/><rect x="96" y="132" width="3" height="5" rx="0.5"/><rect x="96" y="140" width="3" height="5" rx="0.5"/><rect x="96" y="148" width="3" height="5" rx="0.5"/>
+                <rect x="151" y="108" width="3" height="5" rx="0.5"/><rect x="151" y="116" width="3" height="5" rx="0.5"/><rect x="151" y="124" width="3" height="5" rx="0.5"/><rect x="151" y="132" width="3" height="5" rx="0.5"/><rect x="151" y="140" width="3" height="5" rx="0.5"/><rect x="151" y="148" width="3" height="5" rx="0.5"/>
+              </g>
+              <!-- Orientation dot -->
+              <circle cx="106" cy="111" r="2" fill="#555"/>
+              <!-- Die text -->
+              <text x="125" y="133" text-anchor="middle" font-size="5.5" fill="#999" font-family="monospace">nRF5340</text>
+            </g>
+
+            <!-- DW3720 QFN (top-right, 6.5x6.5mm) -->
+            <g class="clickable-component" data-component="dw3720" onclick="showTooltip(event,'DW3720','Qorvo UWB Transceiver\nIEEE 802.15.4z\nUltra-precise ranging (10cm)\nQFN-44 (6.5x6.5mm)')">
+              <rect x="220" y="60" width="46" height="46" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <g fill="#888">
+                <rect x="223" y="56" width="4" height="3" rx="0.5"/><rect x="230" y="56" width="4" height="3" rx="0.5"/><rect x="237" y="56" width="4" height="3" rx="0.5"/><rect x="244" y="56" width="4" height="3" rx="0.5"/><rect x="251" y="56" width="4" height="3" rx="0.5"/><rect x="258" y="56" width="4" height="3" rx="0.5"/>
+                <rect x="223" y="107" width="4" height="3" rx="0.5"/><rect x="230" y="107" width="4" height="3" rx="0.5"/><rect x="237" y="107" width="4" height="3" rx="0.5"/><rect x="244" y="107" width="4" height="3" rx="0.5"/><rect x="251" y="107" width="4" height="3" rx="0.5"/><rect x="258" y="107" width="4" height="3" rx="0.5"/>
+              </g>
+              <circle cx="226" cy="66" r="1.5" fill="#555"/>
+              <text x="243" y="87" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">DW3720</text>
+            </g>
+
+            <!-- AK5720 SSOP (bottom-left) -->
+            <g class="clickable-component" data-component="ak5720" onclick="showTooltip(event,'AK5720','AKM ADC\n24-bit/96kHz stereo\nSNR 100dB, THD -88dB\nSSOP-20')">
+              <rect x="68" y="168" width="40" height="18" rx="1" fill="#333" stroke="#555" stroke-width="0.4"/>
+              <g fill="#888"><rect x="70" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="75" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="80" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="85" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="90" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="95" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="100" y="165" width="2.5" height="2.5" rx="0.3"/>
+              <rect x="70" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="75" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="80" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="85" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="90" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="95" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="100" y="187" width="2.5" height="2.5" rx="0.3"/></g>
+              <text x="88" y="180" text-anchor="middle" font-size="4.5" fill="#999" font-family="monospace">AK5720</text>
+            </g>
+
+            <!-- PCM5102A SSOP (bottom-center) -->
+            <g class="clickable-component" data-component="pcm5102a" onclick="showTooltip(event,'PCM5102A','TI DAC\n32-bit/384kHz stereo\nSNR 112dB, THD -93dB\nSSOP-20')">
+              <rect x="130" y="168" width="42" height="18" rx="1" fill="#333" stroke="#555" stroke-width="0.4"/>
+              <g fill="#888"><rect x="133" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="138" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="143" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="148" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="153" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="158" y="165" width="2.5" height="2.5" rx="0.3"/><rect x="163" y="165" width="2.5" height="2.5" rx="0.3"/>
+              <rect x="133" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="138" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="143" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="148" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="153" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="158" y="187" width="2.5" height="2.5" rx="0.3"/><rect x="163" y="187" width="2.5" height="2.5" rx="0.3"/></g>
+              <text x="151" y="180" text-anchor="middle" font-size="4" fill="#999" font-family="monospace">PCM5102A</text>
+            </g>
+
+            <!-- MAX98357A QFN (bottom-right, small) -->
+            <g class="clickable-component" data-component="max98357a" onclick="showTooltip(event,'MAX98357A','Maxim Class-D Amp\n3.2W @ 4 ohms\nI2S input, no MCLK needed\nQFN-16 (3x3mm)')">
+              <rect x="198" y="170" width="24" height="24" rx="1.5" fill="url(#chip-grad)" stroke="#555" stroke-width="0.4"/>
+              <g fill="#888"><rect x="200" y="167" width="3" height="2.5" rx="0.3"/><rect x="206" y="167" width="3" height="2.5" rx="0.3"/><rect x="212" y="167" width="3" height="2.5" rx="0.3"/><rect x="200" y="195" width="3" height="2.5" rx="0.3"/><rect x="206" y="195" width="3" height="2.5" rx="0.3"/><rect x="212" y="195" width="3" height="2.5" rx="0.3"/></g>
+              <text x="210" y="185" text-anchor="middle" font-size="3.5" fill="#999" font-family="monospace">MAX</text>
+              <text x="210" y="190" text-anchor="middle" font-size="3" fill="#999" font-family="monospace">98357A</text>
+            </g>
+
+            <!-- nPM1300 QFN (top-center) -->
+            <g class="clickable-component" data-component="npm1300" onclick="showTooltip(event,'nPM1300','Nordic PMIC\nDual buck + LDO + charger\nLi-Po battery management\nQFN-32 (5x5mm)')">
+              <rect x="164" y="55" width="36" height="36" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <g fill="#888"><rect x="167" y="51" width="3.5" height="3" rx="0.3"/><rect x="174" y="51" width="3.5" height="3" rx="0.3"/><rect x="181" y="51" width="3.5" height="3" rx="0.3"/><rect x="188" y="51" width="3.5" height="3" rx="0.3"/>
+              <rect x="167" y="92" width="3.5" height="3" rx="0.3"/><rect x="174" y="92" width="3.5" height="3" rx="0.3"/><rect x="181" y="92" width="3.5" height="3" rx="0.3"/><rect x="188" y="92" width="3.5" height="3" rx="0.3"/></g>
+              <circle cx="169" cy="60" r="1.5" fill="#555"/>
+              <text x="182" y="76" text-anchor="middle" font-size="4.5" fill="#999" font-family="monospace">nPM1300</text>
+            </g>
+
+            <!-- WS2812B LEDs -->
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB LED\nStatus + notification\n5050 package (5x5mm)')">
+              <rect x="250" y="130" width="7" height="7" rx="1" fill="#111" stroke="#333" stroke-width="0.3"/>
+              <circle cx="253.5" cy="133.5" r="2.5" fill="#22c55e" filter="url(#glow-green)" opacity="0.9">
+                <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB LED\nSoluna mode indicator\n5050 package (5x5mm)')">
+              <rect x="260" y="130" width="7" height="7" rx="1" fill="#111" stroke="#333" stroke-width="0.3"/>
+              <circle cx="263.5" cy="133.5" r="2.5" fill="#8B5CF6" filter="url(#glow-purple)" opacity="0.9">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+
+            <!-- USB-C (bottom edge) -->
+            <g class="clickable-component" onclick="showTooltip(event,'USB-C','USB 2.0 Type-C\nCharging + data\nFirmware flashing & OTA')">
+              <rect x="155" y="213" width="40" height="10" rx="3" fill="url(#usbc-grad)" stroke="#777" stroke-width="0.5"/>
+              <rect x="162" y="215" width="26" height="5" rx="2" fill="#444"/>
+              <rect x="155" y="210" width="40" height="5" rx="1" fill="url(#silver-grad)" opacity="0.5"/>
+            </g>
+
+            <!-- 3.5mm TRS jack (left edge) -->
+            <g class="clickable-component" onclick="showTooltip(event,'3.5mm TRS Jack','Stereo audio output\nLine out / headphone\nGold-plated contacts')">
+              <circle cx="40" cy="130" r="9" fill="url(#silver-grad)" stroke="#666" stroke-width="0.5"/>
+              <circle cx="40" cy="130" r="5" fill="#333"/>
+              <circle cx="40" cy="130" r="2.5" fill="#555"/>
+            </g>
+
+            <!-- SMA antenna (top-right corner) -->
+            <g class="clickable-component" onclick="showTooltip(event,'SMA Connector','UWB antenna port\n6.5 / 8 GHz band\n50 ohm impedance')">
+              <circle cx="290" cy="60" r="7" fill="url(#gold-grad)" stroke="#a08040" stroke-width="0.5"/>
+              <circle cx="290" cy="60" r="4" fill="#333"/>
+              <circle cx="290" cy="60" r="1.5" fill="url(#gold-grad)"/>
+            </g>
+
+            <!-- Button -->
+            <g class="clickable-component" onclick="showTooltip(event,'Tactile Button','Mode switch\nShort: record on/off\nLong: factory reset')">
+              <circle cx="272" cy="165" r="5" fill="url(#silver-grad)" stroke="#777" stroke-width="0.4"/>
+              <circle cx="272" cy="165" r="3" fill="#666"/>
+            </g>
+
+            <!-- Silkscreen text -->
+            <text x="62" y="58" font-size="6" fill="#d4d4d8" font-family="monospace" letter-spacing="0.5" opacity="0.7">Koe Pro v2</text>
+            <text x="240" y="205" font-size="3.5" fill="#d4d4d8" font-family="monospace" opacity="0.4">REV 2.0</text>
+            <text x="62" y="210" font-size="3" fill="#d4d4d8" font-family="monospace" opacity="0.3">EnablerDAO / koe.live</text>
+
+            <!-- Board outline mounting holes -->
+            <circle cx="52" cy="52" r="2" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="298" cy="52" r="2" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="52" cy="208" r="2" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="298" cy="208" r="2" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+          </g>
+
+          <!-- DIMENSION CALLOUTS -->
+          <g stroke="#666" stroke-width="0.5" fill="none">
+            <line x1="40" y1="240" x2="310" y2="240"/>
+            <line x1="40" y1="236" x2="40" y2="244"/>
+            <line x1="310" y1="236" x2="310" y2="244"/>
+          </g>
+          <text x="175" y="252" text-anchor="middle" font-size="9" fill="#888" font-family="monospace">45 mm</text>
+          <g stroke="#666" stroke-width="0.5" fill="none">
+            <line x1="330" y1="40" x2="330" y2="220"/>
+            <line x1="326" y1="40" x2="334" y2="40"/>
+            <line x1="326" y1="220" x2="334" y2="220"/>
+          </g>
+          <text x="345" y="135" text-anchor="start" font-size="9" fill="#888" font-family="monospace" transform="rotate(90,345,135)">30 mm</text>
+
+          <!-- ENCLOSURE (right side) -->
+          <g transform="translate(370,20)">
+            <!-- Pill-shaped case, 3D perspective -->
+            <defs>
+              <linearGradient id="case-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="40%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#111"/></linearGradient>
+              <linearGradient id="case-side" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#222"/><stop offset="100%" stop-color="#0d0d0d"/></linearGradient>
+              <linearGradient id="diffuser" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(139,92,246,0.3)"/><stop offset="50%" stop-color="rgba(6,182,212,0.2)"/><stop offset="100%" stop-color="rgba(139,92,246,0.3)"/></linearGradient>
+            </defs>
+            <!-- Case body -->
+            <rect x="0" y="60" width="140" height="240" rx="30" fill="url(#case-grad)" stroke="#333" stroke-width="0.8"/>
+            <!-- Subtle bevel highlight -->
+            <rect x="2" y="62" width="136" height="236" rx="28" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+            <!-- LED diffuser strip (top edge) -->
+            <rect x="20" y="68" width="100" height="4" rx="2" fill="url(#diffuser)" opacity="0.8">
+              <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <!-- Koe logo -->
+            <text x="70" y="155" text-anchor="middle" font-size="16" fill="#444" font-family="-apple-system,sans-serif" font-weight="100" letter-spacing="6">KOE</text>
+            <!-- Side button -->
+            <rect x="-3" y="150" width="4" height="18" rx="2" fill="#2a2a2a" stroke="#333" stroke-width="0.3"/>
+            <!-- USB-C port (bottom) -->
+            <rect x="52" y="296" width="36" height="6" rx="3" fill="#444" stroke="#555" stroke-width="0.3"/>
+            <!-- 3.5mm jack (left side) -->
+            <circle cx="0" cy="200" r="5" fill="#444" stroke="#555" stroke-width="0.3"/>
+            <circle cx="0" cy="200" r="2.5" fill="#333"/>
+            <!-- Lanyard hole -->
+            <circle cx="70" cy="290" r="4" fill="none" stroke="#333" stroke-width="0.8"/>
+            <!-- Belt clip indicator -->
+            <rect x="45" y="265" width="50" height="15" rx="3" fill="none" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2"/>
+            <text x="70" y="275" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">belt clip</text>
+            <!-- Dimensions -->
+            <text x="70" y="320" text-anchor="middle" font-size="8" fill="#888" font-family="monospace">55 x 40 x 12 mm</text>
+          </g>
+        </svg>
+      </div>
+      <!-- ENCLOSURE VIEW (toggled) -->
+      <div class="enclosure-view" id="pro-enclosure">
+        <svg viewBox="0 0 400 350" width="400" height="350" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="enc-main" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="50%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#111"/></linearGradient>
+            <linearGradient id="enc-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#2a2a2a"/></linearGradient>
+            <linearGradient id="enc-highlight" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0)"/><stop offset="30%" stop-color="rgba(255,255,255,0.12)"/><stop offset="70%" stop-color="rgba(255,255,255,0.06)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient>
+            <filter id="enc-shadow"><feDropShadow dx="0" dy="8" stdDeviation="15" flood-color="#000" flood-opacity="0.7"/></filter>
+            <linearGradient id="enc-led-strip" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="50%" stop-color="#06B6D4"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient>
+          </defs>
+          <g filter="url(#enc-shadow)" transform="translate(60,30)">
+            <!-- 3D perspective - top face -->
+            <path d="M40,20 L240,10 L280,40 L80,50 Z" fill="url(#enc-top)" stroke="#555" stroke-width="0.8"/>
+            <!-- Highlight/reflection line near top edge -->
+            <path d="M45,22 L235,12" stroke="url(#enc-highlight)" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- LED strip on top -->
+            <path d="M90,24 L210,16" stroke="url(#enc-led-strip)" stroke-width="3" stroke-linecap="round" opacity="0.8">
+              <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2.5s" repeatCount="indefinite"/>
+            </path>
+            <!-- Front face -->
+            <path d="M40,20 L80,50 L80,230 L40,200 Z" fill="#252525" stroke="#555" stroke-width="0.8"/>
+            <!-- Right face (main body) -->
+            <path d="M80,50 L280,40 L280,220 L80,230 Z" fill="url(#enc-main)" stroke="#555" stroke-width="0.8"/>
+            <!-- Subtle brushed metal texture on right face -->
+            <path d="M80,50 L280,40 L280,220 L80,230 Z" fill="url(#enc-highlight)" opacity="0.15"/>
+            <!-- Koe logo on front -->
+            <text x="60" y="120" text-anchor="middle" font-size="12" fill="#555" font-family="-apple-system,sans-serif" font-weight="200" letter-spacing="4" transform="rotate(-7,60,120)">KOE</text>
+            <!-- Side details -->
+            <circle cx="50" cy="160" r="5.5" fill="#1a1a1a" stroke="#555" stroke-width="0.8"/><!-- 3.5mm jack -->
+            <circle cx="50" cy="160" r="2.5" fill="#111"/>
+            <rect x="52" y="138" width="3.5" height="16" rx="1.5" fill="#333" stroke="#555" stroke-width="0.5"/><!-- button -->
+            <!-- USB-C on bottom -->
+            <rect x="155" y="225" width="32" height="5" rx="2.5" fill="#555" stroke="#666" stroke-width="0.5" transform="skewX(-5)"/>
+            <rect x="161" y="226.5" width="20" height="2" rx="1" fill="#333" transform="skewX(-5)"/>
+          </g>
+          <text x="200" y="300" text-anchor="middle" font-size="12" fill="#888" font-family="-apple-system,sans-serif" font-weight="200">
+            <tspan class="en">Matte Black Aluminum</tspan><tspan class="ja">マットブラック アルミニウム</tspan>
+          </text>
+          <text x="200" y="318" text-anchor="middle" font-size="10" fill="#666" font-family="monospace">55 x 40 x 12 mm &bull; 38g</text>
+        </svg>
+      </div>
+      <div class="component-tooltip" id="tooltip"></div>
+    </div>
+    <div class="spec-sidebar">
+      <h3><span class="en">Technical Specs</span><span class="ja">技術仕様</span></h3>
+      <div class="spec-row"><span class="label">PCB</span><span class="value">45 x 30 mm, 4-layer</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Enclosure</span><span class="ja">筐体</span></span><span class="value">55 x 40 x 12 mm</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Weight</span><span class="ja">重量</span></span><span class="value">~38 g</span></div>
+      <div class="spec-row"><span class="label">BOM</span><span class="value">~$42</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Components</span><span class="ja">部品数</span></span><span class="value">68</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Layers</span><span class="ja">層数</span></span><span class="value">4</span></div>
+      <div class="spec-row"><span class="label">SoC</span><span class="value">nRF5340</span></div>
+      <div class="spec-row"><span class="label">UWB</span><span class="value">DW3720</span></div>
+      <div class="spec-row"><span class="label">ADC</span><span class="value">AK5720</span></div>
+      <div class="spec-row"><span class="label">DAC</span><span class="value">PCM5102A</span></div>
+      <div class="spec-row"><span class="label">Amp</span><span class="value">MAX98357A</span></div>
+      <div class="spec-row"><span class="label">PMIC</span><span class="value">nPM1300</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Battery</span><span class="ja">電池</span></span><span class="value">LiPo 400mAh</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Latency</span><span class="ja">遅延</span></span><span class="value">&lt; 12 ms</span></div>
+    </div>
+  </div>
+
+  <!-- 3 VARIANT ILLUSTRATIONS -->
+  <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.06);">
+    <h3 style="text-align:center;font-weight:200;font-size:1.2rem;color:#aaa;margin-bottom:1.5rem;">
+      <span class="en">3 Input Variants &mdash; One Shared Base PCB</span>
+      <span class="ja">3つの入力バリアント &mdash; 共通ベース基板</span>
+    </h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:750px;margin:0 auto;">
+      <!-- Pro Guitar -->
+      <div style="text-align:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.5rem 1rem;">
+        <svg viewBox="0 0 160 120" width="160" height="120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="20" width="90" height="60" rx="6" fill="#151515" stroke="#2a2a2a" stroke-width="0.8"/>
+          <text x="75" y="50" text-anchor="middle" font-size="5" fill="#666" font-family="monospace">nRF5340</text>
+          <text x="75" y="58" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">DW3720</text>
+          <!-- 6.35mm plug protruding from left -->
+          <rect x="0" y="40" width="32" height="12" rx="6" fill="#888" stroke="#666" stroke-width="0.5"/>
+          <circle cx="5" cy="46" r="3" fill="#555"/>
+          <text x="75" y="95" text-anchor="middle" font-size="7" fill="#A78BFA" font-family="sans-serif" font-weight="500">Pro Guitar</text>
+          <text x="75" y="107" text-anchor="middle" font-size="5.5" fill="#666" font-family="sans-serif">6.35mm (1/4") plug</text>
+          <circle cx="100" cy="35" r="2.5" fill="#8B5CF6" opacity="0.8"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+      <!-- Pro Line -->
+      <div style="text-align:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.5rem 1rem;">
+        <svg viewBox="0 0 160 120" width="160" height="120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="20" width="90" height="60" rx="6" fill="#151515" stroke="#2a2a2a" stroke-width="0.8"/>
+          <text x="75" y="50" text-anchor="middle" font-size="5" fill="#666" font-family="monospace">nRF5340</text>
+          <text x="75" y="58" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">DW3720</text>
+          <!-- 3.5mm jack on left side -->
+          <circle cx="30" cy="50" r="6" fill="#888" stroke="#666" stroke-width="0.5"/>
+          <circle cx="30" cy="50" r="3" fill="#444"/>
+          <circle cx="30" cy="50" r="1.5" fill="#555"/>
+          <text x="75" y="95" text-anchor="middle" font-size="7" fill="#A78BFA" font-family="sans-serif" font-weight="500">Pro Line</text>
+          <text x="75" y="107" text-anchor="middle" font-size="5.5" fill="#666" font-family="sans-serif">3.5mm TRS jack</text>
+          <circle cx="100" cy="35" r="2.5" fill="#8B5CF6" opacity="0.8"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+      <!-- Pro Vocal -->
+      <div style="text-align:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.5rem 1rem;">
+        <svg viewBox="0 0 160 120" width="160" height="120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="20" width="90" height="60" rx="6" fill="#151515" stroke="#2a2a2a" stroke-width="0.8"/>
+          <text x="75" y="50" text-anchor="middle" font-size="5" fill="#666" font-family="monospace">nRF5340</text>
+          <text x="75" y="58" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">DW3720</text>
+          <!-- TA3F mini-XLR on left side -->
+          <rect x="18" y="38" width="14" height="16" rx="3" fill="#888" stroke="#666" stroke-width="0.5"/>
+          <circle cx="25" cy="43" r="1.2" fill="#444"/>
+          <circle cx="22" cy="48" r="1.2" fill="#444"/>
+          <circle cx="28" cy="48" r="1.2" fill="#444"/>
+          <text x="75" y="95" text-anchor="middle" font-size="7" fill="#A78BFA" font-family="sans-serif" font-weight="500">Pro Vocal</text>
+          <text x="75" y="107" text-anchor="middle" font-size="5.5" fill="#666" font-family="sans-serif">TA3F mini-XLR</text>
+          <circle cx="100" cy="35" r="2.5" fill="#8B5CF6" opacity="0.8"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:0.8rem;color:#666;margin-top:1rem;">
+      <span class="en">Same base PCB, same firmware. Only the input connector daughter-board differs.</span>
+      <span class="ja">同じベース基板、同じファームウェア。入力コネクタのドーターボードのみ異なります。</span>
+    </p>
+  </div>
+</section>
+
+<!-- ==================== KOE HUB v2 ==================== -->
+<section class="product-section fade-in" id="hub">
+  <div class="product-header">
+    <h2><span class="cyan">Koe Hub</span> v2</h2>
+    <p class="dims">140 x 120 mm PCB &mdash; <span class="en">Half-rack unit</span><span class="ja">ハーフラックサイズ</span></p>
+  </div>
+  <div class="product-layout">
+    <div class="product-visual" id="hub-visual">
+      <div class="pcb-view" id="hub-pcb">
+        <svg viewBox="0 0 600 440" width="600" height="440" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hub-pcb-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#141414"/><stop offset="100%" stop-color="#0c0c0c"/></linearGradient>
+            <linearGradient id="cm5-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a4a2a"/><stop offset="100%" stop-color="#1a3a1a"/></linearGradient>
+            <filter id="hub-shadow"><feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#000" flood-opacity="0.5"/></filter>
+          </defs>
+          <g filter="url(#hub-shadow)">
+            <!-- Main PCB -->
+            <rect x="30" y="30" width="420" height="360" rx="6" fill="url(#hub-pcb-grad)" stroke="#2a2a2a" stroke-width="1"/>
+            <!-- Trace pattern -->
+            <rect x="30" y="30" width="420" height="360" rx="6" fill="url(#trace-pattern)" opacity="0.2"/>
+            <!-- Ground plane outline -->
+            <rect x="33" y="33" width="414" height="354" rx="4" fill="none" stroke="#1a2a1a" stroke-width="0.3" stroke-dasharray="3,5"/>
+
+            <!-- Decorative traces -->
+            <g stroke="#1a3a1a" stroke-width="0.5" fill="none" opacity="0.4">
+              <path d="M200,200 L200,100 L280,100"/><path d="M200,200 L100,200"/><path d="M280,180 L350,180 L350,120"/>
+              <path d="M150,300 L150,340"/><path d="M250,300 L250,340"/><path d="M350,250 L400,250"/>
+              <path d="M80,150 L50,150"/><path d="M80,200 L50,200"/><path d="M80,250 L50,250"/>
+            </g>
+
+            <!-- Pi CM5 module (center) -->
+            <g class="clickable-component" onclick="showTooltip(event,'Raspberry Pi CM5','Broadcom BCM2712\nCortex-A76 @ 2.4GHz\n8GB LPDDR4X\nDual HDMI, PCIe 2.0')">
+              <rect x="160" y="130" width="120" height="80" rx="3" fill="url(#cm5-grad)" stroke="#3a5a3a" stroke-width="0.8"/>
+              <!-- Two connectors -->
+              <rect x="165" y="212" width="50" height="6" rx="1" fill="#555" stroke="#777" stroke-width="0.3"/>
+              <rect x="225" y="212" width="50" height="6" rx="1" fill="#555" stroke="#777" stroke-width="0.3"/>
+              <!-- CM5 label -->
+              <text x="220" y="165" text-anchor="middle" font-size="7" fill="#6a9a6a" font-family="monospace" font-weight="bold">Raspberry Pi</text>
+              <text x="220" y="178" text-anchor="middle" font-size="9" fill="#8aba8a" font-family="monospace" font-weight="bold">CM5</text>
+              <!-- Raspberry logo approximation -->
+              <circle cx="180" cy="170" r="6" fill="none" stroke="#6a9a6a" stroke-width="0.5"/>
+            </g>
+
+            <!-- ES9038Q2M (bottom area, analog island) -->
+            <g class="clickable-component" onclick="showTooltip(event,'ES9038Q2M','ESS Sabre DAC\n32-bit Hyperstream II\nDNR 129dB, THD -120dB\nAnalog island with separate ground')">
+              <!-- Analog island -->
+              <rect x="100" y="280" width="130" height="70" rx="4" fill="rgba(20,15,10,0.5)" stroke="#3a2a1a" stroke-width="0.5" stroke-dasharray="3,3"/>
+              <text x="165" y="295" text-anchor="middle" font-size="4" fill="#5a4a2a" font-family="monospace">ANALOG ISLAND</text>
+              <rect x="130" y="300" width="50" height="35" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <text x="155" y="320" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">ES9038</text>
+              <text x="155" y="328" text-anchor="middle" font-size="4" fill="#888" font-family="monospace">Q2M</text>
+              <circle cx="136" cy="306" r="1.5" fill="#555"/>
+            </g>
+
+            <!-- nRF5340 (top-left with chip antenna) -->
+            <g class="clickable-component" onclick="showTooltip(event,'nRF5340','BLE 5.3 SoC\nDevice management\nFirmware OTA updates\nChip antenna integrated')">
+              <rect x="60" y="60" width="44" height="44" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <text x="82" y="86" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">nRF5340</text>
+              <!-- Chip antenna -->
+              <rect x="50" y="65" width="8" height="20" rx="1" fill="#2a2a2a" stroke="#444" stroke-width="0.3"/>
+              <line x1="54" y1="68" x2="54" y2="82" stroke="#666" stroke-width="0.5"/>
+            </g>
+
+            <!-- DW3720 (top-right with SMA) -->
+            <g class="clickable-component" onclick="showTooltip(event,'DW3720','UWB Transceiver\nPrecise device tracking\nSMA antenna connector\nSynchronized audio timing')">
+              <rect x="340" y="60" width="44" height="44" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <text x="362" y="86" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">DW3720</text>
+              <!-- SMA connector -->
+              <circle cx="420" cy="70" r="8" fill="url(#gold-grad)" stroke="#a08040" stroke-width="0.5"/>
+              <circle cx="420" cy="70" r="5" fill="#222"/>
+              <circle cx="420" cy="70" r="2" fill="url(#gold-grad)"/>
+            </g>
+
+            <!-- M.2 slot -->
+            <g class="clickable-component" onclick="showTooltip(event,'M.2 Slot','NVMe SSD (2242)\nSession recording\nFirmware storage\nPCIe Gen 2 x1')">
+              <rect x="300" y="140" width="60" height="14" rx="2" fill="#1a1a1a" stroke="#444" stroke-width="0.5"/>
+              <rect x="304" y="142" width="52" height="10" rx="1" fill="#111"/>
+              <text x="330" y="150" text-anchor="middle" font-size="4" fill="#666" font-family="monospace">M.2 2242</text>
+            </g>
+
+            <!-- TRS jacks (left edge, 4 silver cylinders) -->
+            <g class="clickable-component" onclick="showTooltip(event,'TRS Jacks (x4)','1/4 inch balanced audio\n2x input + 2x output\nGold-plated contacts\nBalanced / unbalanced')">
+              <circle cx="30" cy="140" r="10" fill="url(#silver-grad)" stroke="#666" stroke-width="0.5"/><circle cx="30" cy="140" r="5.5" fill="#333"/><circle cx="30" cy="140" r="2.5" fill="#555"/>
+              <circle cx="30" cy="175" r="10" fill="url(#silver-grad)" stroke="#666" stroke-width="0.5"/><circle cx="30" cy="175" r="5.5" fill="#333"/><circle cx="30" cy="175" r="2.5" fill="#555"/>
+              <circle cx="30" cy="210" r="10" fill="url(#silver-grad)" stroke="#666" stroke-width="0.5"/><circle cx="30" cy="210" r="5.5" fill="#333"/><circle cx="30" cy="210" r="2.5" fill="#555"/>
+              <circle cx="30" cy="245" r="10" fill="url(#silver-grad)" stroke="#666" stroke-width="0.5"/><circle cx="30" cy="245" r="5.5" fill="#333"/><circle cx="30" cy="245" r="2.5" fill="#555"/>
+            </g>
+
+            <!-- XLR combos (bottom-left, 2 large circles) -->
+            <g class="clickable-component" onclick="showTooltip(event,'XLR Combo (x2)','Neutrik combo jacks\nXLR + 1/4 TRS\nMic / line input\n48V phantom power')">
+              <circle cx="65" cy="330" r="14" fill="#1a1a1a" stroke="#555" stroke-width="0.8"/>
+              <circle cx="65" cy="330" r="9" fill="none" stroke="#444" stroke-width="0.5"/>
+              <circle cx="59" cy="325" r="1.5" fill="#666"/><circle cx="71" cy="325" r="1.5" fill="#666"/><circle cx="65" cy="335" r="1.5" fill="#666"/>
+              <circle cx="65" cy="370" r="14" fill="#1a1a1a" stroke="#555" stroke-width="0.8"/>
+              <circle cx="65" cy="370" r="9" fill="none" stroke="#444" stroke-width="0.5"/>
+              <circle cx="59" cy="365" r="1.5" fill="#666"/><circle cx="71" cy="365" r="1.5" fill="#666"/><circle cx="65" cy="375" r="1.5" fill="#666"/>
+            </g>
+
+            <!-- Speakon (bottom-right) -->
+            <g class="clickable-component" onclick="showTooltip(event,'Speakon (x2)','Neutrik NL4\nPowered speaker output\n4-pin locking connector\nBridge / bi-amp capable')">
+              <rect x="360" y="315" width="28" height="28" rx="4" fill="#1a1a1a" stroke="#555" stroke-width="0.5"/>
+              <circle cx="374" cy="329" r="8" fill="none" stroke="#444" stroke-width="0.5"/>
+              <rect x="370" y="325" width="8" height="8" rx="1" fill="#333"/>
+              <rect x="360" y="355" width="28" height="28" rx="4" fill="#1a1a1a" stroke="#555" stroke-width="0.5"/>
+              <circle cx="374" cy="369" r="8" fill="none" stroke="#444" stroke-width="0.5"/>
+              <rect x="370" y="365" width="8" height="8" rx="1" fill="#333"/>
+            </g>
+
+            <!-- Toslink (right edge, 2 red squares) -->
+            <g class="clickable-component" onclick="showTooltip(event,'TOSLINK (x2)','ADAT optical\n8ch @ 48kHz in/out\nMulti-track recording\nS/PDIF compatible')">
+              <rect x="442" y="180" width="12" height="12" rx="2" fill="#330000" stroke="#555" stroke-width="0.4"/>
+              <rect x="444" y="182" width="8" height="8" rx="1" fill="#660000"/>
+              <rect x="442" y="200" width="12" height="12" rx="2" fill="#330000" stroke="#555" stroke-width="0.4"/>
+              <rect x="444" y="202" width="8" height="8" rx="1" fill="#660000"/>
+            </g>
+
+            <!-- BNC (right edge) -->
+            <g class="clickable-component" onclick="showTooltip(event,'BNC Connector','Word clock in/out\n44.1 / 48 / 96 kHz\nExternal sync reference')">
+              <circle cx="450" cy="240" r="7" fill="url(#gold-grad)" stroke="#a08040" stroke-width="0.5"/>
+              <circle cx="450" cy="240" r="4" fill="#222"/>
+              <circle cx="450" cy="240" r="1.5" fill="url(#gold-grad)"/>
+            </g>
+
+            <!-- HDMI + USB-C + RJ45 (top edge) -->
+            <g class="clickable-component" onclick="showTooltip(event,'I/O Panel','HDMI 2.0 output\nUSB-C (data + power)\nRJ45 Gigabit Ethernet')">
+              <!-- HDMI -->
+              <path d="M200,28 L200,38 L230,38 L230,28" fill="#333" stroke="#555" stroke-width="0.4"/>
+              <rect x="203" y="30" width="24" height="6" rx="1" fill="#222"/>
+              <text x="215" y="24" text-anchor="middle" font-size="3.5" fill="#666" font-family="monospace">HDMI</text>
+              <!-- USB-C -->
+              <rect x="250" y="28" width="28" height="8" rx="3" fill="#444" stroke="#555" stroke-width="0.3"/>
+              <text x="264" y="24" text-anchor="middle" font-size="3.5" fill="#666" font-family="monospace">USB-C</text>
+              <!-- RJ45 -->
+              <rect x="295" y="25" width="20" height="15" rx="1" fill="#333" stroke="#555" stroke-width="0.4"/>
+              <rect x="298" y="28" width="14" height="8" rx="0.5" fill="#222"/>
+              <text x="305" y="22" text-anchor="middle" font-size="3.5" fill="#666" font-family="monospace">RJ45</text>
+            </g>
+
+            <!-- 6 Status LEDs -->
+            <g>
+              <circle cx="140" cy="50" r="2.5" fill="#22c55e" opacity="0.8"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/></circle>
+              <circle cx="152" cy="50" r="2.5" fill="#22c55e" opacity="0.6"/>
+              <circle cx="164" cy="50" r="2.5" fill="#06B6D4" opacity="0.7"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="2.5s" repeatCount="indefinite"/></circle>
+              <circle cx="176" cy="50" r="2.5" fill="#06B6D4" opacity="0.5"/>
+              <circle cx="188" cy="50" r="2.5" fill="#8B5CF6" opacity="0.6"><animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite"/></circle>
+              <circle cx="200" cy="50" r="2.5" fill="#333"/>
+            </g>
+
+            <!-- DIP switch -->
+            <g class="clickable-component" onclick="showTooltip(event,'DIP Switch','8-position config\nSample rate / mode select\nNetwork ID assignment')">
+              <rect x="280" y="250" width="30" height="10" rx="1" fill="#222" stroke="#555" stroke-width="0.3"/>
+              <rect x="283" y="252" width="3" height="6" rx="0.5" fill="#666"/><rect x="288" y="252" width="3" height="6" rx="0.5" fill="#444"/><rect x="293" y="252" width="3" height="6" rx="0.5" fill="#666"/><rect x="298" y="252" width="3" height="6" rx="0.5" fill="#444"/>
+            </g>
+
+            <!-- Silkscreen -->
+            <text x="260" y="290" font-size="7" fill="#d4d4d8" font-family="monospace" opacity="0.6">Koe Hub v2</text>
+            <text x="350" y="300" font-size="3.5" fill="#d4d4d8" font-family="monospace" opacity="0.3">REV 2.0</text>
+            <text x="260" y="300" font-size="3" fill="#d4d4d8" font-family="monospace" opacity="0.25">EnablerDAO / koe.live</text>
+
+            <!-- Mounting holes -->
+            <circle cx="42" cy="42" r="3" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="438" cy="42" r="3" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="42" cy="378" r="3" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <circle cx="438" cy="378" r="3" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+          </g>
+
+          <!-- Dimensions -->
+          <g stroke="#666" stroke-width="0.5" fill="none">
+            <line x1="30" y1="405" x2="450" y2="405"/><line x1="30" y1="401" x2="30" y2="409"/><line x1="450" y1="401" x2="450" y2="409"/>
+          </g>
+          <text x="240" y="420" text-anchor="middle" font-size="10" fill="#888" font-family="monospace">140 mm</text>
+          <g stroke="#666" stroke-width="0.5" fill="none">
+            <line x1="475" y1="30" x2="475" y2="390"/><line x1="471" y1="30" x2="479" y2="30"/><line x1="471" y1="390" x2="479" y2="390"/>
+          </g>
+          <text x="490" y="215" text-anchor="start" font-size="10" fill="#888" font-family="monospace" transform="rotate(90,490,215)">120 mm</text>
+        </svg>
+      </div>
+      <div class="enclosure-view" id="hub-enclosure">
+        <svg viewBox="0 0 600 320" width="600" height="320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="rack-front" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#353535"/><stop offset="30%" stop-color="#222"/><stop offset="100%" stop-color="#111"/></linearGradient>
+            <linearGradient id="rack-top" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#2a2a2a"/></linearGradient>
+            <linearGradient id="rack-highlight" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0)"/><stop offset="40%" stop-color="rgba(255,255,255,0.1)"/><stop offset="60%" stop-color="rgba(255,255,255,0.05)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient>
+            <filter id="rack-shadow"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.7"/></filter>
+          </defs>
+          <g transform="translate(30,30)" filter="url(#rack-shadow)">
+            <!-- 3D half-rack enclosure -->
+            <!-- Top face -->
+            <path d="M30,20 L500,10 L530,40 L60,50 Z" fill="url(#rack-top)" stroke="#555" stroke-width="0.8"/>
+            <!-- Highlight on top edge -->
+            <path d="M35,21 L495,11" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <!-- Ventilation slots on top -->
+            <g stroke="#1a1a1a" stroke-width="1.5" opacity="0.7">
+              <line x1="150" y1="18" x2="400" y2="14"/><line x1="150" y1="23" x2="400" y2="19"/><line x1="150" y1="28" x2="400" y2="24"/><line x1="150" y1="33" x2="400" y2="29"/>
+            </g>
+            <!-- Front face -->
+            <path d="M30,20 L60,50 L60,200 L30,170 Z" fill="#2a2a2a" stroke="#555" stroke-width="0.8"/>
+            <!-- Right face (main panel) -->
+            <rect x="60" y="50" width="470" height="150" rx="2" fill="url(#rack-front)" stroke="#555" stroke-width="0.8"/>
+            <!-- Subtle panel reflection -->
+            <rect x="60" y="50" width="470" height="8" rx="1" fill="url(#rack-highlight)" opacity="0.3"/>
+            <!-- Panel sections -->
+            <!-- TRS jacks -->
+            <g>
+              <circle cx="100" cy="115" r="8" fill="#222" stroke="url(#silver-grad)" stroke-width="1.5"/><circle cx="100" cy="115" r="4" fill="#333"/>
+              <circle cx="130" cy="115" r="8" fill="#222" stroke="url(#silver-grad)" stroke-width="1.5"/><circle cx="130" cy="115" r="4" fill="#333"/>
+              <circle cx="160" cy="115" r="8" fill="#222" stroke="url(#silver-grad)" stroke-width="1.5"/><circle cx="160" cy="115" r="4" fill="#333"/>
+              <circle cx="190" cy="115" r="8" fill="#222" stroke="url(#silver-grad)" stroke-width="1.5"/><circle cx="190" cy="115" r="4" fill="#333"/>
+              <text x="100" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">IN 1</text>
+              <text x="130" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">IN 2</text>
+              <text x="160" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">OUT 1</text>
+              <text x="190" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">OUT 2</text>
+            </g>
+            <!-- XLR combos -->
+            <g>
+              <circle cx="240" cy="115" r="12" fill="#1a1a1a" stroke="#555" stroke-width="1"/><circle cx="240" cy="115" r="7" fill="none" stroke="#444" stroke-width="0.5"/><circle cx="235" cy="110" r="1.5" fill="#555"/><circle cx="245" cy="110" r="1.5" fill="#555"/><circle cx="240" cy="120" r="1.5" fill="#555"/>
+              <circle cx="280" cy="115" r="12" fill="#1a1a1a" stroke="#555" stroke-width="1"/><circle cx="280" cy="115" r="7" fill="none" stroke="#444" stroke-width="0.5"/><circle cx="275" cy="110" r="1.5" fill="#555"/><circle cx="285" cy="110" r="1.5" fill="#555"/><circle cx="280" cy="120" r="1.5" fill="#555"/>
+              <text x="240" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">MIC 1</text>
+              <text x="280" y="140" text-anchor="middle" font-size="4" fill="#555" font-family="monospace">MIC 2</text>
+            </g>
+            <!-- Headphone out -->
+            <circle cx="320" cy="115" r="6" fill="#222" stroke="url(#silver-grad)" stroke-width="1"/><circle cx="320" cy="115" r="3" fill="#333"/>
+            <text x="320" y="140" text-anchor="middle" font-size="3.5" fill="#555" font-family="monospace">PHONES</text>
+            <!-- Power LED -->
+            <circle cx="350" cy="100" r="3" fill="#22c55e" opacity="0.8"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle>
+            <text x="350" y="112" text-anchor="middle" font-size="3.5" fill="#555" font-family="monospace">PWR</text>
+            <!-- OLED screen area -->
+            <rect x="380" y="80" width="80" height="50" rx="3" fill="#050510" stroke="#444" stroke-width="0.5"/>
+            <text x="420" y="100" text-anchor="middle" font-size="5" fill="#06B6D4" font-family="monospace" opacity="0.7">Koe Hub</text>
+            <text x="420" y="112" text-anchor="middle" font-size="4" fill="#8B5CF6" font-family="monospace" opacity="0.5">48kHz / 24bit</text>
+            <text x="420" y="122" text-anchor="middle" font-size="3.5" fill="#22c55e" font-family="monospace" opacity="0.4">4 devices</text>
+            <!-- Logo -->
+            <text x="490" y="120" text-anchor="middle" font-size="12" fill="#444" font-family="-apple-system,sans-serif" font-weight="100" letter-spacing="3">KOE</text>
+            <text x="490" y="132" text-anchor="middle" font-size="5" fill="#333" font-family="-apple-system,sans-serif" font-weight="300">HUB</text>
+            <!-- Rubber feet indication -->
+            <rect x="80" y="200" width="12" height="4" rx="2" fill="#1a1a1a"/>
+            <rect x="450" y="200" width="12" height="4" rx="2" fill="#1a1a1a"/>
+            <!-- Section labels -->
+            <text x="145" y="70" text-anchor="middle" font-size="5" fill="#555" font-family="monospace">AUDIO</text>
+            <text x="260" y="70" text-anchor="middle" font-size="5" fill="#555" font-family="monospace">MIC</text>
+            <text x="420" y="70" text-anchor="middle" font-size="5" fill="#555" font-family="monospace">STATUS</text>
+          </g>
+          <text x="300" y="280" text-anchor="middle" font-size="11" fill="#888" font-family="-apple-system,sans-serif" font-weight="200">
+            <tspan class="en">19" Half-Rack &bull; Black Anodized Aluminum</tspan><tspan class="ja">19" ハーフラック &bull; ブラックアルマイト</tspan>
+          </text>
+          <text x="300" y="298" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">241 x 160 x 44 mm &bull; ~1.2 kg</text>
+        </svg>
+      </div>
+    </div>
+    <div class="spec-sidebar">
+      <h3><span class="en">Technical Specs</span><span class="ja">技術仕様</span></h3>
+      <div class="spec-row"><span class="label">PCB</span><span class="value">140 x 120 mm, 6-layer</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Enclosure</span><span class="ja">筐体</span></span><span class="value">241 x 160 x 44 mm</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Weight</span><span class="ja">重量</span></span><span class="value">~1.2 kg</span></div>
+      <div class="spec-row"><span class="label">BOM</span><span class="value">~$185</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Components</span><span class="ja">部品数</span></span><span class="value">142</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Layers</span><span class="ja">層数</span></span><span class="value">6</span></div>
+      <div class="spec-row"><span class="label">CPU</span><span class="value">Pi CM5</span></div>
+      <div class="spec-row"><span class="label">DAC</span><span class="value">ES9038Q2M</span></div>
+      <div class="spec-row"><span class="label">BLE</span><span class="value">nRF5340</span></div>
+      <div class="spec-row"><span class="label">UWB</span><span class="value">DW3720</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Audio I/O</span><span class="ja">音声I/O</span></span><span class="value">4x TRS, 2x XLR</span></div>
+      <div class="spec-row"><span class="label">Digital</span><span class="value">ADAT, BNC, HDMI</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Power</span><span class="ja">電源</span></span><span class="value">USB-C PD / DC 12V</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Network</span><span class="ja">ネットワーク</span></span><span class="value">GbE + WiFi 6E</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COIN LITE ==================== -->
+<section class="product-section fade-in" id="coin">
+  <div class="product-header">
+    <h2><span class="purple">COIN</span> Lite</h2>
+    <p class="dims">26 mm <span class="en">diameter</span><span class="ja">直径</span> &mdash; <span class="en">500 yen coin size</span><span class="ja">500円玉サイズ</span></p>
+  </div>
+  <div class="product-layout">
+    <div class="product-visual" id="coin-visual">
+      <div class="pcb-view" id="coin-pcb">
+        <svg viewBox="0 0 400 400" width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="coin-pcb-grad" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#181818"/><stop offset="90%" stop-color="#101010"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient>
+            <filter id="coin-shadow"><feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#000" flood-opacity="0.6"/></filter>
+            <filter id="led-bloom"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g filter="url(#coin-shadow)">
+            <!-- Circular PCB -->
+            <circle cx="200" cy="200" r="78" fill="url(#coin-pcb-grad)" stroke="#2a2a2a" stroke-width="1"/>
+            <!-- Ground plane ring -->
+            <circle cx="200" cy="200" r="74" fill="none" stroke="#1a2a1a" stroke-width="0.3"/>
+            <!-- Traces -->
+            <g stroke="#1a3a1a" stroke-width="0.4" fill="none" opacity="0.4">
+              <path d="M200,180 L200,150"/><path d="M200,200 L160,200"/><path d="M200,200 L230,230"/><path d="M180,190 L150,170"/>
+              <circle cx="200" cy="200" r="50" stroke-dasharray="2,4"/>
+            </g>
+
+            <!-- ESP32-C3 module (center) -->
+            <g class="clickable-component" onclick="showTooltip(event,'ESP32-C3','RISC-V single-core @ 160MHz\nWiFi 4 + BLE 5.0\n400KB SRAM\nQFN-32 (5x5mm)')">
+              <rect x="180" y="180" width="40" height="40" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
+              <g fill="#888">
+                <rect x="183" y="177" width="3" height="2.5" rx="0.3"/><rect x="189" y="177" width="3" height="2.5" rx="0.3"/><rect x="195" y="177" width="3" height="2.5" rx="0.3"/><rect x="201" y="177" width="3" height="2.5" rx="0.3"/><rect x="207" y="177" width="3" height="2.5" rx="0.3"/><rect x="213" y="177" width="3" height="2.5" rx="0.3"/>
+                <rect x="183" y="221" width="3" height="2.5" rx="0.3"/><rect x="189" y="221" width="3" height="2.5" rx="0.3"/><rect x="195" y="221" width="3" height="2.5" rx="0.3"/><rect x="201" y="221" width="3" height="2.5" rx="0.3"/><rect x="207" y="221" width="3" height="2.5" rx="0.3"/><rect x="213" y="221" width="3" height="2.5" rx="0.3"/>
+              </g>
+              <circle cx="185" cy="185" r="1.5" fill="#555"/>
+              <text x="200" y="202" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">ESP32</text>
+              <text x="200" y="210" text-anchor="middle" font-size="4.5" fill="#888" font-family="monospace">-C3</text>
+            </g>
+
+            <!-- MAX98357A (left) -->
+            <g class="clickable-component" onclick="showTooltip(event,'MAX98357A','Class-D Amplifier\n3.2W mono output\nI2S digital input')">
+              <rect x="135" y="190" width="22" height="18" rx="1.5" fill="url(#chip-grad)" stroke="#555" stroke-width="0.4"/>
+              <text x="146" y="202" text-anchor="middle" font-size="3.5" fill="#999" font-family="monospace">MAX</text>
+            </g>
+
+            <!-- WS2812B LED (top, glowing) -->
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB\nSync indicator\nMulticolor patterns')">
+              <rect x="194" y="145" width="12" height="12" rx="2" fill="#111" stroke="#333" stroke-width="0.3"/>
+              <circle cx="200" cy="151" r="4.5" fill="#8B5CF6" filter="url(#led-bloom)" opacity="0.9">
+                <animate attributeName="fill" values="#8B5CF6;#06B6D4;#22c55e;#8B5CF6" dur="4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+
+            <!-- Battery connector (bottom) -->
+            <g class="clickable-component" onclick="showTooltip(event,'Battery Connector','LiPo 80mAh\nJST-SH 1.0mm pitch\n~4 hours runtime')">
+              <rect x="190" y="240" width="20" height="8" rx="1" fill="#eee" stroke="#ccc" stroke-width="0.3"/>
+              <rect x="193" y="242" width="5" height="4" rx="0.5" fill="url(#gold-grad)"/>
+              <rect x="202" y="242" width="5" height="4" rx="0.5" fill="url(#gold-grad)"/>
+            </g>
+
+            <!-- Button (right) -->
+            <g class="clickable-component" onclick="showTooltip(event,'Button','Power / mode toggle\nDouble-tap: pairing\nLong press: off')">
+              <circle cx="245" cy="200" r="5" fill="url(#silver-grad)" stroke="#777" stroke-width="0.4"/>
+              <circle cx="245" cy="200" r="3" fill="#666"/>
+            </g>
+
+            <!-- USB-C (bottom edge) -->
+            <g class="clickable-component" onclick="showTooltip(event,'USB-C','Charging + firmware\nUSB 2.0')">
+              <rect x="186" y="268" width="28" height="7" rx="3" fill="url(#usbc-grad)" stroke="#777" stroke-width="0.4"/>
+              <rect x="191" y="270" width="18" height="3" rx="1.5" fill="#444"/>
+            </g>
+
+            <!-- Silkscreen -->
+            <text x="200" y="168" text-anchor="middle" font-size="3.5" fill="#d4d4d8" font-family="monospace" opacity="0.5">COIN Lite</text>
+          </g>
+
+          <!-- Size reference: 500 yen coin outline -->
+          <circle cx="200" cy="200" r="80" fill="none" stroke="#444" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+          <text x="200" y="300" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">26 mm</text>
+
+          <!-- Actual size indicator -->
+          <g transform="translate(320,160)">
+            <text x="0" y="0" font-size="7" fill="#666" font-family="-apple-system,sans-serif" font-weight="300">
+              <tspan class="en">Actual size</tspan><tspan class="ja">実寸</tspan>
+            </text>
+            <text x="0" y="14" font-size="6" fill="#555" font-family="-apple-system,sans-serif" font-weight="200">(26 mm)</text>
+            <circle cx="20" cy="50" r="13" fill="none" stroke="var(--purple)" stroke-width="0.5" opacity="0.5"/>
+            <circle cx="20" cy="50" r="0.5" fill="var(--purple)" opacity="0.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="enclosure-view" id="coin-enclosure">
+        <svg viewBox="0 0 400 350" width="400" height="350" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="coin-case-top" cx="0.35" cy="0.3" r="0.65"><stop offset="0%" stop-color="rgba(255,255,255,0.25)"/><stop offset="40%" stop-color="rgba(255,255,255,0.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0.03)"/></radialGradient>
+            <radialGradient id="coin-glow" cx="0.5" cy="0.3" r="0.5"><stop offset="0%" stop-color="rgba(139,92,246,0.7)"/><stop offset="50%" stop-color="rgba(139,92,246,0.3)"/><stop offset="100%" stop-color="rgba(139,92,246,0)"/></radialGradient>
+            <radialGradient id="coin-body-grad" cx="0.4" cy="0.3" r="0.7"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#111"/></radialGradient>
+            <filter id="coin-enc-shadow"><feDropShadow dx="0" dy="6" stdDeviation="15" flood-color="#000" flood-opacity="0.7"/></filter>
+            <filter id="coin-led-glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g filter="url(#coin-enc-shadow)" transform="translate(100,40)">
+            <!-- Shadow on ground -->
+            <ellipse cx="100" cy="190" rx="75" ry="12" fill="rgba(0,0,0,0.4)"/>
+            <!-- Bottom disc (matte black) -->
+            <ellipse cx="100" cy="175" rx="70" ry="18" fill="#151515" stroke="#333" stroke-width="0.5"/>
+            <!-- Side wall (cylinder) -->
+            <rect x="30" y="155" width="140" height="20" rx="0" fill="url(#coin-body-grad)"/>
+            <!-- Side edge highlight -->
+            <line x1="30" y1="155" x2="30" y2="175" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="170" y1="155" x2="170" y2="175" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <!-- Top disc rim -->
+            <ellipse cx="100" cy="155" rx="70" ry="18" fill="#222" stroke="#444" stroke-width="0.8"/>
+            <!-- Top disc (frosted polycarbonate) -->
+            <ellipse cx="100" cy="155" rx="66" ry="15" fill="url(#coin-case-top)" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+            <!-- LED glow ring -->
+            <ellipse cx="100" cy="154" rx="50" ry="12" fill="none" stroke="rgba(139,92,246,0.5)" stroke-width="2" filter="url(#coin-led-glow)">
+              <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- LED glow through top -->
+            <ellipse cx="100" cy="153" rx="40" ry="10" fill="url(#coin-glow)" opacity="0.7">
+              <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- Koe logo on bottom (visible from slight angle) -->
+            <text x="100" y="185" text-anchor="middle" font-size="7" fill="#444" font-family="-apple-system,sans-serif" font-weight="200" letter-spacing="3">KOE</text>
+            <!-- Lanyard loop -->
+            <ellipse cx="170" cy="165" rx="6" ry="4" fill="none" stroke="#555" stroke-width="1.2"/>
+            <!-- Magnetic clip indicator -->
+            <circle cx="100" cy="185" r="8" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2"/>
+          </g>
+          <text x="200" y="260" text-anchor="middle" font-size="11" fill="#888" font-family="-apple-system,sans-serif" font-weight="200">
+            <tspan class="en">Frosted Polycarbonate + Matte Black</tspan><tspan class="ja">フロストポリカーボネート + マットブラック</tspan>
+          </text>
+          <text x="200" y="280" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">26 mm &times; 8 mm &bull; ~8g</text>
+        </svg>
+      </div>
+    </div>
+    <div class="spec-sidebar">
+      <h3><span class="en">Technical Specs</span><span class="ja">技術仕様</span></h3>
+      <div class="spec-row"><span class="label">PCB</span><span class="value">26 mm round, 2-layer</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Enclosure</span><span class="ja">筐体</span></span><span class="value">26 x 8 mm disc</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Weight</span><span class="ja">重量</span></span><span class="value">~8 g</span></div>
+      <div class="spec-row"><span class="label">BOM</span><span class="value">~$24</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Components</span><span class="ja">部品数</span></span><span class="value">28</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Layers</span><span class="ja">層数</span></span><span class="value">2</span></div>
+      <div class="spec-row"><span class="label">SoC</span><span class="value">ESP32-C3</span></div>
+      <div class="spec-row"><span class="label">Amp</span><span class="value">MAX98357A</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Battery</span><span class="ja">電池</span></span><span class="value">LiPo 80mAh</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Runtime</span><span class="ja">動作時間</span></span><span class="value">~4 hours</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Connectivity</span><span class="ja">接続</span></span><span class="value">WiFi + BLE 5</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Sync</span><span class="ja">同期</span></span><span class="value">NTP (WiFi)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== KOE STAGE ==================== -->
+<section class="product-section fade-in" id="stage">
+  <div class="product-header">
+    <h2><span class="cyan">Koe</span> STAGE</h2>
+    <p class="dims"><span class="en">360-degree speaker array</span><span class="ja">360度スピーカーアレイ</span></p>
+  </div>
+  <div class="product-layout">
+    <div class="product-visual" id="stage-visual">
+      <div class="pcb-view" id="stage-pcb">
+        <svg viewBox="0 0 400 420" width="400" height="420" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="stage-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="30%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#111"/></linearGradient>
+            <linearGradient id="stage-top" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#333"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+            <linearGradient id="grille-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#222"/><stop offset="100%" stop-color="#151515"/></linearGradient>
+            <linearGradient id="led-ring-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="33%" stop-color="#06B6D4"/><stop offset="66%" stop-color="#22c55e"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient>
+            <filter id="stage-shadow"><feDropShadow dx="0" dy="8" stdDeviation="15" flood-color="#000" flood-opacity="0.7"/></filter>
+            <filter id="led-glow-filter"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g filter="url(#stage-shadow)" transform="translate(70,20)">
+            <!-- Cylindrical body - top ellipse -->
+            <ellipse cx="130" cy="60" rx="100" ry="30" fill="url(#stage-top)" stroke="#555" stroke-width="0.8"/>
+            <!-- Top highlight -->
+            <ellipse cx="115" cy="55" rx="50" ry="12" fill="rgba(255,255,255,0.06)"/>
+            <!-- LED ring glow (outer) -->
+            <ellipse cx="130" cy="60" rx="92" ry="27" fill="none" stroke="url(#led-ring-grad)" stroke-width="6" opacity="0.3" filter="url(#led-glow-filter)">
+              <animate attributeName="opacity" values="0.2;0.5;0.2" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- LED ring -->
+            <ellipse cx="130" cy="60" rx="90" ry="26" fill="none" stroke="url(#led-ring-grad)" stroke-width="4" opacity="0.85">
+              <animate attributeName="opacity" values="0.5;0.95;0.5" dur="3s" repeatCount="indefinite"/>
+              <animateTransform attributeName="transform" type="rotate" values="0 130 60;360 130 60" dur="8s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- Body cylinder -->
+            <rect x="30" y="60" width="200" height="280" fill="url(#stage-body)" stroke="#555" stroke-width="0.8"/>
+            <!-- Body left edge highlight -->
+            <line x1="31" y1="60" x2="31" y2="340" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <!-- Speaker grille (middle section) -->
+            <rect x="30" y="100" width="200" height="180" fill="url(#grille-grad)" stroke="#333" stroke-width="0.3"/>
+            <!-- Grille perforations -->
+            <g fill="#1a1a1a" opacity="0.6">
+              <!-- Rows of dots -->
+              <g>
+                <circle cx="50" cy="120" r="2"/><circle cx="62" cy="120" r="2"/><circle cx="74" cy="120" r="2"/><circle cx="86" cy="120" r="2"/><circle cx="98" cy="120" r="2"/><circle cx="110" cy="120" r="2"/><circle cx="122" cy="120" r="2"/><circle cx="134" cy="120" r="2"/><circle cx="146" cy="120" r="2"/><circle cx="158" cy="120" r="2"/><circle cx="170" cy="120" r="2"/><circle cx="182" cy="120" r="2"/><circle cx="194" cy="120" r="2"/><circle cx="206" cy="120" r="2"/><circle cx="218" cy="120" r="2"/>
+              </g>
+              <g>
+                <circle cx="56" cy="135" r="2"/><circle cx="68" cy="135" r="2"/><circle cx="80" cy="135" r="2"/><circle cx="92" cy="135" r="2"/><circle cx="104" cy="135" r="2"/><circle cx="116" cy="135" r="2"/><circle cx="128" cy="135" r="2"/><circle cx="140" cy="135" r="2"/><circle cx="152" cy="135" r="2"/><circle cx="164" cy="135" r="2"/><circle cx="176" cy="135" r="2"/><circle cx="188" cy="135" r="2"/><circle cx="200" cy="135" r="2"/><circle cx="212" cy="135" r="2"/>
+              </g>
+              <g>
+                <circle cx="50" cy="150" r="2"/><circle cx="62" cy="150" r="2"/><circle cx="74" cy="150" r="2"/><circle cx="86" cy="150" r="2"/><circle cx="98" cy="150" r="2"/><circle cx="110" cy="150" r="2"/><circle cx="122" cy="150" r="2"/><circle cx="134" cy="150" r="2"/><circle cx="146" cy="150" r="2"/><circle cx="158" cy="150" r="2"/><circle cx="170" cy="150" r="2"/><circle cx="182" cy="150" r="2"/><circle cx="194" cy="150" r="2"/><circle cx="206" cy="150" r="2"/><circle cx="218" cy="150" r="2"/>
+              </g>
+              <g>
+                <circle cx="56" cy="165" r="2"/><circle cx="68" cy="165" r="2"/><circle cx="80" cy="165" r="2"/><circle cx="92" cy="165" r="2"/><circle cx="104" cy="165" r="2"/><circle cx="116" cy="165" r="2"/><circle cx="128" cy="165" r="2"/><circle cx="140" cy="165" r="2"/><circle cx="152" cy="165" r="2"/><circle cx="164" cy="165" r="2"/><circle cx="176" cy="165" r="2"/><circle cx="188" cy="165" r="2"/><circle cx="200" cy="165" r="2"/><circle cx="212" cy="165" r="2"/>
+              </g>
+              <g>
+                <circle cx="50" cy="180" r="2"/><circle cx="62" cy="180" r="2"/><circle cx="74" cy="180" r="2"/><circle cx="86" cy="180" r="2"/><circle cx="98" cy="180" r="2"/><circle cx="110" cy="180" r="2"/><circle cx="122" cy="180" r="2"/><circle cx="134" cy="180" r="2"/><circle cx="146" cy="180" r="2"/><circle cx="158" cy="180" r="2"/><circle cx="170" cy="180" r="2"/><circle cx="182" cy="180" r="2"/><circle cx="194" cy="180" r="2"/><circle cx="206" cy="180" r="2"/><circle cx="218" cy="180" r="2"/>
+              </g>
+              <g>
+                <circle cx="56" cy="195" r="2"/><circle cx="68" cy="195" r="2"/><circle cx="80" cy="195" r="2"/><circle cx="92" cy="195" r="2"/><circle cx="104" cy="195" r="2"/><circle cx="116" cy="195" r="2"/><circle cx="128" cy="195" r="2"/><circle cx="140" cy="195" r="2"/><circle cx="152" cy="195" r="2"/><circle cx="164" cy="195" r="2"/><circle cx="176" cy="195" r="2"/><circle cx="188" cy="195" r="2"/><circle cx="200" cy="195" r="2"/><circle cx="212" cy="195" r="2"/>
+              </g>
+              <g>
+                <circle cx="50" cy="210" r="2"/><circle cx="62" cy="210" r="2"/><circle cx="74" cy="210" r="2"/><circle cx="86" cy="210" r="2"/><circle cx="98" cy="210" r="2"/><circle cx="110" cy="210" r="2"/><circle cx="122" cy="210" r="2"/><circle cx="134" cy="210" r="2"/><circle cx="146" cy="210" r="2"/><circle cx="158" cy="210" r="2"/><circle cx="170" cy="210" r="2"/><circle cx="182" cy="210" r="2"/><circle cx="194" cy="210" r="2"/><circle cx="206" cy="210" r="2"/><circle cx="218" cy="210" r="2"/>
+              </g>
+              <g>
+                <circle cx="56" cy="225" r="2"/><circle cx="68" cy="225" r="2"/><circle cx="80" cy="225" r="2"/><circle cx="92" cy="225" r="2"/><circle cx="104" cy="225" r="2"/><circle cx="116" cy="225" r="2"/><circle cx="128" cy="225" r="2"/><circle cx="140" cy="225" r="2"/><circle cx="152" cy="225" r="2"/><circle cx="164" cy="225" r="2"/><circle cx="176" cy="225" r="2"/><circle cx="188" cy="225" r="2"/><circle cx="200" cy="225" r="2"/><circle cx="212" cy="225" r="2"/>
+              </g>
+              <g>
+                <circle cx="50" cy="240" r="2"/><circle cx="62" cy="240" r="2"/><circle cx="74" cy="240" r="2"/><circle cx="86" cy="240" r="2"/><circle cx="98" cy="240" r="2"/><circle cx="110" cy="240" r="2"/><circle cx="122" cy="240" r="2"/><circle cx="134" cy="240" r="2"/><circle cx="146" cy="240" r="2"/><circle cx="158" cy="240" r="2"/><circle cx="170" cy="240" r="2"/><circle cx="182" cy="240" r="2"/><circle cx="194" cy="240" r="2"/><circle cx="206" cy="240" r="2"/><circle cx="218" cy="240" r="2"/>
+              </g>
+              <g>
+                <circle cx="56" cy="255" r="2"/><circle cx="68" cy="255" r="2"/><circle cx="80" cy="255" r="2"/><circle cx="92" cy="255" r="2"/><circle cx="104" cy="255" r="2"/><circle cx="116" cy="255" r="2"/><circle cx="128" cy="255" r="2"/><circle cx="140" cy="255" r="2"/><circle cx="152" cy="255" r="2"/><circle cx="164" cy="255" r="2"/><circle cx="176" cy="255" r="2"/><circle cx="188" cy="255" r="2"/><circle cx="200" cy="255" r="2"/><circle cx="212" cy="255" r="2"/>
+              </g>
+              <g>
+                <circle cx="50" cy="270" r="2"/><circle cx="62" cy="270" r="2"/><circle cx="74" cy="270" r="2"/><circle cx="86" cy="270" r="2"/><circle cx="98" cy="270" r="2"/><circle cx="110" cy="270" r="2"/><circle cx="122" cy="270" r="2"/><circle cx="134" cy="270" r="2"/><circle cx="146" cy="270" r="2"/><circle cx="158" cy="270" r="2"/><circle cx="170" cy="270" r="2"/><circle cx="182" cy="270" r="2"/><circle cx="194" cy="270" r="2"/><circle cx="206" cy="270" r="2"/><circle cx="218" cy="270" r="2"/>
+              </g>
+            </g>
+            <!-- Bottom ellipse -->
+            <ellipse cx="130" cy="340" rx="100" ry="30" fill="#151515" stroke="#333" stroke-width="0.5"/>
+            <!-- Rubber base -->
+            <ellipse cx="130" cy="345" rx="85" ry="22" fill="#0d0d0d" stroke="#222" stroke-width="0.5"/>
+            <!-- Koe logo on body -->
+            <text x="130" y="310" text-anchor="middle" font-size="14" fill="#333" font-family="-apple-system,sans-serif" font-weight="100" letter-spacing="5">KOE</text>
+            <text x="130" y="326" text-anchor="middle" font-size="7" fill="#2a2a2a" font-family="-apple-system,sans-serif" font-weight="300" letter-spacing="3">STAGE</text>
+          </g>
+          <text x="200" y="405" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">200 mm &times; 300 mm &bull; ~3.5 kg</text>
+        </svg>
+      </div>
+    </div>
+    <div class="spec-sidebar">
+      <h3><span class="en">Technical Specs</span><span class="ja">技術仕様</span></h3>
+      <div class="spec-row"><span class="label"><span class="en">Form</span><span class="ja">形状</span></span><span class="value">Cylinder 200x300mm</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Weight</span><span class="ja">重量</span></span><span class="value">~3.5 kg</span></div>
+      <div class="spec-row"><span class="label">BOM</span><span class="value">~$800</span></div>
+      <div class="spec-row"><span class="label">CPU</span><span class="value">Pi CM5</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Speakers</span><span class="ja">スピーカー</span></span><span class="value">360-degree array</span></div>
+      <div class="spec-row"><span class="label">LED</span><span class="value">RGB ring (32 LEDs)</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Connectivity</span><span class="ja">接続</span></span><span class="value">WiFi 6E + BLE 5.3</span></div>
+      <div class="spec-row"><span class="label">Audio</span><span class="value">ES9038Q2M DAC</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Power</span><span class="ja">電源</span></span><span class="value">DC 24V / 100W</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Protection</span><span class="ja">防護</span></span><span class="value">IP54</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DESIGN PHILOSOPHY ==================== -->
+<section class="fade-in" id="philosophy">
+  <h2><span class="en">Design <span class="purple">Philosophy</span></span><span class="ja">デザイン<span class="purple">哲学</span></span></h2>
+  <p class="section-sub">
+    <span class="en">Three principles guide every decision, from chip selection to enclosure finish.</span>
+    <span class="ja">チップの選定から筐体の仕上げまで、3つの原則がすべての判断を導く。</span>
+  </p>
+  <div class="philosophy-grid">
+    <div class="philosophy-card">
+      <h4><span class="en">Invisible Technology</span><span class="ja">透明なテクノロジー</span></h4>
+      <p><span class="en">Devices disappear into the experience. No blinking lights demanding attention, no fans breaking the silence. Technology should be felt, not seen.</span><span class="ja">デバイスは体験の中に溶け込む。注意を引く点滅ライトも、静寂を破るファンもない。テクノロジーは見るものではなく、感じるもの。</span></p>
+    </div>
+    <div class="philosophy-card">
+      <h4><span class="en">Musical Precision</span><span class="ja">音楽的精度</span></h4>
+      <p><span class="en">Every component chosen for audio quality. ESS Sabre DACs, AKM ADCs, balanced signal paths. We chase the last dB of dynamic range because musicians hear everything.</span><span class="ja">すべての部品を音質で選定。ESS Sabre DAC、AKM ADC、バランス伝送。ミュージシャンはすべてを聴き取るから、ダイナミックレンジの最後の1dBまで追求する。</span></p>
+    </div>
+    <div class="philosophy-card">
+      <h4><span class="en">Festival Tough</span><span class="ja">フェスに耐える</span></h4>
+      <p><span class="en">IP54 enclosure target, drop-tested from 1.5m. Designed for rain, dust, and the chaos of 10,000-person events. If it can survive a festival, it can survive anything.</span><span class="ja">IP54筐体設計、1.5mからの落下試験。雨、埃、1万人のイベントの混沌に耐える設計。フェスで生き残れるなら、何にでも耐えられる。</span></p>
+    </div>
+  </div>
+
+  <!-- Color Palette -->
+  <h3 style="text-align:center;font-weight:200;font-size:1.3rem;margin-top:4rem;margin-bottom:1rem;">
+    <span class="en">Color Palette</span><span class="ja">カラーパレット</span>
+  </h3>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#1a1a1a;"></div>
+      <div class="swatch-name">Matte Black</div>
+      <div class="swatch-hex">#1a1a1a</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#8B5CF6;"></div>
+      <div class="swatch-name">Koe Purple</div>
+      <div class="swatch-hex">#8B5CF6</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#06B6D4;"></div>
+      <div class="swatch-name">Signal Cyan</div>
+      <div class="swatch-hex">#06B6D4</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#22c55e;"></div>
+      <div class="swatch-name">Status Green</div>
+      <div class="swatch-hex">#22c55e</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#c8a84e;"></div>
+      <div class="swatch-name">Connector Gold</div>
+      <div class="swatch-hex">#c8a84e</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-circle" style="background:#9ca3af;"></div>
+      <div class="swatch-name">Hardware Silver</div>
+      <div class="swatch-hex">#9ca3af</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/pro.html">Koe Pro + Hub</a>
+    <a href="/busker.html">Busker</a>
+    <a href="/classroom.html">Classroom</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+  </div>
+  <p class="copyright">&copy; 2026 EnablerDAO &mdash; Open Hardware for Sound</p>
+</footer>
+
+<script>
+// Intersection Observer for fade-in
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Language toggle
+function toggleLang() {
+  document.body.classList.toggle('lang-ja');
+  const btn = document.querySelector('.lang-toggle');
+  btn.textContent = document.body.classList.contains('lang-ja') ? 'EN / JP' : 'JP / EN';
+}
+
+// View toggle (PCB <-> Enclosure)
+let viewMode = 'pcb';
+function toggleView() {
+  viewMode = viewMode === 'pcb' ? 'enclosure' : 'pcb';
+  const btn = document.querySelector('.view-toggle');
+  document.querySelectorAll('.pcb-view').forEach(el => {
+    el.classList.toggle('hidden', viewMode === 'enclosure');
+  });
+  document.querySelectorAll('.enclosure-view').forEach(el => {
+    el.classList.toggle('active', viewMode === 'enclosure');
+  });
+  if (viewMode === 'enclosure') {
+    btn.innerHTML = '<span class="en">PCB View</span><span class="ja">基板表示</span>';
+  } else {
+    btn.innerHTML = '<span class="en">Enclosure</span><span class="ja">筐体</span>';
+  }
+  // Re-apply lang class display
+  if (document.body.classList.contains('lang-ja')) {
+    document.querySelectorAll('.en').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.ja').forEach(e => e.style.display = 'inline');
+  }
+}
+
+// Theme toggle
+const themes = ['', 'theme-white', 'theme-purple'];
+let themeIdx = 0;
+function cycleTheme() {
+  document.body.classList.remove(...themes.filter(t => t));
+  themeIdx = (themeIdx + 1) % themes.length;
+  if (themes[themeIdx]) document.body.classList.add(themes[themeIdx]);
+}
+
+// Tooltip for components
+const tooltip = document.getElementById('tooltip');
+let tooltipTimer;
+function showTooltip(event, title, desc) {
+  event.stopPropagation();
+  clearTimeout(tooltipTimer);
+  const lines = desc.split('\n');
+  tooltip.innerHTML = '<div class="tt-title">' + title + '</div>' + lines.map(l => l).join('<br>');
+  tooltip.classList.add('show');
+  const rect = event.currentTarget.closest('.product-visual').getBoundingClientRect();
+  const x = event.clientX - rect.left + 15;
+  const y = event.clientY - rect.top - 10;
+  tooltip.style.left = Math.min(x, rect.width - 230) + 'px';
+  tooltip.style.top = y + 'px';
+  // Find the correct parent and append
+  const visual = event.currentTarget.closest('.product-visual');
+  if (tooltip.parentElement !== visual) visual.appendChild(tooltip);
+  tooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 3000);
+}
+document.addEventListener('click', () => { tooltip.classList.remove('show'); });
+</script>
+</body>
+</html>

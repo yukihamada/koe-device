@@ -1,182 +1,190 @@
 <div align="center">
 
-# 声 Koe
+# Koe — Sound That Connects
 
-**群衆を楽器にするデバイス。**
-
-1台は記憶。100台はオーケストラ。
+**1 device remembers. 100 devices become an orchestra.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/yukihamada/koe-device?style=flat-square)](https://github.com/yukihamada/koe-device)
 [![Status](https://img.shields.io/badge/status-prototype-orange?style=flat-square)]()
 
-**[Website](https://koe.live/)** · **[日本語](https://koe.live/ja.html)** · **[Soluna Edition](https://koe.live/soluna-edition.html)** · **[Dashboard Demo](https://koe.live/dashboard.html)**
+**[Website](https://koe.live/)** · **[Koe Pro](https://koe.live/pro)** · **[Busker](https://koe.live/busker)** · **[Classroom](https://koe.live/classroom)** · **[Moji](https://koe.live/moji)** · **[SolunaOS](https://koe.live/soluna-os)**
 
-**[日本語はこちら](README.ja.md)** · **[Documentation Portal](https://koe.live/docs.html)**
+**[日本語](README.ja.md)** · **[Documentation](https://koe.live/docs.html)**
 
 </div>
 
 ---
 
-## What is Koe?
+## Products
 
-Koe is a tiny open-hardware device that listens, remembers, and connects people through sound.
+### Hardware
 
-- **Solo mode (Koe):** Always-on AI voice companion. Records your day, understands context, talks back through earbuds.
-- **Crowd mode (Soluna):** P2P audio mesh. Multiple devices on the same WiFi sync instantly. Speak into one, everyone hears it. At a festival, the crowd becomes the speaker system.
+| Device | Description | Key Specs | BOM | Target Price |
+|--------|-------------|-----------|-----|-------------|
+| **Koe Pro** | Ultra-low latency wireless audio transmitter for musicians | ESP32-S3 + DW3000 UWB, 48kHz/24bit, <15ms | ~$35 | $199 |
+| **Koe Hub** | Real-time mixer & streaming server | Pi CM5, 8-channel, EQ/reverb/comp, SRT/RTMP | ~$120 | $399 |
+| **COIN** | Personal audio device for crowds | ESP32-S3, Soluna P2P sync, 26mm disc | ~$24 | $65 |
+| **COIN Lite** | Receive-only festival device | ESP32-C3, minimal BOM | ~$6 | $29 |
+| **Koe Seed** | Auracast receiver, 5 form factors | nRF5340 + nRF21540, 28mm PCB, Find My tracker | ~$8.30 | $35 |
+| **FILL** | Powered speaker | Pi CM5 + 50W Class-D amp, 8" + 1" horn | — | $1,500 |
+| **STAGE** | Festival bridge | Pi CM5, GPS sync, PA routing | — | $800 |
+| **SUB** | Subwoofer | 15", 1000W | — | $1,200 |
 
-### Three experiences no smartphone can deliver
+### Software
 
-| | Experience | What happens |
-|---|---|---|
-| 01 | **Crowd Orchestra** | 1000 people hum → AI generates harmony in real-time → all devices play the missing parts |
-| 02 | **Sound Memory** | "What was the name of that restaurant?" → plays back the exact audio moment |
-| 03 | **Spatial Crowd** | 1000 mics create a real-time 3D sound map of an entire venue |
-
-## 5 Form Factors
-
-| Model | Form | Size | Use case |
-|-------|------|------|----------|
-| **Pick** | Guitar pick pendant | 30 x 30 x 8mm | Daily wear, musician's DNA |
-| **Ear Cuff** | Titanium ear clip | 20 x 8 x 5mm | Closest to your voice |
-| **Coin** | Perfect circle disc | 26mm ⌀ x 6mm | Pocket, fidget, coin-sized |
-| **Band** | Wristband + speaker grille | 40 x 18 x 11mm | Active, festivals |
-| **Lantern** | 360° cylindrical stage unit | 100 x 150mm | Events, Pi CM5 powered |
+| App | Description | URL |
+|-----|-------------|-----|
+| **Busker** | Street performance: audience phones become wireless speakers + tip jar | [koe.live/busker](https://koe.live/busker) |
+| **Classroom** | Teacher/guide voice to everyone's earphones, no app needed | [koe.live/classroom](https://koe.live/classroom) |
+| **Moji** | Real-time speech translation (JA/EN/ZH/KO/ES/FR) | [koe.live/moji](https://koe.live/moji) |
+| **SolunaOS** | Festival management dashboard (timeline, LED show, routing, tickets) | [koe.live/soluna-os](https://koe.live/soluna-os) |
 
 ## Architecture
 
 ```
-[Device] ESP32-S3 + MEMS Mic + Speaker
-    |
-    |  WiFi / UDP multicast (Soluna P2P)
-    |  WiFi / HTTPS (Koe AI)
-    |
-[Cloud] api.chatweb.ai
-    |
-    +-- Agent 1: Listener (STT, context)
-    +-- Agent 2: Thinker (reasoning)
-    +-- Agent 3: Researcher (web search)
-    +-- Agent 4: Responder (TTS)
-    +-- Agent 5: Memory (long-term learning)
+[Instruments] --> [Koe Pro] --WiFi+UWB--> [Koe Hub]
+[Phones]      --> [Busker/Classroom] -->    |-> STAGE -> FILL -> SUB (PA)
+[Voice]       --> [Moji]            -->    |-> COIN / COIN Lite (crowd)
+                                           |-> SRT/RTMP (stream)
+                                           +-> SolunaOS (management)
 ```
 
-### Soluna sync protocol
+## Latency
+
+| Path | Latency |
+|------|---------|
+| Koe Pro -> Hub -> PA | ~14ms |
+| Phone -> Busker/Classroom | ~50ms (WebRTC) |
+| Soluna crowd sync | ~110ms |
+| Moji translation | ~800ms |
+
+## Koe Seed — One PCB, Five Form Factors
+
+The Seed uses a single 28mm round PCB (nRF5340 + nRF21540) that fits in five different enclosures:
+
+| Form Factor | Case | Use Case |
+|-------------|------|----------|
+| **Wristband** | 35x30x12mm oval pod | Festivals, concerts — slides into silicone band |
+| **Keychain** | 32mm disc, 10mm thick | Everyday carry, keys, bag |
+| **Clip-On** | 35x25x12mm + spring clip | Backpack strap, belt loop, pocket edge |
+| **Badge** | 55x35x8mm rectangle | Conferences, museum tours, corporate events |
+| **Pendant** | 35x28x10mm teardrop | Guided tours, jewelry — wear on cord |
+
+Additional ultra-thin option: **Sticker** (32mm, 6mm thick) — stick on phone, laptop, helmet.
+
+### Built-in Tracker (Find My Compatible)
+
+Every Seed broadcasts an [OpenHaystack](https://github.com/seemoo-lab/openhaystack)-compatible BLE beacon in parallel with Auracast reception. This enables lost-item tracking via Apple's Find My network:
+
+- Broadcasts every 2 seconds (~0.01mA power impact)
+- Public key rotates every 15 minutes for privacy
+- Any nearby iPhone relays the encrypted location to Apple's servers
+- Owner retrieves location via the OpenHaystack macOS app
+
+This runs **always** (even during audio playback) using a secondary BLE advertising set on the nRF5340.
+
+## Directory Structure
 
 ```
-[GPS Satellite] → 1PPS → [STAGE: Pi CM5 + TCXO]
-                              |
-                        PTP Grand Master
-                              |
-              WiFi/4G multicast (Opus encoded + GPS timestamp)
-                              |
-                     [CROWD x N: ESP32-S3]
-                              |
-                     GPS coordinate → distance to STAGE
-                              |
-                     delay = distance / speed_of_sound(temperature)
-                              |
-                     Playback synced to STAGE direct sound arrival
+koe-device/
+├── docs/                    # Website (koe.live, served by Fly.io)
+│   ├── index.html           # Landing page
+│   ├── pro.html             # Koe Pro + Hub product page
+│   ├── busker.html          # Busker mode
+│   ├── classroom.html       # Classroom mode
+│   ├── moji.html            # Real-time translation
+│   ├── soluna-os.html       # Festival dashboard
+│   ├── app/                 # P2P web app (Soluna)
+│   └── images/              # Product renders
+├── firmware/                # ESP32-S3 Rust firmware
+│   ├── src/
+│   │   ├── main.rs          # Entry point, dual mode (Koe/Soluna)
+│   │   ├── audio.rs         # I2S, VAD, DSP
+│   │   ├── pro.rs           # Koe Pro low-latency transmitter
+│   │   ├── uwb.rs           # DW3000 UWB clock sync
+│   │   ├── soluna.rs        # UDP multicast P2P protocol
+│   │   ├── cloud.rs         # HTTPS to chatweb.ai
+│   │   └── led.rs           # WS2812B status LED
+│   ├── coin-lite/           # COIN Lite (ESP32-C3) firmware
+│   └── demo/                # Minimal sync demo (2 boards)
+├── hub/                     # Koe Hub software (Pi CM5, Rust)
+├── server/                  # koe.live Axum server (static + OTA API)
+├── hardware/
+│   ├── kicad/               # Schematic + PCB
+│   └── bom/                 # Bill of materials
+├── manufacturing/           # JLCPCB BOM/CPL
+├── regulatory/              # Regulatory docs (技適 etc.)
+├── enclosure/               # 3D printable cases
+├── tools/                   # guitar-stream.py, led-send.py, led-show.py
+└── stage/                   # STAGE device software
 ```
 
 ## Quick Start
 
-### Buy parts
-
-See **[BUY_NOW.md](BUY_NOW.md)** for a complete prototype parts list. Everything is available on Amazon.co.jp for ~¥5,200-6,800.
-
-### Sync demo (2 ESP32-S3 boards)
+### Firmware (ESP32-S3)
 
 ```bash
 # Install toolchain
 cargo install espup && espup install
 cargo install espflash ldproxy
 
-# Flash sender (hold GPIO15 button during boot)
-cd firmware/demo
-WIFI_SSID="YourWiFi" WIFI_PASS="YourPass" cargo espflash flash --monitor
+# Build
+cd firmware && cargo build --release
 
-# Flash receiver (don't hold button)
-# Speak into sender → hear from receiver
+# Flash
+cargo espflash flash --release --monitor
 ```
 
-See [firmware/demo/README.md](firmware/demo/README.md) for details.
+### Hub (Pi CM5)
 
-### Full firmware
+```bash
+cd hub && cargo run --release
+# Dashboard: http://localhost:3000
+```
+
+### COIN Lite (ESP32-C3)
+
+```bash
+cd firmware/coin-lite && cargo build --release
+```
+
+### Deploy Site
+
+```bash
+fly deploy --remote-only -a koe-live
+```
+
+### OTA Firmware Update
 
 ```bash
 cd firmware
-cargo build --release
+./deploy-ota.sh --release --token $KOE_ADMIN_TOKEN
 ```
 
-## Project structure
+## Protocols
 
-```
-koe-device/
-├── docs/                    # Website (GitHub Pages)
-│   ├── index.html           # EN
-│   ├── ja.html              # JA
-│   ├── soluna-edition.html  # Festival-grade audio
-│   ├── dashboard.html       # Management dashboard demo
-│   └── images/              # Product renders (Gemini AI)
-├── firmware/
-│   ├── src/                 # Main firmware (Koe + Soluna)
-│   │   ├── main.rs          # Entry point, dual mode
-│   │   ├── audio.rs         # I2S, VAD, DSP
-│   │   ├── cloud.rs         # HTTPS to chatweb.ai
-│   │   ├── soluna.rs        # UDP multicast P2P protocol
-│   │   └── led.rs           # WS2812B status LED
-│   └── demo/                # Minimal sync demo (2 boards)
-├── hardware/
-│   ├── kicad/               # Schematic + netlist
-│   ├── bom/                 # BOM: Mini ($12), STAGE ($260), CROWD ($52)
-│   └── docs/                # Design specs, acoustic analysis, vision
-├── enclosure/               # 3D printable case specs
-├── LICENSE                  # MIT
-└── CONTRIBUTING.md          # How to contribute
-```
+### Soluna (crowd sync)
 
-## Hardware BOM
+- UDP multicast `239.42.42.1:4242`
+- IMA-ADPCM 4:1 compression, 16kHz mono
+- NTP + GPS time sync
+- WebSocket bridge at `wss://koe.live/ws/soluna`
 
-| Model | BOM Cost | Key Components |
-|-------|----------|----------------|
-| **Pick/Ear Cuff/Coin** | ~$12 | ESP32-S3, INMP441, MAX98357A, LiPo |
-| **Band** | ~$52 | + GPS (MAX-M10S), LTE-M (SIM7080G), 40mm driver |
-| **Lantern STAGE** | ~$260 | Pi CM5, HiFiBerry DAC, TPA3255, 130mm coaxial, GPS (NEO-M9N), 4G |
+### Koe Pro (low-latency)
 
-Full BOM: [hardware/bom/](hardware/bom/)
-
-## Status
-
-| Area | Progress | Notes |
-|------|----------|-------|
-| Hardware design | 70% | Schematic done, parts being ordered |
-| Firmware | 40% | Compiles, needs real hardware test |
-| Koe software | 100% | [app.koe.live](https://app.koe.live) (macOS/Windows) |
-| Prototype | 20% | Waiting for parts |
-| Soluna Edition | 30% | Pi CM5 architecture designed |
-
-## Roadmap
-
-- [ ] **This week:** Order ESP32-S3 + INMP441 + MAX98357A from Amazon.co.jp
-- [ ] **Next week:** Flash sync demo, measure sync accuracy with oscilloscope
-- [ ] **2 weeks:** Demo video → post on site
-- [ ] **1 month:** Pi CM5 STAGE prototype + web dashboard with real data
-- [ ] **3 months:** Field test at 30-person event, 技適 pre-consultation
-- [ ] **6 months:** Custom PCB (JLCPCB), injection mold tooling
-- [ ] **9 months:** Pilot: 4 STAGE + 50 CROWD to one event company
-- [ ] **12 months:** First batch sales
+- UDP unicast port 4244
+- PCM24 48kHz, 128-sample buffer
+- UWB (DW3000) sub-microsecond clock sync
+- WebRTC signaling at `wss://koe.live/ws/signal`
 
 ## Links
 
 - **Website:** https://koe.live/
-- **Koe software:** https://app.koe.live
-- **Soluna:** https://solun.art/soluna
+- **Koe Software:** https://app.koe.live
+- **GitHub:** https://github.com/yukihamada/koe-device
 - **EnablerDAO:** https://github.com/enablerdao
 
 ## License
 
 MIT — see [LICENSE](LICENSE)
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)

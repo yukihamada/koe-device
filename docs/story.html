@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe — The Sound Revolution</title>
+<meta name="description" content="55,000 people. One stage. Every heartbeat in perfect sync. The Koe story told through music and technology.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/story">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe — The Sound Revolution">
+<meta property="og:description" content="55,000 people. One stage. Every heartbeat in perfect sync.">
+<meta property="og:image" content="https://koe.live/images/E1-lineup-float.png">
+<meta property="og:url" content="https://koe.live/story">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe — The Sound Revolution">
+<meta name="twitter:description" content="55,000 people. One stage. Every heartbeat in perfect sync.">
+<meta name="twitter:image" content="https://koe.live/images/E1-lineup-float.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--purple:#8B5CF6;--cyan:#06B6D4;--bg:#0a0a0a;--text:#e8e8e8;--dim:#888;--dimmer:#555}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px}
+a{color:var(--purple);text-decoration:none;transition:color .2s}a:hover{color:#A78BFA}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.04)}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:.3em;color:var(--text);text-decoration:none}
+nav .nav-r{display:flex;gap:1.5rem;align-items:center}
+nav .nav-r a{color:var(--dim);font-size:.85rem;letter-spacing:.05em;transition:color .2s}
+nav .nav-r a:hover{color:#fff}
+.lang-toggle{padding:.35rem .8rem;border-radius:100px;border:1px solid #333;background:transparent;color:var(--dim);font-size:.75rem;cursor:pointer;transition:all .2s}
+.lang-toggle:hover{border-color:var(--purple);color:var(--purple)}
+
+/* CHAPTERS */
+.chapter{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6rem 2rem;position:relative;scroll-snap-align:start}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .9s ease-out,transform .9s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.15s}.reveal-delay-2{transition-delay:.3s}.reveal-delay-3{transition-delay:.45s}.reveal-delay-4{transition-delay:.55s}
+
+/* CHAPTER 1 — THE PROBLEM */
+.ch1{background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.02) 0%,transparent 60%)}
+.spotlight{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);position:absolute;top:20%;animation:spotlight-breathe 4s ease-in-out infinite}
+@keyframes spotlight-breathe{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+.ch1 h2{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:100;letter-spacing:-.02em;line-height:1.4;text-align:center;max-width:700px}
+.ch1 h2 em{font-style:normal;color:var(--purple);font-weight:300}
+.waveform-wrap{width:min(90vw,700px);height:120px;margin-top:3rem;position:relative}
+.waveform-bar{position:absolute;bottom:0;width:3px;border-radius:2px;background:var(--purple);opacity:.5;transform-origin:bottom}
+.delay-label{margin-top:1.5rem;font-size:clamp(.85rem,2vw,1.1rem);color:var(--dim);text-align:center;letter-spacing:.02em}
+.delay-label span{color:var(--cyan);font-weight:500}
+
+/* CHAPTER 2 — THE VISION */
+.ch2{background:radial-gradient(ellipse at 50% 30%,rgba(139,92,246,.06) 0%,transparent 60%)}
+.ch2 h2{font-size:clamp(1.4rem,3.5vw,2.4rem);font-weight:100;text-align:center;max-width:650px;line-height:1.5}
+#crowd-canvas{margin-top:2rem;border-radius:12px}
+.crowd-counter{font-size:clamp(2rem,6vw,4.5rem);font-weight:100;color:var(--cyan);margin-top:1.5rem;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.crowd-counter-label{font-size:.9rem;color:var(--dimmer);margin-top:.3rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* CHAPTER 3 — THE TECHNOLOGY */
+.ch3{padding:6rem 1.5rem}
+.ch3 h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:3rem}
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:960px;width:100%}
+@media(max-width:768px){.tech-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}}
+.tech-card{background:linear-gradient(165deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2.5rem 2rem;text-align:center;transition:all .4s cubic-bezier(.16,1,.3,1)}
+.tech-card:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.25);box-shadow:0 24px 60px rgba(0,0,0,.4),0 0 40px rgba(139,92,246,.06)}
+.tech-card h3{font-size:1.3rem;font-weight:300;letter-spacing:.03em;margin-bottom:.3rem}
+.tech-card .price{font-size:.9rem;color:var(--cyan);margin-bottom:1.2rem}
+.tech-card p{font-size:.85rem;color:var(--dim);line-height:1.7}
+
+/* Device animations */
+.device-anim{width:140px;height:140px;margin:0 auto 1.5rem;position:relative;perspective:600px}
+.coin-circle{width:90px;height:90px;border-radius:50%;border:2px solid var(--purple);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotateY(0);animation:coin-spin 8s linear infinite;box-shadow:0 0 20px rgba(139,92,246,.15)}
+@keyframes coin-spin{0%{transform:translate(-50%,-50%) rotateY(0)}100%{transform:translate(-50%,-50%) rotateY(360deg)}}
+.coin-circle::after{content:'Koe';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.7rem;letter-spacing:.15em;color:var(--purple)}
+.pill-shape{width:120px;height:50px;border-radius:25px;border:2px solid var(--cyan);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:pill-float 4s ease-in-out infinite;box-shadow:0 0 20px rgba(6,182,212,.12)}
+@keyframes pill-float{0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(-3deg)}50%{transform:translate(-50%,-50%) translateY(-8px) rotate(3deg)}}
+.pill-shape::after{content:'PRO';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.65rem;letter-spacing:.2em;color:var(--cyan)}
+.hub-rack{width:130px;height:70px;border:2px solid #22c55e;border-radius:8px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(34,197,94,.1)}
+.hub-rack::before{content:'';position:absolute;top:12px;left:15px;right:15px;height:3px;background:#22c55e;border-radius:2px;box-shadow:0 10px 0 #22c55e,0 20px 0 #22c55e,0 30px 0 #22c55e;opacity:.4}
+.hub-rack::after{content:'HUB';position:absolute;bottom:6px;right:10px;font-size:.55rem;letter-spacing:.15em;color:#22c55e;opacity:.6}
+.hub-led{position:absolute;top:10px;right:12px;width:6px;height:6px;border-radius:50%;background:#22c55e;animation:hub-blink 2s ease-in-out infinite}
+@keyframes hub-blink{0%,100%{opacity:.3;box-shadow:0 0 4px #22c55e}50%{opacity:1;box-shadow:0 0 12px #22c55e}}
+
+/* CHAPTER 4 — THE APPS */
+.ch4{padding:6rem 1.5rem}
+.ch4 h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:3rem}
+.app-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;max-width:700px;width:100%}
+@media(max-width:600px){.app-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}}
+.app-card{background:linear-gradient(165deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:2rem 1.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);transform:rotateY(0);cursor:default}
+.app-card:hover{border-color:rgba(139,92,246,.2);transform:translateY(-4px)}
+.app-card .app-icon{font-size:2rem;margin-bottom:.8rem}
+.app-card h3{font-size:1.1rem;font-weight:300;margin-bottom:.5rem}
+.app-card p{font-size:.82rem;color:var(--dim);line-height:1.6}
+
+/* CHAPTER 5 — THE NUMBERS */
+.ch5{background:radial-gradient(ellipse at 50% 50%,rgba(6,182,212,.05) 0%,transparent 60%)}
+.ch5 h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:3.5rem}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem 3rem;max-width:750px;width:100%}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{text-align:center}
+.stat-num{font-size:clamp(2rem,5vw,3.2rem);font-weight:100;color:var(--cyan);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat-num .purple{color:var(--purple)}
+.stat-label{font-size:.8rem;color:var(--dim);margin-top:.3rem;letter-spacing:.05em}
+
+/* CHAPTER 6 — LYRICS */
+.ch6{min-height:auto;padding:8rem 2rem;background:radial-gradient(ellipse at 50% 20%,rgba(139,92,246,.08) 0%,transparent 50%)}
+.ch6 h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:1rem}
+.ch6 .section-sub{text-align:center;color:var(--dim);margin-bottom:3rem;font-size:.9rem}
+#eq-canvas{display:block;margin:0 auto 3rem;border-radius:8px;opacity:.7}
+.lyrics-container{max-width:620px;margin:0 auto}
+.lyrics-section{margin-bottom:3rem;opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+.lyrics-section.visible{opacity:1;transform:translateY(0)}
+.lyrics-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--purple);margin-bottom:1rem;font-weight:500}
+.lyrics-line{font-size:clamp(.95rem,2.2vw,1.15rem);line-height:2;color:var(--text);font-weight:200;overflow:hidden}
+.lyrics-line.ja{color:var(--dim);font-size:clamp(.85rem,1.8vw,1rem)}
+.lyrics-line.en{color:var(--text)}
+.lyrics-line .typed{display:inline-block;overflow:hidden;white-space:nowrap;border-right:2px solid var(--purple);animation:typing 2s steps(40) forwards,blink-caret .6s step-end infinite alternate}
+@keyframes typing{from{width:0}to{width:100%}}
+@keyframes blink-caret{50%{border-color:transparent}}
+
+/* CHAPTER 7 — CTA */
+.ch7{background:radial-gradient(ellipse at 50% 60%,rgba(139,92,246,.1) 0%,rgba(6,182,212,.04) 40%,transparent 70%)}
+.ch7 h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:100;text-align:center;margin-bottom:.5rem}
+.ch7 .tagline{color:var(--dim);font-size:1rem;text-align:center;margin-bottom:3rem;font-weight:300}
+.cta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:560px;width:100%;margin-bottom:3rem}
+@media(max-width:500px){.cta-grid{grid-template-columns:1fr}}
+.cta-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:1rem 1.5rem;border-radius:14px;font-size:.9rem;font-weight:400;letter-spacing:.02em;transition:all .3s cubic-bezier(.16,1,.3,1);text-decoration:none;border:1px solid}
+.cta-primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+.cta-primary:hover{background:#7C3AED;transform:translateY(-2px);box-shadow:0 12px 40px rgba(139,92,246,.3);color:#fff}
+.cta-secondary{background:transparent;color:var(--text);border-color:rgba(255,255,255,.12)}
+.cta-secondary:hover{border-color:var(--purple);transform:translateY(-2px);color:var(--purple)}
+
+/* EMAIL */
+.email-row{display:flex;gap:.8rem;max-width:420px;width:100%;margin-bottom:2rem}
+.email-row input{flex:1;padding:.8rem 1.2rem;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
+.email-row input:focus{border-color:var(--purple)}
+.email-row button{padding:.8rem 1.5rem;border-radius:10px;border:none;background:var(--purple);color:#fff;font-size:.85rem;cursor:pointer;transition:background .2s}
+.email-row button:hover{background:#7C3AED}
+
+.social-links{display:flex;gap:1.5rem}
+.social-links a{color:var(--dim);font-size:.85rem;transition:color .2s}
+.social-links a:hover{color:var(--text)}
+
+/* FOOTER */
+footer{text-align:center;padding:3rem 2rem;color:var(--dimmer);font-size:.75rem;letter-spacing:.05em}
+
+/* Scroll indicator */
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:.4;animation:scroll-bounce 2s ease-in-out infinite}
+.scroll-hint span{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+.scroll-hint::after{content:'';width:1px;height:30px;background:linear-gradient(var(--dim),transparent)}
+@keyframes scroll-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-r">
+    <a href="/pro">Pro</a>
+    <a href="/busker">Busker</a>
+    <a href="/design">Design</a>
+    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">JA</button>
+  </div>
+</nav>
+
+<!-- CHAPTER 1: THE PROBLEM -->
+<section class="chapter ch1" id="ch1">
+  <div class="spotlight"></div>
+  <h2 class="reveal">
+    <span data-en="55,000 people. One stage." data-ja="55,000人。ひとつのステージ。">55,000 people. One stage.</span><br>
+    <em data-en="But not everyone hears the same beat." data-ja="でも、全員が同じビートを聴いているわけではない。">But not everyone hears the same beat.</em>
+  </h2>
+  <div class="waveform-wrap reveal reveal-delay-1" id="waveform"></div>
+  <p class="delay-label reveal reveal-delay-2">
+    <span data-en="Sound travels 343 m/s. At 216m from stage:" data-ja="音速は343m/s。ステージから216m:">Sound travels 343 m/s. At 216m from stage:</span><br>
+    <span>630ms delay</span>
+    <span data-en=" — you hear the last chorus while the stage plays the next." data-ja=" — ステージが次の曲を演奏しているのに、あなたはまだ前のサビを聴いている。"> — you hear the last chorus while the stage plays the next.</span>
+  </p>
+  <div class="scroll-hint"><span>Scroll</span></div>
+</section>
+
+<!-- CHAPTER 2: THE VISION -->
+<section class="chapter ch2" id="ch2">
+  <h2 class="reveal">
+    <span data-en="What if every person had a speaker" data-ja="もし全員がスピーカーを持っていたら?">What if every person had a speaker</span><br>
+    <span data-en="that played in perfect sync?" data-ja="完璧に同期した音楽を。">that played in perfect sync?</span>
+  </h2>
+  <canvas id="crowd-canvas" width="600" height="300"></canvas>
+  <div class="crowd-counter reveal reveal-delay-1" id="crowdCount">0</div>
+  <div class="crowd-counter-label reveal reveal-delay-2" data-en="speakers in sync" data-ja="台が同期中">speakers in sync</div>
+</section>
+
+<!-- CHAPTER 3: THE TECHNOLOGY -->
+<section class="chapter ch3" id="ch3">
+  <h2 class="reveal" data-en="Three devices. One ecosystem." data-ja="3つのデバイス。ひとつのエコシステム。">Three devices. One ecosystem.</h2>
+  <div class="tech-grid">
+
+    <div class="tech-card reveal reveal-delay-1">
+      <div class="device-anim"><div class="coin-circle"></div></div>
+      <h3>COIN Lite</h3>
+      <div class="price">$29</div>
+      <p data-en="26mm. 500-yen coin size.<br>WiFi sync. LED. Speaker.<br>BOM: $6. That's it." data-ja="26mm。500円玉サイズ。<br>WiFi同期。LED。スピーカー。<br>原価: $6。それだけ。">26mm. 500-yen coin size.<br>WiFi sync. LED. Speaker.<br>BOM: $6. That's it.</p>
+    </div>
+
+    <div class="tech-card reveal reveal-delay-2">
+      <div class="device-anim"><div class="pill-shape"></div></div>
+      <h3>Koe Pro</h3>
+      <div class="price">$179</div>
+      <p data-en="nRF5340. BLE Audio. 12ms latency.<br>Plug in your guitar. Go wireless.<br>Shake to add reverb. Tilt to control." data-ja="nRF5340。BLEオーディオ。12ms遅延。<br>ギターを繋いで。ワイヤレスに。<br>振ればリバーブ。傾ければコントロール。">nRF5340. BLE Audio. 12ms latency.<br>Plug in your guitar. Go wireless.<br>Shake to add reverb. Tilt to control.</p>
+    </div>
+
+    <div class="tech-card reveal reveal-delay-3">
+      <div class="device-anim">
+        <div class="hub-rack"><div class="hub-led"></div></div>
+      </div>
+      <h3>Koe Hub</h3>
+      <div class="price">$349</div>
+      <p data-en="32 channels. Mix. Stream. Record.<br>ES9038Q2M DAC. Studio quality.<br>Run a festival from your laptop." data-ja="32チャンネル。ミックス。配信。録音。<br>ES9038Q2M DAC。スタジオ品質。<br>ノートPC1台でフェス運営。">32 channels. Mix. Stream. Record.<br>ES9038Q2M DAC. Studio quality.<br>Run a festival from your laptop.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CHAPTER 4: THE APPS -->
+<section class="chapter ch4" id="ch4">
+  <h2 class="reveal" data-en="Software for every stage." data-ja="あらゆるステージのためのソフトウェア。">Software for every stage.</h2>
+  <div class="app-grid">
+    <div class="app-card reveal reveal-delay-1">
+      <div class="app-icon">&#127908;</div>
+      <h3>Busker</h3>
+      <p data-en="Your audience's phones become speakers. Street performance, amplified by everyone." data-ja="観客のスマホがスピーカーに。ストリート演奏を全員で増幅。">Your audience's phones become speakers. Street performance, amplified by everyone.</p>
+    </div>
+    <div class="app-card reveal reveal-delay-2">
+      <div class="app-icon">&#127979;</div>
+      <h3>Classroom</h3>
+      <p data-en="Teacher to 200 earphones. No app needed. Just a browser." data-ja="先生の声を200人のイヤホンへ。アプリ不要。ブラウザだけ。">Teacher to 200 earphones. No app needed. Just a browser.</p>
+    </div>
+    <div class="app-card reveal reveal-delay-3">
+      <div class="app-icon">&#127760;</div>
+      <h3>Moji</h3>
+      <p data-en="Speak Japanese, they hear English. Real-time voice translation in 6 languages." data-ja="日本語で話せば、英語で聞こえる。6言語リアルタイム音声翻訳。">Speak Japanese, they hear English. Real-time voice translation in 6 languages.</p>
+    </div>
+    <div class="app-card reveal reveal-delay-4">
+      <div class="app-icon">&#127926;</div>
+      <h3>SolunaOS</h3>
+      <p data-en="Run a festival from your laptop. Zone sync, LED choreography, crowd analytics." data-ja="ノートPCでフェス運営。ゾーン同期、LED演出、観客分析。">Run a festival from your laptop. Zone sync, LED choreography, crowd analytics.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 5: THE NUMBERS -->
+<section class="chapter ch5" id="ch5">
+  <h2 class="reveal" data-en="Built with obsession." data-ja="執念で作った。">Built with obsession.</h2>
+  <div class="stats-grid">
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-num" data-target="15000" data-suffix="+">0</div>
+      <div class="stat-label" data-en="lines of code" data-ja="行のコード">lines of code</div>
+    </div>
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-num" data-target="165">0</div>
+      <div class="stat-label" data-en="tests passing" data-ja="テスト合格">tests passing</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-num purple" data-target="6" data-prefix="$">0</div>
+      <div class="stat-label" data-en="BOM per COIN" data-ja="COINの原価">BOM per COIN</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-num" data-target="12" data-suffix="ms">0</div>
+      <div class="stat-label" data-en="latency" data-ja="遅延">latency</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-num" data-target="50" data-suffix="h">0</div>
+      <div class="stat-label" data-en="battery life" data-ja="バッテリー">battery life</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-num" data-target="100" data-suffix="%">0</div>
+      <div class="stat-label" data-en="open source" data-ja="オープンソース">open source</div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 6: LYRICS -->
+<section class="chapter ch6" id="ch6">
+  <h2 class="reveal" data-en="The Koe Song" data-ja="Koeの歌">The Koe Song</h2>
+  <p class="section-sub reveal" data-en="A frequency that changes the world." data-ja="世界を変える周波数。">A frequency that changes the world.</p>
+  <canvas id="eq-canvas" width="600" height="80"></canvas>
+  <div class="lyrics-container">
+
+    <div class="lyrics-section" data-section="verse1">
+      <div class="lyrics-label">Verse 1</div>
+      <div class="lyrics-line ja">一台の声は記憶</div>
+      <div class="lyrics-line ja">百台はオーケストラ</div>
+      <div class="lyrics-line ja">26ミリの基板に</div>
+      <div class="lyrics-line ja">世界を変える周波数</div>
+      <div class="lyrics-line en" style="margin-top:.8rem">One voice remembers</div>
+      <div class="lyrics-line en">A hundred become an orchestra</div>
+      <div class="lyrics-line en">On a 26mm board</div>
+      <div class="lyrics-line en">A frequency that changes the world</div>
+    </div>
+
+    <div class="lyrics-section" data-section="chorus1">
+      <div class="lyrics-label">Chorus</div>
+      <div class="lyrics-line ja" style="font-size:clamp(1.1rem,2.5vw,1.3rem);color:var(--purple)">Koe — 声が繋がる</div>
+      <div class="lyrics-line ja" style="font-size:clamp(1.1rem,2.5vw,1.3rem);color:var(--purple)">Koe — 音が広がる</div>
+      <div class="lyrics-line en">From the stage to the last row</div>
+      <div class="lyrics-line en">Every heartbeat, every soul</div>
+      <div class="lyrics-line en">Perfectly in sync, no delay</div>
+      <div class="lyrics-line en">Fifty-five thousand, hear it our way</div>
+    </div>
+
+    <div class="lyrics-section" data-section="verse2">
+      <div class="lyrics-label">Verse 2</div>
+      <div class="lyrics-line ja">ギタリストは振るだけで</div>
+      <div class="lyrics-line ja">リバーブが空間を満たす</div>
+      <div class="lyrics-line ja">12ミリ秒、光より速く</div>
+      <div class="lyrics-line ja">音楽が自由になる瞬間</div>
+      <div class="lyrics-line en" style="margin-top:.8rem">The guitarist just shakes</div>
+      <div class="lyrics-line en">Reverb fills the space</div>
+      <div class="lyrics-line en">12 milliseconds, faster than sight</div>
+      <div class="lyrics-line en">The moment music becomes free</div>
+    </div>
+
+    <div class="lyrics-section" data-section="bridge">
+      <div class="lyrics-label">Bridge</div>
+      <div class="lyrics-line en">Six dollars to build</div>
+      <div class="lyrics-line en">Twenty-nine to own</div>
+      <div class="lyrics-line en">Open source, open heart</div>
+      <div class="lyrics-line en">Every line of code, a stepping stone</div>
+      <div class="lyrics-line ja" style="margin-top:.8rem">百六十五のテスト、全部通過</div>
+      <div class="lyrics-line ja">一万五千行のコード</div>
+      <div class="lyrics-line ja">$6で作れる革命</div>
+      <div class="lyrics-line ja">全部オープンソース</div>
+    </div>
+
+    <div class="lyrics-section" data-section="chorus2">
+      <div class="lyrics-label">Chorus 2</div>
+      <div class="lyrics-line ja" style="font-size:clamp(1.1rem,2.5vw,1.3rem);color:var(--purple)">Koe — 群衆が楽器になる</div>
+      <div class="lyrics-line ja" style="font-size:clamp(1.1rem,2.5vw,1.3rem);color:var(--purple)">Koe — 全員が参加する</div>
+      <div class="lyrics-line en">Sing along, your voice comes back</div>
+      <div class="lyrics-line en">Through fifty thousand speakers</div>
+      <div class="lyrics-line en">A human reverb, a living echo</div>
+      <div class="lyrics-line en">The crowd becomes the instrument</div>
+    </div>
+
+    <div class="lyrics-section" data-section="outro">
+      <div class="lyrics-label">Outro</div>
+      <div class="lyrics-line ja">東京ドームの最後列で</div>
+      <div class="lyrics-line ja">ステージと同じビートを感じる</div>
+      <div class="lyrics-line ja">GPS同期、ゾーン補正</div>
+      <div class="lyrics-line ja">音速を超えた未来の音</div>
+      <div class="lyrics-line en" style="margin-top:.8rem">From the last row of Tokyo Dome</div>
+      <div class="lyrics-line en">Feel the same beat as the stage</div>
+      <div class="lyrics-line en">GPS sync, zone correction</div>
+      <div class="lyrics-line en">Sound that transcends the speed of sound</div>
+      <div class="lyrics-line en" style="margin-top:1.5rem;font-size:clamp(1.5rem,4vw,2.5rem);font-weight:100;color:var(--purple)">Koe.</div>
+      <div class="lyrics-line ja" style="font-size:clamp(1.2rem,3vw,1.8rem);color:var(--dim)">声。</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CHAPTER 7: JOIN -->
+<section class="chapter ch7" id="ch7">
+  <h2 class="reveal" data-en="Join the Revolution" data-ja="革命に参加しよう">Join the Revolution</h2>
+  <p class="tagline reveal reveal-delay-1" data-en="The crowd becomes the instrument." data-ja="群衆が楽器になる。">The crowd becomes the instrument.</p>
+
+  <div class="cta-grid reveal reveal-delay-2">
+    <a href="/order" class="cta-btn cta-primary" data-en="Buy COIN Lite — $29" data-ja="COIN Liteを購入 — $29">Buy COIN Lite — $29</a>
+    <a href="/busker" class="cta-btn cta-secondary" data-en="Try the Apps — Free" data-ja="アプリを試す — 無料">Try the Apps — Free</a>
+    <a href="/design" class="cta-btn cta-secondary" data-en="See the Design" data-ja="デザインを見る">See the Design</a>
+    <a href="https://github.com/yukihamada/koe-device" class="cta-btn cta-secondary" target="_blank" rel="noopener" data-en="Star on GitHub" data-ja="GitHubでスター">Star on GitHub</a>
+  </div>
+
+  <div class="email-row reveal reveal-delay-3">
+    <input type="email" placeholder="your@email.com" id="emailInput" aria-label="Email">
+    <button onclick="subscribeEmail()" data-en="Notify me" data-ja="通知を受け取る">Notify me</button>
+  </div>
+
+  <div class="social-links reveal reveal-delay-3">
+    <a href="https://twitter.com/intent/tweet?text=Koe%20%E2%80%94%20The%20crowd%20becomes%20the%20instrument.%20https%3A%2F%2Fkoe.live%2Fstory" target="_blank" rel="noopener">Twitter</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener">GitHub</a>
+    <a href="/" rel="noopener">koe.live</a>
+  </div>
+</section>
+
+<footer>EnablerDAO &copy; 2026 &mdash; Open Hardware, Open Source, Open Sound</footer>
+
+<script>
+/* ---- LANGUAGE TOGGLE ---- */
+let lang = 'en';
+function toggleLang() {
+  lang = lang === 'en' ? 'ja' : 'en';
+  document.getElementById('langBtn').textContent = lang === 'en' ? 'JA' : 'EN';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const text = el.getAttribute('data-' + lang);
+    if (text) {
+      if (el.tagName === 'INPUT') el.placeholder = text;
+      else if (el.children.length === 0 || el.tagName === 'P' || el.tagName === 'SPAN' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'DIV')
+        el.innerHTML = text;
+    }
+  });
+}
+
+/* ---- INTERSECTION OBSERVER ---- */
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      if (e.target.closest('#ch5')) animateStats();
+      if (e.target.closest('#ch2')) startCrowdAnimation();
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal, .lyrics-section').forEach(el => obs.observe(el));
+
+/* ---- CHAPTER 1: WAVEFORM ---- */
+(function initWaveform() {
+  const wrap = document.getElementById('waveform');
+  if (!wrap) return;
+  const count = 80;
+  const w = wrap.offsetWidth || 600;
+  for (let i = 0; i < count; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'waveform-bar';
+    const x = (i / count) * w;
+    const delay = (i / count) * 0.63;
+    const h = 20 + Math.sin(i * 0.3) * 40 + Math.random() * 20;
+    bar.style.cssText = `left:${x}px;height:${h}px;animation:wave-bar 2s ${delay}s ease-in-out infinite alternate`;
+    wrap.appendChild(bar);
+  }
+  const style = document.createElement('style');
+  style.textContent = '@keyframes wave-bar{0%{opacity:.3;transform:scaleY(.4)}100%{opacity:.8;transform:scaleY(1)}}';
+  document.head.appendChild(style);
+})();
+
+/* ---- CHAPTER 2: CROWD PARTICLES ---- */
+let crowdStarted = false;
+let crowdParticles = [];
+function startCrowdAnimation() {
+  if (crowdStarted) return;
+  crowdStarted = true;
+  const canvas = document.getElementById('crowd-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const counterEl = document.getElementById('crowdCount');
+  let targetCount = 0;
+  let displayCount = 0;
+  const maxParticles = 400;
+  const schedule = [
+    { t: 0, n: 1 }, { t: 500, n: 10 }, { t: 1200, n: 100 },
+    { t: 2000, n: 400 }
+  ];
+  const startTime = performance.now();
+
+  function spawnParticle() {
+    return {
+      x: W * 0.1 + Math.random() * W * 0.8,
+      y: H * 0.15 + Math.random() * H * 0.7,
+      r: 2 + Math.random() * 2.5,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.02 + Math.random() * 0.02,
+      alpha: 0,
+      targetAlpha: 0.3 + Math.random() * 0.5
+    };
+  }
+
+  function update(now) {
+    const elapsed = now - startTime;
+    for (const s of schedule) {
+      if (elapsed >= s.t) targetCount = Math.min(s.n, maxParticles);
+    }
+    while (crowdParticles.length < targetCount) crowdParticles.push(spawnParticle());
+
+    const displayTarget = schedule.reduce((acc, s) => elapsed >= s.t ? s.n : acc, 0);
+    const labels = [1, 10, 100, '1,000', '55,000'];
+    const thresholds = [1, 10, 100, 400, 400];
+    let label = '0';
+    for (let i = thresholds.length - 1; i >= 0; i--) {
+      if (targetCount >= thresholds[i]) { label = String(labels[i]); break; }
+    }
+    if (elapsed > 2800) label = '55,000';
+    counterEl.textContent = label;
+
+    ctx.clearRect(0, 0, W, H);
+    const beatPhase = Math.sin(now * 0.004) * 0.5 + 0.5;
+    for (const p of crowdParticles) {
+      p.alpha += (p.targetAlpha - p.alpha) * 0.05;
+      const pulse = 1 + Math.sin(now * p.speed + p.phase) * 0.3 * beatPhase;
+      const brightness = 139 + Math.floor(beatPhase * 50);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${brightness},92,246,${p.alpha * (0.6 + beatPhase * 0.4)})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * pulse * 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${brightness},92,246,${p.alpha * 0.1})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+/* ---- CHAPTER 5: STAT COUNTERS ---- */
+let statsAnimated = false;
+function animateStats() {
+  if (statsAnimated) return;
+  statsAnimated = true;
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    let current = 0;
+    const duration = 1800;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      current = Math.round(target * ease);
+      el.textContent = prefix + current.toLocaleString() + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ---- CHAPTER 6: EQUALIZER ---- */
+(function initEqualizer() {
+  const canvas = document.getElementById('eq-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const bars = 40;
+  const barW = W / bars - 2;
+
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < bars; i++) {
+      const h = (Math.sin(now * 0.003 + i * 0.4) * 0.5 + 0.5) *
+                (Math.sin(now * 0.001 + i * 0.15) * 0.3 + 0.7) * H * 0.85;
+      const x = i * (barW + 2);
+      const grad = ctx.createLinearGradient(0, H, 0, H - h);
+      grad.addColorStop(0, 'rgba(139,92,246,0.6)');
+      grad.addColorStop(1, 'rgba(6,182,212,0.3)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, H - h, barW, h);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ---- LYRICS SCROLL REVEAL ---- */
+const lyricObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('.lyrics-section').forEach(el => lyricObs.observe(el));
+
+/* ---- EMAIL SUBSCRIBE (placeholder) ---- */
+function subscribeEmail() {
+  const input = document.getElementById('emailInput');
+  if (input && input.value) {
+    input.value = '';
+    input.placeholder = lang === 'ja' ? '登録完了!' : 'Subscribed!';
+    setTimeout(() => { input.placeholder = 'your@email.com'; }, 2000);
+  }
+}
+</script>
+</body>
+</html>

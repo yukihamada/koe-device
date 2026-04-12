@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Key — 声で、開く。BLEスマートキー機能</title>
+<meta name="description" content="Koe Seedがスマートキーに。近接自動解錠、ボタン解錠、音声解錠の3モードでBLEスマートロックを操作。SwitchBot / Sesame / Qrio対応。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/key">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Key — 声で、開く。">
+<meta property="og:description" content="28mmのデバイスが、あなたの鍵になる。スマホ不要、BLEで直接スマートロックを操作。">
+<meta property="og:image" content="https://koe.live/images/seed-key.png">
+<meta property="og:url" content="https://koe.live/key">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Key — 声で、開く。">
+<meta name="twitter:description" content="28mmのデバイスが、あなたの鍵になる。スマホ不要でスマートロックを操作。">
+<meta name="twitter:image" content="https://koe.live/images/seed-key.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter','Hiragino Sans','Hiragino Kaku Gothic ProN',-apple-system,sans-serif;
+  background:#0a0a0a;color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.7;
+}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+.en-sub{color:#555;font-size:0.78rem;font-weight:300;display:block;margin-top:0.3rem;letter-spacing:0.04em;}
+.purple{color:#8B5CF6;}
+.container{max-width:1100px;margin:0 auto;padding:0 2rem;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.3rem;font-weight:200;letter-spacing:0.4em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:1.8rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+nav .nav-links a.active{color:#8B5CF6;}
+nav .nav-cta{padding:0.5rem 1.4rem;border-radius:10px;font-size:0.82rem;font-weight:600;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+nav .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(139,92,246,0.4);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0.45;}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,0.3) 0%,rgba(10,10,10,0.6) 50%,#0a0a0a 100%);}
+.hero-content{position:relative;z-index:1;max-width:800px;}
+.hero h1{font-size:clamp(2.8rem,8vw,5rem);font-weight:100;letter-spacing:0.08em;line-height:1.2;margin-bottom:1rem;color:#fff;}
+.hero .tagline{font-size:clamp(1rem,2.5vw,1.3rem);color:#aaa;font-weight:300;margin-bottom:0.4rem;}
+.hero .tagline-en{font-size:clamp(0.8rem,1.5vw,0.9rem);color:#555;font-weight:300;}
+
+/* MODES */
+.modes-section{padding:6rem 2rem;max-width:1100px;margin:0 auto;}
+.modes-section h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:0.5rem;color:#fff;}
+.modes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem;}
+.mode-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:24px;
+  padding:2.5rem 2rem;text-align:center;
+  transition:transform 0.3s,border-color 0.3s;
+}
+.mode-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.3);}
+.mode-icon{font-size:3rem;margin-bottom:1.2rem;display:block;}
+.mode-card h3{font-size:1.3rem;font-weight:300;margin-bottom:0.3rem;color:#fff;}
+.mode-card .mode-sub{font-size:0.82rem;color:#8B5CF6;font-weight:500;margin-bottom:1rem;letter-spacing:0.03em;}
+.mode-card p{font-size:0.9rem;color:#aaa;line-height:1.7;}
+.mode-badge{display:inline-block;font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:100px;margin-top:1rem;}
+.mode-badge.ready{color:#22c55e;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);}
+.mode-badge.dev{color:#f59e0b;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);}
+
+/* HOW IT WORKS */
+.how-section{padding:6rem 2rem;max-width:900px;margin:0 auto;}
+.how-section h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:0.5rem;color:#fff;}
+.how-steps{margin-top:3rem;position:relative;}
+.how-steps::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#8B5CF6,rgba(139,92,246,0.1));}
+.how-step{display:flex;gap:2rem;align-items:flex-start;margin-bottom:2.5rem;position:relative;}
+.step-num{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;color:#fff;flex-shrink:0;position:relative;z-index:1;}
+.step-content h4{font-size:1.1rem;font-weight:400;color:#fff;margin-bottom:0.3rem;}
+.step-content p{font-size:0.9rem;color:#aaa;line-height:1.7;}
+
+/* LOCKS */
+.locks-section{padding:6rem 2rem;max-width:1100px;margin:0 auto;}
+.locks-section h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:0.5rem;color:#fff;}
+.locks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:3rem;max-width:800px;margin-left:auto;margin-right:auto;}
+.lock-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;padding:1.5rem 2rem;
+  display:flex;align-items:center;gap:1.2rem;
+  transition:border-color 0.3s;
+}
+.lock-card:hover{border-color:rgba(139,92,246,0.3);}
+.lock-icon{font-size:2rem;}
+.lock-info h4{font-size:1rem;font-weight:400;color:#fff;margin-bottom:0.2rem;}
+.lock-info p{font-size:0.8rem;color:#888;}
+.lock-info .lock-api{font-size:0.7rem;margin-top:0.3rem;}
+.lock-api .open{color:#22c55e;}
+.lock-api .partial{color:#f59e0b;}
+.lock-api .closed{color:#ef4444;}
+
+/* RESEARCH */
+.research-section{padding:6rem 2rem;max-width:900px;margin:0 auto;}
+.research-section h2{font-size:clamp(1.3rem,3vw,2rem);font-weight:100;text-align:center;margin-bottom:0.5rem;color:#fff;}
+.research-table{width:100%;border-collapse:collapse;margin-top:2rem;font-size:0.85rem;}
+.research-table th{text-align:left;color:#888;font-weight:400;padding:0.8rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+.research-table td{padding:0.8rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);color:#ccc;}
+.research-table tr:hover td{background:rgba(139,92,246,0.03);}
+.tag{display:inline-block;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:100px;}
+.tag-open{color:#22c55e;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);}
+.tag-partial{color:#f59e0b;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);}
+.tag-closed{color:#ef4444;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);}
+
+/* WHY */
+.why-section{padding:6rem 2rem;max-width:1100px;margin:0 auto;}
+.why-section h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:100;text-align:center;margin-bottom:0.5rem;color:#fff;}
+.why-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;margin-top:3rem;}
+.why-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:20px;
+  padding:2rem;
+}
+.why-card .why-icon{font-size:2rem;margin-bottom:1rem;display:block;}
+.why-card h4{font-size:1.05rem;font-weight:400;color:#fff;margin-bottom:0.5rem;}
+.why-card p{font-size:0.88rem;color:#aaa;line-height:1.7;}
+
+/* CTA */
+.cta-section{text-align:center;padding:6rem 2rem;position:relative;}
+.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:100;margin-bottom:1rem;position:relative;color:#fff;}
+.cta-section p{color:#888;font-size:0.9rem;margin-bottom:0.5rem;position:relative;}
+.cta-links{margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;}
+.btn-order{
+  display:inline-block;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:white;
+  padding:1rem 2.5rem;border-radius:12px;font-size:1.1rem;font-weight:600;
+  text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;
+}
+.btn-order:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(139,92,246,0.4);color:white;}
+.btn-secondary{
+  display:inline-block;background:transparent;color:#8B5CF6;
+  padding:0.9rem 2rem;border-radius:12px;font-size:0.9rem;font-weight:500;
+  text-decoration:none;transition:all 0.3s;border:1px solid rgba(139,92,246,0.3);
+}
+.btn-secondary:hover{background:rgba(139,92,246,0.1);border-color:#8B5CF6;color:#8B5CF6;}
+
+/* DISCLAIMER */
+.disclaimer{text-align:center;padding:2rem;color:#555;font-size:0.78rem;max-width:600px;margin:0 auto;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:2rem;}
+footer .footer-brand{font-size:1.1rem;font-weight:200;letter-spacing:0.3em;color:#666;margin-bottom:0.6rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.72rem;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .modes-grid{grid-template-columns:1fr;}
+  .locks-grid{grid-template-columns:1fr;}
+  .why-grid{grid-template-columns:1fr;}
+  nav .nav-links{gap:0.8rem;}
+}
+@media(max-width:600px){
+  nav .nav-links{gap:0.5rem;}
+  nav .nav-links a{font-size:0.75rem;}
+  .hero h1{letter-spacing:0.04em;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/">ホーム</a>
+    <a href="/order">製品</a>
+    <a href="/key" class="active">キー</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/business">法人</a>
+  </div>
+  <a href="/order" class="nav-cta">購入する</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="images/seed-key.png" alt="Koe Seedでスマートロックを解錠" loading="eager">
+  </div>
+  <div class="hero-content fade-in">
+    <h1>声で、開く。</h1>
+    <p class="tagline">Koe Seedが、あなたの鍵になる。</p>
+    <p class="tagline-en">Your Koe Seed becomes your key.</p>
+  </div>
+</section>
+
+<!-- 3 MODES -->
+<section class="modes-section">
+  <h2 class="fade-in">3つの解錠方法</h2>
+  <span class="en-sub fade-in" style="text-align:center;display:block;">Three Ways to Unlock</span>
+  <div class="modes-grid">
+
+    <div class="mode-card fade-in">
+      <span class="mode-icon">&#x1F6B6;</span>
+      <h3>近づくだけ</h3>
+      <p class="mode-sub">Proximity Auto-Unlock</p>
+      <p>ポケットに入れて歩くだけで自動解錠。BLE RSSI（信号強度）でドアとの距離を計測し、近づくと自動的にロックが解除されます。Teslaのキーカードのように。</p>
+      <span class="mode-badge dev">開発中</span>
+    </div>
+
+    <div class="mode-card fade-in">
+      <span class="mode-icon">&#x1F44B;</span>
+      <h3>ボタンを押す</h3>
+      <p class="mode-sub">Button Unlock</p>
+      <p>Seedのボタンを1回押すだけ。意図的で確実な解錠方法。BLEコマンドを送信してロックを操作します。シンプル、安全、確実。</p>
+      <span class="mode-badge dev">開発中</span>
+    </div>
+
+    <div class="mode-card fade-in">
+      <span class="mode-icon">&#x1F3A4;</span>
+      <h3>「開けて」と言う</h3>
+      <p class="mode-sub">Voice Unlock</p>
+      <p>音声コマンドで解錠。nRF5340上でEdge Impulse MLによるウェイクワード検出を実行。マイクが「開けて」を認識し、BLEコマンドを送信します。</p>
+      <span class="mode-badge dev">開発中</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <h2 class="fade-in">しくみ</h2>
+  <span class="en-sub fade-in" style="text-align:center;display:block;">How It Works</span>
+  <div class="how-steps fade-in">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>ペアリング</h4>
+        <p>Koe Seedとスマートロックを一度だけBLEペアリング。暗号化された認証キーがデバイスに保存されます。</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>持ち歩く</h4>
+        <p>ポケット、リストバンド、ネックストラップ。28mmの小さなデバイスをいつもの持ち物に。</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>近づく / ボタン / 声</h4>
+        <p>3つの方法のどれでも。Koe SeedがBLE 5.3でスマートロックと直接通信し、ドアが開きます。スマホは不要です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPATIBLE LOCKS -->
+<section class="locks-section">
+  <h2 class="fade-in">対応スマートロック</h2>
+  <span class="en-sub fade-in" style="text-align:center;display:block;">Compatible Smart Locks</span>
+  <div class="locks-grid fade-in">
+
+    <div class="lock-card">
+      <span class="lock-icon">&#x1F512;</span>
+      <div class="lock-info">
+        <h4>SwitchBot Lock</h4>
+        <p>日本で人気No.1。BLE APIドキュメント公開済み。</p>
+        <p class="lock-api"><span class="open">API公開</span> / サードパーティ制御可能</p>
+      </div>
+    </div>
+
+    <div class="lock-card">
+      <span class="lock-icon">&#x1F511;</span>
+      <div class="lock-info">
+        <h4>Sesame 5</h4>
+        <p>CANDY HOUSE製。オープンAPI、BLE、日本で非常に人気。</p>
+        <p class="lock-api"><span class="open">オープンAPI</span> / SDK公開</p>
+      </div>
+    </div>
+
+    <div class="lock-card">
+      <span class="lock-icon">&#x1F3E0;</span>
+      <div class="lock-info">
+        <h4>Qrio Lock</h4>
+        <p>Sony出資。BLE対応。日本の住宅に最適化。</p>
+        <p class="lock-api"><span class="partial">API一部公開</span> / Web API経由</p>
+      </div>
+    </div>
+
+    <div class="lock-card">
+      <span class="lock-icon">&#x1F30F;</span>
+      <div class="lock-info">
+        <h4>その他BLE対応ロック</h4>
+        <p>SADIOT LOCK、August、Yale等。BLE GATTプロファイル対応ロック全般。</p>
+        <p class="lock-api"><span class="partial">互換性検証中</span></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- RESEARCH TABLE -->
+<section class="research-section">
+  <h2 class="fade-in">BLEスマートロック互換性リサーチ</h2>
+  <span class="en-sub fade-in" style="text-align:center;display:block;">BLE Smart Lock Compatibility Research</span>
+  <table class="research-table fade-in">
+    <thead>
+      <tr><th>ロック</th><th>BLEプロトコル</th><th>API</th><th>サードパーティ制御</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>SwitchBot Lock</td>
+        <td>BLE GATT (公開)</td>
+        <td><span class="tag tag-open">公開</span></td>
+        <td>可能 (BLEコマンド直接送信)</td>
+      </tr>
+      <tr>
+        <td>Sesame 5</td>
+        <td>BLE (オープンソースSDK)</td>
+        <td><span class="tag tag-open">オープン</span></td>
+        <td>可能 (SDK/BLE直接)</td>
+      </tr>
+      <tr>
+        <td>Qrio Lock Q-SL2</td>
+        <td>BLE 4.2+</td>
+        <td><span class="tag tag-partial">Web API</span></td>
+        <td>Hub経由で可能 / BLE直接は非公開</td>
+      </tr>
+      <tr>
+        <td>SADIOT LOCK</td>
+        <td>BLE</td>
+        <td><span class="tag tag-closed">非公開</span></td>
+        <td>公式アプリのみ (リバースエンジニアリング要)</td>
+      </tr>
+      <tr>
+        <td>August Smart Lock</td>
+        <td>BLE (Z-Wave併用)</td>
+        <td><span class="tag tag-partial">一部公開</span></td>
+        <td>OAuth API経由で可能 / BLE直接は制限あり</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- WHY KOE -->
+<section class="why-section">
+  <h2 class="fade-in">なぜKoe?</h2>
+  <span class="en-sub fade-in" style="text-align:center;display:block;">Why Koe as Your Key?</span>
+  <div class="why-grid">
+
+    <div class="why-card fade-in">
+      <span class="why-icon">&#x1F4CF;</span>
+      <h4>28mmの小ささ</h4>
+      <p>コイン2枚分の大きさ。ポケットに入れても、リストバンドに付けても邪魔にならない。世界最小クラスのスマートキーデバイス。</p>
+    </div>
+
+    <div class="why-card fade-in">
+      <span class="why-icon">&#x1F4F5;</span>
+      <h4>スマホ不要</h4>
+      <p>BLE 5.3で直接スマートロックと通信。スマホを取り出す必要なし。充電切れの心配もなし。</p>
+    </div>
+
+    <div class="why-card fade-in">
+      <span class="why-icon">&#x1F50B;</span>
+      <h4>長時間バッテリー</h4>
+      <p>BLE Low Energyの省電力設計で50時間以上の動作を目指して開発中。毎日の充電から解放。</p>
+    </div>
+
+    <div class="why-card fade-in">
+      <span class="why-icon">&#x1F3B5;</span>
+      <h4>1台で2役</h4>
+      <p>音楽も聴けるし、鍵にもなる。Auracast対応ワイヤレスオーディオレシーバーとしての機能はそのまま。</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section fade-in">
+  <h2>Koe Seedを手に入れる</h2>
+  <p>スマートキー機能は今後のファームウェアアップデートで追加予定です。</p>
+  <p>DK Editionを購入して、最新機能をいち早く体験してください。</p>
+  <div class="cta-links">
+    <a href="/order" class="btn-order">製品ラインナップを見る</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" class="btn-secondary">GitHub</a>
+  </div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer fade-in">
+  <p>※ スマートキー機能は開発中です。対応ロックや機能は変更される場合があります。ファームウェアアップデートにより順次提供予定です。</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">KOE</div>
+  <div class="footer-links">
+    <a href="/">ホーム</a>
+    <a href="/order">製品</a>
+    <a href="/key">キー</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/business">法人</a>
+    <a href="/orchestra">オケ</a>
+    <a href="mailto:hello@koe.live">hello@koe.live</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <p class="copyright">Koe -- Tokyo | <a href="mailto:hello@koe.live" style="color:#666;">hello@koe.live</a> | <a href="https://github.com/yukihamada/koe-device" target="_blank" rel="noopener" style="color:#666;">GitHub</a></p>
+</footer>
+
+<!-- SCROLL ANIMATION -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

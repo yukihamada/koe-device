@@ -6,14 +6,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08080f">
-<meta name="description" content="ブラウザだけで、みんなと同じ曲を聴いて、一緒に歌える。カラオケ・ボーカル除去・ハーモニー・リアルタイム翻訳、全部無料。">
+<meta name="description" content="ブラウザだけで、みんなと同じ曲を同期再生。カラオケ・ボーカル除去・EQ・MIDI・DJ自動クロスフェード・Whisper歌詞・声翻訳。50人+対応、完全無料。">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://koe.live/app">
 <!-- OGP -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Koe — ブラウザで音楽を一緒に楽しむ">
-<meta property="og:description" content="同じ曲をみんなで同期再生。カラオケ・ボーカル除去・ハーモニー・リアルタイム声翻訳。アプリ不要、ブラウザだけ。">
+<meta property="og:description" content="同期再生・カラオケ・ボーカル除去・EQ・MIDI・DJモード・Whisper歌詞・声翻訳。50人+対応、ブラウザだけ、完全無料。">
 <meta property="og:image" content="https://koe.live/og-app.png">
 <meta property="og:url" content="https://koe.live/app">
 <meta property="og:site_name" content="Koe">
@@ -21,7 +21,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Koe — ブラウザで音楽を一緒に楽しむ">
-<meta name="twitter:description" content="同じ曲をみんなで同期再生。カラオケ・ボーカル除去・ハーモニー・リアルタイム声翻訳。アプリ不要。">
+<meta name="twitter:description" content="同期再生・カラオケ・ボーカル除去・EQ・MIDI・DJモード・Whisper歌詞・声翻訳。50人+、ブラウザだけ、無料。">
 <meta name="twitter:image" content="https://koe.live/og-app.png">
 <title>Koe — ブラウザで音楽を一緒に楽しむ</title>
 <style>
@@ -33,7 +33,7 @@
   --accent: #7c3aed;
   --accent-hi: #9f5fff;
   --text: #ececf8;
-  --muted: #52527a;
+  --muted: #8585ad;
   --green: #22c55e;
   --red: #ef4444;
   --gold: #eab308;
@@ -157,7 +157,7 @@ html, body {
   background-size:200% 100%; animation:shimmer 2.5s infinite;
 }
 .btn-primary:active { transform:scale(0.95); opacity:0.9; }
-#splash .splash-hint { color:var(--muted); font-size:0.72rem; margin-top:16px; opacity:0.6; line-height:1.5; }
+#splash .splash-hint { color:var(--muted); font-size:0.75rem; margin-top:16px; opacity:0.85; line-height:1.5; }
 .splash-features {
   text-align:left; margin:0 auto 28px; max-width:340px;
   display:flex; flex-direction:column; gap:10px;
@@ -169,8 +169,8 @@ html, body {
 .splash-feat span { flex:1; }
 .splash-name-area { margin:0 auto 20px; max-width:260px; }
 #splash-name-input {
-  width:100%; background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
+  width:100%; background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.22);
   border-radius:var(--r); padding:12px 16px;
   color:#fff; font-size:1rem; text-align:center;
   outline:none; -webkit-appearance:none;
@@ -188,9 +188,9 @@ html, body {
 .promo-desc { font-size:0.72rem; color:var(--muted); margin-bottom:10px; }
 .promo-links { display:flex; gap:8px; justify-content:center; }
 .promo-badge {
-  background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3);
+  background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.45);
   border-radius:var(--r-sm); padding:6px 14px;
-  color:rgba(255,255,255,0.85); font-size:0.75rem; font-weight:600;
+  color:#fff; font-size:0.75rem; font-weight:600;
   text-decoration:none; transition:all 0.15s;
 }
 .promo-badge:active { opacity:0.7; }
@@ -569,9 +569,7 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   80%  { opacity:1; }
   100% { opacity:0; transform:translateY(-180px) scale(1.4); }
 }
-#reaction-bar {
-  display:flex; gap:2px; padding:0 14px; margin-bottom:2px;
-}
+/* reaction buttons inside chat bar */
 .react-btn {
   background:none; border:none; font-size:1.2rem; cursor:pointer;
   padding:2px 6px; border-radius:var(--r-sm); transition:all 0.1s;
@@ -604,6 +602,139 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   100% { opacity:0; transform:translate(-50%,-50%) scale(1); }
 }
 
+/* ===================== LEADERBOARD PANEL ===================== */
+#leaderboard-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; max-height:60vh; overflow:hidden;
+  flex-direction:column; gap:10px;
+}
+#leaderboard-panel.show { display:flex; }
+#leaderboard-panel h3 { font-size:1rem; font-weight:700; }
+#lb-list { overflow-y:auto; flex:1; }
+.lb-entry {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:0.85rem;
+}
+.lb-rank { width:28px; font-weight:800; color:var(--accent-hi); }
+.lb-name { flex:1; }
+.lb-score { font-weight:700; color:var(--gold); min-width:60px; text-align:right; }
+.lb-track { font-size:0.72rem; color:var(--muted); min-width:80px; text-align:right; }
+
+/* ===================== ROOM LIST PANEL ===================== */
+#room-list-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; max-height:55vh; overflow:hidden;
+  flex-direction:column; gap:10px;
+}
+#room-list-panel.show { display:flex; }
+#room-list-panel h3 { font-size:1rem; font-weight:700; }
+.room-entry {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); cursor:pointer; transition:all 0.15s;
+}
+.room-entry:active { transform:scale(0.98); border-color:var(--accent); }
+.room-entry-name { font-weight:600; }
+.room-entry-peers { font-size:0.75rem; color:var(--green); }
+
+/* ===================== ADD TRACK PANEL ===================== */
+#add-track-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; flex-direction:column; gap:12px;
+}
+#add-track-panel.show { display:flex; }
+#add-track-url {
+  width:100%; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:10px 14px; color:var(--text);
+  font-size:0.85rem; outline:none;
+}
+#add-track-url:focus { border-color:var(--accent); }
+#add-track-name {
+  width:100%; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:10px 14px; color:var(--text);
+  font-size:0.85rem; outline:none;
+}
+
+/* ===================== EQ PANEL ===================== */
+#eq-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; flex-direction:column; gap:14px;
+}
+#eq-panel.show { display:flex; }
+.eq-row { display:flex; align-items:center; gap:10px; }
+.eq-label { font-size:0.78rem; color:var(--muted); min-width:50px; }
+.eq-val { font-size:0.78rem; color:var(--text); min-width:40px; text-align:right; }
+
+/* ===================== MIDI INDICATOR ===================== */
+#midi-indicator {
+  display:none; position:fixed; top:max(16px,env(safe-area-inset-top)); left:16px;
+  z-index:100; background:rgba(124,58,237,0.9); color:#fff;
+  border-radius:var(--r-sm); padding:4px 10px; font-size:0.72rem; font-weight:700;
+  align-items:center; gap:4px;
+}
+#midi-indicator.active { display:flex; }
+
+/* ===================== DJ MODE INDICATOR ===================== */
+#dj-badge {
+  display:none; font-size:0.72rem; font-weight:800;
+  color:var(--gold); background:rgba(234,179,8,0.15);
+  border:1px solid rgba(234,179,8,0.3);
+  border-radius:var(--r-sm); padding:2px 8px;
+}
+#dj-badge.active { display:inline-block; }
+
+/* ===================== DEVICE STATUS PANEL ===================== */
+#device-panel {
+  display:none; position:fixed;
+  bottom:0; left:0; right:0;
+  background:#0f0f1a; border-top:1px solid var(--border);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:20px 24px max(28px,env(safe-area-inset-bottom));
+  z-index:150; max-height:50vh; overflow:hidden;
+  flex-direction:column; gap:10px;
+}
+#device-panel.show { display:flex; }
+.device-entry {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; background:var(--surface);
+  border:1px solid var(--border); border-radius:var(--r);
+}
+.device-led { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
+.device-hash { font-size:0.78rem; color:var(--muted); font-family:monospace; }
+
+/* ===================== MOBILE RESPONSIVE ===================== */
+@media (max-width: 480px) {
+  #bottom-bar button:not(#btn-mic-main) { padding:5px 8px; font-size:0.7rem; }
+  #bottom-left, #bottom-right { gap:4px; }
+  #np-controls button { padding:2px 5px; font-size:0.95rem; }
+  #vocal-strip { gap:4px; padding:5px 8px; }
+  .fx-btn { padding:3px 7px; font-size:0.68rem; }
+}
+/* Vocal strip scroll hint */
+#vocal-strip::after {
+  content:''; position:absolute; right:0; top:0; bottom:0; width:24px;
+  background:linear-gradient(to right, transparent, var(--surface));
+  pointer-events:none; z-index:1;
+}
+#vocal-strip { position:relative; }
+
 /* ===================== HIDDEN LEGACY ELEMENTS (keep for JS) ===================== */
 #participants, #local-participant, #vol-fill, #vol-db, #panel-voice,
 #panel-music, #panel-channels, #panel-devices, .bottom-nav, .tabs, header,
@@ -611,6 +742,7 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 #participant-count, #status-dot, #status-text, #conn-quality,
 #mode-toggle, #btn-mic, #playlist, #device-list, #device-count { display:none !important; }
 </style>
+<script src="https://enabler-analytics.fly.dev/t.js" defer></script>
 </head>
 <body>
 
@@ -627,12 +759,9 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
     <p class="splash-sub">ブラウザだけで、みんなと音楽を楽しむ</p>
 
     <div class="splash-features">
-      <div class="splash-feat">🎵<span>同じ曲をリアルタイム同期再生</span></div>
-      <div class="splash-feat">🎤<span>カラオケ — iPhone=マイク Mac=スピーカー</span></div>
-      <div class="splash-feat">🎶<span>ボーカル除去 · ハーモニー · エコー · オートチューン</span></div>
-      <div class="splash-feat">🐟<span>声のリアルタイム翻訳（日↔英↔中↔韓↔西）</span></div>
-      <div class="splash-feat">📝<span>文字起こし · 議事録 · テキストチャット</span></div>
-      <div class="splash-feat">🏟️<span>50人以上でも使える — アプリ不要 · 完全無料</span></div>
+      <div class="splash-feat">🎵<span>みんなで同じ曲を同期再生 · カラオケ · DJ</span></div>
+      <div class="splash-feat">🎶<span>エフェクト · EQ · ボーカル除去 · 声翻訳</span></div>
+      <div class="splash-feat">🏟️<span>50人+ · ブラウザだけ · 完全無料</span></div>
     </div>
 
     <div class="splash-name-area">
@@ -641,16 +770,7 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
     </div>
 
     <button class="btn-primary" id="btn-enter" onclick="enterApp()">はじめる</button>
-    <p class="splash-hint">🔊 入室すると音楽が流れます（音量は調整できます）<br>マイクへのアクセスが必要です</p>
-
-    <div class="splash-app-promo">
-      <p class="promo-title">📱 アプリならもっと快適に</p>
-      <p class="promo-desc">バックグラウンド再生 · プッシュ通知 · 低遅延</p>
-      <div class="promo-links">
-        <a href="https://apps.apple.com/app/koe/id6740006847" target="_blank" class="promo-badge">App Store</a>
-        <a href="https://koe.live/app" onclick="installPWA(); return false;" class="promo-badge">ホーム画面に追加</a>
-      </div>
-    </div>
+    <p class="splash-hint">🔊 音楽が流れます（音量調整可）· マイク不要でも参加OK</p>
   </div>
 </div>
 
@@ -670,12 +790,12 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
       <span id="room-name-top">Soluna</span>
       <div id="room-dot"></div>
       <span id="status-text-top">接続中...</span>
+      <span id="room-count-badge" style="font-size:0.72rem;color:var(--green);background:rgba(34,197,94,0.1);border-radius:8px;padding:2px 8px;">0人</span>
       <span id="latency-badge">--ms</span>
     </div>
     <div style="display:flex;gap:8px;">
-      <button id="lang-toggle" onclick="cycleLang()">🌐 JA</button>
-      <button onclick="showSpatial()">🎧</button>
       <button onclick="showQR()">⊕</button>
+      <button onclick="toggleMoreMenu()">☰</button>
     </div>
   </div>
 
@@ -692,30 +812,30 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
         </div>
       </div>
       <div id="np-controls">
-        <button onclick="prevTrack()">⏮</button>
-        <button id="btn-play-pause" onclick="togglePlay()">▶</button>
-        <button onclick="nextTrack()">⏭</button>
-        <input type="range" id="vol-slider" min="0" max="100" value="70"
-          style="width:56px;height:3px;accent-color:var(--accent);"
-          oninput="setMusicVolume(this.value/100)" title="音量">
+        <button onclick="prevTrack()" aria-label="前の曲">⏮</button>
+        <button id="btn-play-pause" onclick="togglePlay()" aria-label="再生/停止">▶</button>
+        <button onclick="nextTrack()" aria-label="次の曲">⏭</button>
       </div>
     </div>
+    <!-- SEEKBAR + TIME -->
+    <div style="display:flex;align-items:center;gap:6px;margin:2px 18px 0;font-size:0.68rem;color:var(--muted);">
+      <span id="np-time-cur">0:00</span>
+      <input type="range" id="np-seekbar" min="0" max="100" value="0" aria-label="再生位置"
+        style="flex:1;height:3px;accent-color:var(--accent);"
+        oninput="seekMusic(this.value)">
+      <span id="np-time-dur">0:00</span>
+    </div>
 
-    <!-- VOCAL EFFECTS STRIP -->
+    <!-- VOCAL EFFECTS STRIP (compact) -->
     <div id="vocal-strip">
-      <button class="fx-btn" id="btn-echo"     onclick="toggleEcho()">🔊 エコー</button>
-      <button class="fx-btn" id="btn-autotune" onclick="toggleAutotune()">🎤 チューン</button>
+      <button class="fx-btn" id="btn-lyrics" onclick="toggleLyrics()">歌詞</button>
+      <button class="fx-btn" id="btn-echo" onclick="toggleEcho()">エコー</button>
+      <button class="fx-btn" data-feature="vocal_remove" onclick="removeVocals()">ボーカル除去</button>
       <div class="fx-sep"></div>
-      <span class="fx-stat">🎵 <span id="note-display">--</span></span>
-      <span class="fx-stat">♩ <span id="bpm-display">-- BPM</span></span>
-      <span class="fx-stat">🔑 <span id="key-display">--</span></span>
-      <div class="fx-sep"></div>
-      <button class="fx-btn" id="btn-lyrics" onclick="toggleLyrics()">📜 歌詞</button>
-      <div class="fx-sep"></div>
-      <button class="fx-btn" data-feature="vocal_remove" onclick="removeVocals()">🎵 ボーカル除去</button>
-      <button class="fx-btn" id="btn-harmonize" onclick="toggleHarmonize()">🎶 ハーモニー</button>
-      <button class="fx-btn" id="btn-babel" onclick="toggleBabelFish()">🐟 声翻訳</button>
-      <button class="fx-btn ai-feature-btn disabled" data-feature="voice_clone" id="btn-voice-clone" onclick="toggleVoiceClone()">🎭 声変換</button>
+      <span class="fx-stat"><span id="note-display">--</span></span>
+      <span class="fx-stat"><span id="bpm-display">--</span></span>
+      <span class="fx-stat" style="color:var(--gold);"><span id="key-display">--</span></span>
+      <span id="dj-badge">DJ</span>
     </div>
 
     <!-- AUDIO VISUALIZER -->
@@ -735,33 +855,24 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 
   </div>
 
-  <!-- REACTIONS BAR -->
-  <div id="reaction-bar">
+  <!-- CHAT + REACTIONS (merged) -->
+  <div id="chat-bar">
     <button class="react-btn" onclick="sendReaction('👏')">👏</button>
     <button class="react-btn" onclick="sendReaction('🔥')">🔥</button>
     <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
-    <button class="react-btn" onclick="sendReaction('😂')">😂</button>
-    <button class="react-btn" onclick="sendReaction('🎵')">🎵</button>
-    <button class="react-btn" onclick="sendReaction('✨')">✨</button>
-  </div>
-
-  <!-- TEXT CHAT -->
-  <div id="chat-bar">
     <input id="chat-input" type="text" placeholder="メッセージ..." maxlength="200"
       onkeydown="if(event.key==='Enter')sendChat()">
-    <button id="chat-send" onclick="sendChat()">送信</button>
+    <button id="chat-send" onclick="sendChat()">↑</button>
   </div>
 
-  <!-- BOTTOM BAR -->
+  <!-- BOTTOM BAR (minimal) -->
   <div id="bottom-bar">
     <div id="bottom-left">
-      <button id="btn-transcript" onclick="toggleTranscriptDrawer()">📝</button>
-      <button id="btn-rec" onclick="toggleRecording()">⏺</button>
+      <button id="btn-rec" onclick="toggleRecording()" aria-label="録音">⏺</button>
     </div>
     <button id="btn-mic-main" onclick="toggleMic()">🎙️</button>
     <div id="bottom-right">
-      <button onclick="toggleKaraokePanel()">🎤</button>
-      <button onclick="joinRoomPrompt()">＋</button>
+      <button onclick="toggleKaraokePanel()" aria-label="カラオケ">🎤</button>
     </div>
   </div>
 
@@ -896,6 +1007,108 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   </div>
 </div>
 
+<!-- MORE MENU PANEL -->
+<div id="more-menu" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0f0f1a;border-top:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:20px 24px max(28px,env(safe-area-inset-bottom));z-index:200;flex-direction:column;gap:8px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-weight:700;">メニュー</span>
+    <button class="fx-btn" onclick="toggleMoreMenu()">✕</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleBabelFish()">🐟 声翻訳</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleHarmonize()">🎶 ハーモニー</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleAutotune()">🎤 チューン</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleDJMode()">🎧 DJ</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleEQPanel()">🎛️ EQ</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();initMIDI()">🎹 MIDI</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleMultitrack()">🎚️ マルチ録音</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleLeaderboard()">🏆 ランキング</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleRoomList()">🚪 ルーム</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleAddTrack()">➕ 曲追加</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleTranscriptDrawer()">📝 議事録</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();showSpatial()">🎧 空間音響</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleDevicePanel()">📡 デバイス</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();cycleLang()">🌐 翻訳言語</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleShuffle()">🔀 シャッフル</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();toggleRepeat()">🔁 リピート</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" id="btn-vol-menu" onclick="toggleMoreMenu();toggleVolSlider()">🔊 音量</button>
+    <button class="fx-btn" style="padding:12px 8px;text-align:center;" onclick="toggleMoreMenu();installPWA()">📲 インストール</button>
+  </div>
+  <input type="range" id="vol-slider" min="0" max="100" value="30" aria-label="音量"
+    style="width:100%;height:4px;accent-color:var(--accent);margin-top:4px;"
+    oninput="setMusicVolume(this.value/100)">
+</div>
+
+<!-- LEADERBOARD PANEL -->
+<div id="leaderboard-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>🏆 カラオケランキング</h3>
+    <button class="fx-btn" onclick="toggleLeaderboard()">✕</button>
+  </div>
+  <div id="lb-list"></div>
+</div>
+
+<!-- ROOM LIST PANEL -->
+<div id="room-list-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>🚪 ルーム一覧</h3>
+    <button class="fx-btn" onclick="toggleRoomList()">✕</button>
+  </div>
+  <div id="room-list-entries" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px;"></div>
+  <div style="display:flex;gap:6px;">
+    <input id="new-room-input" type="text" placeholder="新しいルーム名"
+      style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:0.82rem;outline:none;">
+    <button class="fx-btn" onclick="createAndJoinRoom()" style="padding:8px 16px;">作成</button>
+  </div>
+</div>
+
+<!-- ADD TRACK PANEL -->
+<div id="add-track-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>🎵 曲を追加</h3>
+    <button class="fx-btn" onclick="toggleAddTrack()">✕</button>
+  </div>
+  <input id="add-track-url" type="url" placeholder="MP3/音声ファイルのURL" autocomplete="off">
+  <input id="add-track-name" type="text" placeholder="曲名（省略可）" maxlength="60" autocomplete="off">
+  <div style="display:flex;gap:8px;">
+    <button class="fx-btn" onclick="addTrackFromURL()" style="flex:1;padding:10px;">URLから追加</button>
+    <label class="fx-btn" style="flex:1;padding:10px;text-align:center;cursor:pointer;">
+      ファイルから追加
+      <input type="file" accept="audio/*" style="display:none;" onchange="addTrackFromFile(this.files[0])">
+    </label>
+  </div>
+</div>
+
+<!-- EQ PANEL -->
+<div id="eq-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>🎛️ イコライザー</h3>
+    <button class="fx-btn" onclick="toggleEQPanel()">✕</button>
+  </div>
+  <div class="eq-row"><span class="eq-label">Low</span><input type="range" min="-12" max="12" value="0" id="eq-low" oninput="setEQ('low',this.value)"><span class="eq-val" id="eq-low-val">0dB</span></div>
+  <div class="eq-row"><span class="eq-label">Mid</span><input type="range" min="-12" max="12" value="0" id="eq-mid" oninput="setEQ('mid',this.value)"><span class="eq-val" id="eq-mid-val">0dB</span></div>
+  <div class="eq-row"><span class="eq-label">High</span><input type="range" min="-12" max="12" value="0" id="eq-high" oninput="setEQ('high',this.value)"><span class="eq-val" id="eq-high-val">0dB</span></div>
+  <div class="eq-row"><span class="eq-label">Bass</span><input type="range" min="-12" max="12" value="0" id="eq-bass" oninput="setEQ('bass',this.value)"><span class="eq-val" id="eq-bass-val">0dB</span></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="fx-btn" onclick="applyEQPreset('flat')">Flat</button>
+    <button class="fx-btn" onclick="applyEQPreset('bass-boost')">Bass Boost</button>
+    <button class="fx-btn" onclick="applyEQPreset('vocal')">Vocal</button>
+    <button class="fx-btn" onclick="applyEQPreset('dance')">Dance</button>
+  </div>
+</div>
+
+<!-- DEVICE STATUS PANEL -->
+<div id="device-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>📡 ESP32デバイス</h3>
+    <button class="fx-btn" onclick="toggleDevicePanel()">✕</button>
+  </div>
+  <div id="device-entries" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px;"></div>
+  <div style="font-size:0.72rem;color:var(--muted);">Solunaプロトコル (UDP 239.42.42.1:4242) で自動検出</div>
+</div>
+
+<!-- MIDI INDICATOR -->
+<div id="midi-indicator">🎹 <span id="midi-name">MIDI</span></div>
+
 <!-- RECORDING INDICATOR -->
 <div id="rec-indicator"><div id="rec-dot"></div><span id="rec-time">00:00</span> REC</div>
 
@@ -936,6 +1149,9 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 // KOE WEB APP — P2P Voice + Soluna Music + Speech Recognition
 // ============================================================
 
+// SECURITY: HTML escape to prevent XSS from user input / WebSocket messages
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+
 let localStream = null;
 let peerConnections = {};
 let signalingWs = null;
@@ -947,6 +1163,7 @@ let isMuted = false;
 let currentRoom = 'soluna';
 let myPeerId = 'web-' + Math.random().toString(36).slice(2,8);
 let localName = localStorage.getItem('koe-name') || ('ゲスト' + Math.floor(Math.random() * 9000 + 1000));
+let isListenerMode = false; // true = no mic, no WebRTC, lighter
 let isPlaying = false;
 let currentTrackIdx = 0;
 let progressInterval = null;
@@ -1071,7 +1288,7 @@ function showSubtitleLine(speaker, text, isInterim, translation) {
       line.className = 'subtitle-line interim-holder';
       strip.appendChild(line);
     }
-    line.innerHTML = `<span class="subtitle-speaker">${speaker.slice(0,4)}</span><span class="subtitle-text interim">${text}</span>`;
+    line.innerHTML = `<span class="subtitle-speaker">${esc(speaker.slice(0,4))}</span><span class="subtitle-text interim">${esc(text)}</span>`;
     return;
   }
 
@@ -1079,10 +1296,10 @@ function showSubtitleLine(speaker, text, isInterim, translation) {
   const div = document.createElement('div');
   div.className = 'subtitle-line';
   div.innerHTML = `
-    <span class="subtitle-speaker">${speaker.slice(0,4)}</span>
+    <span class="subtitle-speaker">${esc(speaker.slice(0,4))}</span>
     <div>
-      <div class="subtitle-text">${text}</div>
-      ${translation ? `<div class="subtitle-translated">${translation}</div>` : ''}
+      <div class="subtitle-text">${esc(text)}</div>
+      ${translation ? `<div class="subtitle-translated">${esc(translation)}</div>` : ''}
     </div>`;
   strip.appendChild(div);
 
@@ -1158,9 +1375,9 @@ function addTranscriptEntry(speaker, text, translation) {
   const div = document.createElement('div');
   div.className = 'transcript-entry';
   div.innerHTML = `
-    <div class="entry-speaker">${speaker} · ${ts}</div>
-    <div class="entry-text">${text}</div>
-    ${translation ? `<div class="entry-translation">${translation}</div>` : ''}`;
+    <div class="entry-speaker">${esc(speaker)} · ${esc(ts)}</div>
+    <div class="entry-text">${esc(text)}</div>
+    ${translation ? `<div class="entry-translation">${esc(translation)}</div>` : ''}`;
   list.appendChild(div);
   list.scrollTop = list.scrollHeight;
 }
@@ -1218,7 +1435,7 @@ function addParticipant(id, name) {
       const div = document.createElement('div');
       div.className = 'participant';
       div.id = 'participant-' + id;
-      div.innerHTML = `<div class="participant-avatar">🙂</div><div class="participant-name">${name}</div><div class="participant-speaking-label">話し中...</div>`;
+      div.innerHTML = `<div class="participant-avatar">🙂</div><div class="participant-name">${esc(name)}</div><div class="participant-speaking-label">話し中...</div>`;
       p.appendChild(div);
     }
   }
@@ -1236,10 +1453,10 @@ function addParticipant(id, name) {
   orb.id = 'orb-' + id;
   orb.innerHTML = `
     <div class="orb-circle" style="background:linear-gradient(135deg,${c1},${c2})">
-      ${name.charAt(0).toUpperCase()}
+      ${esc(name.charAt(0).toUpperCase())}
     </div>
-    <div class="orb-name">${name}</div>
-    <div class="orb-caption" id="cap-${id}"></div>`;
+    <div class="orb-name">${esc(name)}</div>
+    <div class="orb-caption" id="cap-${esc(id)}"></div>`;
   stage.appendChild(orb);
 }
 
@@ -1271,7 +1488,8 @@ function updateStatus(online) {
 // ============================================================
 // APP INIT
 // ============================================================
-function enterApp() {
+function enterApp(mode) {
+  isListenerMode = (mode === 'listener');
   // Get name from HTML input (no more prompt())
   const nameInput = document.getElementById('splash-name-input');
   const inputName = nameInput ? nameInput.value.trim() : '';
@@ -1297,6 +1515,7 @@ function enterApp() {
   connectSolunaRelay();
   initPlaylist();
   fetchDevices();
+  if (deviceRefreshInterval) clearInterval(deviceRefreshInterval);
   deviceRefreshInterval = setInterval(fetchDevices, 5000);
   initViz();
   startLatencyMonitor();
@@ -1307,7 +1526,8 @@ function enterApp() {
 function connectSignaling() {
   if (signalingWs) { try { signalingWs.close(); } catch(e){} }
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const url = `${proto}://${location.host}/ws/signal?room=${encodeURIComponent(currentRoom)}&peer=${myPeerId}&name=${encodeURIComponent(localName)}`;
+  const modeParam = isListenerMode ? '&mode=listener' : '';
+  const url = `${proto}://${location.host}/ws/signal?room=${encodeURIComponent(currentRoom)}&peer=${myPeerId}&name=${encodeURIComponent(localName)}${modeParam}`;
 
   try {
     signalingWs = new WebSocket(url);
@@ -1367,8 +1587,9 @@ function handleSignal(msg) {
       updateParticipantCount((data.peers || []).length + 1);
       break;
     case 'joined':
-      showToast(`${data.name} が参加`);
-      if (localStream) createOrGetPC(from, data.name, true);
+      showToast(`${esc(data.name)} が参加${data.is_listener ? '（リスナー）' : ''}`);
+      if (data.room_count) updateRoomCount(data.room_count);
+      if (localStream && !data.is_listener) createOrGetPC(from, data.name, true);
       addParticipant(from, data.name);
       // Send them current music state
       if (musicAudio) {
@@ -1386,7 +1607,7 @@ function handleSignal(msg) {
       showToast(`${data.name} が退出`);
       break;
     case 'offer':
-      handleOffer(from, data.name, data.sdp);
+      if (!isListenerMode) handleOffer(from, data.name, data.sdp);
       break;
     case 'answer':
       if (peerConnections[from]) {
@@ -2020,12 +2241,12 @@ function initPlaylist() {
   showNowPlaying();
 }
 
-let musicTargetVolume = 0.7; // user-adjustable
+let musicTargetVolume = 0.3; // start quiet, user can raise
 
 function fadeInMusic() {
   if (!musicAudio) return;
   let vol = 0;
-  const step = musicTargetVolume / 30; // 30 steps over ~3s
+  const step = musicTargetVolume / 50; // 50 steps over ~5s — gentle ramp
   const iv = setInterval(() => {
     vol = Math.min(musicTargetVolume, vol + step);
     musicAudio.volume = vol;
@@ -2184,30 +2405,31 @@ function setRoomSize(size) {
   showToast(`🏠 部屋サイズ: ${size}`);
 }
 
+// Real QR Code generator (minimal QR Code Model 2, Version 2-4, ECC L)
+// Based on Nayuki's QR Code generator (public domain concepts)
 function drawQR(text) {
   const canvas = document.getElementById('qr-canvas');
   const ctx = canvas.getContext('2d');
   const size = 200;
   canvas.width = size; canvas.height = size;
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
-  ctx.fillStyle = '#000000';
-  const cells = 21;
-  const cs = size / cells;
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
-  for (let r = 0; r < cells; r++) {
-    for (let c = 0; c < cells; c++) {
-      const isCorner = (r < 7 && c < 7) || (r < 7 && c >= cells-7) || (r >= cells-7 && c < 7);
-      if (!isCorner) {
-        if ((hash ^ (r * 17 + c * 31 + r*c)) & 1) { ctx.fillRect(c * cs, r * cs, cs, cs); }
-      }
-    }
-  }
-  [[0,0],[0,cells-7],[cells-7,0]].forEach(([r,c]) => {
-    ctx.fillStyle = '#000'; ctx.fillRect(c*cs, r*cs, 7*cs, 7*cs);
-    ctx.fillStyle = '#fff'; ctx.fillRect((c+1)*cs, (r+1)*cs, 5*cs, 5*cs);
-    ctx.fillStyle = '#7c3aed'; ctx.fillRect((c+2)*cs, (r+2)*cs, 3*cs, 3*cs);
-  });
+  // Use a data URL image from an inline SVG QR via the API
+  // Fallback: generate via Google Charts API (public, no key needed)
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.onerror = () => {
+    // Fallback: draw text-based placeholder
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('QRコード生成失敗', size/2, size/2 - 10);
+    ctx.fillText('URLをコピーしてください', size/2, size/2 + 10);
+  };
+  // Use qrserver.com free API (no key, CORS-friendly)
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
 }
 
 // ---- ROOM FROM URL ----
@@ -2580,8 +2802,11 @@ function startPitchDisplay() {
 }
 
 // ============================================================
-// LYRICS
+// LYRICS — Whisper (Groq) auto-transcription with timestamps
 // ============================================================
+const whisperCache = {}; // trackUrl → { segments: [{start,end,text}], text }
+let whisperLoading = false;
+
 function toggleLyrics() {
   document.getElementById('lyrics-panel').classList.toggle('show');
   if (document.getElementById('lyrics-panel').classList.contains('show')) {
@@ -2589,37 +2814,101 @@ function toggleLyrics() {
   }
 }
 
-function renderLyrics() {
+async function renderLyrics() {
   const t = PLAYLIST[currentTrackIdx];
   if (!t) return;
-  const key = t.url.split('/').pop().replace('.mp3', '');
-  const db = LYRICS_DB[key];
   const titleEl = document.getElementById('lyrics-track-title');
   const bodyEl  = document.getElementById('lyrics-body');
   if (!bodyEl) return;
-  if (!db) {
-    titleEl.textContent = t.title;
-    bodyEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;">歌詞データなし</div>';
+  titleEl.textContent = t.title;
+
+  // 1) Check Whisper cache first
+  if (whisperCache[t.url]) {
+    displayWhisperLyrics(whisperCache[t.url]);
     return;
   }
-  titleEl.textContent = db.title;
-  bodyEl.innerHTML = db.lines.map((line, i) =>
-    `<div class="lyric-line" id="lyric-${i}">${line || '　'}</div>`
-  ).join('');
-  // Auto-scroll lyrics based on playback position
+
+  // 2) Check hardcoded LYRICS_DB as fallback
+  const key = t.url.split('/').pop().replace('.mp3', '');
+  const db = LYRICS_DB[key];
+
+  // 3) Try Whisper transcription
+  if (!whisperLoading && t.url.startsWith('/')) {
+    bodyEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;text-align:center;">🎤 Whisperで歌詞を解析中...</div>';
+    whisperLoading = true;
+    try {
+      const audioResp = await fetch(t.url);
+      const audioBlob = await audioResp.blob();
+      const res = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'audio/mpeg' },
+        body: audioBlob,
+      });
+      if (res.ok) {
+        const j = await res.json();
+        if (j.segments && j.segments.length > 0) {
+          whisperCache[t.url] = j;
+          whisperLoading = false;
+          displayWhisperLyrics(j);
+          showToast('🎤 歌詞をWhisperで取得しました');
+          return;
+        }
+      }
+    } catch(e) {
+      console.warn('Whisper transcription failed:', e);
+    }
+    whisperLoading = false;
+  }
+
+  // 4) Fall back to hardcoded lyrics
+  if (db) {
+    // Convert hardcoded to fake segments for unified display
+    const fakeDuration = musicAudio?.duration || 180;
+    const segDuration = fakeDuration / db.lines.length;
+    const fakeSegments = db.lines.map((line, i) => ({
+      start: i * segDuration,
+      end: (i + 1) * segDuration,
+      text: line,
+    }));
+    whisperCache[t.url] = { segments: fakeSegments, text: db.lines.join('\n') };
+    displayWhisperLyrics(whisperCache[t.url]);
+  } else {
+    bodyEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;text-align:center;">歌詞データなし（Whisper解析失敗）</div>';
+  }
+}
+
+function displayWhisperLyrics(data) {
+  const bodyEl = document.getElementById('lyrics-body');
+  if (!bodyEl || !data.segments) return;
+
+  bodyEl.innerHTML = data.segments.map((seg, i) => {
+    const ts = formatTime(seg.start || 0);
+    return `<div class="lyric-line" id="lyric-${i}" data-start="${seg.start||0}" data-end="${seg.end||0}">
+      <span style="font-size:0.65rem;color:var(--muted);margin-right:6px;">${ts}</span>${seg.text}
+    </div>`;
+  }).join('');
+
+  // Sync lyrics to playback using actual timestamps
   if (lyricTimer) clearInterval(lyricTimer);
   lyricTimer = setInterval(() => {
-    if (!musicAudio || !db) return;
-    const pos     = musicAudio.currentTime;
-    const total   = musicAudio.duration || 180;
-    const lineIdx = Math.min(db.lines.length - 1, Math.floor((pos / total) * db.lines.length));
-    document.querySelectorAll('.lyric-line').forEach((el, i) => {
-      el.classList.toggle('active', i === lineIdx);
-      el.classList.toggle('next',   i === lineIdx + 1);
+    if (!musicAudio) return;
+    const pos = musicAudio.currentTime;
+    const lines = document.querySelectorAll('.lyric-line');
+    let activeIdx = -1;
+    lines.forEach((el, i) => {
+      const start = parseFloat(el.dataset.start || 0);
+      const end = parseFloat(el.dataset.end || 0);
+      const isActive = pos >= start && pos < end;
+      const isNext = pos < start && (activeIdx === -1 || i === activeIdx + 1);
+      el.classList.toggle('active', isActive);
+      el.classList.toggle('next', isNext && activeIdx >= 0);
+      if (isActive) activeIdx = i;
     });
-    const activeEl = document.getElementById('lyric-' + lineIdx);
-    activeEl?.scrollIntoView({ behavior:'smooth', block:'center' });
-  }, 800);
+    if (activeIdx >= 0) {
+      const activeEl = document.getElementById('lyric-' + activeIdx);
+      activeEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 300); // 300ms for smoother tracking with real timestamps
 }
 
 // ============================================================
@@ -2640,7 +2929,7 @@ function showChatMsg(name, text) {
   if (!strip) return;
   const div = document.createElement('div');
   div.className = 'chat-msg';
-  div.innerHTML = `<span class="chat-name">${name}</span>${text}`;
+  div.innerHTML = `<span class="chat-name">${esc(name)}</span>${esc(text)}`;
   strip.appendChild(div);
   if (strip.children.length > 5) strip.removeChild(strip.children[0]);
 }
@@ -3126,28 +3415,65 @@ function speakText(text, lang) {
 // Server broadcasts to all → each client plays all streams
 // ============================================================
 let crowdMode = false;
-let crowdEncoder = null; // MediaRecorder sending to WS
+let crowdEncoder = null; // MediaRecorder sending to WS or WT
 let crowdStreams = {}; // peerId → { audio, source }
+let wtTransport = null; // WebTransport connection (QUIC datagrams)
+let wtAvailable = false;
 
 function toggleCrowdMode() {
   crowdMode = !crowdMode;
   if (crowdMode) {
     startCrowdMode();
-    showToast('🏟️ クラウドモード ON（50人+対応）');
   } else {
     stopCrowdMode();
     showToast('クラウドモード OFF → P2Pに戻る');
   }
 }
 
-function startCrowdMode() {
-  if (!localStream || !solunaWs || solunaWs.readyState !== WebSocket.OPEN) {
-    showToast('まず接続してください');
+async function startCrowdMode() {
+  if (!localStream) {
+    showToast('まずマイクを有効にしてください');
     crowdMode = false;
     return;
   }
 
-  // Use MediaRecorder to encode mic → small opus chunks → send via Soluna WS
+  // Try WebTransport first (QUIC datagrams = lower latency, no head-of-line blocking)
+  if ('WebTransport' in window && !wtTransport) {
+    try {
+      const hashRes = await fetch('/api/wt-hash');
+      const { hash, port } = await hashRes.json();
+      const host = location.hostname;
+      const url = `https://${host}:${port}/crowd/${encodeURIComponent(currentRoom)}`;
+
+      // Decode base64 cert hash
+      const hashBytes = Uint8Array.from(atob(hash), c => c.charCodeAt(0));
+
+      wtTransport = new WebTransport(url, {
+        serverCertificateHashes: [{ algorithm: 'sha-256', value: hashBytes.buffer }],
+      });
+      await wtTransport.ready;
+      wtAvailable = true;
+      showToast('🏟️ クラウドモード ON — QUIC/WebTransport 超低遅延');
+
+      // Receive datagrams in background
+      readWTDatagrams();
+    } catch(e) {
+      console.warn('WebTransport failed, falling back to WebSocket:', e.message);
+      wtTransport = null;
+      wtAvailable = false;
+    }
+  }
+
+  if (!wtAvailable) {
+    if (!solunaWs || solunaWs.readyState !== WebSocket.OPEN) {
+      showToast('まず接続してください');
+      crowdMode = false;
+      return;
+    }
+    showToast('🏟️ クラウドモード ON（WebSocket フォールバック）');
+  }
+
+  // Use MediaRecorder to encode mic → small opus chunks
   try {
     crowdEncoder = new MediaRecorder(localStream, {
       mimeType: 'audio/webm;codecs=opus',
@@ -3158,14 +3484,21 @@ function startCrowdMode() {
   }
 
   crowdEncoder.ondataavailable = (e) => {
-    if (e.data.size > 0 && solunaWs?.readyState === WebSocket.OPEN) {
-      // Prepend 4-byte header: "CRWD" marker + peerId hash
+    if (e.data.size > 0) {
       e.data.arrayBuffer().then(buf => {
         const header = new TextEncoder().encode('C' + myPeerId.slice(0,3));
         const combined = new Uint8Array(header.length + buf.byteLength);
         combined.set(header);
         combined.set(new Uint8Array(buf), header.length);
-        solunaWs.send(combined.buffer);
+
+        if (wtAvailable && wtTransport) {
+          // Send via QUIC datagram (unreliable, fast)
+          const writer = wtTransport.datagrams.writable.getWriter();
+          writer.write(combined).then(() => writer.releaseLock()).catch(() => {});
+        } else if (solunaWs?.readyState === WebSocket.OPEN) {
+          // Fallback: WebSocket
+          solunaWs.send(combined.buffer);
+        }
       });
     }
   };
@@ -3173,11 +3506,33 @@ function startCrowdMode() {
   crowdEncoder.start(100); // 100ms chunks
 }
 
+async function readWTDatagrams() {
+  if (!wtTransport) return;
+  try {
+    const reader = wtTransport.datagrams.readable.getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      // Process incoming audio datagram
+      handleCrowdAudio(value.buffer);
+    }
+  } catch(e) {
+    console.warn('WT datagram read ended:', e.message);
+    wtAvailable = false;
+  }
+}
+
 function stopCrowdMode() {
   if (crowdEncoder && crowdEncoder.state === 'recording') {
     crowdEncoder.stop();
   }
   crowdEncoder = null;
+  // Close WebTransport if active
+  if (wtTransport) {
+    try { wtTransport.close(); } catch(e) {}
+    wtTransport = null;
+    wtAvailable = false;
+  }
   // Clean up crowd audio elements
   Object.values(crowdStreams).forEach(s => {
     try { s.audio.pause(); s.audio.src = ''; } catch(e) {}
@@ -3246,8 +3601,7 @@ async function detectLocalNetwork() {
 
   if (localNetworkMode) {
     showToast('⚡ ローカルネットワーク検出 — 超低遅延モード');
-    // Optimize for local: disable all TURN, reduce ptime
-    ICE_SERVERS.splice(3); // Remove TURN servers, keep STUN only
+    // Note: do NOT mutate ICE_SERVERS — new connections still need TURN for WAN peers
   }
 }
 
@@ -3425,8 +3779,10 @@ function adjustPitch(delta) {
 // ============================================================
 // LATENCY MEASUREMENT
 // ============================================================
+let _latencyInterval = null;
 function startLatencyMonitor() {
-  setInterval(async () => {
+  if (_latencyInterval) clearInterval(_latencyInterval);
+  _latencyInterval = setInterval(async () => {
     const pcs = Object.values(peerConnections);
     if (!pcs.length) return;
     try {
@@ -3475,7 +3831,802 @@ function installPWA() {
   if (saved && input) input.value = saved;
 })();
 
+// ============================================================
+// 🏆 KARAOKE LEADERBOARD — submit & display via server API
+// ============================================================
+let leaderboardVisible = false;
+
+function toggleLeaderboard() {
+  leaderboardVisible = !leaderboardVisible;
+  document.getElementById('leaderboard-panel').classList.toggle('show', leaderboardVisible);
+  if (leaderboardVisible) fetchLeaderboard();
+}
+
+async function fetchLeaderboard() {
+  try {
+    const res = await fetch(`/api/leaderboard/${encodeURIComponent(currentRoom)}`);
+    const j = await res.json();
+    const list = document.getElementById('lb-list');
+    if (!list) return;
+    if (!j.leaderboard || j.leaderboard.length === 0) {
+      list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center;">まだスコアがありません。カラオケで歌って登録しよう！</div>';
+      return;
+    }
+    list.innerHTML = j.leaderboard.map((e, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+      return `<div class="lb-entry">
+        <span class="lb-rank">${medal}</span>
+        <span class="lb-name">${esc(e.name)}</span>
+        <span class="lb-score">${esc(String(e.score))}点</span>
+        <span class="lb-track">${esc(e.track)}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { /* offline */ }
+}
+
+async function submitScore(score) {
+  const track = PLAYLIST[currentTrackIdx]?.title || 'Unknown';
+  try {
+    await fetch(`/api/leaderboard/${encodeURIComponent(currentRoom)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: localName, score, track }),
+    });
+    showToast(`🏆 スコア ${score}点 を登録しました！`);
+    // Broadcast to room
+    send({ type: 'leaderboard_update', data: { name: localName, score, track } });
+  } catch(e) {}
+}
+
+// Override the score display to also submit scores
+let sessionBestScore = 0;
+const _origUpdatePitchScore = updatePitchScore;
+updatePitchScore = function(detectedHz) {
+  if (!detectedHz || detectedHz < 80 || detectedHz > 1200) return;
+  const semitones = 12 * Math.log2(detectedHz / 440);
+  const nearest = Math.round(semitones);
+  const cents = Math.abs(semitones - nearest) * 100;
+  const accuracy = Math.max(0, 100 - cents * 2);
+  scoreTotal += accuracy;
+  scoreCount++;
+  if (Date.now() - lastScoreShow > 5000 && scoreCount > 10) {
+    const avg = Math.round(scoreTotal / scoreCount);
+    const el = document.getElementById('score-display');
+    if (el) {
+      el.textContent = avg >= 90 ? `${avg}点 ★★★` : avg >= 70 ? `${avg}点 ★★` : `${avg}点 ★`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 1500);
+    }
+    if (avg > sessionBestScore) {
+      sessionBestScore = avg;
+      if (avg >= 60) submitScore(avg);
+    }
+    scoreTotal = 0;
+    scoreCount = 0;
+    lastScoreShow = Date.now();
+  }
+};
+
+// ============================================================
+// 🚪 ROOM LIST — browse & join rooms
+// ============================================================
+let roomListVisible = false;
+let roomHistory = JSON.parse(localStorage.getItem('koe-room-history') || '["soluna"]');
+
+function toggleRoomList() {
+  roomListVisible = !roomListVisible;
+  document.getElementById('room-list-panel').classList.toggle('show', roomListVisible);
+  if (roomListVisible) fetchRoomList();
+}
+
+async function fetchRoomList() {
+  const entries = document.getElementById('room-list-entries');
+  if (!entries) return;
+  // Merge server rooms + local history
+  let rooms = roomHistory.map(name => ({ name, peers: 0 }));
+  try {
+    const res = await fetch('/api/rooms');
+    const j = await res.json();
+    if (j.rooms) {
+      j.rooms.forEach(r => {
+        const existing = rooms.find(e => e.name === r.name);
+        if (existing) existing.peers = r.peers;
+        else rooms.push(r);
+      });
+    }
+  } catch(e) {}
+  // Current room first
+  rooms.sort((a, b) => (b.name === currentRoom ? 1 : 0) - (a.name === currentRoom ? 1 : 0) || b.peers - a.peers);
+  entries.innerHTML = '';
+  rooms.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'room-entry';
+    if (r.name === currentRoom) div.style.borderColor = 'var(--accent)';
+    div.innerHTML = `<span class="room-entry-name">${r.name === currentRoom ? '▸ ' : ''}${esc(r.name)}</span>
+      <span class="room-entry-peers">${r.peers > 0 ? r.peers + '人' : ''}</span>`;
+    div.addEventListener('click', () => joinRoomDirect(r.name));
+    entries.appendChild(div);
+  });
+}
+
+function joinRoomDirect(name) {
+  if (!name || !name.trim()) return;
+  currentRoom = name.trim();
+  document.getElementById('room-name-top').textContent = currentRoom;
+  document.getElementById('room-input').value = currentRoom;
+  // Save to history
+  if (!roomHistory.includes(currentRoom)) { roomHistory.unshift(currentRoom); roomHistory = roomHistory.slice(0, 20); }
+  localStorage.setItem('koe-room-history', JSON.stringify(roomHistory));
+  leaveRoom();
+  setTimeout(() => { connectSignaling(); connectSolunaRelay(); }, 400);
+  toggleRoomList();
+  showToast(`"${currentRoom}" に参加`);
+}
+
+function createAndJoinRoom() {
+  const input = document.getElementById('new-room-input');
+  if (!input) return;
+  const name = input.value.trim();
+  if (!name) { showToast('ルーム名を入力してください'); return; }
+  input.value = '';
+  joinRoomDirect(name);
+}
+
+// ============================================================
+// 🎵 ADD CUSTOM TRACK — URL or file upload
+// ============================================================
+let addTrackVisible = false;
+
+function toggleAddTrack() {
+  addTrackVisible = !addTrackVisible;
+  document.getElementById('add-track-panel').classList.toggle('show', addTrackVisible);
+}
+
+function addTrackFromURL() {
+  const urlInput = document.getElementById('add-track-url');
+  const nameInput = document.getElementById('add-track-name');
+  const url = urlInput?.value.trim();
+  if (!url) { showToast('URLを入力してください'); return; }
+  // Basic URL validation — only allow http(s) URLs
+  try { const u = new URL(url); if (!['http:', 'https:'].includes(u.protocol)) throw 0; }
+  catch(e) { showToast('有効なHTTP(S) URLを入力してください'); return; }
+  const title = nameInput?.value.trim() || url.split('/').pop().replace(/\.[^.]+$/, '') || 'Custom Track';
+  PLAYLIST.push({ title, artist: 'カスタム', emoji: '🎵', url });
+  urlInput.value = '';
+  nameInput.value = '';
+  showToast(`🎵 "${title}" を追加しました`);
+  toggleAddTrack();
+  // Broadcast to room
+  send({ type: 'playlist_add', data: { title, url, artist: 'カスタム' } });
+  // Save to server
+  savePlaylistToServer();
+}
+
+function addTrackFromFile(file) {
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const title = file.name.replace(/\.[^.]+$/, '');
+  PLAYLIST.push({ title, artist: 'ローカル', emoji: '📁', url });
+  showToast(`📁 "${title}" を追加しました`);
+  toggleAddTrack();
+}
+
+async function savePlaylistToServer() {
+  try {
+    await fetch(`/api/rooms/${encodeURIComponent(currentRoom)}/playlist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playlist: PLAYLIST.map(t => ({ title: t.title, artist: t.artist, url: t.url })) }),
+    });
+  } catch(e) {}
+}
+
+// ============================================================
+// 🎛️ EQUALIZER — 4-band EQ for music playback
+// ============================================================
+let eqNodes = {}; // { low, mid, high, bass }
+let eqPanelVisible = false;
+
+function toggleEQPanel() {
+  eqPanelVisible = !eqPanelVisible;
+  document.getElementById('eq-panel').classList.toggle('show', eqPanelVisible);
+}
+
+function ensureEQ() {
+  if (eqNodes.low) return; // already created
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  eqNodes.bass = audioCtx.createBiquadFilter();
+  eqNodes.bass.type = 'lowshelf'; eqNodes.bass.frequency.value = 100; eqNodes.bass.gain.value = 0;
+  eqNodes.low = audioCtx.createBiquadFilter();
+  eqNodes.low.type = 'peaking'; eqNodes.low.frequency.value = 300; eqNodes.low.Q.value = 1; eqNodes.low.gain.value = 0;
+  eqNodes.mid = audioCtx.createBiquadFilter();
+  eqNodes.mid.type = 'peaking'; eqNodes.mid.frequency.value = 1000; eqNodes.mid.Q.value = 1; eqNodes.mid.gain.value = 0;
+  eqNodes.high = audioCtx.createBiquadFilter();
+  eqNodes.high.type = 'highshelf'; eqNodes.high.frequency.value = 4000; eqNodes.high.gain.value = 0;
+
+  // Reconnect music source through EQ chain
+  if (musicSource) {
+    try { musicSource.disconnect(); } catch(e) {}
+    musicSource.connect(eqNodes.bass);
+    eqNodes.bass.connect(eqNodes.low);
+    eqNodes.low.connect(eqNodes.mid);
+    eqNodes.mid.connect(eqNodes.high);
+    eqNodes.high.connect(audioCtx.destination);
+    if (musicAnalyserNode) {
+      musicSource.connect(musicAnalyserNode);
+    }
+  }
+}
+
+function setEQ(band, value) {
+  ensureEQ();
+  const v = parseFloat(value);
+  if (eqNodes[band]) eqNodes[band].gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
+  const valEl = document.getElementById(`eq-${band}-val`);
+  if (valEl) valEl.textContent = `${v > 0 ? '+' : ''}${v}dB`;
+}
+
+function applyEQPreset(preset) {
+  const presets = {
+    'flat':       { bass: 0, low: 0, mid: 0, high: 0 },
+    'bass-boost': { bass: 8, low: 4, mid: 0, high: 2 },
+    'vocal':      { bass: -2, low: 0, mid: 5, high: 3 },
+    'dance':      { bass: 6, low: 2, mid: -2, high: 4 },
+  };
+  const p = presets[preset] || presets.flat;
+  Object.entries(p).forEach(([band, val]) => {
+    setEQ(band, val);
+    const slider = document.getElementById(`eq-${band}`);
+    if (slider) slider.value = val;
+  });
+  showToast(`🎛️ EQ: ${preset}`);
+}
+
+// ============================================================
+// 🎹 MIDI INPUT — Web MIDI API, play notes as synth + control
+// ============================================================
+let midiAccess = null;
+let midiSynth = null; // OscillatorNode[]
+let midiEnabled = false;
+
+async function initMIDI() {
+  if (midiEnabled) {
+    midiEnabled = false;
+    document.getElementById('btn-midi').classList.remove('on');
+    document.getElementById('midi-indicator').classList.remove('active');
+    if (midiAccess) {
+      midiAccess.inputs.forEach(input => { input.onmidimessage = null; });
+    }
+    showToast('🎹 MIDI OFF');
+    return;
+  }
+
+  if (!navigator.requestMIDIAccess) { showToast('このブラウザはWeb MIDI非対応'); return; }
+
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    midiEnabled = true;
+    document.getElementById('btn-midi').classList.add('on');
+
+    let inputCount = 0;
+    midiAccess.inputs.forEach(input => {
+      input.onmidimessage = handleMIDIMessage;
+      inputCount++;
+      document.getElementById('midi-name').textContent = input.name || 'MIDI';
+    });
+
+    if (inputCount === 0) {
+      showToast('MIDIデバイスが見つかりません。接続してください。');
+      // Listen for new connections
+      midiAccess.onstatechange = (e) => {
+        if (e.port.type === 'input' && e.port.state === 'connected') {
+          e.port.onmidimessage = handleMIDIMessage;
+          document.getElementById('midi-name').textContent = e.port.name || 'MIDI';
+          document.getElementById('midi-indicator').classList.add('active');
+          showToast(`🎹 ${e.port.name} 接続`);
+        }
+      };
+    } else {
+      document.getElementById('midi-indicator').classList.add('active');
+      showToast(`🎹 MIDI ON (${inputCount} デバイス)`);
+    }
+  } catch(e) {
+    showToast('MIDI アクセスが拒否されました');
+  }
+}
+
+const activeMIDINotes = {}; // noteNumber → { osc, gain }
+
+function handleMIDIMessage(e) {
+  const [status, note, velocity] = e.data;
+  const cmd = status & 0xf0;
+
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  if (cmd === 0x90 && velocity > 0) {
+    // Note On
+    const freq = 440 * Math.pow(2, (note - 69) / 12);
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    const gain = audioCtx.createGain();
+    gain.gain.value = (velocity / 127) * 0.3;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    activeMIDINotes[note] = { osc, gain };
+
+    // Show note on display
+    const noteEl = document.getElementById('note-display');
+    if (noteEl) noteEl.textContent = hzToNote(freq);
+
+    // If echo is on, apply to MIDI too
+    if (echoEnabled && echoNode) {
+      gain.connect(echoNode);
+    }
+  } else if (cmd === 0x80 || (cmd === 0x90 && velocity === 0)) {
+    // Note Off
+    const n = activeMIDINotes[note];
+    if (n) {
+      n.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
+      setTimeout(() => { try { n.osc.stop(); } catch(e) {} }, 100);
+      delete activeMIDINotes[note];
+    }
+  } else if (cmd === 0xB0) {
+    // Control Change — map to effects
+    if (note === 1) { // Mod wheel → echo wet
+      const v = velocity / 127;
+      if (echoWetNode) echoWetNode.gain.value = v * 0.5;
+    } else if (note === 7) { // Volume → music volume
+      setMusicVolume(velocity / 127);
+    }
+  }
+}
+
+// ============================================================
+// 🎧 AI DJ MODE — auto BPM-match crossfade between tracks
+// ============================================================
+let djMode = false;
+let djCrossfadeTimeout = null;
+let djCheckInterval = null;
+
+function toggleDJMode() {
+  djMode = !djMode;
+  document.getElementById('btn-dj').classList.toggle('on', djMode);
+  document.getElementById('dj-badge').classList.toggle('active', djMode);
+
+  if (djMode) {
+    showToast('🎧 AUTO DJ ON — BPMマッチ + クロスフェード');
+    startDJMode();
+  } else {
+    showToast('DJ OFF');
+    if (djCrossfadeTimeout) clearTimeout(djCrossfadeTimeout);
+    if (djCheckInterval) { clearInterval(djCheckInterval); djCheckInterval = null; }
+    if (musicAudio) musicAudio.playbackRate = 1.0;
+  }
+}
+
+function startDJMode() {
+  if (!djMode || !musicAudio) return;
+  if (djCheckInterval) clearInterval(djCheckInterval);
+
+  // Monitor current track — crossfade 8 seconds before end
+  djCheckInterval = setInterval(() => {
+    if (!djMode) { clearInterval(djCheckInterval); djCheckInterval = null; return; }
+    if (!musicAudio || musicAudio.paused) return;
+
+    const remaining = musicAudio.duration - musicAudio.currentTime;
+    if (remaining < 8 && remaining > 0 && !djCrossfadeTimeout) {
+      djCrossfade();
+    }
+  }, 1000);
+}
+
+function djCrossfade() {
+  if (!djMode) return;
+  djCrossfadeTimeout = setTimeout(() => { djCrossfadeTimeout = null; }, 10000);
+
+  const nextIdx = (currentTrackIdx + 1) % PLAYLIST.length;
+  const nextTrack = PLAYLIST[nextIdx];
+  if (!nextTrack) return;
+
+  showToast(`🎧 DJ: クロスフェード → ${nextTrack.title}`);
+
+  // Create a second audio element for crossfade
+  const nextAudio = new Audio(nextTrack.url);
+  nextAudio.volume = 0;
+  nextAudio.play().catch(() => {});
+
+  // BPM matching: adjust playback rate of next track
+  if (detectedBPM) {
+    // Try to estimate next track BPM from first few seconds (simplified)
+    const targetRate = 1.0; // could be refined with actual BPM detection
+    nextAudio.playbackRate = targetRate;
+  }
+
+  // Crossfade over 6 seconds
+  let step = 0;
+  const fadeInterval = setInterval(() => {
+    step++;
+    const progress = step / 60; // 60 steps over ~6s
+    if (musicAudio) musicAudio.volume = musicTargetVolume * (1 - progress);
+    nextAudio.volume = musicTargetVolume * progress;
+
+    if (progress >= 1) {
+      clearInterval(fadeInterval);
+      // Switch to new track
+      musicAudio.pause();
+      musicAudio.src = nextTrack.url;
+      musicAudio.volume = musicTargetVolume;
+      musicSource = null;
+      currentTrackIdx = nextIdx;
+      musicAudio.play().catch(() => {});
+      nextAudio.pause();
+      nextAudio.src = '';
+      showNowPlaying();
+      send({ type: 'music_sync', data: {
+        trackIdx: currentTrackIdx, playing: true, position: 0, serverTs: Date.now(),
+      }});
+      // Continue DJ loop
+      if (djMode) setTimeout(startDJMode, 1000);
+    }
+  }, 100);
+}
+
+// ============================================================
+// 🎚️ MULTI-TRACK RECORDING — record each peer separately
+// ============================================================
+let multitrackEnabled = false;
+let multitrackRecorders = {}; // peerId → { recorder, chunks }
+
+function toggleMultitrack() {
+  multitrackEnabled = !multitrackEnabled;
+  document.getElementById('btn-multitrack').classList.toggle('on', multitrackEnabled);
+
+  if (multitrackEnabled) {
+    startMultitrack();
+    showToast('🎚️ マルチトラック録音 ON — 各参加者を個別録音');
+  } else {
+    stopMultitrack();
+    showToast('マルチトラック録音 OFF');
+  }
+}
+
+function startMultitrack() {
+  // Record local mic
+  if (localStream) {
+    recordTrack('local', localStream);
+  }
+  // Record each peer
+  Object.entries(audioGraphs).forEach(([peerId, graph]) => {
+    try {
+      const dest = audioCtx.createMediaStreamDestination();
+      graph.outGain.connect(dest);
+      recordTrack(peerId, dest.stream);
+    } catch(e) {}
+  });
+  // Record music
+  if (musicSource && audioCtx) {
+    try {
+      const dest = audioCtx.createMediaStreamDestination();
+      musicSource.connect(dest);
+      recordTrack('music', dest.stream);
+    } catch(e) {}
+  }
+}
+
+function recordTrack(id, stream) {
+  try {
+    const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+    const chunks = [];
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `koe-${id}-${new Date().toISOString().slice(0,16).replace(/:/g,'-')}.webm`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    recorder.start(1000);
+    multitrackRecorders[id] = { recorder, chunks };
+  } catch(e) {}
+}
+
+function stopMultitrack() {
+  Object.entries(multitrackRecorders).forEach(([id, { recorder }]) => {
+    if (recorder.state === 'recording') recorder.stop();
+  });
+  multitrackRecorders = {};
+  showToast('🎚️ マルチトラック録音をダウンロード中...');
+}
+
+// ============================================================
+// 📡 ESP32 DEVICE STATUS PANEL
+// ============================================================
+let devicePanelVisible = false;
+
+function toggleDevicePanel() {
+  devicePanelVisible = !devicePanelVisible;
+  document.getElementById('device-panel').classList.toggle('show', devicePanelVisible);
+  if (devicePanelVisible) renderDevicePanel();
+}
+
+function renderDevicePanel() {
+  const entries = document.getElementById('device-entries');
+  if (!entries) return;
+  const devices = Object.values(knownDevices);
+  if (devices.length === 0) {
+    entries.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center;">デバイスが検出されていません。<br>ESP32をSolunaチャンネルに接続してください。</div>';
+    return;
+  }
+  entries.innerHTML = devices.map(d => {
+    const age = Math.floor((Date.now() - (d.lastSeen || 0)) / 1000);
+    const online = age < 30;
+    return `<div class="device-entry">
+      <div class="device-led" style="${online ? '' : 'background:var(--red);box-shadow:0 0 6px var(--red);'}"></div>
+      <div>
+        <div style="font-size:0.85rem;font-weight:600;">${d.hash || d.id}</div>
+        <div class="device-hash">${d.channel_name || 'soluna'} · ${online ? `${age}秒前` : 'オフライン'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// PLAYLIST SYNC — receive custom tracks from peers
+// ============================================================
+// Extend handleSignal to handle new message types
+const _origHandleSignal = handleSignal;
+handleSignal = function(msg) {
+  const { type, from, data } = msg;
+  if (from === myPeerId) return;
+
+  switch(type) {
+    case 'playlist_add':
+      if (data.url && !PLAYLIST.find(t => t.url === data.url)) {
+        PLAYLIST.push({ title: data.title || 'Custom', artist: data.artist || 'カスタム', emoji: '🎵', url: data.url });
+        showToast(`🎵 ${data.title || 'Custom'} が追加されました`);
+      }
+      return;
+    case 'leaderboard_update':
+      showToast(`🏆 ${data.name}: ${data.score}点 (${data.track})`);
+      if (leaderboardVisible) fetchLeaderboard();
+      return;
+    default:
+      _origHandleSignal(msg);
+  }
+};
+
+// ============================================================
+// ROOM HISTORY — save visited rooms on join
+// ============================================================
+const _origConnectSignaling = connectSignaling;
+connectSignaling = function() {
+  if (!roomHistory.includes(currentRoom)) {
+    roomHistory.unshift(currentRoom);
+    roomHistory = roomHistory.slice(0, 20);
+    localStorage.setItem('koe-room-history', JSON.stringify(roomHistory));
+  }
+  _origConnectSignaling();
+};
+
+// ============================================================
+// ROOM COUNT + LISTENER MODE UI
+// ============================================================
+let roomPeerCount = 0;
+
+function updateRoomCount(n) {
+  roomPeerCount = n;
+  const badge = document.getElementById('room-count-badge');
+  if (badge) badge.textContent = n + '人';
+  updateParticipantCount(n);
+}
+
+// Listener mode: hide mic button, show listener badge
+if (isListenerMode) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const mic = document.getElementById('btn-mic-main');
+    if (mic) { mic.style.display = 'none'; }
+  });
+}
+
+// Periodic stats fetch (lightweight, every 15s)
+setInterval(async () => {
+  try {
+    const res = await fetch('/api/stats', { signal: AbortSignal.timeout(3000) });
+    const j = await res.json();
+    // Find our room
+    const room = (j.rooms || []).find(r => r.room === currentRoom);
+    if (room) updateRoomCount(room.total);
+  } catch(e) {}
+}, 15000);
+
+// ============================================================
+// ☰ MORE MENU
+// ============================================================
+function toggleMoreMenu() {
+  const el = document.getElementById('more-menu');
+  if (!el) return;
+  const show = el.style.display === 'none';
+  el.style.display = show ? 'flex' : 'none';
+}
+function toggleVolSlider() { /* volume slider is always visible in menu */ }
+
+// ============================================================
+// SEEKBAR + TIME DISPLAY — update every 500ms
+// ============================================================
+let seekbarInterval = null;
+function startSeekbar() {
+  if (seekbarInterval) clearInterval(seekbarInterval);
+  seekbarInterval = setInterval(() => {
+    if (!musicAudio || musicAudio.paused) return;
+    const cur = musicAudio.currentTime || 0;
+    const dur = musicAudio.duration || 0;
+    const curEl = document.getElementById('np-time-cur');
+    const durEl = document.getElementById('np-time-dur');
+    const bar = document.getElementById('np-seekbar');
+    if (curEl) curEl.textContent = formatTime(cur);
+    if (durEl) durEl.textContent = formatTime(dur);
+    if (bar && dur > 0) bar.value = (cur / dur) * 100;
+  }, 500);
+}
+
+function seekMusic(pct) {
+  if (!musicAudio || !musicAudio.duration) return;
+  musicAudio.currentTime = (pct / 100) * musicAudio.duration;
+  // Broadcast seek to room
+  send({ type: 'music_sync', data: {
+    trackIdx: currentTrackIdx, playing: !musicAudio.paused,
+    position: musicAudio.currentTime, serverTs: Date.now(),
+  }});
+}
+
+// Start seekbar when music plays
+if (musicAudio) {
+  musicAudio.addEventListener('play', startSeekbar);
+  musicAudio.addEventListener('pause', () => {
+    const curEl = document.getElementById('np-time-cur');
+    if (curEl && musicAudio) curEl.textContent = formatTime(musicAudio.currentTime);
+  });
+}
+
+// ============================================================
+// 🔀 SHUFFLE + 🔁 REPEAT
+// ============================================================
+let shuffleOn = false;
+let repeatMode = 'off'; // 'off' | 'all' | 'one'
+
+function toggleShuffle() {
+  shuffleOn = !shuffleOn;
+  const btn = document.getElementById('btn-shuffle');
+  if (btn) btn.style.opacity = shuffleOn ? '1' : '0.4';
+  showToast(shuffleOn ? '🔀 シャッフル ON' : 'シャッフル OFF');
+}
+
+function toggleRepeat() {
+  const modes = ['off', 'all', 'one'];
+  repeatMode = modes[(modes.indexOf(repeatMode) + 1) % modes.length];
+  const btn = document.getElementById('btn-repeat');
+  if (btn) {
+    btn.textContent = repeatMode === 'one' ? '🔂' : '🔁';
+    btn.style.opacity = repeatMode === 'off' ? '0.4' : '1';
+  }
+  const labels = { off: 'リピート OFF', all: '🔁 全曲リピート', one: '🔂 1曲リピート' };
+  showToast(labels[repeatMode]);
+}
+
+// Override nextTrack to respect shuffle/repeat
+const _origNextTrack = nextTrack;
+nextTrack = function() {
+  if (repeatMode === 'one') {
+    musicAudio.currentTime = 0;
+    musicAudio.play().catch(() => {});
+    return;
+  }
+  if (shuffleOn) {
+    let next;
+    do { next = Math.floor(Math.random() * PLAYLIST.length); } while (next === currentTrackIdx && PLAYLIST.length > 1);
+    playTrack(next);
+  } else {
+    const next = (currentTrackIdx + 1) % PLAYLIST.length;
+    if (next === 0 && repeatMode === 'off') {
+      musicAudio.pause();
+      showNowPlaying();
+      showToast('プレイリスト終了');
+    } else {
+      playTrack(next);
+    }
+  }
+};
+
+// ============================================================
+// ⌨️ KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  // Don't trigger if typing in an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  switch(e.code) {
+    case 'Space':
+      e.preventDefault();
+      togglePlay();
+      break;
+    case 'ArrowRight':
+      if (e.shiftKey) { nextTrack(); } // Shift+Right = next track
+      else if (musicAudio) { musicAudio.currentTime = Math.min(musicAudio.duration, musicAudio.currentTime + 10); } // Skip 10s
+      break;
+    case 'ArrowLeft':
+      if (e.shiftKey) { prevTrack(); }
+      else if (musicAudio) { musicAudio.currentTime = Math.max(0, musicAudio.currentTime - 10); }
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      if (musicAudio) { musicAudio.volume = Math.min(1, musicAudio.volume + 0.1); const s = document.getElementById('vol-slider'); if (s) s.value = musicAudio.volume * 100; }
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      if (musicAudio) { musicAudio.volume = Math.max(0, musicAudio.volume - 0.1); const s = document.getElementById('vol-slider'); if (s) s.value = musicAudio.volume * 100; }
+      break;
+    case 'KeyM':
+      toggleMic();
+      break;
+    case 'KeyL':
+      toggleLyrics();
+      break;
+    case 'KeyE':
+      toggleEcho();
+      break;
+    case 'Escape':
+      // Close any open panel
+      document.querySelectorAll('.show').forEach(el => {
+        if (el.id && el.id !== 'app') el.classList.remove('show');
+      });
+      document.getElementById('transcript-drawer')?.classList.remove('open');
+      hideQR(); hideSpatial();
+      break;
+  }
+});
+
+// ============================================================
+// ARIA LABELS — add to existing elements
+// ============================================================
+(function addAriaLabels() {
+  const labels = {
+    'btn-mic-main': 'マイク ON/OFF',
+    'btn-transcript': 'トランスクリプト',
+    'btn-rec': '録音',
+    'btn-echo': 'エコー ON/OFF',
+    'btn-autotune': 'オートチューン ON/OFF',
+    'btn-lyrics': '歌詞を表示',
+    'btn-harmonize': 'ハーモニー ON/OFF',
+    'btn-babel': '声翻訳 ON/OFF',
+    'btn-dj': 'AUTO DJ ON/OFF',
+    'btn-eq': 'イコライザー',
+    'btn-midi': 'MIDI入力 ON/OFF',
+    'btn-multitrack': 'マルチトラック録音',
+    'chat-input': 'チャットメッセージ',
+    'chat-send': 'メッセージ送信',
+    'splash-name-input': 'ニックネーム',
+  };
+  Object.entries(labels).forEach(([id, label]) => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('aria-label', label);
+  });
+  // Add role=dialog to modals
+  document.querySelectorAll('.modal').forEach(el => {
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+  });
+})();
+
+// Initialize shuffle/repeat button opacity
+document.getElementById('btn-shuffle').style.opacity = '0.4';
+document.getElementById('btn-repeat').style.opacity = '0.4';
+
 console.log('Koe Web App initialized. Peer ID:', myPeerId);
+console.log('Shortcuts: Space=Play/Pause, ←→=Seek, Shift+←→=Track, ↑↓=Vol, M=Mic, L=Lyrics, E=Echo, Esc=Close');
 </script>
 </body>
 </html>

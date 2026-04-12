@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Stone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  height:100%;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#0a0a0a;
+  color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  padding:2rem 1.5rem 3rem;
+}
+
+/* Nav */
+.nav{
+  width:100%;
+  max-width:480px;
+  display:flex;
+  justify-content:center;
+  padding-bottom:3rem;
+}
+.nav a{
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:0.18em;
+  color:rgba(255,255,255,0.5);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:color 0.2s;
+}
+.nav a:hover{color:#e8e8e8;}
+
+/* Main card */
+.card{
+  width:100%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.5rem;
+  flex:1;
+  justify-content:center;
+  padding:1rem 0 2rem;
+}
+
+/* Serial — hero text */
+.serial{
+  font-size:clamp(2.8rem,12vw,4.5rem);
+  font-weight:100;
+  letter-spacing:0.04em;
+  color:#f5f5f5;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+
+/* SKU */
+.sku{
+  font-size:0.72rem;
+  font-weight:400;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.35);
+  margin-top:0.25rem;
+}
+
+/* Room */
+.room{
+  font-size:1rem;
+  font-weight:300;
+  color:rgba(255,255,255,0.45);
+  margin-top:0.75rem;
+  letter-spacing:0.03em;
+}
+
+/* Stats row */
+.stats{
+  display:flex;
+  gap:1.5rem;
+  margin-top:2rem;
+}
+.stat{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.3rem;
+  padding:1rem 1.6rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  min-width:110px;
+}
+.stat-value{
+  font-size:1.8rem;
+  font-weight:200;
+  color:#e8e8e8;
+  font-variant-numeric:tabular-nums;
+}
+.stat-label{
+  font-size:0.65rem;
+  font-weight:400;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.35);
+}
+
+/* Last touched */
+.last-touched{
+  font-size:0.78rem;
+  color:rgba(255,255,255,0.3);
+  margin-top:1.25rem;
+  letter-spacing:0.02em;
+}
+
+/* Tap button */
+.tap-wrap{
+  margin-top:2.5rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.9rem;
+}
+.tap-btn{
+  width:88px;
+  height:88px;
+  border-radius:50%;
+  border:2px solid #8B5CF6;
+  background:transparent;
+  color:#8B5CF6;
+  font-family:inherit;
+  font-size:0.78rem;
+  font-weight:400;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background 0.18s, box-shadow 0.18s, transform 0.12s;
+  outline:none;
+  -webkit-tap-highlight-color:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.tap-btn:hover{
+  background:rgba(139,92,246,0.12);
+  box-shadow:0 0 0 6px rgba(139,92,246,0.1);
+}
+.tap-btn:active{
+  transform:scale(0.93);
+}
+.tap-btn.pulsing{
+  animation:pulse 0.6s ease-out;
+}
+@keyframes pulse{
+  0%  {box-shadow:0 0 0 0 rgba(139,92,246,0.6); background:rgba(139,92,246,0.25);}
+  70% {box-shadow:0 0 0 22px rgba(139,92,246,0); background:rgba(139,92,246,0.08);}
+  100%{box-shadow:0 0 0 0 rgba(139,92,246,0);   background:transparent;}
+}
+
+/* Confirmation */
+.confirm{
+  font-size:0.72rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:#8B5CF6;
+  height:1rem;
+  transition:opacity 0.3s;
+  opacity:0;
+}
+.confirm.show{opacity:1;}
+
+/* Error / loading */
+.status-text{
+  font-size:0.8rem;
+  color:rgba(255,255,255,0.3);
+  margin-top:1rem;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/">KOE</a>
+</nav>
+
+<div class="card" id="card">
+  <div class="serial" id="serial">—</div>
+  <div class="sku" id="sku">Stone</div>
+  <div class="room" id="room">Loading…</div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-value" id="session-count">—</span>
+      <span class="stat-label">Sessions nearby</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="tap-count">—</span>
+      <span class="stat-label">Times touched</span>
+    </div>
+  </div>
+
+  <div class="last-touched" id="last-touched"></div>
+
+  <div class="tap-wrap">
+    <button class="tap-btn" id="tap-btn" onclick="doTap()">Touch</button>
+    <div class="confirm" id="confirm">Recorded</div>
+  </div>
+</div>
+
+<script>
+// Derive stone ID from URL path: /stone/ST-001 → "ST-001"
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const stoneId = pathParts[pathParts.length - 1] || 'ST-001';
+
+// Room name formatting
+function formatRoom(r) {
+  return (r || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// SKU label
+function formatSku(sku) {
+  const map = { stone:'Stone', mini:'Mini', pick:'Pick', pendant:'Pendant' };
+  return map[sku] || sku;
+}
+
+// Relative time
+function relativeTime(ts) {
+  if (!ts) return '';
+  const diff = Math.floor(Date.now() / 1000) - ts;
+  if (diff < 60)  return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
+  return `${Math.floor(diff/86400)} days ago`;
+}
+
+let lastTouchedTs = null;
+
+async function loadStone() {
+  try {
+    const res = await fetch(`/api/v1/stone/${encodeURIComponent(stoneId)}`);
+    if (!res.ok) {
+      document.getElementById('room').textContent = 'Device not found';
+      document.title = `Koe — ${stoneId}`;
+      return;
+    }
+    const d = await res.json();
+
+    document.getElementById('serial').textContent = d.serial || stoneId;
+    document.getElementById('sku').textContent = formatSku(d.sku);
+    document.getElementById('room').textContent = formatRoom(d.room);
+    document.getElementById('session-count').textContent = d.session_count ?? 0;
+    document.getElementById('tap-count').textContent = d.tap_count ?? 0;
+    document.title = `Koe — ${d.serial || stoneId}`;
+
+    lastTouchedTs = d.last_touched;
+    updateLastTouched();
+  } catch(e) {
+    document.getElementById('room').textContent = 'Connection error';
+  }
+}
+
+function updateLastTouched() {
+  const el = document.getElementById('last-touched');
+  if (lastTouchedTs) {
+    el.textContent = 'Last touched ' + relativeTime(lastTouchedTs);
+  } else {
+    el.textContent = 'Never touched';
+  }
+}
+
+async function doTap() {
+  const btn = document.getElementById('tap-btn');
+  const confirm = document.getElementById('confirm');
+
+  btn.classList.remove('pulsing');
+  void btn.offsetWidth; // reflow to restart animation
+  btn.classList.add('pulsing');
+
+  try {
+    await fetch(`/api/v1/stone/${encodeURIComponent(stoneId)}/tap`, { method: 'POST' });
+
+    // Update tap count optimistically
+    const el = document.getElementById('tap-count');
+    el.textContent = (parseInt(el.textContent) || 0) + 1;
+
+    // Update last touched
+    lastTouchedTs = Math.floor(Date.now() / 1000);
+    updateLastTouched();
+
+    // Show confirmation
+    confirm.classList.add('show');
+    setTimeout(() => confirm.classList.remove('show'), 2000);
+  } catch(e) {
+    // silent fail
+  }
+}
+
+// Load on page init
+loadStone();
+
+// Refresh relative time every 30s
+setInterval(updateLastTouched, 30000);
+</script>
+</body>
+</html>

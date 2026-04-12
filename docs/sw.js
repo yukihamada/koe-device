@@ -1,5 +1,5 @@
-const CACHE = 'koe-v2';
-const PRECACHE = ['/app', '/manifest.json'];
+const CACHE = 'koe-v3';
+const PRECACHE = ['/app', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png'];
 const MUSIC_CACHE = 'koe-music-v1';
 
 self.addEventListener('install', e => {
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
   // Network first, cache fallback for app
   e.respondWith(
     fetch(e.request).then(r => {
-      if (r.ok && url.pathname === '/app') {
+      if (r.ok && (url.pathname === '/app' || PRECACHE.includes(url.pathname))) {
         caches.open(CACHE).then(c => c.put(e.request, r.clone()));
       }
       return r;

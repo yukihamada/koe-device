@@ -1,0 +1,34 @@
+Category,Ref,Part,Description,Qty,Unit USD,Subtotal USD,Source
+MCU,U1,ESP32-C3-MINI-1,"4MB Flash, WiFi 2.4GHz, RISC-V single core, no PSRAM",1,1.50,1.50,LCSC
+Audio,U-AMP,MAX98357A,"I2S Class-D 3W, TQFN-16",1,1.20,1.20,LCSC
+Audio,SPK1,20mm speaker,"Neodymium, 8ohm, thin profile",1,0.80,0.80,AliExpress
+,,,,,,,,
+LED,LED1,WS2812B-2020,"RGB LED, single",1,0.10,0.10,LCSC
+,,,,,,,,
+Power,U-LDO,AP2112K-3.3,"LDO 3.3V 600mA, SOT-23-5",1,0.15,0.15,LCSC
+Power,BAT,LiPo 300mAh,"3.7V pouch cell, 30x20x4mm",1,1.50,1.50,AliExpress
+Power,U-CHG,TP4054,"100mA LiPo charger, SOT-23-5",1,0.10,0.10,LCSC
+,,,,,,,,
+Connector,J1,USB-C 6P,"Charging only (2 CC + VBUS + GND)",1,0.15,0.15,LCSC
+,,,,,,,,
+UI,SW1,SMD button,"3x4mm side-mount tact switch",1,0.05,0.05,LCSC
+,,,,,,,,
+Passives,R/C,0402 passives,"Decoupling caps, pull-ups, divider (10 pcs)",10,0.02,0.20,LCSC
+,,,,,,,,
+PCB,PCB,26mm round PCB,"2-layer, HASL, 0.8mm thickness",1,0.30,0.30,JLCPCB
+,,,,,,,,
+Antenna,ANT,PCB trace antenna,"Inverted-F, 2.4GHz, on-board",1,0.00,0.00,Integrated
+,,,,,,,,
+TOTAL,,,,,,6.05,
+,,,,,,,,
+,,,Assembly (JLCPCB @1000 units),,,$2.00,,JLCPCB
+,,,TOTAL BOM + Assembly,,,$8.05,
+,,,Target retail (5x markup),,,$40,
+,,,,,,,,
+Notes:,,,,,,,,
+,"No mic (receive-only)",,,,,,,
+,"No GPS / cellular",,,,,,,
+,"No PSRAM needed",,,,,,,
+,"PCB trace antenna (no external component)",,,,,,,
+,"TP4054 charges at 100mA (safe for 300mAh cell, slower but simpler)",,,,,,,
+,"Battery life: ~4h continuous playback, ~8h with intermittent audio",,,,,,,

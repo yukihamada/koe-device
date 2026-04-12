@@ -160,6 +160,53 @@ async fn main() {
         );
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
         CREATE INDEX IF NOT EXISTS idx_orders_email ON orders(customer_email);
+        CREATE TABLE IF NOT EXISTS koe_sessions (
+            id TEXT PRIMARY KEY,
+            room TEXT NOT NULL DEFAULT 'living_room',
+            label TEXT,
+            start_time INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            end_time INTEGER,
+            duration_secs INTEGER,
+            tracks INTEGER DEFAULT 6,
+            instruments TEXT DEFAULT '[]',
+            is_silence INTEGER DEFAULT 0,
+            source TEXT DEFAULT 'auto',
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        CREATE TABLE IF NOT EXISTS stone_devices (
+            id TEXT PRIMARY KEY,
+            sku TEXT NOT NULL DEFAULT 'stone',
+            serial TEXT NOT NULL,
+            room TEXT DEFAULT 'living_room',
+            last_touched INTEGER,
+            session_count INTEGER DEFAULT 0,
+            tap_count INTEGER DEFAULT 0,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        CREATE TABLE IF NOT EXISTS stone_taps (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            stone_id TEXT NOT NULL,
+            song_title TEXT,
+            song_artist TEXT,
+            tapped_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        );
+        INSERT OR IGNORE INTO stone_devices(id,sku,serial,room) VALUES
+            ('ST-001','stone','KOE-001','living_room'),
+            ('ST-002','stone','KOE-002','bookshelf'),
+            ('ST-003','stone','KOE-003','side_table'),
+            ('ST-004','stone','KOE-004','kitchen'),
+            ('ST-005','stone','KOE-005','beachfront_bedroom'),
+            ('ST-006','stone','KOE-006','guest_room'),
+            ('MN-001','mini','KOE-M01','window'),
+            ('MN-002','mini','KOE-M02','music_room'),
+            ('MN-003','mini','KOE-M03','beach_deck'),
+            ('MN-004','mini','KOE-M04','pool_deck'),
+            ('PK-001','pick','KOE-P01','music_room'),
+            ('PK-002','pick','KOE-P02','music_room'),
+            ('PD-001','pendant','KOE-D01','beachfront_bedroom'),
+            ('PD-002','pendant','KOE-D02','entry');
+        INSERT OR IGNORE INTO koe_sessions(id,room,label,start_time,end_time,duration_secs,tracks,instruments,source)
+        VALUES('seed_june28','living_room','Before you arrived',1751090460,1751091780,1320,2,'[\"acoustic_guitar\"]','seed');
     ").expect("Failed to init DB");
     info!("SQLite DB initialized at {}", db_path);
 
@@ -259,6 +306,11 @@ async fn main() {
         .route("/api/leaderboard/:room", get(handle_leaderboard_get).post(handle_leaderboard_post))
         .route("/api/rooms",            get(handle_rooms_list))
         .route("/api/rooms/:room/playlist", get(handle_playlist_get).post(handle_playlist_save))
+        .route("/stone/:id",                       get(handle_stone_page))
+        .route("/api/v1/stone/:id",                get(handle_stone_api))
+        .route("/api/v1/stone/:id/tap",            post(handle_stone_tap))
+        .route("/api/v1/sessions",                 get(handle_sessions_list).post(handle_session_create))
+        .route("/api/v1/sessions/timeline",        get(handle_sessions_timeline))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
@@ -1709,6 +1761,162 @@ async fn call_groq(api_key: &str, prompt: &str, max_tokens: u32) -> Result<Strin
         .as_str()
         .map(|s| s.trim().to_string())
         .ok_or_else(|| format!("unexpected groq response: {}", j))
+}
+
+// ---- Stone / Sessions handlers ----
+
+/// GET /stone/:id — serve stone.html (client reads stone ID from URL)
+async fn handle_stone_page(
+    Path(_stone_id): Path<String>,
+    _state: State<AppState>,
+) -> impl IntoResponse {
+    serve_html("stone.html").await
+}
+
+/// GET /api/v1/stone/:id — JSON info for a stone device
+async fn handle_stone_api(
+    Path(stone_id): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let result = db.query_row(
+        "SELECT id, sku, serial, room, last_touched, session_count, tap_count FROM stone_devices WHERE id = ?1",
+        rusqlite::params![stone_id],
+        |row| Ok(json!({
+            "id": row.get::<_,String>(0)?,
+            "sku": row.get::<_,String>(1)?,
+            "serial": row.get::<_,String>(2)?,
+            "room": row.get::<_,String>(3)?,
+            "last_touched": row.get::<_,Option<i64>>(4)?,
+            "session_count": row.get::<_,i64>(5)?,
+            "tap_count": row.get::<_,i64>(6)?,
+        }))
+    );
+    match result {
+        Ok(v) => (StatusCode::OK, axum::Json(v)).into_response(),
+        Err(_) => (StatusCode::NOT_FOUND, axum::Json(json!({"error":"not found"}))).into_response(),
+    }
+}
+
+/// POST /api/v1/stone/:id/tap — record a tap/vote on a stone device
+async fn handle_stone_tap(
+    Path(stone_id): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    db.execute(
+        "INSERT INTO stone_taps(stone_id, tapped_at) VALUES(?1, strftime('%s','now'))",
+        rusqlite::params![stone_id],
+    ).ok();
+    db.execute(
+        "UPDATE stone_devices SET tap_count = tap_count + 1, last_touched = strftime('%s','now') WHERE id = ?1",
+        rusqlite::params![stone_id],
+    ).ok();
+    (StatusCode::OK, axum::Json(json!({"ok":true}))).into_response()
+}
+
+/// GET /api/v1/sessions — list sessions (most recent 100)
+async fn handle_sessions_list(
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let mut stmt = match db.prepare(
+        "SELECT id, room, label, start_time, end_time, duration_secs, tracks, instruments, is_silence, source FROM koe_sessions ORDER BY start_time DESC LIMIT 100"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    };
+    let sessions: Vec<Value> = match stmt.query_map([], |row| {
+        Ok(json!({
+            "id": row.get::<_,String>(0)?,
+            "room": row.get::<_,String>(1)?,
+            "label": row.get::<_,Option<String>>(2)?,
+            "start_time": row.get::<_,i64>(3)?,
+            "end_time": row.get::<_,Option<i64>>(4)?,
+            "duration_secs": row.get::<_,Option<i64>>(5)?,
+            "tracks": row.get::<_,i64>(6)?,
+            "instruments": row.get::<_,String>(7)?,
+            "is_silence": row.get::<_,i64>(8)?,
+            "source": row.get::<_,String>(9)?,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => vec![],
+    };
+    let count = sessions.len();
+    (StatusCode::OK, axum::Json(json!({"sessions": sessions, "count": count}))).into_response()
+}
+
+/// POST /api/v1/sessions — create or replace a session (admin)
+async fn handle_session_create(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    axum::Json(body): axum::Json<Value>,
+) -> impl IntoResponse {
+    let token = std::env::var("KOE_ADMIN_TOKEN").unwrap_or_default();
+    let auth = headers.get("authorization")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    if !token.is_empty() && auth != format!("Bearer {}", token) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"unauthorized"}))).into_response();
+    }
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let id = body["id"].as_str().unwrap_or("").to_string();
+    let room = body["room"].as_str().unwrap_or("living_room").to_string();
+    let label = body["label"].as_str().map(|s| s.to_string());
+    let start_time = body["start_time"].as_i64().unwrap_or(0);
+    let end_time = body["end_time"].as_i64();
+    let duration_secs = body["duration_secs"].as_i64();
+    let tracks = body["tracks"].as_i64().unwrap_or(6);
+    let instruments = body["instruments"].to_string();
+    let source = body["source"].as_str().unwrap_or("auto").to_string();
+    let r = db.execute(
+        "INSERT OR REPLACE INTO koe_sessions(id,room,label,start_time,end_time,duration_secs,tracks,instruments,source) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
+        rusqlite::params![id, room, label, start_time, end_time, duration_secs, tracks, instruments, source],
+    );
+    match r {
+        Ok(_) => (StatusCode::CREATED, axum::Json(json!({"ok":true,"id":id}))).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    }
+}
+
+/// GET /api/v1/sessions/timeline — sessions grouped by day (for EKG visualization)
+async fn handle_sessions_timeline(
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let mut stmt = match db.prepare(
+        "SELECT (start_time / 86400) as day, COUNT(*) as count, SUM(duration_secs) as total_secs FROM koe_sessions WHERE is_silence = 0 GROUP BY day ORDER BY day"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    };
+    let days: Vec<Value> = match stmt.query_map([], |row| {
+        Ok(json!({
+            "day": row.get::<_,i64>(0)?,
+            "count": row.get::<_,i64>(1)?,
+            "total_secs": row.get::<_,Option<i64>>(2)?,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => vec![],
+    };
+    (StatusCode::OK, axum::Json(json!({"days": days}))).into_response()
 }
 
 // ---- Helpers ----

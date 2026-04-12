@@ -1,10 +1,25 @@
 # CLAUDE.md — Koe Device
 
 ## プロジェクト概要
-ESP32-S3 + Raspberry Pi 5 の音声デバイス。
+ESP32-S3 + Raspberry Pi CM5 の音声デバイスエコシステム。
 - **koe.live** — 製品サイト + OTA APIサーバー (Fly.io `koe-live`, nrt)
-- **firmware/** — ESP32-S3 Rust ファームウェア
-- **server/** — koe.live の Axum サーバー (静的配信 + OTA API)
+- **firmware/** — ESP32-S3 Rust ファームウェア (Koe + Soluna + Pro)
+- **firmware/src/pro.rs** — Koe Pro 低遅延オーディオ送信機 (UWB同期)
+- **firmware/src/uwb.rs** — DW3000 UWBクロック同期
+- **firmware/coin-lite/** — COIN Lite (ESP32-C3) 受信専用ファーム
+- **hub/** — Koe Hub ソフトウェア (Pi CM5, 8ch mixer, EQ/reverb/comp, SRT/RTMP)
+- **server/** — koe.live の Axum サーバー (静的配信 + OTA API + WebRTC signaling)
+
+## Webページ (docs/)
+| ページ | URL | 説明 |
+|--------|-----|------|
+| index.html | koe.live/ | ランディングページ |
+| pro.html | koe.live/pro | Koe Pro + Hub 製品ページ |
+| busker.html | koe.live/busker | ストリート演奏: 観客のスマホがスピーカーになる + 投げ銭 |
+| classroom.html | koe.live/classroom | 先生/ガイドの声を全員のイヤホンへ、アプリ不要 |
+| moji.html | koe.live/moji | リアルタイム音声翻訳 (JA/EN/ZH/KO/ES/FR) |
+| soluna-os.html | koe.live/soluna-os | フェスティバル管理ダッシュボード |
+| app/ | koe.live/app | P2P Webアプリ (Soluna)
 
 ## OTAファームウェア更新
 

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Cloud — デバイス管理ダッシュボード</title>
+<meta name="description" content="フェスティバル主催者向けKoe Seedデバイスフリート管理。リアルタイム監視、OTA更新、紛失追跡。">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',-apple-system,sans-serif;
+  background:#0a0a0a;color:#e8e8e8;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;line-height:1.7;
+}
+
+/* NAV */
+.dash-nav{
+  position:fixed;top:0;width:100%;z-index:100;
+  display:flex;align-items:center;gap:0;
+  background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  height:56px;
+}
+.dash-nav .nav-brand{
+  font-size:1.1rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;
+  padding:0 1.5rem;border-right:1px solid rgba(255,255,255,0.06);
+  height:100%;display:flex;align-items:center;text-decoration:none;
+}
+.dash-nav .nav-brand span{color:#8B5CF6;font-weight:400;margin-left:0.5rem;letter-spacing:0.08em;font-size:0.85rem;}
+.dash-nav .nav-links{display:flex;height:100%;}
+.dash-nav .nav-links a{
+  padding:0 1.2rem;height:100%;display:flex;align-items:center;
+  font-size:0.82rem;color:#888;text-decoration:none;
+  border-bottom:2px solid transparent;transition:all 0.2s;
+  letter-spacing:0.02em;
+}
+.dash-nav .nav-links a:hover{color:#e8e8e8;background:rgba(255,255,255,0.03);}
+.dash-nav .nav-links a.active{color:#e8e8e8;border-bottom-color:#8B5CF6;}
+.dash-nav .nav-right{
+  margin-left:auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;
+}
+.dash-nav .nav-event{
+  font-size:0.78rem;color:#8B5CF6;background:rgba(139,92,246,0.1);
+  padding:0.3rem 0.8rem;border-radius:6px;border:1px solid rgba(139,92,246,0.2);
+}
+.dash-nav .nav-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:600;color:#fff;
+}
+
+/* MAIN LAYOUT */
+.dash-main{padding-top:56px;}
+.dash-container{max-width:1280px;margin:0 auto;padding:1.5rem;}
+
+/* STATS BAR */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;
+  margin-bottom:1.5rem;
+}
+.stat-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.2rem 1.5rem;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;width:80px;height:80px;
+  border-radius:50%;filter:blur(30px);opacity:0.15;
+}
+.stat-card.green::before{background:#22c55e;}
+.stat-card.blue::before{background:#3b82f6;}
+.stat-card.orange::before{background:#f59e0b;}
+.stat-number{font-size:2rem;font-weight:100;color:#fff;display:block;line-height:1.2;}
+.stat-label{font-size:0.78rem;color:#888;display:block;margin-top:0.2rem;}
+.stat-status{
+  display:inline-block;font-size:0.68rem;font-weight:600;
+  padding:0.15rem 0.6rem;border-radius:20px;margin-top:0.5rem;
+  letter-spacing:0.03em;
+}
+.stat-status.green{background:rgba(34,197,94,0.15);color:#22c55e;}
+.stat-status.blue{background:rgba(59,130,246,0.15);color:#3b82f6;}
+.stat-status.orange{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.stat-status.red{background:rgba(239,68,68,0.15);color:#ef4444;}
+
+/* SECTION TITLES */
+.section-title{
+  font-size:1.1rem;font-weight:300;color:#fff;margin-bottom:1rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.section-title .title-badge{
+  font-size:0.65rem;background:rgba(139,92,246,0.15);color:#8B5CF6;
+  padding:0.15rem 0.5rem;border-radius:4px;font-weight:500;
+}
+
+/* MAP SECTION */
+.map-section{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:16px;
+  padding:1.5rem;margin-bottom:1.5rem;overflow:hidden;
+}
+.map-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;
+}
+.map-header h2{font-size:1rem;font-weight:300;color:#fff;}
+.map-header .map-live{
+  font-size:0.7rem;color:#22c55e;display:flex;align-items:center;gap:0.4rem;
+}
+.map-header .map-live::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;
+  animation:pulse-dot 2s infinite;
+}
+@keyframes pulse-dot{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0.4);}
+  50%{opacity:0.7;box-shadow:0 0 0 6px rgba(34,197,94,0);}
+}
+.map-container{
+  position:relative;width:100%;aspect-ratio:2.5/1;
+  background:#0d0d0d;border-radius:12px;overflow:hidden;
+}
+.map-container svg{width:100%;height:100%;}
+.map-legend{
+  display:flex;gap:1.5rem;margin-top:0.8rem;
+}
+.map-legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;color:#888;}
+.map-legend-item .dot{width:8px;height:8px;border-radius:50%;}
+.map-legend-item .dot.green{background:#22c55e;}
+.map-legend-item .dot.orange{background:#f59e0b;}
+.map-legend-item .dot.red{background:#ef4444;}
+
+/* Animated device dots */
+@keyframes device-pulse{
+  0%,100%{opacity:0.6;r:2;}
+  50%{opacity:1;r:2.8;}
+}
+.device-dot{animation:device-pulse 3s ease-in-out infinite;}
+.device-dot:nth-child(odd){animation-delay:-1.5s;}
+
+/* TWO COLUMN */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+
+/* CHANNEL CARDS */
+.channel-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.3rem 1.5rem;transition:border-color 0.3s;
+}
+.channel-card.active{border-color:rgba(139,92,246,0.2);}
+.channel-card.add-card{
+  display:flex;align-items:center;justify-content:center;
+  border-style:dashed;cursor:pointer;min-height:120px;
+}
+.channel-card.add-card:hover{border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.03);}
+.channel-card.add-card span{color:#666;font-size:0.9rem;}
+.channel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;}
+.channel-name{font-size:1rem;font-weight:400;color:#fff;}
+.channel-meta{font-size:0.75rem;color:#888;margin-bottom:0.8rem;}
+.channel-meta strong{color:#8B5CF6;}
+
+/* Audio Waveform Animation */
+.waveform{display:flex;align-items:end;gap:2px;height:32px;margin-bottom:0.8rem;}
+.waveform .bar{
+  width:3px;border-radius:2px;
+  background:linear-gradient(to top,#8B5CF6,#a78bfa);
+  animation:wave 1.2s ease-in-out infinite;
+}
+.waveform .bar:nth-child(1){height:40%;animation-delay:0s;}
+.waveform .bar:nth-child(2){height:70%;animation-delay:0.1s;}
+.waveform .bar:nth-child(3){height:50%;animation-delay:0.2s;}
+.waveform .bar:nth-child(4){height:90%;animation-delay:0.15s;}
+.waveform .bar:nth-child(5){height:60%;animation-delay:0.3s;}
+.waveform .bar:nth-child(6){height:80%;animation-delay:0.05s;}
+.waveform .bar:nth-child(7){height:45%;animation-delay:0.25s;}
+.waveform .bar:nth-child(8){height:95%;animation-delay:0.12s;}
+.waveform .bar:nth-child(9){height:55%;animation-delay:0.18s;}
+.waveform .bar:nth-child(10){height:75%;animation-delay:0.08s;}
+.waveform .bar:nth-child(11){height:40%;animation-delay:0.22s;}
+.waveform .bar:nth-child(12){height:85%;animation-delay:0.28s;}
+.waveform .bar:nth-child(13){height:50%;animation-delay:0.35s;}
+.waveform .bar:nth-child(14){height:65%;animation-delay:0.1s;}
+.waveform .bar:nth-child(15){height:45%;animation-delay:0.2s;}
+.waveform .bar:nth-child(16){height:80%;animation-delay:0.32s;}
+.waveform .bar:nth-child(17){height:55%;animation-delay:0.06s;}
+.waveform .bar:nth-child(18){height:70%;animation-delay:0.16s;}
+.waveform .bar:nth-child(19){height:42%;animation-delay:0.26s;}
+.waveform .bar:nth-child(20){height:60%;animation-delay:0.14s;}
+@keyframes wave{
+  0%,100%{transform:scaleY(0.4);}
+  50%{transform:scaleY(1);}
+}
+
+.btn-channel{
+  font-size:0.72rem;padding:0.35rem 0.9rem;border-radius:6px;
+  border:1px solid rgba(255,255,255,0.1);background:transparent;
+  color:#888;cursor:pointer;transition:all 0.2s;font-family:inherit;
+}
+.btn-channel:hover{border-color:rgba(239,68,68,0.4);color:#ef4444;}
+
+/* BATTERY CHART */
+.battery-section{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.3rem 1.5rem;margin-bottom:1.5rem;
+}
+.battery-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.7rem;}
+.battery-label{width:70px;font-size:0.78rem;color:#888;text-align:right;flex-shrink:0;}
+.battery-bar-bg{flex:1;height:24px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;position:relative;}
+.battery-bar{
+  height:100%;border-radius:6px;
+  transition:width 1.5s ease-out;
+  position:relative;
+}
+.battery-bar.green{background:linear-gradient(90deg,#22c55e,#16a34a);}
+.battery-bar.yellow{background:linear-gradient(90deg,#eab308,#ca8a04);}
+.battery-bar.orange{background:linear-gradient(90deg,#f59e0b,#d97706);}
+.battery-bar.red{background:linear-gradient(90deg,#ef4444,#dc2626);}
+.battery-count{width:60px;font-size:0.78rem;color:#aaa;flex-shrink:0;}
+
+/* OTA SECTION */
+.ota-section{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.3rem 1.5rem;margin-bottom:1.5rem;
+}
+.ota-info{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;}
+.ota-version{
+  display:flex;align-items:center;gap:0.8rem;
+}
+.ota-version .current{font-size:0.85rem;color:#888;}
+.ota-version .arrow{color:#555;font-size:0.85rem;}
+.ota-version .latest{font-size:0.85rem;color:#22c55e;font-weight:500;}
+.ota-changelog{font-size:0.78rem;color:#aaa;flex:1;}
+.btn-ota{
+  padding:0.6rem 1.5rem;border-radius:10px;font-size:0.82rem;font-weight:600;
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;
+  border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
+  font-family:inherit;white-space:nowrap;
+}
+.btn-ota:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(139,92,246,0.4);}
+.ota-note{font-size:0.7rem;color:#666;margin-top:0.6rem;}
+
+/* LOST DEVICE TABLE */
+.lost-section{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.3rem 1.5rem;margin-bottom:1.5rem;
+}
+.lost-table{width:100%;border-collapse:collapse;}
+.lost-table th{
+  text-align:left;font-size:0.72rem;color:#666;font-weight:500;
+  padding:0.5rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.06);
+  letter-spacing:0.04em;text-transform:uppercase;
+}
+.lost-table td{
+  padding:0.7rem 0.8rem;font-size:0.82rem;color:#ccc;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.lost-table tr:last-child td{border-bottom:none;}
+.device-id{font-family:'SF Mono','Fira Code',monospace;color:#8B5CF6;font-size:0.78rem;}
+.time-ago{color:#f59e0b;}
+.time-old{color:#ef4444;}
+.btn-action{
+  font-size:0.72rem;padding:0.3rem 0.7rem;border-radius:6px;
+  border:1px solid rgba(139,92,246,0.3);background:transparent;
+  color:#8B5CF6;cursor:pointer;transition:all 0.2s;font-family:inherit;
+}
+.btn-action:hover{background:rgba(139,92,246,0.1);}
+.btn-action.danger{border-color:rgba(239,68,68,0.3);color:#ef4444;}
+.btn-action.danger:hover{background:rgba(239,68,68,0.1);}
+
+/* ANALYTICS */
+.analytics-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;
+}
+.analytics-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:14px;
+  padding:1.2rem 1.3rem;
+}
+.analytics-card .a-value{font-size:1.4rem;font-weight:100;color:#fff;display:block;line-height:1.2;}
+.analytics-card .a-label{font-size:0.72rem;color:#888;display:block;margin-top:0.3rem;}
+.analytics-card .a-sub{font-size:0.68rem;color:#555;display:block;margin-top:0.15rem;}
+
+/* Mini sparkline chart */
+.sparkline{display:flex;align-items:end;gap:1px;height:24px;margin-top:0.6rem;}
+.sparkline .sp-bar{
+  flex:1;border-radius:1px;background:rgba(139,92,246,0.3);
+  transition:height 0.5s ease-out;
+}
+.sparkline .sp-bar.highlight{background:rgba(139,92,246,0.7);}
+
+/* PRICING */
+.pricing-section{margin-bottom:2rem;}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+.plan-card{
+  background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.008) 100%);
+  border:1px solid rgba(255,255,255,0.06);border-radius:16px;
+  padding:2rem 1.5rem;text-align:center;transition:border-color 0.3s,transform 0.3s;
+}
+.plan-card:hover{transform:translateY(-3px);}
+.plan-card.featured{border-color:rgba(139,92,246,0.4);position:relative;}
+.plan-card.featured::before{
+  content:'おすすめ';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  font-size:0.65rem;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);
+  padding:0.2rem 0.8rem;border-radius:10px;
+}
+.plan-card h3{font-size:1.1rem;font-weight:300;color:#fff;margin-bottom:0.5rem;}
+.plan-card .plan-price{font-size:2rem;font-weight:100;color:#fff;margin-bottom:0.3rem;}
+.plan-card .plan-price .yen{color:#8B5CF6;font-size:1rem;}
+.plan-card .plan-period{font-size:0.72rem;color:#666;margin-bottom:1.2rem;display:block;}
+.plan-card ul{list-style:none;text-align:left;margin-bottom:1.5rem;}
+.plan-card ul li{
+  font-size:0.82rem;color:#aaa;padding:0.4rem 0;padding-left:1.4rem;
+  position:relative;line-height:1.5;
+}
+.plan-card ul li::before{
+  content:'';position:absolute;left:0;top:0.7em;
+  width:5px;height:5px;border-radius:50%;background:#8B5CF6;
+}
+.plan-card .btn-plan{
+  display:block;width:100%;padding:0.7rem;border-radius:10px;
+  font-size:0.85rem;font-weight:500;border:none;cursor:pointer;
+  transition:all 0.2s;font-family:inherit;
+}
+.plan-card .btn-plan.primary{
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;
+}
+.plan-card .btn-plan.primary:hover{box-shadow:0 4px 20px rgba(139,92,246,0.4);}
+.plan-card .btn-plan.outline{
+  background:transparent;color:#888;border:1px solid rgba(255,255,255,0.1);
+}
+.plan-card .btn-plan.outline:hover{border-color:rgba(139,92,246,0.3);color:#e8e8e8;}
+
+/* FOOTER */
+.dash-footer{
+  border-top:1px solid rgba(255,255,255,0.04);
+  padding:2rem;text-align:center;
+}
+.dash-footer p{font-size:0.72rem;color:#444;}
+.dash-footer a{color:#666;text-decoration:none;transition:color 0.2s;}
+.dash-footer a:hover{color:#8B5CF6;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .analytics-grid{grid-template-columns:repeat(2,1fr);}
+  .pricing-grid{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  .dash-nav .nav-links{display:none;}
+  .dash-container{padding:1rem;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .analytics-grid{grid-template-columns:1fr 1fr;}
+  .map-container{aspect-ratio:1.5/1;}
+  .ota-info{flex-direction:column;align-items:flex-start;gap:0.8rem;}
+  .lost-table{font-size:0.75rem;}
+}
+@media(max-width:480px){
+  .stats-bar{grid-template-columns:1fr;}
+  .analytics-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="dash-nav">
+  <a href="/" class="nav-brand">KOE <span>CLOUD</span></a>
+  <div class="nav-links">
+    <a href="#" class="active">ダッシュボード</a>
+    <a href="#">デバイス</a>
+    <a href="#">チャンネル</a>
+    <a href="#">分析</a>
+    <a href="#">設定</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-event">SOLUNA FEST HAWAII 2026</span>
+    <div class="nav-avatar">YH</div>
+  </div>
+</nav>
+
+<main class="dash-main">
+<div class="dash-container">
+
+<!-- ==================== STATS BAR ==================== -->
+<div class="stats-bar">
+  <div class="stat-card green">
+    <span class="stat-number">847</span>
+    <span class="stat-label">アクティブデバイス / 1,000台</span>
+    <span class="stat-status green">84.7% オンライン</span>
+  </div>
+  <div class="stat-card green">
+    <span class="stat-number">38<small style="font-size:0.5em;color:#888;">h</small></span>
+    <span class="stat-label">平均バッテリー残量</span>
+    <span class="stat-status green">良好</span>
+  </div>
+  <div class="stat-card blue">
+    <span class="stat-number">2</span>
+    <span class="stat-label">配信チャンネル</span>
+    <span class="stat-status blue">配信中</span>
+  </div>
+  <div class="stat-card orange">
+    <span class="stat-number">3</span>
+    <span class="stat-label">要回収デバイス</span>
+    <span class="stat-status orange">追跡中</span>
+  </div>
+</div>
+
+<!-- ==================== DEVICE MAP ==================== -->
+<div class="map-section">
+  <div class="map-header">
+    <h2>デバイスマップ — SOLUNA FEST HAWAII 2026</h2>
+    <span class="map-live">LIVE</span>
+  </div>
+  <div class="map-container">
+    <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background grid -->
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        </pattern>
+        <radialGradient id="stage-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(139,92,246,0.15)"/>
+          <stop offset="100%" stop-color="rgba(139,92,246,0)"/>
+        </radialGradient>
+        <radialGradient id="stage-glow2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(59,130,246,0.12)"/>
+          <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+        </radialGradient>
+      </defs>
+      <rect width="800" height="320" fill="url(#grid)"/>
+
+      <!-- Venue outline -->
+      <rect x="40" y="20" width="720" height="280" rx="12" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+
+      <!-- Main Stage -->
+      <ellipse cx="250" cy="80" rx="120" ry="60" fill="url(#stage-glow)"/>
+      <rect x="190" y="45" width="120" height="30" rx="6" fill="rgba(139,92,246,0.2)" stroke="rgba(139,92,246,0.4)" stroke-width="1"/>
+      <text x="250" y="65" text-anchor="middle" fill="#8B5CF6" font-size="11" font-weight="500">MAIN STAGE</text>
+
+      <!-- Beach Stage -->
+      <ellipse cx="600" cy="200" rx="100" ry="55" fill="url(#stage-glow2)"/>
+      <rect x="545" y="170" width="110" height="26" rx="6" fill="rgba(59,130,246,0.2)" stroke="rgba(59,130,246,0.4)" stroke-width="1"/>
+      <text x="600" y="188" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="500">BEACH STAGE</text>
+
+      <!-- Labels -->
+      <text x="100" y="260" fill="rgba(255,255,255,0.15)" font-size="9">駐車場B</text>
+      <text x="680" y="50" fill="rgba(255,255,255,0.15)" font-size="9">トイレ棟</text>
+      <text x="400" y="290" fill="rgba(255,255,255,0.15)" font-size="9">フードエリア</text>
+
+      <!-- Active devices - Main Stage cluster (green) -->
+      <circle class="device-dot" cx="210" cy="105" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="225" cy="112" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="240" cy="100" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="255" cy="115" r="2" fill="#22c55e" opacity="0.9"/>
+      <circle class="device-dot" cx="270" cy="108" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="285" cy="118" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="230" cy="125" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="245" cy="130" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="260" cy="125" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="275" cy="132" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="220" cy="138" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="250" cy="140" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="280" cy="138" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="200" cy="120" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="300" cy="112" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="235" cy="95" r="2" fill="#22c55e" opacity="0.9"/>
+      <circle class="device-dot" cx="265" cy="92" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="215" cy="132" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="290" cy="125" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="245" cy="148" r="2" fill="#22c55e" opacity="0.7"/>
+      <!-- Dense cluster representation -->
+      <circle cx="250" cy="120" r="30" fill="rgba(34,197,94,0.06)" stroke="none"/>
+
+      <!-- Active devices - Beach Stage cluster (green) -->
+      <circle class="device-dot" cx="570" cy="220" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="585" cy="228" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="600" cy="225" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="615" cy="232" r="2" fill="#22c55e" opacity="0.9"/>
+      <circle class="device-dot" cx="630" cy="222" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="590" cy="240" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="610" cy="242" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="575" cy="238" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="625" cy="240" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle class="device-dot" cx="600" cy="250" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="560" cy="230" r="2" fill="#22c55e" opacity="0.7"/>
+      <circle class="device-dot" cx="640" cy="235" r="2" fill="#22c55e" opacity="0.8"/>
+      <circle cx="600" cy="232" r="25" fill="rgba(34,197,94,0.05)" stroke="none"/>
+
+      <!-- Scattered devices - Food area (green) -->
+      <circle class="device-dot" cx="380" cy="250" r="2" fill="#22c55e" opacity="0.5"/>
+      <circle class="device-dot" cx="400" cy="260" r="2" fill="#22c55e" opacity="0.4"/>
+      <circle class="device-dot" cx="420" cy="248" r="2" fill="#22c55e" opacity="0.6"/>
+      <circle class="device-dot" cx="440" cy="255" r="2" fill="#22c55e" opacity="0.5"/>
+      <circle class="device-dot" cx="360" cy="265" r="2" fill="#22c55e" opacity="0.4"/>
+
+      <!-- Low battery devices (orange) -->
+      <circle cx="340" cy="180" r="3" fill="#f59e0b" opacity="0.9"/>
+      <circle cx="480" cy="140" r="3" fill="#f59e0b" opacity="0.8"/>
+
+      <!-- Lost devices (red, pulsing) -->
+      <circle cx="105" cy="250" r="4" fill="none" stroke="#ef4444" stroke-width="1" opacity="0.8">
+        <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="105" cy="250" r="2" fill="#ef4444"/>
+
+      <circle cx="695" cy="48" r="4" fill="none" stroke="#ef4444" stroke-width="1" opacity="0.8">
+        <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <circle cx="695" cy="48" r="2" fill="#ef4444"/>
+
+      <!-- Out of venue lost device -->
+      <circle cx="760" cy="300" r="4" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.9">
+        <animate attributeName="r" values="3;8;3" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.9;0.2;0.9" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="760" cy="300" r="2" fill="#ef4444"/>
+      <text x="720" y="295" fill="rgba(239,68,68,0.6)" font-size="7">500m外</text>
+    </svg>
+  </div>
+  <div class="map-legend">
+    <div class="map-legend-item"><span class="dot green"></span> アクティブ (847)</div>
+    <div class="map-legend-item"><span class="dot orange"></span> バッテリー低 (38)</div>
+    <div class="map-legend-item"><span class="dot red"></span> 紛失 (3)</div>
+  </div>
+</div>
+
+<!-- ==================== CHANNELS ==================== -->
+<h3 class="section-title">チャンネル管理 <span class="title-badge">LIVE</span></h3>
+<div class="two-col" style="margin-bottom:1.5rem;">
+  <div class="channel-card active">
+    <div class="channel-header">
+      <span class="channel-name">メインステージ</span>
+      <span class="stat-status green">配信中</span>
+    </div>
+    <div class="channel-meta"><strong>523台</strong> 接続中 — LC3 48kHz ステレオ — 遅延 <strong>6ms</strong></div>
+    <div class="waveform">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <button class="btn-channel">配信停止</button>
+  </div>
+  <div class="channel-card active">
+    <div class="channel-header">
+      <span class="channel-name">ビーチステージ</span>
+      <span class="stat-status green">配信中</span>
+    </div>
+    <div class="channel-meta"><strong>324台</strong> 接続中 — LC3 48kHz ステレオ — 遅延 <strong>7ms</strong></div>
+    <div class="waveform">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <button class="btn-channel">配信停止</button>
+  </div>
+</div>
+<div class="channel-card add-card" style="margin-bottom:1.5rem;">
+  <span>+ チャンネルを追加</span>
+</div>
+
+<!-- ==================== BATTERY DISTRIBUTION ==================== -->
+<div class="battery-section">
+  <h3 class="section-title" style="margin-bottom:1.2rem;">バッテリー分布</h3>
+  <div class="battery-row">
+    <span class="battery-label">80-100%</span>
+    <div class="battery-bar-bg"><div class="battery-bar green" style="width:61.2%;"></div></div>
+    <span class="battery-count">612台</span>
+  </div>
+  <div class="battery-row">
+    <span class="battery-label">60-80%</span>
+    <div class="battery-bar-bg"><div class="battery-bar green" style="width:19.8%;"></div></div>
+    <span class="battery-count">198台</span>
+  </div>
+  <div class="battery-row">
+    <span class="battery-label">40-60%</span>
+    <div class="battery-bar-bg"><div class="battery-bar yellow" style="width:14.2%;"></div></div>
+    <span class="battery-count">142台</span>
+  </div>
+  <div class="battery-row">
+    <span class="battery-label">20-40%</span>
+    <div class="battery-bar-bg"><div class="battery-bar orange" style="width:3.8%;"></div></div>
+    <span class="battery-count">38台</span>
+  </div>
+  <div class="battery-row">
+    <span class="battery-label">0-20%</span>
+    <div class="battery-bar-bg"><div class="battery-bar red" style="width:1%;"></div></div>
+    <span class="battery-count">10台</span>
+  </div>
+</div>
+
+<!-- ==================== OTA UPDATE ==================== -->
+<div class="ota-section">
+  <h3 class="section-title" style="margin-bottom:1rem;">ファームウェア更新</h3>
+  <div class="ota-info">
+    <div class="ota-version">
+      <span class="current">現在: v1.0.0</span>
+      <span class="arrow">&rarr;</span>
+      <span class="latest">v1.1.0</span>
+    </div>
+    <span class="ota-changelog">EQ改善 + Bluetooth接続安定化 + バッテリー消費最適化</span>
+    <button class="btn-ota">全台更新（847台）</button>
+  </div>
+  <p class="ota-note">次回電源ON時に自動適用されます。平均更新時間: 45秒/台</p>
+</div>
+
+<!-- ==================== LOST DEVICE TRACKER ==================== -->
+<div class="lost-section">
+  <h3 class="section-title" style="margin-bottom:1rem;">紛失デバイス追跡 <span class="title-badge">3台</span></h3>
+  <table class="lost-table">
+    <thead>
+      <tr><th>デバイスID</th><th>最終検知</th><th>推定位置</th><th>バッテリー</th><th>アクション</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="device-id">SEED-0847</span></td>
+        <td><span class="time-ago">14:32（28分前）</span></td>
+        <td>駐車場B付近</td>
+        <td>42%</td>
+        <td><button class="btn-action">音を鳴らす</button></td>
+      </tr>
+      <tr>
+        <td><span class="device-id">SEED-0291</span></td>
+        <td><span class="time-ago">11:15（3時間前）</span></td>
+        <td>トイレ棟付近</td>
+        <td>18%</td>
+        <td><button class="btn-action">音を鳴らす</button></td>
+      </tr>
+      <tr>
+        <td><span class="device-id">SEED-0503</span></td>
+        <td><span class="time-old">昨日 22:40</span></td>
+        <td>会場外（500m）</td>
+        <td>5%</td>
+        <td><button class="btn-action danger">紛失報告</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== ANALYTICS ==================== -->
+<h3 class="section-title">分析 <span class="title-badge">リアルタイム</span></h3>
+<div class="analytics-grid">
+  <div class="analytics-card">
+    <span class="a-value">932</span>
+    <span class="a-label">ピーク接続数</span>
+    <span class="a-sub">16:00 - 18:00</span>
+    <div class="sparkline">
+      <div class="sp-bar" style="height:20%"></div>
+      <div class="sp-bar" style="height:25%"></div>
+      <div class="sp-bar" style="height:35%"></div>
+      <div class="sp-bar" style="height:45%"></div>
+      <div class="sp-bar" style="height:55%"></div>
+      <div class="sp-bar" style="height:70%"></div>
+      <div class="sp-bar" style="height:82%"></div>
+      <div class="sp-bar highlight" style="height:100%"></div>
+      <div class="sp-bar highlight" style="height:95%"></div>
+      <div class="sp-bar" style="height:78%"></div>
+      <div class="sp-bar" style="height:60%"></div>
+      <div class="sp-bar" style="height:45%"></div>
+    </div>
+  </div>
+  <div class="analytics-card">
+    <span class="a-value">4.2<small style="font-size:0.5em;color:#888;">h/日</small></span>
+    <span class="a-label">平均再生時間</span>
+    <span class="a-sub">前日比 +12%</span>
+    <div class="sparkline">
+      <div class="sp-bar" style="height:60%"></div>
+      <div class="sp-bar" style="height:65%"></div>
+      <div class="sp-bar" style="height:58%"></div>
+      <div class="sp-bar" style="height:72%"></div>
+      <div class="sp-bar" style="height:78%"></div>
+      <div class="sp-bar" style="height:75%"></div>
+      <div class="sp-bar highlight" style="height:85%"></div>
+    </div>
+  </div>
+  <div class="analytics-card">
+    <span class="a-value">62<small style="font-size:0.5em;color:#888;">%</small></span>
+    <span class="a-label">メインステージ占有率</span>
+    <span class="a-sub">最も人気のチャンネル</span>
+    <div style="margin-top:0.6rem;">
+      <div style="display:flex;gap:2px;">
+        <div style="flex:62;height:8px;background:linear-gradient(90deg,#8B5CF6,#a78bfa);border-radius:4px 0 0 4px;"></div>
+        <div style="flex:38;height:8px;background:rgba(59,130,246,0.4);border-radius:0 4px 4px 0;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
+        <span style="font-size:0.6rem;color:#8B5CF6;">メイン 62%</span>
+        <span style="font-size:0.6rem;color:#3b82f6;">ビーチ 38%</span>
+      </div>
+    </div>
+  </div>
+  <div class="analytics-card">
+    <span class="a-value">97.3<small style="font-size:0.5em;color:#888;">%</small></span>
+    <span class="a-label">返却率</span>
+    <span class="a-sub">27台未返却（累計）</span>
+    <div class="sparkline">
+      <div class="sp-bar" style="height:95%"></div>
+      <div class="sp-bar" style="height:96%"></div>
+      <div class="sp-bar" style="height:94%"></div>
+      <div class="sp-bar" style="height:97%"></div>
+      <div class="sp-bar" style="height:98%"></div>
+      <div class="sp-bar highlight" style="height:97%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PRICING ==================== -->
+<div class="pricing-section">
+  <h3 class="section-title" style="margin-bottom:1.5rem;">Koe Cloud 料金プラン</h3>
+  <div class="pricing-grid">
+    <div class="plan-card">
+      <h3>スターター</h3>
+      <div class="plan-price"><span class="yen">&#165;</span>0</div>
+      <span class="plan-period">無料</span>
+      <ul>
+        <li>100台まで管理</li>
+        <li>基本ダッシュボード</li>
+        <li>OTA ファームウェア更新</li>
+        <li>1チャンネル配信</li>
+      </ul>
+      <button class="btn-plan outline">現在のプラン</button>
+    </div>
+    <div class="plan-card featured">
+      <h3>プロ</h3>
+      <div class="plan-price"><span class="yen">&#165;</span>9,800</div>
+      <span class="plan-period">/ 月</span>
+      <ul>
+        <li>1,000台まで管理</li>
+        <li>全機能アクセス</li>
+        <li>紛失デバイス追跡</li>
+        <li>分析レポート</li>
+        <li>マルチチャンネル配信</li>
+        <li>優先サポート</li>
+      </ul>
+      <button class="btn-plan primary">アップグレード</button>
+    </div>
+    <div class="plan-card">
+      <h3>エンタープライズ</h3>
+      <div class="plan-price" style="font-size:1.3rem;">お問い合わせ</div>
+      <span class="plan-period">カスタム</span>
+      <ul>
+        <li>無制限デバイス</li>
+        <li>専任サポート担当</li>
+        <li>REST API アクセス</li>
+        <li>カスタム分析ダッシュボード</li>
+        <li>SLA 99.9% 保証</li>
+        <li>オンサイトサポート</li>
+      </ul>
+      <button class="btn-plan outline">お問い合わせ</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="dash-footer">
+  <p><a href="/">koe.live</a> &middot; Koe Cloud v0.1.0 &middot; &copy; 2026 Koe</p>
+</footer>
+
+<!-- Animate battery bars on load -->
+<script>
+(function(){
+  // Animate battery bars from 0
+  var bars = document.querySelectorAll('.battery-bar');
+  bars.forEach(function(bar){
+    var w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(function(){
+      bar.style.width = w;
+    }, 300);
+  });
+
+  // Animate stat numbers
+  document.querySelectorAll('.stat-number').forEach(function(el){
+    var text = el.textContent;
+    var num = parseInt(text);
+    if(isNaN(num)) return;
+    var suffix = text.replace(String(num), '');
+    var duration = 1200;
+    var start = performance.now();
+    function tick(now){
+      var p = Math.min((now - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      el.innerHTML = Math.round(ease * num) + suffix;
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  // Animate analytics values
+  document.querySelectorAll('.a-value').forEach(function(el){
+    var text = el.textContent;
+    var num = parseFloat(text);
+    if(isNaN(num)) return;
+    var isFloat = text.indexOf('.') !== -1;
+    var suffix = el.innerHTML.replace(String(text.trim().split('<')[0].trim()), '');
+    var duration = 1000;
+    var start = performance.now();
+    function tick(now){
+      var p = Math.min((now - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      var current = ease * num;
+      el.innerHTML = (isFloat ? current.toFixed(1) : Math.round(current)) + suffix;
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+})();
+</script>
+
+</body>
+</html>

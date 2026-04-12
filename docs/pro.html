@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Pro + Hub — Ultra-Low Latency Music Creation System</title>
+<meta name="description" content="Koe Pro + Hub: 12ms wireless audio for live performance. nRF5340 + UWB transmitter and Pi CM5 mixer/streamer. Open hardware by EnablerDAO.">
+<meta name="keywords" content="Koe Pro, Koe Hub, UWB audio, low latency, wireless music, ESP32, Pi CM5, live performance, EnablerDAO">
+<meta name="author" content="EnablerDAO">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://koe.live/pro.html">
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe Pro + Hub — Ultra-Low Latency Music Creation System">
+<meta property="og:description" content="12ms wireless audio for live performance. nRF5340 + UWB transmitter and Pi CM5 mixer/streamer.">
+<meta property="og:image" content="https://koe.live/images/E1-lineup-float.png">
+<meta property="og:url" content="https://koe.live/pro.html">
+<meta property="og:site_name" content="Koe">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Pro + Hub — Ultra-Low Latency Music Creation System">
+<meta name="twitter:description" content="12ms wireless audio. nRF5340 + UWB + Pi CM5. Open hardware.">
+<meta name="twitter:image" content="https://koe.live/images/E1-lineup-float.png">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+a{color:#8B5CF6;text-decoration:none;transition:color 0.2s;}
+a:hover{color:#A78BFA;}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease-out,transform 0.8s ease-out;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);}
+nav .logo{font-size:1.2rem;font-weight:200;letter-spacing:0.3em;color:#e8e8e8;text-decoration:none;}
+nav .nav-links{display:flex;gap:2rem;align-items:center;}
+nav .nav-links a{color:#888;text-decoration:none;font-size:0.85rem;letter-spacing:0.05em;transition:color 0.2s;}
+nav .nav-links a:hover{color:#fff;}
+.lang-toggle{padding:0.35rem 0.8rem;border-radius:100px;border:1px solid #333;background:transparent;color:#888;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.lang-toggle:hover{border-color:#8B5CF6;color:#8B5CF6;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7rem 2rem 4rem;position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.12) 0%,rgba(6,182,212,0.05) 40%,transparent 70%);}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,#0a0a0a);pointer-events:none;}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:100;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.5rem;}
+.hero h1 .purple{color:#8B5CF6;}
+.hero h1 .cyan{color:#06B6D4;}
+.hero .tagline{font-size:clamp(1rem,2.5vw,1.3rem);color:#888;font-weight:300;letter-spacing:0.02em;margin-bottom:0.5rem;}
+.hero .tagline-ja{font-size:clamp(0.85rem,2vw,1rem);color:#666;font-weight:300;letter-spacing:0.05em;margin-bottom:3rem;}
+
+/* PRODUCT CARDS */
+.product-cards{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:800px;width:100%;position:relative;z-index:1;}
+/* VARIANT CARDS (3-col for Pro variants) */
+.variant-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:900px;width:100%;position:relative;z-index:1;}
+.variant-card{background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem 1.2rem;text-align:center;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);position:relative;}
+.variant-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 40px rgba(139,92,246,0.05);}
+.variant-card h3{font-size:1.1rem;font-weight:300;letter-spacing:0.03em;margin-bottom:0.3rem;}
+.variant-card .price{font-size:0.85rem;color:#06B6D4;font-weight:400;margin-bottom:0.8rem;}
+.variant-card p{font-size:0.8rem;color:#888;line-height:1.5;}
+.variant-card .variant-badge{position:absolute;top:-10px;right:12px;padding:0.2rem 0.7rem;border-radius:100px;font-size:0.65rem;letter-spacing:0.08em;font-weight:500;}
+.variant-badge.popular{background:rgba(139,92,246,0.2);color:#A78BFA;border:1px solid rgba(139,92,246,0.4);}
+.variant-badge.pro{background:rgba(6,182,212,0.15);color:#22d3ee;border:1px solid rgba(6,182,212,0.3);}
+.variant-card .connector-icon{font-size:1.8rem;margin-bottom:0.5rem;}
+.product-card{background:linear-gradient(165deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:2.5rem 2rem;text-align:center;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);}
+.product-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 40px rgba(139,92,246,0.05);}
+.product-card h3{font-size:1.4rem;font-weight:300;letter-spacing:0.05em;margin-bottom:0.5rem;}
+.product-card .price{font-size:0.9rem;color:#06B6D4;font-weight:400;margin-bottom:1rem;}
+.product-card p{font-size:0.85rem;color:#888;line-height:1.6;}
+
+/* DEVICE SVG in cards */
+.device-illustration{width:180px;height:120px;margin:0 auto 1.5rem;}
+.device-illustration svg{width:100%;height:100%;}
+@keyframes led-pulse{0%,100%{filter:drop-shadow(0 0 2px #8B5CF6);}50%{filter:drop-shadow(0 0 8px #8B5CF6);}}
+
+/* SECTIONS */
+section{padding:6rem 2rem;max-width:1000px;margin:0 auto;}
+section h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:100;letter-spacing:-0.02em;margin-bottom:1rem;text-align:center;}
+section h2 .purple{color:#8B5CF6;}
+section h2 .cyan{color:#06B6D4;}
+.section-sub{text-align:center;color:#888;font-size:0.95rem;margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto;}
+
+/* LATENCY CHART */
+.latency-chart{display:flex;flex-direction:column;gap:1.2rem;max-width:700px;margin:0 auto;}
+.latency-row{display:flex;align-items:center;gap:1rem;}
+.latency-label{width:160px;text-align:right;font-size:0.85rem;color:#aaa;flex-shrink:0;}
+.latency-bar-wrap{flex:1;height:32px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;position:relative;}
+.latency-bar{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-size:0.75rem;font-weight:500;color:#fff;width:0;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
+.latency-bar.bluetooth{background:linear-gradient(90deg,#ef4444,#dc2626);max-width:100%;}
+.latency-bar.wifi{background:linear-gradient(90deg,#f59e0b,#d97706);max-width:55%;}
+.latency-bar.koepro{background:linear-gradient(90deg,#8B5CF6,#06B6D4);max-width:7%;}
+.latency-bar.wired{background:linear-gradient(90deg,#22c55e,#16a34a);max-width:2.5%;}
+.latency-bar.animated{width:100%;}
+.latency-value{font-size:0.8rem;color:#888;width:60px;flex-shrink:0;}
+.latency-highlight{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:0.2rem 0;}
+
+/* SPEC GRID */
+.spec-section{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-top:3rem;}
+.spec-block h3{font-size:1.3rem;font-weight:300;letter-spacing:0.03em;margin-bottom:1.5rem;padding-bottom:0.8rem;border-bottom:1px solid rgba(255,255,255,0.06);}
+.spec-list{list-style:none;display:flex;flex-direction:column;gap:0.8rem;}
+.spec-list li{font-size:0.85rem;color:#aaa;line-height:1.5;padding-left:1.2rem;position:relative;}
+.spec-list li::before{content:'';position:absolute;left:0;top:0.55em;width:6px;height:6px;border-radius:50%;background:#8B5CF6;}
+
+/* DEVICE DETAIL SVG */
+.device-detail-svg{display:flex;justify-content:center;margin:2rem 0;}
+.device-detail-svg svg{max-width:100%;height:auto;}
+
+/* MIXER MOCKUP */
+.mixer-mockup{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem;margin:2rem 0;overflow:hidden;}
+.mixer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;padding-bottom:0.8rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+.mixer-header span{font-size:0.75rem;color:#888;letter-spacing:0.1em;}
+.mixer-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px;}
+.mixer-dot.red{background:#ef4444;}
+.mixer-dot.green{background:#22c55e;}
+.mixer-channels{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.mixer-ch{text-align:center;}
+.mixer-ch-label{font-size:0.65rem;color:#666;letter-spacing:0.1em;margin-bottom:0.5rem;}
+.mixer-fader{width:8px;height:100px;background:rgba(255,255,255,0.05);border-radius:4px;margin:0 auto 0.5rem;position:relative;overflow:hidden;}
+.mixer-fader-fill{position:absolute;bottom:0;width:100%;border-radius:4px;transition:height 2s ease-out;}
+.mixer-ch:nth-child(1) .mixer-fader-fill{height:75%;background:linear-gradient(to top,#8B5CF6,#A78BFA);}
+.mixer-ch:nth-child(2) .mixer-fader-fill{height:60%;background:linear-gradient(to top,#06B6D4,#22d3ee);}
+.mixer-ch:nth-child(3) .mixer-fader-fill{height:85%;background:linear-gradient(to top,#8B5CF6,#A78BFA);}
+.mixer-ch:nth-child(4) .mixer-fader-fill{height:45%;background:linear-gradient(to top,#06B6D4,#22d3ee);}
+.mixer-meter{width:4px;height:60px;background:rgba(255,255,255,0.03);border-radius:2px;margin:0 auto;overflow:hidden;}
+.mixer-meter-fill{width:100%;border-radius:2px;animation:meter-pulse 2s ease-in-out infinite;}
+.mixer-ch:nth-child(1) .mixer-meter-fill{height:70%;background:linear-gradient(to top,#22c55e,#f59e0b);}
+.mixer-ch:nth-child(2) .mixer-meter-fill{height:55%;background:linear-gradient(to top,#22c55e,#f59e0b);}
+.mixer-ch:nth-child(3) .mixer-meter-fill{height:80%;background:linear-gradient(to top,#22c55e,#ef4444);}
+.mixer-ch:nth-child(4) .mixer-meter-fill{height:40%;background:linear-gradient(to top,#22c55e,#22c55e);}
+@keyframes meter-pulse{0%,100%{opacity:0.6;}50%{opacity:1;}}
+
+/* ARCHITECTURE */
+.arch-diagram{margin:2rem auto;max-width:700px;}
+.arch-diagram svg{width:100%;height:auto;}
+
+/* USE CASES */
+.use-cases{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;}
+.use-case{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:1.8rem;transition:all 0.3s;}
+.use-case:hover{border-color:rgba(139,92,246,0.15);transform:translateY(-2px);}
+.use-case-icon{font-size:1.5rem;margin-bottom:0.8rem;}
+.use-case h4{font-size:1rem;font-weight:400;margin-bottom:0.5rem;}
+.use-case p{font-size:0.8rem;color:#888;line-height:1.5;}
+
+/* ECOSYSTEM */
+.ecosystem-flow{display:flex;align-items:center;justify-content:center;gap:0.8rem;flex-wrap:wrap;margin:2rem 0;padding:2rem;background:rgba(255,255,255,0.02);border-radius:16px;border:1px solid rgba(255,255,255,0.04);}
+.eco-node{padding:0.6rem 1.2rem;border-radius:10px;font-size:0.8rem;font-weight:400;letter-spacing:0.03em;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);transition:all 0.3s;}
+.eco-node.active{border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);color:#A78BFA;}
+.eco-arrow{color:#444;font-size:0.9rem;}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem;}
+.pricing-card{background:linear-gradient(165deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2rem;text-align:center;transition:all 0.4s;}
+.pricing-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,0.2);}
+.pricing-card.featured{border-color:rgba(139,92,246,0.3);background:linear-gradient(165deg,rgba(139,92,246,0.06) 0%,rgba(6,182,212,0.03) 100%);}
+.pricing-card h4{font-size:1.1rem;font-weight:300;margin-bottom:0.3rem;}
+.pricing-card .price-main{font-size:2rem;font-weight:200;color:#fff;margin:0.8rem 0 0.3rem;}
+.pricing-card .price-early{font-size:0.85rem;color:#06B6D4;margin-bottom:1rem;}
+.pricing-card .price-desc{font-size:0.8rem;color:#888;line-height:1.5;}
+.coming-badge{display:inline-block;padding:0.3rem 1rem;border-radius:100px;font-size:0.7rem;letter-spacing:0.1em;color:#8B5CF6;border:1px solid rgba(139,92,246,0.3);margin-bottom:1.5rem;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:3rem 2rem;text-align:center;margin-top:4rem;}
+footer .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+footer .footer-links a{color:#666;font-size:0.8rem;text-decoration:none;transition:color 0.2s;}
+footer .footer-links a:hover{color:#8B5CF6;}
+footer .copyright{color:#444;font-size:0.75rem;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav .nav-links{display:none;}
+  .product-cards{grid-template-columns:1fr;}
+  .variant-cards{grid-template-columns:1fr;}
+  .spec-section{grid-template-columns:1fr;gap:3rem;}
+  .use-cases{grid-template-columns:1fr;}
+  .pricing-grid{grid-template-columns:1fr;}
+  .latency-label{width:100px;font-size:0.75rem;}
+  .mixer-channels{grid-template-columns:repeat(8,1fr) !important;gap:0.4rem;}
+  .ecosystem-flow{gap:0.5rem;}
+  .eco-node{font-size:0.7rem;padding:0.4rem 0.8rem;}
+}
+@media(max-width:480px){
+  .hero{padding:5rem 1.2rem 3rem;}
+  section{padding:4rem 1.2rem;}
+  .latency-label{width:80px;font-size:0.7rem;}
+}
+
+/* JA MODE */
+body.ja .en{display:none;}
+body.ja .ja-text{display:inline;}
+body:not(.ja) .ja-text{display:none;}
+body:not(.ja) .en{display:inline;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">KOE</a>
+  <div class="nav-links">
+    <a href="/pro" style="color:#8B5CF6;">Pro + Hub</a>
+    <a href="/design">Design</a>
+    <a href="/order">Order</a>
+    <a href="/busker">Apps</a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <button class="lang-toggle" onclick="toggleLang()">
+      <span class="en">JA</span><span class="ja-text">EN</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="tagline" style="font-size:0.85rem;color:#666;margin-bottom:0.8rem;">
+    <span class="en">Wireless audio devices for musicians, educators, and festivals</span>
+    <span class="ja-text">ミュージシャン、教育者、フェスティバルのためのワイヤレスオーディオデバイス</span>
+  </p>
+  <h1>
+    <span class="purple">Koe Pro</span> + <span class="cyan">Hub</span>
+  </h1>
+  <p class="tagline">
+    <span class="en">Ultra-Low Latency Music Creation System</span>
+    <span class="ja-text">超低遅延音楽制作システム</span>
+  </p>
+  <p class="tagline-ja">
+    <span class="en">12ms wireless audio for live performance</span>
+    <span class="ja-text">ライブパフォーマンスのための12msワイヤレスオーディオ</span>
+  </p>
+
+  <!-- 3 Pro Variant Cards -->
+  <div class="variant-cards" style="margin-bottom:2rem;">
+    <!-- Pro Guitar -->
+    <div class="variant-card">
+      <span class="variant-badge popular">MOST POPULAR</span>
+      <div class="connector-icon">&#127928;</div>
+      <h3><span class="purple">Pro Guitar</span></h3>
+      <p class="price">$179 <span style="color:#666;font-size:0.8em;">
+        <span class="en">early bird</span><span class="ja-text">早期</span> $129
+      </span></p>
+      <p>
+        <span class="en">6.35mm (1/4") plug — plugs directly into guitar/bass. Hi-Z input (1M&#8486;). No cable needed.</span>
+        <span class="ja-text">6.35mm (1/4") プラグ — ギター/ベースに直接接続。Hi-Z入力 (1M&#8486;)。ケーブル不要。</span>
+      </p>
+    </div>
+    <!-- Pro Line -->
+    <div class="variant-card">
+      <div class="connector-icon">&#127899;</div>
+      <h3><span class="purple">Pro Line</span></h3>
+      <p class="price">$159 <span style="color:#666;font-size:0.8em;">
+        <span class="en">early bird</span><span class="ja-text">早期</span> $109
+      </span></p>
+      <p>
+        <span class="en">3.5mm TRS input. Line level for synths, DJ gear, phones. Smallest form factor (45x30mm).</span>
+        <span class="ja-text">3.5mm TRS入力。シンセ、DJギア、スマホ用ラインレベル。最小フォーム (45x30mm)。</span>
+      </p>
+    </div>
+    <!-- Pro Vocal -->
+    <div class="variant-card">
+      <span class="variant-badge pro">PRO</span>
+      <div class="connector-icon">&#127908;</div>
+      <h3><span class="purple">Pro Vocal</span></h3>
+      <p class="price">$189 <span style="color:#666;font-size:0.8em;">
+        <span class="en">early bird</span><span class="ja-text">早期</span> $139
+      </span></p>
+      <p>
+        <span class="en">TA3F mini-XLR input. Balanced, Shure-compatible cable. Optional 48V phantom power.</span>
+        <span class="ja-text">TA3F mini-XLR入力。バランス接続、Shure互換ケーブル。48Vファンタム電源対応。</span>
+      </p>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:0.8rem;color:#666;margin-bottom:2rem;position:relative;z-index:1;">
+    <span class="en">All variants share: nRF5340 + DW3720 UWB, AK5720 ADC, PCM5102A DAC, BLE Audio, gesture control, 5 effects, 50h battery</span>
+    <span class="ja-text">全バリアント共通: nRF5340 + DW3720 UWB、AK5720 ADC、PCM5102A DAC、BLE Audio、ジェスチャー制御、5エフェクト、50時間バッテリー</span>
+  </p>
+
+  <div class="product-cards" style="grid-template-columns:1fr;max-width:400px;">
+    <!-- Koe Hub Card -->
+    <div class="product-card">
+      <div class="device-illustration">
+        <svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hubGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1a1a2e"/>
+              <stop offset="100%" stop-color="#0d0d1a"/>
+            </linearGradient>
+            <filter id="hubLedGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <rect x="15" y="15" width="150" height="90" rx="12" fill="url(#hubGrad)" stroke="#444" stroke-width="0.8"/>
+          <rect x="27" y="24" width="60" height="36" rx="4.5" fill="#0a0a12" stroke="#333" stroke-width="0.8"/>
+          <line x1="33" y1="52" x2="42" y2="42" stroke="#06B6D4" stroke-width="1.2" opacity="0.7"/>
+          <line x1="42" y1="42" x2="51" y2="48" stroke="#8B5CF6" stroke-width="1.2" opacity="0.7"/>
+          <line x1="51" y1="48" x2="60" y2="36" stroke="#06B6D4" stroke-width="1.2" opacity="0.7"/>
+          <line x1="60" y1="36" x2="69" y2="45" stroke="#8B5CF6" stroke-width="1.2" opacity="0.7"/>
+          <line x1="69" y1="45" x2="78" y2="30" stroke="#06B6D4" stroke-width="1.2" opacity="0.7"/>
+          <circle cx="108" cy="33" r="4.5" fill="#06B6D4" opacity="0.8" filter="url(#hubLedGlow)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="123" cy="33" r="4.5" fill="#8B5CF6" opacity="0.8" filter="url(#hubLedGlow)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="138" cy="33" r="4.5" fill="#22c55e" opacity="0.8" filter="url(#hubLedGlow)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="1s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="99" y="51" width="54" height="4.5" rx="2.25" fill="#1a1a1a"/>
+          <rect x="99" y="51" width="36" height="4.5" rx="2.25" fill="#8B5CF6" opacity="0.5"/>
+          <rect x="99" y="60" width="54" height="4.5" rx="2.25" fill="#1a1a1a"/>
+          <rect x="99" y="60" width="45" height="4.5" rx="2.25" fill="#06B6D4" opacity="0.5"/>
+          <circle cx="33" cy="87" r="5.25" fill="none" stroke="#555" stroke-width="0.8"/>
+          <circle cx="48" cy="87" r="5.25" fill="none" stroke="#555" stroke-width="0.8"/>
+          <circle cx="63" cy="87" r="5.25" fill="none" stroke="#555" stroke-width="0.8"/>
+          <circle cx="78" cy="87" r="5.25" fill="none" stroke="#555" stroke-width="0.8"/>
+          <rect x="90" y="82.5" width="18" height="10.5" rx="1.5" fill="none" stroke="#555" stroke-width="0.8"/>
+          <rect x="112.5" y="82.5" width="18" height="10.5" rx="1.5" fill="none" stroke="#555" stroke-width="0.8"/>
+          <rect x="135" y="82.5" width="12" height="10.5" rx="2.25" fill="none" stroke="#ef4444" stroke-width="0.8"/>
+          <circle cx="141" cy="87.75" r="2.25" fill="#ef4444" opacity="0.6"/>
+          <text x="90" y="115" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif" letter-spacing="1.5">KOE HUB</text>
+        </svg>
+      </div>
+      <h3><span class="cyan">Koe Hub</span></h3>
+      <p class="price">$349 <span style="color:#666;font-size:0.8em;">
+        <span class="en">early bird</span><span class="ja-text">早期</span> $249
+      </span></p>
+      <p>
+        <span class="en">32-channel mixer + streamer. Pi CM5, ES9038Q2M Quad DAC, web UI, SRT/RTMP out. Receives from all 3 Pro variants.</span>
+        <span class="ja-text">32chミキサー＋ストリーマー。Pi CM5、ES9038Q2M クアッドDAC、Web UI、SRT/RTMP出力。全3 Proバリアントから受信。</span>
+      </p>
+      <p style="margin-top:0.8rem;"><a href="/design" style="font-size:0.85rem;"><span class="en">Learn more &rarr;</span><span class="ja-text">詳しく見る &rarr;</span></a></p>
+    </div>
+  </div>
+</section>
+
+<!-- LATENCY COMPARISON -->
+<section class="fade-in" id="latency">
+  <h2>
+    <span class="en">Latency <span class="purple">Matters</span></span>
+    <span class="ja-text">レイテンシが<span class="purple">すべて</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Musicians need &lt;20ms to play in sync. Bluetooth can't do it. We can.</span>
+    <span class="ja-text">ミュージシャンの同期演奏には20ms以下が必要。Bluetoothでは不可能。Koeなら可能。</span>
+  </p>
+  <div class="latency-chart">
+    <div class="latency-row">
+      <span class="latency-label">Bluetooth Audio</span>
+      <div class="latency-bar-wrap">
+        <div class="latency-bar bluetooth" data-width="100%">~200ms</div>
+      </div>
+      <span class="latency-value" style="color:#ef4444;">~200ms</span>
+    </div>
+    <div class="latency-row">
+      <span class="latency-label">WiFi <span style="font-size:0.8em;color:#666;">(Current Koe)</span></span>
+      <div class="latency-bar-wrap">
+        <div class="latency-bar wifi" data-width="55%">~110ms</div>
+      </div>
+      <span class="latency-value" style="color:#f59e0b;">~110ms</span>
+    </div>
+    <div class="latency-row latency-highlight">
+      <span class="latency-label" style="color:#A78BFA;font-weight:500;">Koe Pro + Hub</span>
+      <div class="latency-bar-wrap">
+        <div class="latency-bar koepro" data-width="6%">12ms</div>
+      </div>
+      <span class="latency-value" style="color:#8B5CF6;font-weight:500;">~12ms</span>
+    </div>
+    <div style="text-align:center;margin-top:0.5rem;font-size:0.7rem;color:#666;">
+      <span class="en">LC3 7.5ms + UWB &lt;1ms + I2S 2.67ms</span>
+      <span class="ja-text">LC3 7.5ms + UWB &lt;1ms + I2S 2.67ms</span>
+    </div>
+    <div class="latency-row">
+      <span class="latency-label">Wired</span>
+      <div class="latency-bar-wrap">
+        <div class="latency-bar wired" data-width="2.5%">&lt;5ms</div>
+      </div>
+      <span class="latency-value" style="color:#22c55e;">~5ms</span>
+    </div>
+  </div>
+</section>
+
+<!-- KOE PRO DETAIL -->
+<section class="fade-in" id="pro">
+  <h2>
+    <span class="purple">Koe Pro</span>
+    <span class="en"> — The Transmitter</span>
+    <span class="ja-text"> — トランスミッター</span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">3 input variants (Guitar / Line / Vocal) on a shared base PCB. Clip it on and go wireless.</span>
+    <span class="ja-text">共通基板上の3入力バリアント (Guitar / Line / Vocal)。クリップして、ワイヤレスで演奏開始。</span>
+  </p>
+
+  <!-- Device SVG -->
+  <div class="device-detail-svg">
+    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" width="400">
+      <defs>
+        <linearGradient id="proBody" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#252525"/>
+          <stop offset="100%" stop-color="#111"/>
+        </linearGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <!-- Main body -->
+      <rect x="120" y="40" width="160" height="110" rx="20" fill="url(#proBody)" stroke="#333" stroke-width="0.5"/>
+      <!-- Mic hole grid -->
+      <g opacity="0.4">
+        <circle cx="170" cy="70" r="1.5" fill="#333"/><circle cx="178" cy="70" r="1.5" fill="#333"/>
+        <circle cx="186" cy="70" r="1.5" fill="#333"/><circle cx="194" cy="70" r="1.5" fill="#333"/>
+        <circle cx="170" cy="78" r="1.5" fill="#333"/><circle cx="178" cy="78" r="1.5" fill="#333"/>
+        <circle cx="186" cy="78" r="1.5" fill="#333"/><circle cx="194" cy="78" r="1.5" fill="#333"/>
+        <circle cx="170" cy="86" r="1.5" fill="#333"/><circle cx="178" cy="86" r="1.5" fill="#333"/>
+        <circle cx="186" cy="86" r="1.5" fill="#333"/><circle cx="194" cy="86" r="1.5" fill="#333"/>
+      </g>
+      <!-- LED -->
+      <circle cx="230" cy="75" r="4" fill="#8B5CF6" filter="url(#glow)">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <!-- UWB antenna indicator -->
+      <path d="M240 95 Q250 85 260 95" fill="none" stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+      <path d="M236 100 Q250 86 264 100" fill="none" stroke="#06B6D4" stroke-width="0.8" opacity="0.3"/>
+      <text x="250" y="115" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif">UWB</text>
+      <!-- USB-C -->
+      <rect x="182" y="145" width="36" height="8" rx="4" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+      <text x="200" y="168" text-anchor="middle" fill="#555" font-size="8" font-family="sans-serif">USB-C</text>
+      <!-- 3.5mm jack -->
+      <circle cx="155" cy="100" r="8" fill="none" stroke="#333" stroke-width="1"/>
+      <circle cx="155" cy="100" r="3" fill="#1a1a1a"/>
+      <text x="155" y="122" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif">3.5mm</text>
+      <!-- Dimensions -->
+      <line x1="115" y1="40" x2="115" y2="150" stroke="#444" stroke-width="0.5" stroke-dasharray="3"/>
+      <text x="108" y="98" text-anchor="end" fill="#666" font-size="7" font-family="sans-serif" transform="rotate(-90 108 98)">30mm</text>
+      <line x1="120" y1="160" x2="280" y2="160" stroke="#444" stroke-width="0.5" stroke-dasharray="3"/>
+      <text x="200" y="172" text-anchor="middle" fill="#666" font-size="7" font-family="sans-serif">45mm</text>
+      <!-- Label -->
+      <text x="200" y="192" text-anchor="middle" fill="#333" font-size="6" font-family="sans-serif" letter-spacing="3">KOE PRO</text>
+    </svg>
+  </div>
+
+  <div class="spec-section">
+    <div class="spec-block">
+      <h3><span class="en">Hardware</span><span class="ja-text">ハードウェア</span></h3>
+      <ul class="spec-list">
+        <li>nRF5340 + DW3720 UWB</li>
+        <li>BLE 5.3 LE Audio (LC3 codec)</li>
+        <li>AK5720 24-bit/96kHz ADC (105dB SNR)</li>
+        <li>PCM5102A DAC (112dB SNR) <span class="en">for monitoring</span><span class="ja-text">モニタリング用</span></li>
+        <li>nPM1300 PMIC — <span class="en">intelligent power management</span><span class="ja-text">インテリジェント電力管理</span></li>
+        <li><span class="en">Form factor: 45 x 30mm, 28g</span><span class="ja-text">サイズ: 45 x 30mm、28g</span></li>
+        <li>USB-C <span class="en">charging + config</span><span class="ja-text">充電 + 設定</span></li>
+        <li><span class="en">3 input variants: 6.35mm Hi-Z (Guitar) / 3.5mm TRS (Line) / TA3F mini-XLR (Vocal)</span><span class="ja-text">3入力バリアント: 6.35mm Hi-Z (Guitar) / 3.5mm TRS (Line) / TA3F mini-XLR (Vocal)</span></li>
+        <li>800mAh LiPo, ~50h (BLE) / ~8h (WiFi fallback)</li>
+      </ul>
+    </div>
+    <div class="spec-block">
+      <h3><span class="en">Features</span><span class="ja-text">機能</span></h3>
+      <ul class="spec-list">
+        <li><span class="en">UWB sub-microsecond sync</span><span class="ja-text">UWBサブマイクロ秒同期</span></li>
+        <li>BLE LE Audio <span class="en">transport (WiFi fallback)</span><span class="ja-text">伝送（WiFiフォールバック）</span></li>
+        <li><span class="en">Zero-alloc DSP pipeline</span><span class="ja-text">ゼロアロケーションDSPパイプライン</span></li>
+        <li><span class="en">OTA firmware updates via koe.live</span><span class="ja-text">koe.live経由のOTAファームウェア更新</span></li>
+        <li><span class="en">Multi-device pairing (up to 8)</span><span class="ja-text">マルチデバイスペアリング（最大8台）</span></li>
+        <li><span class="en">LED status indicator</span><span class="ja-text">LEDステータスインジケーター</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- KOE HUB DETAIL -->
+<section class="fade-in" id="hub">
+  <h2>
+    <span class="cyan">Koe Hub</span>
+    <span class="en"> — The Mixer</span>
+    <span class="ja-text"> — ミキサー</span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Receive, mix, stream, and send to PA. All from a browser.</span>
+    <span class="ja-text">受信、ミキシング、配信、PA出力。すべてブラウザから操作。</span>
+  </p>
+
+  <!-- Mixer Mockup -->
+  <div class="mixer-mockup">
+    <div class="mixer-header">
+      <span>KOE HUB MIXER v2.0</span>
+      <div>
+        <span class="mixer-dot green"></span>
+        <span style="font-size:0.65rem;color:#666;margin-left:4px;">
+          <span class="en">7 devices connected</span>
+          <span class="ja-text">7台接続中</span>
+        </span>
+      </div>
+    </div>
+    <!-- Group tabs -->
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+      <span style="font-size:0.65rem;letter-spacing:0.08em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(139,92,246,0.15);color:#A78BFA;border:1px solid rgba(139,92,246,0.3);cursor:pointer;">Instruments</span>
+      <span style="font-size:0.65rem;letter-spacing:0.08em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(255,255,255,0.03);color:#666;border:1px solid rgba(255,255,255,0.06);cursor:pointer;">Vocals</span>
+      <span style="font-size:0.65rem;letter-spacing:0.08em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(255,255,255,0.03);color:#666;border:1px solid rgba(255,255,255,0.06);cursor:pointer;">FX</span>
+      <span style="font-size:0.65rem;letter-spacing:0.08em;padding:0.3rem 0.7rem;border-radius:6px;background:rgba(255,255,255,0.03);color:#666;border:1px solid rgba(255,255,255,0.06);cursor:pointer;">Aux</span>
+    </div>
+    <div class="mixer-channels" style="grid-template-columns:repeat(8,1fr);">
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">GTR 1</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">GTR 2</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill" style="height:65%;background:linear-gradient(to top,#8B5CF6,#A78BFA);"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill" style="height:60%;background:linear-gradient(to top,#22c55e,#f59e0b);"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">BASS</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">KEYS</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">VOX</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill" style="height:85%;background:linear-gradient(to top,#8B5CF6,#A78BFA);"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill" style="height:80%;background:linear-gradient(to top,#22c55e,#ef4444);"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">VOX 2</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill" style="height:55%;background:linear-gradient(to top,#06B6D4,#22d3ee);"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill" style="height:50%;background:linear-gradient(to top,#22c55e,#22c55e);"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">AUX 1</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill" style="height:40%;background:linear-gradient(to top,#06B6D4,#22d3ee);"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill" style="height:35%;background:linear-gradient(to top,#22c55e,#22c55e);"></div></div>
+      </div>
+      <div class="mixer-ch">
+        <div class="mixer-ch-label">MAIN</div>
+        <div class="mixer-fader"><div class="mixer-fader-fill" style="height:70%;background:linear-gradient(to top,#f59e0b,#ef4444);"></div></div>
+        <div class="mixer-meter"><div class="mixer-meter-fill" style="height:75%;background:linear-gradient(to top,#22c55e,#ef4444);"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-section">
+    <div class="spec-block">
+      <h3><span class="en">Hardware</span><span class="ja-text">ハードウェア</span></h3>
+      <ul class="spec-list">
+        <li>Raspberry Pi CM5</li>
+        <li>nRF5340 BLE Audio <span class="en">receiver (7 devices simultaneous)</span><span class="ja-text">レシーバー（同時7台）</span></li>
+        <li>ES9038Q2M Quad DAC (129dB SNR), <span class="en">32-channel mixer</span><span class="ja-text">32chミキサー</span></li>
+        <li>TPA6120A2 <span class="en">headphone amp (120dB SNR)</span><span class="ja-text">ヘッドフォンアンプ（120dB SNR）</span></li>
+        <li>ADAT <span class="en">optical I/O (8ch digital)</span><span class="ja-text">光入出力（8chデジタル）</span></li>
+        <li>M.2 NVMe <span class="en">multi-track recording</span><span class="ja-text">マルチトラック録音</span></li>
+        <li><span class="en">Word clock BNC sync</span><span class="ja-text">ワードクロック BNC同期</span></li>
+        <li><span class="en">Inputs: 4x 1/4" TRS + 2x XLR</span><span class="ja-text">入力: 4x 1/4" TRS + 2x XLR</span></li>
+        <li><span class="en">Outputs: 2x Speakon + headphone</span><span class="ja-text">出力: 2x Speakon + ヘッドフォン</span></li>
+        <li><span class="en">Gigabit Ethernet + WiFi 6</span><span class="ja-text">ギガビットイーサネット + WiFi 6</span></li>
+      </ul>
+    </div>
+    <div class="spec-block">
+      <h3><span class="en">Features</span><span class="ja-text">機能</span></h3>
+      <ul class="spec-list">
+        <li><span class="en">Web-based 32-channel mixer UI (any browser)</span><span class="ja-text">Web 32chミキサー UI（ブラウザ操作）</span></li>
+        <li><span class="en">4-band parametric EQ per channel</span><span class="ja-text">チャンネルごとの4バンドパラメトリックEQ</span></li>
+        <li><span class="en">Reverb / Compressor / Gate / DeEsser / Stereo Widener</span><span class="ja-text">リバーブ / コンプレッサー / ゲート / ディエッサー / ステレオワイドナー</span></li>
+        <li><span class="en">4 aux sends per channel</span><span class="ja-text">チャンネルごと4 AUXセンド</span></li>
+        <li><span class="en">Channel groups + stereo linking</span><span class="ja-text">チャンネルグループ + ステレオリンク</span></li>
+        <li><span class="en">Multi-track recording to NVMe SSD</span><span class="ja-text">NVMe SSDへのマルチトラック録音</span></li>
+        <li><span class="en">ADAT I/O for studio integration</span><span class="ja-text">スタジオ統合用 ADAT入出力</span></li>
+        <li><span class="en">SRT + RTMP streaming output</span><span class="ja-text">SRT + RTMP ストリーミング出力</span></li>
+        <li><span class="en">Scene presets (save/recall)</span><span class="ja-text">シーンプリセット（保存/呼出）</span></li>
+        <li>Soluna <span class="en">protocol bridge</span><span class="ja-text">プロトコルブリッジ</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM ARCHITECTURE -->
+<section class="fade-in" id="architecture">
+  <h2>
+    <span class="en">System <span class="purple">Architecture</span></span>
+    <span class="ja-text">システム<span class="purple">アーキテクチャ</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">BLE LE Audio carries the signal. UWB provides sub-microsecond clock sync.</span>
+    <span class="ja-text">BLE LE Audioで信号伝送。UWBでサブマイクロ秒のクロック同期。</span>
+  </p>
+  <div class="arch-diagram">
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1f1f2e"/><stop offset="100%" stop-color="#111118"/>
+        </linearGradient>
+        <linearGradient id="hubNode" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a1a2e"/><stop offset="100%" stop-color="#0d0d1a"/>
+        </linearGradient>
+      </defs>
+      <!-- Source devices -->
+      <rect x="10" y="30" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="65" y="54" text-anchor="middle" fill="#aaa" font-size="11" font-family="sans-serif">Guitar</text>
+      <rect x="10" y="110" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="65" y="134" text-anchor="middle" fill="#aaa" font-size="11" font-family="sans-serif">Mic / Vocals</text>
+      <rect x="10" y="190" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="65" y="214" text-anchor="middle" fill="#aaa" font-size="11" font-family="sans-serif">Keys / Synth</text>
+      <!-- Koe Pro units -->
+      <rect x="180" y="30" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#8B5CF6" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="235" y="54" text-anchor="middle" fill="#A78BFA" font-size="11" font-family="sans-serif">Koe Pro</text>
+      <rect x="180" y="110" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#8B5CF6" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="235" y="134" text-anchor="middle" fill="#A78BFA" font-size="11" font-family="sans-serif">Koe Pro</text>
+      <rect x="180" y="190" width="110" height="40" rx="8" fill="url(#nodeGrad)" stroke="#8B5CF6" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="235" y="214" text-anchor="middle" fill="#A78BFA" font-size="11" font-family="sans-serif">Koe Pro</text>
+      <!-- Arrows: source to pro -->
+      <line x1="120" y1="50" x2="178" y2="50" stroke="#444" stroke-width="1" marker-end="url(#arrowGray)"/>
+      <line x1="120" y1="130" x2="178" y2="130" stroke="#444" stroke-width="1"/>
+      <line x1="120" y1="210" x2="178" y2="210" stroke="#444" stroke-width="1"/>
+      <!-- Wireless arrows: pro to hub -->
+      <line x1="290" y1="50" x2="390" y2="140" stroke="#8B5CF6" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.6"/>
+      <line x1="290" y1="130" x2="390" y2="140" stroke="#8B5CF6" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.6"/>
+      <line x1="290" y1="210" x2="390" y2="160" stroke="#8B5CF6" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.6"/>
+      <text x="340" y="95" text-anchor="middle" fill="#666" font-size="8" font-family="sans-serif" transform="rotate(-15 340 95)">BLE Audio + UWB</text>
+      <!-- Koe Hub -->
+      <rect x="390" y="105" width="140" height="70" rx="12" fill="url(#hubNode)" stroke="#06B6D4" stroke-width="0.8" stroke-opacity="0.5"/>
+      <text x="460" y="135" text-anchor="middle" fill="#22d3ee" font-size="12" font-weight="400" font-family="sans-serif">Koe Hub</text>
+      <text x="460" y="152" text-anchor="middle" fill="#555" font-size="8" font-family="sans-serif">(Pi CM5 + DW3720)</text>
+      <!-- Output arrows -->
+      <line x1="530" y1="125" x2="590" y2="50" stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+      <line x1="530" y1="140" x2="590" y2="140" stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+      <line x1="530" y1="155" x2="590" y2="230" stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+      <!-- Outputs -->
+      <rect x="590" y="30" width="100" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="640" y="48" text-anchor="middle" fill="#aaa" font-size="10" font-family="sans-serif">PA Speakers</text>
+      <text x="640" y="60" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif">Speakon Out</text>
+      <rect x="590" y="120" width="100" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="640" y="138" text-anchor="middle" fill="#aaa" font-size="10" font-family="sans-serif">Stream</text>
+      <text x="640" y="150" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif">SRT / RTMP</text>
+      <rect x="590" y="210" width="100" height="40" rx="8" fill="url(#nodeGrad)" stroke="#333" stroke-width="0.5"/>
+      <text x="640" y="228" text-anchor="middle" fill="#aaa" font-size="10" font-family="sans-serif">Crowd</text>
+      <text x="640" y="240" text-anchor="middle" fill="#555" font-size="7" font-family="sans-serif">Soluna Devices</text>
+      <!-- Legend -->
+      <line x1="20" y1="290" x2="50" y2="290" stroke="#8B5CF6" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.6"/>
+      <text x="55" y="293" fill="#666" font-size="8" font-family="sans-serif">BLE Audio + UWB sync</text>
+      <line x1="200" y1="290" x2="230" y2="290" stroke="#06B6D4" stroke-width="1" opacity="0.5"/>
+      <text x="235" y="293" fill="#666" font-size="8" font-family="sans-serif">Wired / Network output</text>
+    </svg>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="fade-in" id="usecases">
+  <h2>
+    <span class="en">Use <span class="cyan">Cases</span></span>
+    <span class="ja-text">ユース<span class="cyan">ケース</span></span>
+  </h2>
+  <div class="use-cases">
+    <div class="use-case">
+      <div class="use-case-icon" role="img" aria-label="guitar">&#127928;</div>
+      <h4><span class="en">Live Band Performance</span><span class="ja-text">ライブバンド演奏</span></h4>
+      <p><span class="en">Wireless stage without the cable mess. Each musician wears a Koe Pro. Hub mixes and sends to PA.</span><span class="ja-text">ケーブルなしのワイヤレスステージ。各ミュージシャンがKoe Proを装着。HubでミックスしてPAへ出力。</span></p>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon" role="img" aria-label="street">&#127911;</div>
+      <h4><span class="en">Street Music / Busking</span><span class="ja-text">ストリートミュージック</span></h4>
+      <p><span class="en">Portable setup. Pro + Hub + powered speaker. Set up in minutes, no cable runs.</span><span class="ja-text">ポータブルセットアップ。Pro + Hub + パワードスピーカー。数分でセッティング完了。</span></p>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon" role="img" aria-label="DJ">&#127926;</div>
+      <h4><span class="en">Festival DJ Sets</span><span class="ja-text">フェスティバルDJセット</span></h4>
+      <p><span class="en">Hub streams to SRT/RTMP while mixing live. Soluna protocol syncs the crowd's wearable devices.</span><span class="ja-text">Hubがライブミックスしながら配信。Solunaプロトコルで観客のウェアラブルデバイスを同期。</span></p>
+    </div>
+    <div class="use-case">
+      <div class="use-case-icon" role="img" aria-label="studio">&#127900;</div>
+      <h4><span class="en">Home Studio</span><span class="ja-text">ホームスタジオ</span></h4>
+      <p><span class="en">Cable-free recording. Multi-track capture to NVMe. Mix later in any DAW.</span><span class="ja-text">ケーブルフリー録音。NVMeにマルチトラック収録。後から任意のDAWでミックス。</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPATIBILITY / ECOSYSTEM -->
+<section class="fade-in" id="ecosystem">
+  <h2>
+    <span class="en">Koe <span class="purple">Ecosystem</span></span>
+    <span class="ja-text">Koe <span class="purple">エコシステム</span></span>
+  </h2>
+  <p class="section-sub">
+    <span class="en">Pro and Hub integrate seamlessly with the existing Koe product family.</span>
+    <span class="ja-text">ProとHubは既存のKoeプロダクトファミリーとシームレスに統合。</span>
+  </p>
+  <div class="ecosystem-flow">
+    <span class="eco-node active">Koe Pro</span>
+    <span class="eco-arrow">&rarr;</span>
+    <span class="eco-node active">Koe Hub</span>
+    <span class="eco-arrow">&rarr;</span>
+    <span class="eco-node">STAGE</span>
+    <span class="eco-arrow">&rarr;</span>
+    <span class="eco-node">FILL</span>
+    <span class="eco-arrow">&rarr;</span>
+    <span class="eco-node">COIN</span>
+    <span style="color:#555;font-size:0.75rem;margin-left:0.5rem;">
+      <span class="en">(crowd)</span>
+      <span class="ja-text">(観客)</span>
+    </span>
+  </div>
+  <p style="text-align:center;color:#666;font-size:0.8rem;margin-top:1rem;">
+    <span class="en">Backward compatible with Soluna UDP multicast protocol (239.42.42.1:4242)</span>
+    <span class="ja-text">Soluna UDPマルチキャストプロトコル (239.42.42.1:4242) と後方互換</span>
+  </p>
+</section>
+
+<!-- PRICING -->
+<section class="fade-in" id="pricing">
+  <h2>
+    <span class="en"><span class="cyan">Pricing</span></span>
+    <span class="ja-text"><span class="cyan">価格</span></span>
+  </h2>
+  <div style="text-align:center;margin-bottom:2rem;">
+    <span class="coming-badge">COMING SOON</span>
+  </div>
+  <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="pricing-card">
+      <h4><span class="purple">Pro Guitar</span></h4>
+      <div class="price-main">$179</div>
+      <div class="price-early">
+        <span class="en">Early bird</span><span class="ja-text">早期割引</span> $129
+      </div>
+      <p class="price-desc">
+        <span class="en">6.35mm (1/4") Hi-Z plug. Direct into guitar/bass. No cable needed.</span>
+        <span class="ja-text">6.35mm Hi-Zプラグ。ギター/ベースに直挿し。ケーブル不要。</span>
+      </p>
+    </div>
+    <div class="pricing-card">
+      <h4><span class="purple">Pro Line</span></h4>
+      <div class="price-main">$159</div>
+      <div class="price-early">
+        <span class="en">Early bird</span><span class="ja-text">早期割引</span> $109
+      </div>
+      <p class="price-desc">
+        <span class="en">3.5mm TRS input. Line level for synths, DJ gear, phones.</span>
+        <span class="ja-text">3.5mm TRS入力。シンセ、DJギア、スマホ用。</span>
+      </p>
+    </div>
+    <div class="pricing-card">
+      <h4><span class="purple">Pro Vocal</span></h4>
+      <div class="price-main">$189</div>
+      <div class="price-early">
+        <span class="en">Early bird</span><span class="ja-text">早期割引</span> $139
+      </div>
+      <p class="price-desc">
+        <span class="en">TA3F mini-XLR. Balanced, Shure-compatible. Optional 48V phantom power.</span>
+        <span class="ja-text">TA3F mini-XLR。バランス接続、Shure互換。48Vファンタム電源対応。</span>
+      </p>
+    </div>
+  </div>
+  <div class="pricing-grid" style="grid-template-columns:1fr 1fr;max-width:660px;margin:1.5rem auto 0;">
+    <div class="pricing-card">
+      <h4><span class="cyan">Koe Hub</span></h4>
+      <div class="price-main">$349</div>
+      <div class="price-early">
+        <span class="en">Early bird</span><span class="ja-text">早期割引</span> $249
+      </div>
+      <p class="price-desc">
+        <span class="en">32-channel mixer + streamer. Pi CM5, ES9038Q2M Quad DAC, web UI, SRT/RTMP.</span>
+        <span class="ja-text">32chミキサー＋ストリーマー。Pi CM5、ES9038Q2M クアッドDAC、Web UI、SRT/RTMP。</span>
+      </p>
+    </div>
+    <div class="pricing-card featured">
+      <h4><span class="purple">Full Band Bundle</span></h4>
+      <div class="price-main">$849</div>
+      <div class="price-early">
+        <span class="en">Early bird</span><span class="ja-text">早期割引</span> $599
+      </div>
+      <p class="price-desc">
+        <span class="en">1x Pro Guitar + 1x Pro Line + 1x Pro Vocal + 1x Hub. Everything for a full wireless band.</span>
+        <span class="ja-text">Pro Guitar + Pro Line + Pro Vocal + Hub 各1台。フルバンドのワイヤレス化に必要な全てを。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://koe.live">koe.live</a>
+    <a href="/docs.html">
+      <span class="en">Documentation</span><span class="ja-text">ドキュメント</span>
+    </a>
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+    <a href="/">
+      <span class="en">Koe Home</span><span class="ja-text">Koe ホーム</span>
+    </a>
+  </div>
+  <p class="copyright">
+    &copy; 2026 EnablerDAO. <span class="en">Open Hardware.</span><span class="ja-text">オープンハードウェア。</span>
+  </p>
+</footer>
+
+<script>
+// Language toggle
+function toggleLang() {
+  document.body.classList.toggle('ja');
+  localStorage.setItem('koe-lang', document.body.classList.contains('ja') ? 'ja' : 'en');
+}
+// Restore language preference
+if (localStorage.getItem('koe-lang') === 'ja') {
+  document.body.classList.add('ja');
+}
+
+// Intersection Observer for fade-in + latency bars
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Animate latency bars inside this section
+      entry.target.querySelectorAll('.latency-bar').forEach(bar => {
+        const w = bar.getAttribute('data-width');
+        if (w) {
+          setTimeout(() => { bar.style.width = w; }, 200);
+        }
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

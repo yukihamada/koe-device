@@ -1,0 +1,47 @@
+{
+  "100": {
+    "priceList": [
+      {
+        "BuildDays": 6,
+        "BuildText": "6-7 days",
+        "Express": false,
+        "Price": 140.45,
+        "Standard": true
+      }
+    ],
+    "Shipping": null,
+    "Status": "ok",
+    "ErrorText": "",
+    "Code": 0
+  },
+  "500": {
+    "priceList": [
+      {
+        "BuildDays": 6,
+        "BuildText": "6-7 days",
+        "Express": false,
+        "Price": 189.35,
+        "Standard": true
+      }
+    ],
+    "Shipping": null,
+    "Status": "ok",
+    "ErrorText": "",
+    "Code": 0
+  },
+  "1000": {
+    "priceList": [
+      {
+        "BuildDays": 6,
+        "BuildText": "6-7 days",
+        "Express": false,
+        "Price": 283.09,
+        "Standard": true
+      }
+    ],
+    "Shipping": null,
+    "Status": "ok",
+    "ErrorText": "",
+    "Code": 0
+  }
+}

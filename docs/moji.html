@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Moji — Real-time Translation</title>
+<meta name="description" content="Real-time speech translation between two people. Built on Koe infrastructure.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --accent: #F59E0B;
+  --accent-dim: rgba(245, 158, 11, 0.15);
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1e1e1e;
+  --text: #e8e8e8;
+  --text-dim: #888;
+  --border: #2a2a2a;
+  --green: #22c55e;
+  --red: #ef4444;
+}
+
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+/* ---- Landing ---- */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.landing h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+
+.landing h1 span { color: var(--accent); }
+
+.landing p.tagline {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.lang-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 2rem;
+}
+
+.lang-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.lang-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+.lang-btn.selected { border-color: var(--accent); background: var(--accent-dim); }
+.lang-btn .flag { font-size: 1.4rem; }
+
+.mode-select {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mode-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover { border-color: var(--accent); }
+.mode-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+.start-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-bottom: 1rem;
+}
+
+.start-btn:hover { opacity: 0.85; }
+.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.landing-footer {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 1rem;
+}
+
+.landing-footer a { color: var(--accent); text-decoration: none; }
+
+/* ---- Translation Screen ---- */
+.translator {
+  display: none;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.translator.active { display: flex; }
+.landing.hidden { display: none; }
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.top-bar .back-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.latency-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: var(--surface);
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+}
+
+.latency-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.latency-dot.slow { background: var(--accent); }
+.latency-dot.bad { background: var(--red); }
+
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Split panels */
+.panels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+.panel-top { border-bottom: 1px solid var(--border); }
+
+.panel-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-label .lang-name { color: var(--accent); }
+
+.transcript-area {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.msg {
+  margin-bottom: 0.75rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-time {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-bottom: 0.15rem;
+}
+
+.msg-original {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 0.15rem;
+}
+
+.msg-translated {
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.msg-translated.live {
+  color: var(--accent);
+}
+
+/* Mic button bar */
+.mic-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+.mic-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.mic-btn:hover { background: var(--accent-dim); }
+
+.mic-btn.recording {
+  background: var(--accent);
+  color: #000;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(245,158,11,0); }
+}
+
+.mic-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---- Responsive ---- */
+@media (min-width: 768px) {
+  .panels { flex-direction: row; }
+  .panel-top { border-bottom: none; border-right: 1px solid var(--border); }
+  .landing h1 { font-size: 4rem; }
+}
+
+/* ---- i18n toggle ---- */
+.lang-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.lang-toggle:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ===== Landing Page ===== -->
+<div class="landing" id="landing">
+  <button class="lang-toggle" id="pageLanguage" onclick="togglePageLang()">JA</button>
+
+  <h1><span>Moji</span></h1>
+  <p class="tagline" data-en="Real-time speech translation between two people. Speak naturally — hear instantly." data-ja="2人の間のリアルタイム音声翻訳。自然に話して、すぐに聞こえる。">Real-time speech translation between two people. Speak naturally — hear instantly.</p>
+
+  <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:0.75rem" data-en="Your language" data-ja="あなたの言語">Your language</p>
+  <div class="lang-grid" id="myLangGrid"></div>
+
+  <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:0.75rem" data-en="Partner's language" data-ja="相手の言語">Partner's language</p>
+  <div class="lang-grid" id="partnerLangGrid"></div>
+
+  <div class="mode-select">
+    <button class="mode-btn active" data-mode="face" data-en="Face-to-face" data-ja="対面">Face-to-face</button>
+    <button class="mode-btn" data-mode="remote" data-en="Remote" data-ja="リモート">Remote</button>
+    <button class="mode-btn" data-mode="koe" data-en="Koe Device" data-ja="Koeデバイス">Koe Device</button>
+  </div>
+
+  <button class="start-btn" id="startBtn" onclick="startSession()" data-en="Start Translating" data-ja="翻訳を開始">Start Translating</button>
+
+  <div class="landing-footer">
+    <span data-en="Built on" data-ja="基盤:">Built on</span>
+    <a href="https://koe.live">Koe</a>
+    <span data-en="infrastructure" data-ja="インフラ">infrastructure</span>
+  </div>
+</div>
+
+<!-- ===== Translation Screen ===== -->
+<div class="translator" id="translator">
+  <div class="top-bar">
+    <button class="back-btn" onclick="endSession()">&#8592;</button>
+    <div class="latency-badge">
+      <div class="latency-dot" id="latencyDot"></div>
+      <span id="latencyText">-- ms</span>
+    </div>
+    <button class="copy-btn" onclick="copyTranscript()">Copy</button>
+  </div>
+
+  <div class="panels">
+    <!-- My language panel (top / left) -->
+    <div class="panel panel-top" id="panelMy">
+      <div class="panel-label">
+        <span id="myLangLabel" class="lang-name">English</span>
+        <span data-en="(you)" data-ja="(あなた)">(you)</span>
+      </div>
+      <div class="transcript-area" id="transcriptMy"></div>
+    </div>
+
+    <!-- Partner language panel (bottom / right) -->
+    <div class="panel" id="panelPartner">
+      <div class="panel-label">
+        <span id="partnerLangLabel" class="lang-name">Japanese</span>
+        <span data-en="(partner)" data-ja="(相手)">(partner)</span>
+      </div>
+      <div class="transcript-area" id="transcriptPartner"></div>
+    </div>
+  </div>
+
+  <div class="mic-bar">
+    <div>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <div class="mic-label" data-en="Tap to speak" data-ja="タップして話す">Tap to speak</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Language Definitions ----
+const LANGUAGES = [
+  { code: 'ja', name: 'Japanese', native: '日本語', flag: '🇯🇵', bcp47: 'ja-JP' },
+  { code: 'en', name: 'English', native: 'English', flag: '🇺🇸', bcp47: 'en-US' },
+  { code: 'zh', name: 'Chinese', native: '中文', flag: '🇨🇳', bcp47: 'zh-CN' },
+  { code: 'ko', name: 'Korean', native: '한국어', flag: '🇰🇷', bcp47: 'ko-KR' },
+  { code: 'es', name: 'Spanish', native: 'Español', flag: '🇪🇸', bcp47: 'es-ES' },
+  { code: 'fr', name: 'French', native: 'Français', flag: '🇫🇷', bcp47: 'fr-FR' },
+];
+
+// ---- Minimal Fallback Dictionary ----
+const DICTIONARY = {
+  'en-ja': { 'hello': 'こんにちは', 'thank you': 'ありがとう', 'goodbye': 'さようなら', 'yes': 'はい', 'no': 'いいえ', 'please': 'お願いします', 'sorry': 'すみません', 'how are you': 'お元気ですか', 'nice to meet you': 'はじめまして', 'good morning': 'おはようございます', 'good evening': 'こんばんは', 'where is': 'どこですか', 'how much': 'いくらですか', 'help': '助けて', 'water': '水', 'food': '食べ物' },
+  'ja-en': { 'こんにちは': 'hello', 'ありがとう': 'thank you', 'さようなら': 'goodbye', 'はい': 'yes', 'いいえ': 'no', 'お願いします': 'please', 'すみません': 'sorry', 'お元気ですか': 'how are you', 'はじめまして': 'nice to meet you', 'おはようございます': 'good morning', 'こんばんは': 'good evening', '助けて': 'help', '水': 'water', '食べ物': 'food' },
+  'en-zh': { 'hello': '你好', 'thank you': '谢谢', 'goodbye': '再见', 'yes': '是', 'no': '不是' },
+  'zh-en': { '你好': 'hello', '谢谢': 'thank you', '再见': 'goodbye' },
+  'en-ko': { 'hello': '안녕하세요', 'thank you': '감사합니다', 'goodbye': '안녕히 가세요' },
+  'ko-en': { '안녕하세요': 'hello', '감사합니다': 'thank you' },
+  'en-es': { 'hello': 'hola', 'thank you': 'gracias', 'goodbye': 'adiós' },
+  'es-en': { 'hola': 'hello', 'gracias': 'thank you', 'adiós': 'goodbye' },
+  'en-fr': { 'hello': 'bonjour', 'thank you': 'merci', 'goodbye': 'au revoir' },
+  'fr-en': { 'bonjour': 'hello', 'merci': 'thank you', 'au revoir': 'goodbye' },
+};
+
+// ---- State ----
+let pageLang = 'en';
+let myLang = null;
+let partnerLang = null;
+let selectedMode = 'face';
+let isRecording = false;
+let recognition = null;
+let conversationLog = [];
+let lastLatency = 0;
+
+// ---- Page Language Toggle ----
+function togglePageLang() {
+  pageLang = pageLang === 'en' ? 'ja' : 'en';
+  document.getElementById('pageLanguage').textContent = pageLang === 'en' ? 'JA' : 'EN';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + pageLang);
+  });
+}
+
+// ---- Build Language Grids ----
+function buildLangGrid(containerId, setter) {
+  const container = document.getElementById(containerId);
+  LANGUAGES.forEach(lang => {
+    const btn = document.createElement('button');
+    btn.className = 'lang-btn';
+    btn.dataset.code = lang.code;
+    btn.innerHTML = '<span class="flag">' + lang.flag + '</span> ' + lang.native;
+    btn.onclick = () => {
+      container.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setter(lang);
+      updateStartBtn();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function updateStartBtn() {
+  document.getElementById('startBtn').disabled = !(myLang && partnerLang && myLang.code !== partnerLang.code);
+}
+
+buildLangGrid('myLangGrid', lang => { myLang = lang; });
+buildLangGrid('partnerLangGrid', lang => { partnerLang = lang; });
+
+// ---- Mode Selection ----
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMode = btn.dataset.mode;
+  };
+});
+
+// ---- Translation Engine ----
+async function translate(text, sourceLang, targetLang) {
+  const t0 = performance.now();
+
+  // Try MyMemory free API first
+  try {
+    const pair = sourceLang + '|' + targetLang;
+    const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=' + pair;
+    const resp = await fetch(url, { signal: AbortSignal.timeout(3000) });
+    const data = await resp.json();
+    if (data.responseStatus === 200 && data.responseData.translatedText) {
+      const translated = data.responseData.translatedText;
+      lastLatency = Math.round(performance.now() - t0);
+      updateLatency();
+      return translated;
+    }
+  } catch (e) {
+    // Fall through to dictionary
+  }
+
+  // Fallback: dictionary lookup
+  const key = sourceLang + '-' + targetLang;
+  const dict = DICTIONARY[key] || {};
+  const lower = text.toLowerCase().trim();
+  if (dict[lower]) {
+    lastLatency = Math.round(performance.now() - t0);
+    updateLatency();
+    return dict[lower];
+  }
+
+  // Last resort: return original with marker
+  lastLatency = Math.round(performance.now() - t0);
+  updateLatency();
+  return '[' + targetLang.toUpperCase() + '] ' + text;
+}
+
+function updateLatency() {
+  const dot = document.getElementById('latencyDot');
+  const txt = document.getElementById('latencyText');
+  txt.textContent = lastLatency + ' ms';
+  dot.className = 'latency-dot';
+  if (lastLatency > 2000) dot.classList.add('bad');
+  else if (lastLatency > 800) dot.classList.add('slow');
+}
+
+// ---- Speech Recognition (STT) ----
+function createRecognition(langBcp47) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const rec = new SR();
+  rec.lang = langBcp47;
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+  return rec;
+}
+
+// ---- Speech Synthesis (TTS) ----
+function speak(text, langCode) {
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  const lang = LANGUAGES.find(l => l.code === langCode);
+  if (lang) utter.lang = lang.bcp47;
+  utter.rate = 0.95;
+  utter.pitch = 1.0;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+// ---- Session Management ----
+function startSession() {
+  if (!myLang || !partnerLang) return;
+
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('translator').classList.add('active');
+
+  document.getElementById('myLangLabel').textContent = myLang.native;
+  document.getElementById('partnerLangLabel').textContent = partnerLang.native;
+
+  conversationLog = [];
+  document.getElementById('transcriptMy').innerHTML = '';
+  document.getElementById('transcriptPartner').innerHTML = '';
+}
+
+function endSession() {
+  stopRecording();
+  document.getElementById('landing').classList.remove('hidden');
+  document.getElementById('translator').classList.remove('active');
+}
+
+// ---- Microphone Toggle ----
+function toggleMic() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  if (!myLang) return;
+
+  recognition = createRecognition(myLang.bcp47);
+  if (!recognition) {
+    addMessage('transcriptMy', 'System', 'Speech recognition not supported in this browser.', '', Date.now());
+    return;
+  }
+
+  let finalTranscript = '';
+
+  recognition.onresult = async (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript = t;
+        // Translate and display
+        const translated = await translate(finalTranscript, myLang.code, partnerLang.code);
+        const now = Date.now();
+        addMessage('transcriptMy', myLang.native, finalTranscript, '', now);
+        addMessage('transcriptPartner', partnerLang.native, translated, finalTranscript, now);
+        conversationLog.push({
+          time: new Date(now).toISOString(),
+          speaker: 'you',
+          original: finalTranscript,
+          translated: translated,
+          from: myLang.code,
+          to: partnerLang.code,
+          latency: lastLatency,
+        });
+        // TTS
+        speak(translated, partnerLang.code);
+        finalTranscript = '';
+      } else {
+        interim = t;
+      }
+    }
+
+    // Show interim text
+    updateInterim('transcriptPartner', interim);
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === 'no-speech') return;
+    console.warn('Recognition error:', event.error);
+  };
+
+  recognition.onend = () => {
+    // Auto-restart if still recording
+    if (isRecording && recognition) {
+      try { recognition.start(); } catch (e) {}
+    }
+  };
+
+  try {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    const label = document.querySelector('.mic-label');
+    label.textContent = pageLang === 'ja' ? '聞いています...' : 'Listening...';
+  } catch (e) {
+    console.error('Failed to start recognition:', e);
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  if (recognition) {
+    recognition.abort();
+    recognition = null;
+  }
+  document.getElementById('micBtn').classList.remove('recording');
+  const label = document.querySelector('.mic-label');
+  label.textContent = pageLang === 'ja' ? 'タップして話す' : 'Tap to speak';
+}
+
+// ---- Transcript Display ----
+function addMessage(containerId, langLabel, text, subtext, timestamp) {
+  const container = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = 'msg';
+
+  const time = new Date(timestamp);
+  const timeStr = time.getHours().toString().padStart(2, '0') + ':' +
+                  time.getMinutes().toString().padStart(2, '0') + ':' +
+                  time.getSeconds().toString().padStart(2, '0');
+
+  let html = '<div class="msg-time">' + timeStr + '</div>';
+  if (subtext) {
+    html += '<div class="msg-original">' + escapeHtml(subtext) + '</div>';
+  }
+  html += '<div class="msg-translated">' + escapeHtml(text) + '</div>';
+
+  div.innerHTML = html;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+
+  // Remove interim placeholder if present
+  const interim = container.querySelector('.interim');
+  if (interim) interim.remove();
+}
+
+function updateInterim(containerId, text) {
+  if (!text) return;
+  const container = document.getElementById(containerId);
+  let interim = container.querySelector('.interim');
+  if (!interim) {
+    interim = document.createElement('div');
+    interim.className = 'msg interim';
+    interim.innerHTML = '<div class="msg-translated live"></div>';
+    container.appendChild(interim);
+  }
+  interim.querySelector('.msg-translated').textContent = text + '...';
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---- Copy Transcript ----
+function copyTranscript() {
+  if (conversationLog.length === 0) return;
+
+  const lines = conversationLog.map(entry => {
+    const t = new Date(entry.time);
+    const ts = t.getHours().toString().padStart(2, '0') + ':' +
+               t.getMinutes().toString().padStart(2, '0') + ':' +
+               t.getSeconds().toString().padStart(2, '0');
+    return '[' + ts + '] (' + entry.from + '->' + entry.to + ') ' +
+           entry.original + ' => ' + entry.translated +
+           ' (' + entry.latency + 'ms)';
+  });
+
+  const text = 'Moji Transcript\n' +
+               '===============\n' +
+               lines.join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = pageLang === 'ja' ? 'OK' : 'Copied';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  }).catch(() => {});
+}
+
+// ---- WebRTC (Remote Mode) ----
+// Simplified signaling — in production, use a signaling server.
+// For now, remote mode uses the same local recognition pipeline.
+// WebRTC data channel can carry transcript JSON between peers.
+let peerConnection = null;
+let dataChannel = null;
+
+async function setupWebRTC() {
+  if (selectedMode !== 'remote') return;
+
+  const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  peerConnection = new RTCPeerConnection(config);
+
+  dataChannel = peerConnection.createDataChannel('moji-translate', { ordered: true });
+
+  dataChannel.onmessage = async (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'transcript') {
+        // Partner sent us their speech — translate and display
+        const translated = await translate(msg.text, partnerLang.code, myLang.code);
+        const now = Date.now();
+        addMessage('transcriptPartner', partnerLang.native, msg.text, '', now);
+        addMessage('transcriptMy', myLang.native, translated, msg.text, now);
+        conversationLog.push({
+          time: new Date(now).toISOString(),
+          speaker: 'partner',
+          original: msg.text,
+          translated: translated,
+          from: partnerLang.code,
+          to: myLang.code,
+          latency: lastLatency,
+        });
+        speak(translated, myLang.code);
+      }
+    } catch (e) {}
+  };
+
+  peerConnection.ondatachannel = (event) => {
+    dataChannel = event.channel;
+    dataChannel.onmessage = dataChannel.onmessage;
+  };
+}
+
+// ---- Koe Device BLE (stub) ----
+// In production, this connects to Koe device via Web Bluetooth
+// and receives audio frames for processing.
+async function connectKoeDevice() {
+  if (selectedMode !== 'koe') return;
+  // Placeholder: Web Bluetooth connection to Koe
+  // navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'Koe' }] })
+  console.log('Koe Device BLE mode — awaiting implementation');
+}
+
+// ---- Init ----
+updateStartBtn();
+</script>
+</body>
+</html>

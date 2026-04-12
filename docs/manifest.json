@@ -1,14 +1,16 @@
 {
-  "name": "Koe — 声でつながる",
+  "name": "Koe — ブラウザで音楽を一緒に楽しむ",
   "short_name": "Koe",
-  "description": "P2P音声・カラオケ・音楽同期",
+  "description": "同期再生・カラオケ・ボーカル除去・声翻訳・EQ・MIDI・DJモード。ブラウザだけで50人+。完全無料。",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#08080f",
   "theme_color": "#7c3aed",
   "orientation": "portrait",
+  "categories": ["music", "entertainment"],
   "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

@@ -1,0 +1,784 @@
+(kicad_pcb
+  (version 20240108)
+  (generator "kicad_pcb")
+  (generator_version "8.0")
+  (general
+    (thickness 1.6)
+    (legacy_teardrops no)
+  )
+  (paper "A4")
+  (title_block
+    (title "Koe Pro v2")
+    (date "2026-03-27")
+    (rev "2.0")
+    (company "EnablerDAO")
+  )
+  (layers
+    (0 "F.Cu" signal)
+    (1 "In1.Cu" signal "GND")
+    (2 "In2.Cu" signal "PWR")
+    (31 "B.Cu" signal)
+    (32 "B.Adhes" user "B.Adhesive")
+    (33 "F.Adhes" user "F.Adhesive")
+    (34 "B.Paste" user)
+    (35 "F.Paste" user)
+    (36 "B.SilkS" user "B.Silkscreen")
+    (37 "F.SilkS" user "F.Silkscreen")
+    (38 "B.Mask" user "B.Mask")
+    (39 "F.Mask" user "F.Mask")
+    (40 "Dwgs.User" user "User.Drawings")
+    (41 "Cmts.User" user "User.Comments")
+    (42 "Eco1.User" user "User.Eco1")
+    (43 "Eco2.User" user "User.Eco2")
+    (44 "Edge.Cuts" user)
+    (45 "Margin" user)
+    (46 "B.CrtYd" user "B.Courtyard")
+    (47 "F.CrtYd" user "F.Courtyard")
+    (48 "B.Fab" user "B.Fabrication")
+    (49 "F.Fab" user "F.Fabrication")
+  )
+  (setup
+    (stackup
+      (layer "F.SilkS" (type "Top Silk Screen"))
+      (layer "F.Paste" (type "Top Solder Paste"))
+      (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
+      (layer "F.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In1.Cu" (type "copper") (thickness 0.0175))
+      (layer "dielectric 2" (type "core") (thickness 1.065) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In2.Cu" (type "copper") (thickness 0.0175))
+      (layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "B.Cu" (type "copper") (thickness 0.035))
+      (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
+      (layer "B.Paste" (type "Bottom Solder Paste"))
+      (layer "B.SilkS" (type "Bottom Silk Screen"))
+      (copper_finish "HASL")
+      (dielectric_constraints no)
+    )
+    (pad_to_mask_clearance 0.05)
+    (allow_soldermask_bridges_in_footprints no)
+    (pcbplotparams
+      (layerselection 0x00010fc_ffffffff)
+      (plot_on_all_layers_selection 0x0000000_00000000)
+      (disableapertmacros no)
+      (usegerberextensions yes)
+      (usegerberattributes yes)
+      (usegerberadvancedattributes yes)
+      (creategerberjobfile yes)
+      (dashed_line_dash_ratio 12.0)
+      (dashed_line_gap_ratio 3.0)
+      (svgprecision 4)
+      (plotframeref no)
+      (viasonmask no)
+      (mode 1)
+      (useauxorigin no)
+      (hpglpennumber 1)
+      (hpglpenspeed 20)
+      (hpglpendiameter 15.0)
+      (pdf_front_fp_property_popups yes)
+      (pdf_back_fp_property_popups yes)
+      (dxfpolygonmode yes)
+      (dxfimperialunits yes)
+      (dxfusepcbnewfont yes)
+      (psnegative no)
+      (psa4output no)
+      (plotreference yes)
+      (plotvalue yes)
+      (plotfptext yes)
+      (plotinvisibletext no)
+      (sketchpadsonfab no)
+      (subtractmaskfromsilk no)
+      (outputformat 1)
+      (mirror no)
+      (drillshape 1)
+      (scaleselection 1)
+      (outputdirectory "gerbers/")
+    )
+  )
+  (net 0 "")
+  (net 1 "+3V3")
+  (net 2 "GND")
+  (net 3 "+VBUS")
+  (net 4 "+VBAT")
+  (net 5 "I2S0_SCK")
+  (net 6 "I2S0_LRCK")
+  (net 7 "I2S0_SDIN")
+  (net 8 "I2S0_MCK")
+  (net 9 "I2S1_SCK")
+  (net 10 "I2S1_LRCK")
+  (net 11 "I2S1_SDOUT")
+  (net 12 "I2S1_MCK")
+  (net 13 "SPI_MOSI")
+  (net 14 "SPI_MISO")
+  (net 15 "SPI_SCLK")
+  (net 16 "SPI_CS")
+  (net 17 "UWB_IRQ")
+  (net 18 "UWB_RST")
+  (net 19 "I2C_SDA")
+  (net 20 "I2C_SCL")
+  (net 21 "AMP_BCK")
+  (net 22 "AMP_LRCK")
+  (net 23 "AMP_DIN")
+  (net 24 "AMP_SD")
+  (net 25 "LED_DATA")
+  (net 26 "BTN")
+  (net 27 "USB_D+")
+  (net 28 "USB_D-")
+  (net 29 "UWB_ANT")
+  (net 30 "BLE_ANT")
+  (net 31 "LINE_TIP")
+  (net 32 "LINE_GND")
+  (net 33 "SPK_OUT+")
+  (net 34 "SPK_OUT-")
+  (net 35 "CC1")
+  (net 36 "CC2")
+  (net 37 "XTAL_32M_1")
+  (net 38 "XTAL_32M_2")
+  (net 39 "XTAL_32K_1")
+  (net 40 "XTAL_32K_2")
+  (net 41 "BUCK1_LX")
+
+  ;; ── Board outline (45x30mm with 1mm corner radius) ──
+  (gr_arc (start 1 0) (mid 0.293 0.293) (end 0 1) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 1 0) (end 44 0) (layer "Edge.Cuts") (width 0.1))
+  (gr_arc (start 45 1) (mid 44.707 0.293) (end 44 0) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 45 1) (end 45 29) (layer "Edge.Cuts") (width 0.1))
+  (gr_arc (start 44 30) (mid 44.707 29.707) (end 45 29) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 44 30) (end 1 30) (layer "Edge.Cuts") (width 0.1))
+  (gr_arc (start 0 29) (mid 0.293 29.707) (end 1 30) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 0 29) (end 0 1) (layer "Edge.Cuts") (width 0.1))
+
+  ;; ── U1: nRF5340-QKAA (QFN-94, 7x7mm) at (14, 14) ──
+  (footprint "Package_QFN:QFN-94-1EP_7x7mm_P0.4mm"
+    (layer "F.Cu")
+    (uuid "c0000001-0000-0000-0000-000000000001")
+    (at 14.0 14.0)
+    (property "Reference" "U1" (at 0 -5.5 0) (layer "F.SilkS") (uuid "d0000001-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "nRF5340-QKAA" (at 0 5.5 0) (layer "F.Fab") (uuid "d0000001-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_QFN:QFN-94-1EP_7x7mm_P0.4mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000001-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -3.75 -3.75) (end 3.75 -3.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 3.75 -3.75) (end 3.75 3.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 3.75 3.75) (end -3.75 3.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -3.75 3.75) (end -3.75 -3.75) (layer "F.SilkS") (width 0.12))
+    (fp_circle (center -3.2 -3.2) (end -3.0 -3.2) (layer "F.SilkS") (width 0.12))
+    ;; Exposed thermal pad
+    (pad "95" smd rect (at 0 0) (size 5.0 5.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── U2: DW3720 (QFN-48, 6.5x6.5mm) at (33, 8) ──
+  (footprint "Package_QFN:QFN-48-1EP_6.5x6.5mm_P0.5mm"
+    (layer "F.Cu")
+    (uuid "c0000002-0000-0000-0000-000000000001")
+    (at 33.0 8.0)
+    (property "Reference" "U2" (at 0 -5.0 0) (layer "F.SilkS") (uuid "d0000002-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "DW3720" (at 0 5.0 0) (layer "F.Fab") (uuid "d0000002-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_QFN:QFN-48-1EP_6.5x6.5mm_P0.5mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000002-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -3.5 -3.5) (end 3.5 -3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 3.5 -3.5) (end 3.5 3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 3.5 3.5) (end -3.5 3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -3.5 3.5) (end -3.5 -3.5) (layer "F.SilkS") (width 0.12))
+    (pad "49" smd rect (at 0 0) (size 4.0 4.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── U3: AK5720 (SSOP-16, 5.3x6.2mm) at (10, 25) ──
+  (footprint "Package_SO:SSOP-16_5.3x6.2mm_P0.65mm"
+    (layer "F.Cu")
+    (uuid "c0000003-0000-0000-0000-000000000001")
+    (at 10.0 25.0)
+    (property "Reference" "U3" (at 0 -4.5 0) (layer "F.SilkS") (uuid "d0000003-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "AK5720VT" (at 0 4.5 0) (layer "F.Fab") (uuid "d0000003-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_SO:SSOP-16_5.3x6.2mm_P0.65mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000003-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -2.85 -3.35) (end 2.85 -3.35) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.85 -3.35) (end 2.85 3.35) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.85 3.35) (end -2.85 3.35) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -2.85 3.35) (end -2.85 -3.35) (layer "F.SilkS") (width 0.12))
+  )
+
+  ;; ── U4: PCM5102A (TSSOP-20) at (22.5, 25) ──
+  (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm"
+    (layer "F.Cu")
+    (uuid "c0000004-0000-0000-0000-000000000001")
+    (at 22.5 25.0)
+    (property "Reference" "U4" (at 0 -5.0 0) (layer "F.SilkS") (uuid "d0000004-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "PCM5102A" (at 0 5.0 0) (layer "F.Fab") (uuid "d0000004-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000004-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -2.45 -3.5) (end 2.45 -3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.45 -3.5) (end 2.45 3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.45 3.5) (end -2.45 3.5) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -2.45 3.5) (end -2.45 -3.5) (layer "F.SilkS") (width 0.12))
+  )
+
+  ;; ── U5: MAX98357A (QFN-16, 3x3mm) at (34, 25) ──
+  (footprint "Package_QFN:QFN-16-1EP_3x3mm_P0.5mm"
+    (layer "F.Cu")
+    (uuid "c0000005-0000-0000-0000-000000000001")
+    (at 34.0 25.0)
+    (property "Reference" "U5" (at 0 -3.0 0) (layer "F.SilkS") (uuid "d0000005-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "MAX98357A" (at 0 3.0 0) (layer "F.Fab") (uuid "d0000005-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_QFN:QFN-16-1EP_3x3mm_P0.5mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000005-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -1.75 -1.75) (end 1.75 -1.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 1.75 -1.75) (end 1.75 1.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 1.75 1.75) (end -1.75 1.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -1.75 1.75) (end -1.75 -1.75) (layer "F.SilkS") (width 0.12))
+    (pad "17" smd rect (at 0 0) (size 1.7 1.7) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── U6: nPM1300 (QFN-32, 5x5mm) at (22.5, 5) ──
+  (footprint "Package_QFN:QFN-32-1EP_5x5mm_P0.5mm"
+    (layer "F.Cu")
+    (uuid "c0000006-0000-0000-0000-000000000001")
+    (at 22.5 5.0)
+    (property "Reference" "U6" (at 0 -4.0 0) (layer "F.SilkS") (uuid "d0000006-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "nPM1300" (at 0 4.0 0) (layer "F.Fab") (uuid "d0000006-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Footprint" "Package_QFN:QFN-32-1EP_5x5mm_P0.5mm" (at 0 0 0) (layer "F.Fab") (uuid "d0000006-0003") (effects (font (size 1.27 1.27)) hide))
+    (fp_line (start -2.75 -2.75) (end 2.75 -2.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.75 -2.75) (end 2.75 2.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start 2.75 2.75) (end -2.75 2.75) (layer "F.SilkS") (width 0.12))
+    (fp_line (start -2.75 2.75) (end -2.75 -2.75) (layer "F.SilkS") (width 0.12))
+    (pad "33" smd rect (at 0 0) (size 3.2 3.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── Y1: 32MHz Crystal at (10, 10) ──
+  (footprint "Crystal:Crystal_SMD_2012-2Pin_2.0x1.2mm"
+    (layer "F.Cu")
+    (uuid "c0000007-0000-0000-0000-000000000001")
+    (at 10.0 10.0)
+    (property "Reference" "Y1" (at 0 -1.5 0) (layer "F.SilkS") (uuid "d0000007-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "32MHz" (at 0 1.5 0) (layer "F.Fab") (uuid "d0000007-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.7 0) (size 0.5 0.9) (layers "F.Cu" "F.Paste" "F.Mask") (net 37 "XTAL_32M_1"))
+    (pad "2" smd rect (at 0.7 0) (size 0.5 0.9) (layers "F.Cu" "F.Paste" "F.Mask") (net 38 "XTAL_32M_2"))
+  )
+
+  ;; ── Y2: 32.768kHz Crystal at (10, 12) ──
+  (footprint "Crystal:Crystal_SMD_1610-2Pin_1.6x1.0mm"
+    (layer "F.Cu")
+    (uuid "c0000008-0000-0000-0000-000000000001")
+    (at 10.0 12.0)
+    (property "Reference" "Y2" (at 0 -1.2 0) (layer "F.SilkS") (uuid "d0000008-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "32.768kHz" (at 0 1.2 0) (layer "F.Fab") (uuid "d0000008-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.55 0) (size 0.4 0.7) (layers "F.Cu" "F.Paste" "F.Mask") (net 39 "XTAL_32K_1"))
+    (pad "2" smd rect (at 0.55 0) (size 0.4 0.7) (layers "F.Cu" "F.Paste" "F.Mask") (net 40 "XTAL_32K_2"))
+  )
+
+  ;; ── J1: USB-C at (22.5, 1.5) ──
+  (footprint "Connector_USB:USB_C_Receptacle_USB2.0"
+    (layer "F.Cu")
+    (uuid "c0000009-0000-0000-0000-000000000001")
+    (at 22.5 1.5)
+    (property "Reference" "J1" (at 0 -3.5 0) (layer "F.SilkS") (uuid "d0000009-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "USB-C" (at 0 3.5 0) (layer "F.Fab") (uuid "d0000009-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (pad "V1" smd rect (at -2.75 -1.0) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 3 "+VBUS"))
+    (pad "V2" smd rect (at 2.75 -1.0) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 3 "+VBUS"))
+    (pad "D-" smd rect (at -0.25 -1.0) (size 0.3 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 28 "USB_D-"))
+    (pad "D+" smd rect (at 0.25 -1.0) (size 0.3 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 27 "USB_D+"))
+    (pad "CC1" smd rect (at -1.75 -1.0) (size 0.3 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 35 "CC1"))
+    (pad "CC2" smd rect (at 1.75 -1.0) (size 0.3 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 36 "CC2"))
+    (pad "G1" smd rect (at -3.5 -1.0) (size 0.5 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "G2" smd rect (at 3.5 -1.0) (size 0.5 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "S1" smd rect (at -4.15 0.5) (size 0.6 1.6) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "S2" smd rect (at 4.15 0.5) (size 0.6 1.6) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── J2: 3.5mm TRS Jack at (1.5, 15) rotated 90 ──
+  (footprint "Connector_Audio:AudioJack3_SJ_CUI_SJ-3523-SMT"
+    (layer "F.Cu")
+    (uuid "c000000a-0000-0000-0000-000000000001")
+    (at 1.5 15.0 90)
+    (property "Reference" "J2" (at 0 -5.0 90) (layer "F.SilkS") (uuid "d000000a-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "PJ-320A" (at 0 5.0 90) (layer "F.Fab") (uuid "d000000a-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (pad "1" thru_hole circle (at -3.0 -2.5) (size 1.5 1.5) (drill 1.0) (layers "*.Cu" "*.Mask") (net 31 "LINE_TIP"))
+    (pad "2" thru_hole circle (at 3.0 -2.5) (size 1.5 1.5) (drill 1.0) (layers "*.Cu" "*.Mask") (net 0 ""))
+    (pad "3" thru_hole circle (at 0.0 3.0) (size 1.5 1.5) (drill 1.0) (layers "*.Cu" "*.Mask") (net 2 "GND"))
+  )
+
+  ;; ── J3: SMA (UWB antenna) at (42, 4) ──
+  (footprint "Connector_Coaxial:SMA_Amphenol_132289_EdgeMount"
+    (layer "F.Cu")
+    (uuid "c000000b-0000-0000-0000-000000000001")
+    (at 42.0 4.0)
+    (property "Reference" "J3" (at 0 -4.0 0) (layer "F.SilkS") (uuid "d000000b-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "SMA_UWB" (at 0 4.0 0) (layer "F.Fab") (uuid "d000000b-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (pad "1" smd rect (at 0 0) (size 1.5 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 29 "UWB_ANT"))
+    (pad "2" smd rect (at -2.54 0) (size 2.0 2.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "3" smd rect (at 2.54 0) (size 2.0 2.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── J4: PCB BLE Antenna at (40, 27) ──
+  (footprint "RF_Antenna:Texas_SWRA117D_2.4GHz_Right"
+    (layer "F.Cu")
+    (uuid "c000000c-0000-0000-0000-000000000001")
+    (at 40.0 27.0)
+    (property "Reference" "J4" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d000000c-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "BLE_ANT" (at 0 2.5 0) (layer "F.Fab") (uuid "d000000c-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at 0 0) (size 0.8 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (net 30 "BLE_ANT"))
+  )
+
+  ;; ── D1: WS2812B-2020 LED at (7, 7) ──
+  (footprint "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
+    (layer "F.Cu")
+    (uuid "c000000d-0000-0000-0000-000000000001")
+    (at 7.0 7.0)
+    (property "Reference" "D1" (at 0 -1.8 0) (layer "F.SilkS") (uuid "d000000d-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "WS2812B" (at 0 1.8 0) (layer "F.Fab") (uuid "d000000d-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.65 -0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.65 -0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 25 "LED_DATA"))
+    (pad "3" smd rect (at 0.65 0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "4" smd rect (at -0.65 0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+
+  ;; ── D2: WS2812B-2020 LED at (7, 4) ──
+  (footprint "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
+    (layer "F.Cu")
+    (uuid "c000000e-0000-0000-0000-000000000001")
+    (at 7.0 4.0)
+    (property "Reference" "D2" (at 0 -1.8 0) (layer "F.SilkS") (uuid "d000000e-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "WS2812B" (at 0 1.8 0) (layer "F.Fab") (uuid "d000000e-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.65 -0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.65 -0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+    (pad "3" smd rect (at 0.65 0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "4" smd rect (at -0.65 0.55) (size 0.5 0.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+
+  ;; ── SW1: Tactile button at (3.5, 25) ──
+  (footprint "Button_Switch_SMD:SW_SPST_CK_RS282G05A3"
+    (layer "F.Cu")
+    (uuid "c000000f-0000-0000-0000-000000000001")
+    (at 3.5 25.0)
+    (property "Reference" "SW1" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d000000f-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "BTN" (at 0 2.5 0) (layer "F.Fab") (uuid "d000000f-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -2.0 0) (size 1.0 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (net 26 "BTN"))
+    (pad "2" smd rect (at 2.0 0) (size 1.0 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── BT1: JST-PH battery connector at (42, 15) ──
+  (footprint "Connector_JST:JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal"
+    (layer "F.Cu")
+    (uuid "c0000010-0000-0000-0000-000000000001")
+    (at 42.0 15.0)
+    (property "Reference" "BT1" (at 0 -3.5 0) (layer "F.SilkS") (uuid "d0000010-0001") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (property "Value" "LiPo_800mAh" (at 0 3.5 0) (layer "F.Fab") (uuid "d0000010-0002") (effects (font (size 0.8 0.8) (thickness 0.12))))
+    (pad "1" smd rect (at -1.0 0) (size 1.0 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 4 "+VBAT"))
+    (pad "2" smd rect (at 1.0 0) (size 1.0 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── SPK1: Speaker connector at (42, 21) ──
+  (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    (layer "F.Cu")
+    (uuid "c0000011-0000-0000-0000-000000000001")
+    (at 42.0 21.0)
+    (property "Reference" "SPK1" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d0000011-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "Speaker" (at 0 2.5 0) (layer "F.Fab") (uuid "d0000011-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -1.0 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 33 "SPK_OUT+"))
+    (pad "2" smd rect (at 1.0 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 34 "SPK_OUT-"))
+  )
+
+  ;; ── Mounting holes ──
+  (footprint "MountingHole:MountingHole_2.2mm_M2_Pad"
+    (layer "F.Cu")
+    (uuid "c0000012-0000-0000-0000-000000000001")
+    (at 2.5 2.5)
+    (property "Reference" "MH1" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d0000012-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "M2" (at 0 2.5 0) (layer "F.Fab") (uuid "d0000012-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 2.2) (layers "*.Cu" "*.Mask") (net 2 "GND"))
+  )
+  (footprint "MountingHole:MountingHole_2.2mm_M2_Pad"
+    (layer "F.Cu")
+    (uuid "c0000013-0000-0000-0000-000000000001")
+    (at 42.5 2.5)
+    (property "Reference" "MH2" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d0000013-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "M2" (at 0 2.5 0) (layer "F.Fab") (uuid "d0000013-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 2.2) (layers "*.Cu" "*.Mask") (net 2 "GND"))
+  )
+  (footprint "MountingHole:MountingHole_2.2mm_M2_Pad"
+    (layer "F.Cu")
+    (uuid "c0000014-0000-0000-0000-000000000001")
+    (at 2.5 27.5)
+    (property "Reference" "MH3" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d0000014-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "M2" (at 0 2.5 0) (layer "F.Fab") (uuid "d0000014-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 2.2) (layers "*.Cu" "*.Mask") (net 2 "GND"))
+  )
+  (footprint "MountingHole:MountingHole_2.2mm_M2_Pad"
+    (layer "F.Cu")
+    (uuid "c0000015-0000-0000-0000-000000000001")
+    (at 42.5 27.5)
+    (property "Reference" "MH4" (at 0 -2.5 0) (layer "F.SilkS") (uuid "d0000015-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "M2" (at 0 2.5 0) (layer "F.Fab") (uuid "d0000015-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 2.2) (layers "*.Cu" "*.Mask") (net 2 "GND"))
+  )
+
+  ;; ── L1: 10uH inductor at (22.5, 8.5) ──
+  (footprint "Inductor_SMD:L_0805_2012Metric"
+    (layer "F.Cu")
+    (uuid "c0000016-0000-0000-0000-000000000001")
+    (at 22.5 8.5)
+    (property "Reference" "L1" (at 0 -1.5 0) (layer "F.SilkS") (uuid "d0000016-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "10uH" (at 0 1.5 0) (layer "F.Fab") (uuid "d0000016-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.95 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 41 "BUCK1_LX"))
+    (pad "2" smd rect (at 0.95 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+  )
+
+  ;; ── L2: 4.7uH inductor at (27.5, 8.5) ──
+  (footprint "Inductor_SMD:L_0805_2012Metric"
+    (layer "F.Cu")
+    (uuid "c0000017-0000-0000-0000-000000000001")
+    (at 27.5 8.5)
+    (property "Reference" "L2" (at 0 -1.5 0) (layer "F.SilkS") (uuid "d0000017-0001") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (property "Value" "4.7uH" (at 0 1.5 0) (layer "F.Fab") (uuid "d0000017-0002") (effects (font (size 0.6 0.6) (thickness 0.1))))
+    (pad "1" smd rect (at -0.95 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 4 "+VBAT"))
+    (pad "2" smd rect (at 0.95 0) (size 1.0 1.2) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+  )
+
+  ;; ── Decoupling capacitors (0402 = 1.0x0.5mm) ──
+  ;; C1: 100nF nRF5340 bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000020-0000-0000-0000-000000000001") (at 11.0 16.5)
+    (property "Reference" "C1" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000020-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "100nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000020-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C2: 100nF nRF5340 bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000021-0000-0000-0000-000000000001") (at 17.0 16.5)
+    (property "Reference" "C2" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000021-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "100nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000021-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C3: 10uF nRF5340 bulk
+  (footprint "Capacitor_SMD:C_0603_1608Metric"
+    (layer "F.Cu") (uuid "c0000022-0000-0000-0000-000000000001") (at 11.0 18.0)
+    (property "Reference" "C3" (at 0 -1.2 0) (layer "F.SilkS") (uuid "d0000022-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10uF" (at 0 1.2 0) (layer "F.Fab") (uuid "d0000022-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C4: 1uF nRF5340
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000023-0000-0000-0000-000000000001") (at 17.0 18.0)
+    (property "Reference" "C4" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000023-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "1uF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000023-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C5: 100nF DW3720 bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000024-0000-0000-0000-000000000001") (at 30.0 4.0)
+    (property "Reference" "C5" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000024-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "100nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000024-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C6: 10nF DW3720
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000025-0000-0000-0000-000000000001") (at 36.0 4.0)
+    (property "Reference" "C6" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000025-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000025-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C7: 100nF AK5720 bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000026-0000-0000-0000-000000000001") (at 7.5 23.0)
+    (property "Reference" "C7" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000026-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "100nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000026-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C8: 10uF AK5720 bulk
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000027-0000-0000-0000-000000000001") (at 12.5 23.0)
+    (property "Reference" "C8" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000027-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10uF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000027-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C9: 100nF PCM5102A bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000028-0000-0000-0000-000000000001") (at 20.0 22.0)
+    (property "Reference" "C9" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000028-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "100nF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000028-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C10: 10uF PCM5102A bulk
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000029-0000-0000-0000-000000000001") (at 25.0 22.0)
+    (property "Reference" "C10" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000029-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10uF" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000029-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C11: 10uF MAX98357 bypass
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c000002a-0000-0000-0000-000000000001") (at 31.5 23.0)
+    (property "Reference" "C11" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d000002a-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10uF" (at 0 1.0 0) (layer "F.Fab") (uuid "d000002a-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C12: 10uF nPM1300 input
+  (footprint "Capacitor_SMD:C_0603_1608Metric"
+    (layer "F.Cu") (uuid "c000002b-0000-0000-0000-000000000001") (at 19.0 3.0)
+    (property "Reference" "C12" (at 0 -1.2 0) (layer "F.SilkS") (uuid "d000002b-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10uF" (at 0 1.2 0) (layer "F.Fab") (uuid "d000002b-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 3 "+VBUS"))
+    (pad "2" smd rect (at 0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C13: 22uF nPM1300 output
+  (footprint "Capacitor_SMD:C_0603_1608Metric"
+    (layer "F.Cu") (uuid "c000002c-0000-0000-0000-000000000001") (at 26.0 3.0)
+    (property "Reference" "C13" (at 0 -1.2 0) (layer "F.SilkS") (uuid "d000002c-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "22uF" (at 0 1.2 0) (layer "F.Fab") (uuid "d000002c-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.75 0) (size 0.8 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C14: 12pF crystal load cap (32MHz)
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c000002d-0000-0000-0000-000000000001") (at 9.0 9.0)
+    (property "Reference" "C14" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d000002d-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "12pF" (at 0 1.0 0) (layer "F.Fab") (uuid "d000002d-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 37 "XTAL_32M_1"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; C15: 12pF crystal load cap (32MHz)
+  (footprint "Capacitor_SMD:C_0402_1005Metric"
+    (layer "F.Cu") (uuid "c000002e-0000-0000-0000-000000000001") (at 11.0 9.0)
+    (property "Reference" "C15" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d000002e-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "12pF" (at 0 1.0 0) (layer "F.Fab") (uuid "d000002e-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 38 "XTAL_32M_2"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+
+  ;; ── Resistors ──
+  ;; R1: 5.1k USB CC1 pull-down
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000030-0000-0000-0000-000000000001") (at 19.5 5.0 90)
+    (property "Reference" "R1" (at 0 -1.0 90) (layer "F.SilkS") (uuid "d0000030-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "5.1k" (at 0 1.0 90) (layer "F.Fab") (uuid "d0000030-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 35 "CC1"))
+    (pad "2" smd rect (at 0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; R2: 5.1k USB CC2 pull-down
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000031-0000-0000-0000-000000000001") (at 25.5 5.0 90)
+    (property "Reference" "R2" (at 0 -1.0 90) (layer "F.SilkS") (uuid "d0000031-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "5.1k" (at 0 1.0 90) (layer "F.Fab") (uuid "d0000031-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 36 "CC2"))
+    (pad "2" smd rect (at 0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+  )
+  ;; R3: 330R LED data
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000032-0000-0000-0000-000000000001") (at 7.0 9.5 90)
+    (property "Reference" "R3" (at 0 -1.0 90) (layer "F.SilkS") (uuid "d0000032-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "330R" (at 0 1.0 90) (layer "F.Fab") (uuid "d0000032-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 25 "LED_DATA"))
+    (pad "2" smd rect (at 0.48 0 90) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+  ;; R4: 4.7k I2C SDA pull-up
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000033-0000-0000-0000-000000000001") (at 14.0 8.0)
+    (property "Reference" "R4" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000033-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "4.7k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000033-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 19 "I2C_SDA"))
+  )
+  ;; R5: 4.7k I2C SCL pull-up
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000034-0000-0000-0000-000000000001") (at 14.0 9.5)
+    (property "Reference" "R5" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000034-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "4.7k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000034-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 20 "I2C_SCL"))
+  )
+  ;; R6: 10k AK5720 format select
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000035-0000-0000-0000-000000000001") (at 7.5 27.0)
+    (property "Reference" "R6" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000035-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000035-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+  ;; R7: 10k PCM5102A FMT pull-down
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000036-0000-0000-0000-000000000001") (at 20.0 28.0)
+    (property "Reference" "R7" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000036-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000036-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+  ;; R8: 10k PCM5102A DEMP pull-down
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000037-0000-0000-0000-000000000001") (at 25.0 28.0)
+    (property "Reference" "R8" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000037-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000037-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "GND"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 ""))
+  )
+  ;; R9: 10k button pull-up
+  (footprint "Resistor_SMD:R_0402_1005Metric"
+    (layer "F.Cu") (uuid "c0000038-0000-0000-0000-000000000001") (at 3.5 22.5)
+    (property "Reference" "R9" (at 0 -1.0 0) (layer "F.SilkS") (uuid "d0000038-0001") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (property "Value" "10k" (at 0 1.0 0) (layer "F.Fab") (uuid "d0000038-0002") (effects (font (size 0.5 0.5) (thickness 0.08))))
+    (pad "1" smd rect (at -0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "+3V3"))
+    (pad "2" smd rect (at 0.48 0) (size 0.56 0.62) (layers "F.Cu" "F.Paste" "F.Mask") (net 26 "BTN"))
+  )
+
+  ;; ── Traces (key signal routes on F.Cu) ──
+
+  ;; VBUS: USB-C → nPM1300
+  (segment (start 22.5 1.5) (end 22.5 5.0) (width 0.4) (layer "F.Cu") (net 3))
+
+  ;; +3V3 distribution from nPM1300 output
+  (segment (start 22.5 5.0) (end 22.5 8.5) (width 0.4) (layer "F.Cu") (net 1))
+  (segment (start 22.5 8.5) (end 14.0 8.5) (width 0.4) (layer "F.Cu") (net 1))
+  (segment (start 14.0 8.5) (end 14.0 14.0) (width 0.4) (layer "F.Cu") (net 1))
+  (segment (start 14.0 14.0) (end 10.0 14.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 10.0 14.0) (end 10.0 25.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 14.0 14.0) (end 22.5 14.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 22.5 14.0) (end 22.5 25.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 22.5 14.0) (end 33.0 14.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 33.0 14.0) (end 33.0 8.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 33.0 14.0) (end 34.0 14.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 34.0 14.0) (end 34.0 25.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 10.0 14.0) (end 7.0 7.0) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 7.0 7.0) (end 7.0 4.0) (width 0.25) (layer "F.Cu") (net 1))
+
+  ;; Battery → PMIC
+  (segment (start 42.0 15.0) (end 35.0 10.0) (width 0.4) (layer "F.Cu") (net 4))
+  (segment (start 35.0 10.0) (end 27.5 8.5) (width 0.4) (layer "F.Cu") (net 4))
+
+  ;; SPI3: nRF5340 → DW3720
+  (segment (start 17.5 13.0) (end 29.75 6.5) (width 0.15) (layer "F.Cu") (net 13))
+  (segment (start 17.5 13.4) (end 29.75 7.0) (width 0.15) (layer "F.Cu") (net 14))
+  (segment (start 17.5 13.8) (end 29.75 7.5) (width 0.15) (layer "F.Cu") (net 15))
+  (segment (start 17.5 14.2) (end 29.75 8.0) (width 0.15) (layer "F.Cu") (net 16))
+  (segment (start 17.5 14.6) (end 29.75 8.5) (width 0.15) (layer "F.Cu") (net 17))
+  (segment (start 17.5 15.0) (end 29.75 9.0) (width 0.15) (layer "F.Cu") (net 18))
+
+  ;; I2S0: nRF5340 → AK5720
+  (segment (start 10.5 12.0) (end 12.65 23.4) (width 0.15) (layer "F.Cu") (net 5))
+  (segment (start 10.5 12.4) (end 12.65 24.05) (width 0.15) (layer "F.Cu") (net 6))
+  (segment (start 10.5 12.8) (end 12.65 24.7) (width 0.15) (layer "F.Cu") (net 7))
+  (segment (start 10.5 13.2) (end 12.65 25.35) (width 0.15) (layer "F.Cu") (net 8))
+
+  ;; I2S1: nRF5340 → PCM5102A
+  (segment (start 17.5 15.4) (end 19.25 23.7) (width 0.15) (layer "F.Cu") (net 9))
+  (segment (start 17.5 15.8) (end 19.25 24.35) (width 0.15) (layer "F.Cu") (net 10))
+  (segment (start 17.5 16.2) (end 19.25 25.0) (width 0.15) (layer "F.Cu") (net 11))
+  (segment (start 17.5 16.6) (end 19.25 25.65) (width 0.15) (layer "F.Cu") (net 12))
+
+  ;; AMP I2S: nRF5340 → MAX98357A
+  (segment (start 17.5 17.0) (end 32.5 24.25) (width 0.15) (layer "F.Cu") (net 21))
+  (segment (start 17.5 17.4) (end 32.5 24.75) (width 0.15) (layer "F.Cu") (net 22))
+  (segment (start 17.5 17.8) (end 32.5 25.25) (width 0.15) (layer "F.Cu") (net 23))
+  (segment (start 17.5 18.2) (end 32.5 25.75) (width 0.15) (layer "F.Cu") (net 24))
+
+  ;; I2C1: nRF5340 → nPM1300
+  (segment (start 10.5 14.4) (end 20.0 4.75) (width 0.15) (layer "F.Cu") (net 19))
+  (segment (start 10.5 14.8) (end 20.0 5.25) (width 0.15) (layer "F.Cu") (net 20))
+
+  ;; Speaker amp → speaker connector
+  (segment (start 35.5 25.75) (end 42.0 21.0) (width 0.25) (layer "F.Cu") (net 33))
+
+  ;; LED chain
+  (segment (start 10.5 15.2) (end 7.0 9.5) (width 0.15) (layer "F.Cu") (net 25))
+  (segment (start 7.0 9.5) (end 7.0 7.0) (width 0.15) (layer "F.Cu") (net 25))
+  (segment (start 7.65 6.45) (end 6.35 4.55) (width 0.15) (layer "F.Cu") (net 0))
+
+  ;; Button
+  (segment (start 10.5 14.0) (end 5.5 25.0) (width 0.15) (layer "F.Cu") (net 26))
+
+  ;; UWB antenna (50 ohm microstrip)
+  (segment (start 36.25 5.25) (end 39.0 4.0) (width 0.15) (layer "F.Cu") (net 29))
+  (segment (start 39.0 4.0) (end 42.0 4.0) (width 0.15) (layer "F.Cu") (net 29))
+
+  ;; BLE antenna
+  (segment (start 17.5 18.6) (end 40.0 27.0) (width 0.15) (layer "F.Cu") (net 30))
+
+  ;; Crystal connections
+  (segment (start 10.0 10.0) (end 10.5 10.8) (width 0.15) (layer "F.Cu") (net 37))
+  (segment (start 10.0 12.0) (end 10.5 11.2) (width 0.15) (layer "F.Cu") (net 39))
+
+  ;; USB data
+  (segment (start 10.5 16.4) (end 22.75 1.5) (width 0.15) (layer "F.Cu") (net 27))
+  (segment (start 10.5 16.8) (end 22.25 1.5) (width 0.15) (layer "F.Cu") (net 28))
+
+  ;; CC pull-downs
+  (segment (start 19.5 5.0) (end 20.75 1.5) (width 0.15) (layer "F.Cu") (net 35))
+  (segment (start 25.5 5.0) (end 24.25 1.5) (width 0.15) (layer "F.Cu") (net 36))
+
+  ;; ── Vias (F.Cu ↔ B.Cu, GND stitching) ──
+  (via (at 5 5) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 22.5 5) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 40 5) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 5 15) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 22.5 15) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 40 15) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 5 25) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 22.5 25) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 40 25) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 14 10) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 33 10) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 14 20) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 33 20) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  ;; Extra GND vias near DW3720 thermal pad
+  (via (at 31 8) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 33 6) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 35 8) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  ;; Extra GND vias near nRF5340 thermal pad
+  (via (at 12 14) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 14 12) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 16 14) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+  (via (at 14 16) (size 0.5) (drill 0.25) (layers "F.Cu" "B.Cu") (net 2))
+
+  ;; ── Ground zone on In1.Cu (full board pour) ──
+  (zone (net 2) (net_name "GND") (layer "In1.Cu") (uuid "e0000001-0000-0000-0000-000000000001")
+    (hatch edge 0.5)
+    (connect_pads (clearance 0.2))
+    (min_thickness 0.15)
+    (fill yes (thermal_gap 0.3) (thermal_bridge_width 0.3))
+    (polygon
+      (pts
+        (xy 0 0) (xy 45 0) (xy 45 30) (xy 0 30)
+      )
+    )
+  )
+
+  ;; ── 3.3V zone on In2.Cu ──
+  (zone (net 1) (net_name "+3V3") (layer "In2.Cu") (uuid "e0000002-0000-0000-0000-000000000001")
+    (hatch edge 0.5)
+    (connect_pads (clearance 0.2))
+    (min_thickness 0.15)
+    (fill yes (thermal_gap 0.3) (thermal_bridge_width 0.3))
+    (polygon
+      (pts
+        (xy 0 0) (xy 45 0) (xy 45 30) (xy 0 30)
+      )
+    )
+  )
+
+  ;; ── Ground zone on B.Cu ──
+  (zone (net 2) (net_name "GND") (layer "B.Cu") (uuid "e0000003-0000-0000-0000-000000000001")
+    (hatch edge 0.5)
+    (connect_pads (clearance 0.2))
+    (min_thickness 0.15)
+    (fill yes (thermal_gap 0.3) (thermal_bridge_width 0.3))
+    (polygon
+      (pts
+        (xy 0 0) (xy 45 0) (xy 45 30) (xy 0 30)
+      )
+    )
+  )
+
+  ;; ── Silkscreen: board name ──
+  (gr_text "Koe Pro v2" (at 22.5 15 0) (layer "F.SilkS")
+    (effects (font (size 1.5 1.5) (thickness 0.2)) (justify center))
+  )
+  (gr_text "EnablerDAO" (at 22.5 17 0) (layer "F.SilkS")
+    (effects (font (size 0.8 0.8) (thickness 0.12)) (justify center))
+  )
+  (gr_text "45x30mm 4L" (at 22.5 28.5 0) (layer "B.SilkS")
+    (effects (font (size 0.8 0.8) (thickness 0.12)) (justify center mirror))
+  )
+)

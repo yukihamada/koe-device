@@ -12,6 +12,12 @@ primary_region = "nrt"
   source = "koe_data"
   destination = "/data"
 
+[[services]]
+  protocol = "udp"
+  internal_port = 4443
+  [[services.ports]]
+    port = 4443
+
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  size = "shared-cpu-2x"
+  memory = "512mb"
