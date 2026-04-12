@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe Sessions &mdash; Recording Consent</title>
+<meta name="description" content="Review and sign the Koe Sessions recording consent before your session begins.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav .back {
+    font-size: 0.75rem; font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    transition: color 0.15s;
+}
+nav .back:hover { color: rgba(255,255,255,0.8); }
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 7rem 1.5rem 5rem;
+    background:
+        radial-gradient(ellipse 70% 40% at center 20%, rgba(139,92,246,0.07) 0%, transparent 70%),
+        #0a0a0a;
+}
+
+.card {
+    width: 100%;
+    max-width: 520px;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.25);
+    padding: 0.4rem 0.9rem;
+    border-radius: 100px;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.7rem;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sub {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    margin-bottom: 2.8rem;
+    line-height: 1.55;
+}
+
+.terms {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 1.8rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.terms-title {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+}
+
+.terms ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.terms li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+}
+
+.terms li .icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.58rem;
+    color: #8B5CF6;
+}
+
+.terms .note {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    font-weight: 300;
+    line-height: 1.55;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: #e8e8e8;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.form-group input::placeholder { color: rgba(255,255,255,0.25); }
+.form-group input:focus { border-color: rgba(139,92,246,0.5); }
+
+.btn-agree {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: #8B5CF6;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+}
+.btn-agree:hover { background: #7c3aed; }
+.btn-agree:active { transform: scale(0.99); }
+.btn-agree:disabled { background: rgba(139,92,246,0.3); cursor: not-allowed; }
+
+.legal {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.25);
+    font-weight: 300;
+    line-height: 1.55;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* ---- Confirmation state ---- */
+.confirmed {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 0;
+}
+.confirmed.show { display: flex; }
+
+.check-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.12);
+    border: 1.5px solid rgba(139,92,246,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.8rem;
+    animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+    0%  { transform: scale(0.7); opacity: 0; }
+    70% { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.check-circle svg { width: 32px; height: 32px; }
+
+.confirmed h2 {
+    font-size: 1.5rem;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+    color: #fff;
+}
+
+.confirmed p {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 380px;
+    margin-bottom: 0.6rem;
+}
+
+.confirmed .disable-hint {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: rgba(139,92,246,0.9);
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    margin-top: 1.2rem;
+    line-height: 1.5;
+}
+
+/* ---- Error state ---- */
+.error-msg {
+    display: none;
+    font-size: 0.8rem;
+    color: #f87171;
+    margin-top: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    background: rgba(248,113,113,0.07);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 7px;
+}
+.error-msg.show { display: block; }
+
+/* ---- Expired / invalid token state ---- */
+.invalid {
+    text-align: center;
+    padding: 3rem 0;
+}
+.invalid h2 {
+    font-size: 1.3rem;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0.7rem;
+}
+.invalid p {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.35);
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+@media (max-width: 540px) {
+    .terms { padding: 1.4rem 1.2rem; }
+    nav { padding: 1rem 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+    <a class="logo" href="/">KOE</a>
+    <a class="back" href="/sessions">← Sessions</a>
+</nav>
+
+<div class="page">
+<div class="card" id="main-content">
+
+    <!-- Loading state -->
+    <div id="loading" style="text-align:center;padding:4rem 0;color:rgba(255,255,255,0.3);font-size:0.85rem;font-weight:300;">
+        Verifying your consent link&hellip;
+    </div>
+
+    <!-- Invalid / expired token -->
+    <div id="view-invalid" class="invalid" style="display:none;">
+        <h2>This link is no longer valid</h2>
+        <p>The consent link may have expired or already been used.<br>Ask your host for a new link.</p>
+    </div>
+
+    <!-- Consent form -->
+    <div id="view-form" style="display:none;">
+        <div class="badge">Recording Consent</div>
+        <h1>Before you play</h1>
+        <p class="sub">Read the terms below, enter your name, and tap&nbsp;&ldquo;I Agree&rdquo; to join the session.</p>
+
+        <div class="terms">
+            <div class="terms-title">What Koe records</div>
+            <ul>
+                <li>
+                    <span class="icon">&#9835;</span>
+                    <span>Music only &mdash; not conversation, voice, or any other ambient sound</span>
+                </li>
+                <li>
+                    <span class="icon">&#9654;</span>
+                    <span>Multi-track audio at 48 kHz, written to local storage on the Koe Hub in your space</span>
+                </li>
+                <li>
+                    <span class="icon">&#128274;</span>
+                    <span>Recordings are stored locally only &mdash; never uploaded to any cloud without explicit permission</span>
+                </li>
+                <li>
+                    <span class="icon">&#128465;</span>
+                    <span>Auto-deleted after 30 days unless the performing artist chooses to preserve them</span>
+                </li>
+                <li>
+                    <span class="icon">&#127918;</span>
+                    <span>You can disable recording at any time, instantly, by touching any Stone device in the room</span>
+                </li>
+                <li>
+                    <span class="icon">&#127926;</span>
+                    <span>All recordings belong solely to the performing artist &mdash; not to Koe or the property owner</span>
+                </li>
+            </ul>
+            <p class="note">
+                Koe does not sell, license, or share recordings. Consent applies only to the current session period and the
+                property listed in your invitation. You may revoke consent at any time by touching any Stone or contacting
+                your host.
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="guest-name">Your name</label>
+            <input type="text" id="guest-name" name="name" placeholder="e.g. Alex Rivera" autocomplete="given-name" maxlength="120">
+        </div>
+        <div class="form-group">
+            <label for="guest-email">Email <span style="color:rgba(255,255,255,0.25);font-size:0.9em;">(optional)</span></label>
+            <input type="email" id="guest-email" name="email" placeholder="you@example.com" autocomplete="email" maxlength="200">
+        </div>
+
+        <button class="btn-agree" id="btn-agree" onclick="submitConsent()">I Agree &mdash; Start the Session</button>
+        <div id="error-msg" class="error-msg"></div>
+
+        <p class="legal">
+            By tapping &ldquo;I Agree&rdquo; you confirm you have read and understood the terms above.
+            Powered by <a href="https://koe.live" style="color:rgba(139,92,246,0.7);">Koe</a> &amp; PON digital consent.
+        </p>
+    </div>
+
+    <!-- Already consented -->
+    <div id="view-already" style="display:none;text-align:center;padding:2.5rem 0;">
+        <div class="badge" style="margin-bottom:1.5rem;">Consent Recorded</div>
+        <p style="font-size:1rem;font-weight:200;color:rgba(255,255,255,0.7);margin-bottom:0.5rem;">
+            You have already signed the consent for this session.
+        </p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.35);font-weight:300;line-height:1.6;">
+            Touch any Stone device to disable recording at any time.
+        </p>
+    </div>
+
+    <!-- Confirmation -->
+    <div id="view-confirmed" class="confirmed">
+        <div class="check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </div>
+        <h2>You&rsquo;re in</h2>
+        <p>Your consent has been recorded. The session can now begin.</p>
+        <p>Your name will appear on the session timeline.</p>
+        <div class="disable-hint">
+            To disable recording at any time,<br>just touch any Stone device in the room.
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+(function () {
+    // Extract token from path: /consent/:token
+    const token = location.pathname.split('/').filter(Boolean).pop();
+
+    if (!token || token === 'consent') {
+        showView('invalid');
+        return;
+    }
+
+    // Verify the token is valid
+    fetch('/api/v1/consent/' + token)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error || data.status === 'invalid') {
+                showView('invalid');
+            } else if (data.status === 'consented') {
+                showView('already');
+            } else {
+                showView('form');
+            }
+        })
+        .catch(() => showView('form')); // If check fails, show form anyway
+
+    window.submitConsent = function () {
+        const name = document.getElementById('guest-name').value.trim();
+        const email = document.getElementById('guest-email').value.trim();
+        const errEl = document.getElementById('error-msg');
+
+        if (!name) {
+            errEl.textContent = 'Please enter your name to continue.';
+            errEl.classList.add('show');
+            return;
+        }
+
+        errEl.classList.remove('show');
+        const btn = document.getElementById('btn-agree');
+        btn.disabled = true;
+        btn.textContent = 'Signing\u2026';
+
+        fetch('/api/v1/consent/' + token, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email }),
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    showView('confirmed');
+                } else {
+                    errEl.textContent = data.error || 'Something went wrong. Please try again.';
+                    errEl.classList.add('show');
+                    btn.disabled = false;
+                    btn.textContent = 'I Agree \u2014 Start the Session';
+                }
+            })
+            .catch(() => {
+                errEl.textContent = 'Network error. Please check your connection and try again.';
+                errEl.classList.add('show');
+                btn.disabled = false;
+                btn.textContent = 'I Agree \u2014 Start the Session';
+            });
+    };
+
+    function showView(name) {
+        document.getElementById('loading').style.display = 'none';
+        const views = ['invalid', 'form', 'already', 'confirmed'];
+        views.forEach(v => {
+            const el = document.getElementById('view-' + v);
+            if (el) el.style.display = 'none';
+            if (el) el.classList.remove('show');
+        });
+        const target = document.getElementById('view-' + name);
+        if (target) {
+            target.style.display = name === 'confirmed' ? 'flex' : 'block';
+            if (name === 'confirmed') target.classList.add('show');
+        }
+    }
+})();
+</script>
+
+</body>
+</html>

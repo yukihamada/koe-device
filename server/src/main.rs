@@ -2317,6 +2317,59 @@ async fn handle_session_end(
     (StatusCode::OK, axum::Json(json!({"ok":true,"id":session_id,"ended_at":now}))).into_response()
 }
 
+// ---- Consent stubs (placeholder — full implementation pending) ----
+
+async fn handle_consent_page(Path(_token): Path<String>) -> impl IntoResponse {
+    serve_html("consent.html").await
+}
+
+async fn handle_consent_generate(
+    State(_state): State<AppState>,
+    axum::Json(_body): axum::Json<Value>,
+) -> impl IntoResponse {
+    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
+}
+
+async fn handle_consent_pon_webhook(
+    State(_state): State<AppState>,
+    axum::Json(_body): axum::Json<Value>,
+) -> impl IntoResponse {
+    (StatusCode::OK, axum::Json(json!({"ok":true}))).into_response()
+}
+
+async fn handle_consent_check(
+    Path(_token): Path<String>,
+    State(_state): State<AppState>,
+) -> impl IntoResponse {
+    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
+}
+
+async fn handle_consent_submit(
+    Path(_token): Path<String>,
+    State(_state): State<AppState>,
+    axum::Json(_body): axum::Json<Value>,
+) -> impl IntoResponse {
+    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
+}
+
+async fn handle_consent_revoke(
+    Path(_token): Path<String>,
+    State(_state): State<AppState>,
+) -> impl IntoResponse {
+    (StatusCode::NOT_IMPLEMENTED, axum::Json(json!({"error":"not implemented"}))).into_response()
+}
+
+async fn handle_admin_consents(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(_state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_admin_auth(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"unauthorized"}))).into_response();
+    }
+    (StatusCode::OK, axum::Json(json!([]))).into_response()
+}
+
 // ---- Shared Brain (KOE × KAGI) ----
 
 /// POST /api/v1/brain/event — accept an event from KOE or KAGI, store it, and broadcast to WS clients
