@@ -14,11 +14,12 @@
 
 use esp_idf_hal::{
     gpio::OutputPin,
-    peripheral::Peripheral,
     rmt::{
-        config::TransmitConfig,
-        FixedLengthSignal, PinState, Pulse, RmtChannel, TxRmtDriver,
+        config::{TransmitConfig, TxChannelConfig},
+        encoder::CopyEncoder,
+        PinState, Pulse, PulseTicks, Symbol, TxChannelDriver,
     },
+    units::FromValueType,
 };
 use anyhow::Result;
 use std::time::{Duration, Instant};
@@ -34,33 +35,54 @@ pub enum LedState {
     Detected,
 }
 
-/// WS2812B bit timing constants (nanoseconds).
-///
-/// T0H = 400 ns, T0L = 850 ns
-/// T1H = 800 ns, T1L = 450 ns
-const T0H_NS: u64 = 400;
-const T0L_NS: u64 = 850;
-const T1H_NS: u64 = 800;
-const T1L_NS: u64 = 450;
+// ---------------------------------------------------------------------------
+// WS2812B bit timing (in µs ticks at 1 MHz resolution)
+// T0H = 0.4 µs → 400 ns  ≈  1 tick @ 1 MHz (round to 1 µs since min is 1)
+// We use 80 MHz resolution (80 ticks/µs) for better accuracy.
+// Resolution: 80 MHz → 1 tick = 12.5 ns
+// T0H = 400 ns → 32 ticks  T0L = 850 ns → 68 ticks
+// T1H = 800 ns → 64 ticks  T1L = 450 ns → 36 ticks
+// ---------------------------------------------------------------------------
+
+const RMT_RESOLUTION_HZ: u32 = 10_000_000; // 10 MHz → 1 tick = 100 ns
+
+// At 10 MHz: 1 tick = 100 ns
+// T0H = 400 ns → 4 ticks,  T0L = 850 ns → 9 ticks (→ 900 ns, slight +5%)
+// T1H = 800 ns → 8 ticks,  T1L = 450 ns → 5 ticks (→ 500 ns, slight +11%)
+const T0H_TICKS: u16 = 4;
+const T0L_TICKS: u16 = 9;
+const T1H_TICKS: u16 = 8;
+const T1L_TICKS: u16 = 5;
+
+fn make_symbol(one: bool) -> Symbol {
+    let (h_ticks, l_ticks) = if one {
+        (T1H_TICKS, T1L_TICKS)
+    } else {
+        (T0H_TICKS, T0L_TICKS)
+    };
+    Symbol::new(
+        Pulse::new(PinState::High, PulseTicks::new(h_ticks)),
+        Pulse::new(PinState::Low, PulseTicks::new(l_ticks)),
+    )
+}
 
 /// Drive a single WS2812B via RMT.
-///
-/// The `'d` lifetime ties the driver to the lifetime of the peripheral
-/// references it holds.  In the firmware main we create the driver and pass
-/// it to `led_task` which runs forever (`-> !`), so the lifetime effectively
-/// becomes `'static`.
 pub struct WS2812Driver<'d> {
-    tx: TxRmtDriver<'d>,
+    tx: TxChannelDriver<'d>,
+    transmit_cfg: TransmitConfig,
 }
 
 impl<'d> WS2812Driver<'d> {
-    pub fn new(
-        channel: impl Peripheral<P = impl RmtChannel> + 'd,
-        pin: impl Peripheral<P = impl OutputPin> + 'd,
-    ) -> Result<Self> {
-        let cfg = TransmitConfig::new().clock_divider(1);
-        let tx = TxRmtDriver::new(channel, pin, &cfg)?;
-        Ok(Self { tx })
+    pub fn new(pin: impl OutputPin + 'd) -> Result<Self> {
+        let channel_cfg = TxChannelConfig {
+            resolution: RMT_RESOLUTION_HZ.Hz().into(),
+            ..Default::default()
+        };
+        let tx = TxChannelDriver::new(pin, &channel_cfg)?;
+        Ok(Self {
+            tx,
+            transmit_cfg: TransmitConfig::default(),
+        })
     }
 
     /// Write a single GRB colour to the LED.
@@ -68,29 +90,20 @@ impl<'d> WS2812Driver<'d> {
     /// WS2812B expects bytes in G-R-B order, MSB first.
     pub fn write_color(&mut self, r: u8, g: u8, b: u8) -> Result<()> {
         let bytes = [g, r, b]; // GRB order
-        let mut signal = FixedLengthSignal::<24>::new();
+        let mut symbols = [Symbol::new(
+            Pulse::new(PinState::Low, PulseTicks::zero()),
+            Pulse::new(PinState::Low, PulseTicks::zero()),
+        ); 24];
         let mut idx = 0usize;
         for byte in bytes {
             for bit_pos in (0..8u8).rev() {
                 let one = (byte >> bit_pos) & 1 != 0;
-                let (h_ns, l_ns) = if one {
-                    (T1H_NS, T1L_NS)
-                } else {
-                    (T0H_NS, T0L_NS)
-                };
-                let high = Pulse::new_with_duration(
-                    PinState::High,
-                    &Duration::from_nanos(h_ns),
-                )?;
-                let low = Pulse::new_with_duration(
-                    PinState::Low,
-                    &Duration::from_nanos(l_ns),
-                )?;
-                signal.set(idx, &(high, low))?;
+                symbols[idx] = make_symbol(one);
                 idx += 1;
             }
         }
-        self.tx.start_blocking(&signal)?;
+        let encoder = CopyEncoder::new()?;
+        self.tx.send_and_wait(encoder, &symbols, &self.transmit_cfg)?;
         Ok(())
     }
 
