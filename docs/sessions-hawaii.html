@@ -562,6 +562,94 @@ footer a:hover {
   color: rgba(255,255,255,0.6);
 }
 
+/* ─── CTA SECTION ───────────────────────────────────────── */
+.cta-section {
+  padding: 5rem 1.5rem 6rem;
+  text-align: center;
+}
+
+.cta-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  background: linear-gradient(160deg, rgba(30,14,60,0.85) 0%, rgba(10,5,25,0.95) 60%, rgba(20,8,50,0.8) 100%);
+  border: 1px solid rgba(139,92,246,0.22);
+  border-radius: 24px;
+  padding: 3.5rem 2.5rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle violet glow behind */
+.cta-inner::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 200px;
+  background: radial-gradient(ellipse at center, rgba(139,92,246,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: #8B5CF6;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.28);
+  border-radius: 100px;
+  padding: 0.3rem 0.9rem;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.cta-inner h2 {
+  font-size: clamp(1.45rem, 3.5vw, 2rem);
+  font-weight: 100;
+  letter-spacing: -0.035em;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.cta-inner p {
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.52);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto 2rem;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: #8B5CF6;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.4rem;
+  border-radius: 100px;
+  transition: opacity 0.15s, transform 0.15s;
+  margin-bottom: 1.2rem;
+}
+
+.cta-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.cta-note {
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.04em;
+}
+
 /* ─── RESPONSIVE ────────────────────────────────────────── */
 @media (max-width: 600px) {
   nav { padding: 1rem 1.2rem; }
@@ -572,6 +660,7 @@ footer a:hover {
   .silence-row { flex-wrap: wrap; gap: 0.5rem; }
   .card-meta-row { gap: 0.3rem 1rem; }
   .ekg-container { padding: 1.4rem 1rem 1rem; }
+  .cta-inner { padding: 2.5rem 1.5rem 2.2rem; }
 }
 </style>
 </head>
@@ -785,6 +874,17 @@ footer a:hover {
   </div>
 
 </div><!-- /body -->
+
+<!-- CTA: Get your own Koe setup -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-badge">Artist Program</div>
+    <h2>Want this in your own space?</h2>
+    <p>A small number of artist sets are available for Summer 2026. Each set includes Stone &times; 4, Amp &times; 2, and Pick &times; 1 &mdash; pre-configured for your home or studio.</p>
+    <a href="/waitlist" class="cta-btn">Join the waitlist</a>
+    <div class="cta-note">First 10 sets &middot; Ships Summer 2026 &middot; $8,500 USD</div>
+  </div>
+</section>
 
 <footer>
   Koe Sessions &mdash; Private archive. <a href="https://koe.live">koe.live</a>
