@@ -39,6 +39,7 @@ use tower_http::services::ServeDir;
 use tracing::{info, warn};
 use wtransport::{Endpoint, ServerConfig, Identity};
 use ring::digest;
+use subtle::ConstantTimeEq;
 
 const DATA_DIR: &str = "/data";
 
@@ -797,7 +798,9 @@ async fn handle_firmware_upload(
 ) -> impl IntoResponse {
     let token = params.get("token").map(|s| s.as_str()).unwrap_or("");
     let admin_token = std::env::var("KOE_ADMIN_TOKEN").unwrap_or_default();
-    if admin_token.is_empty() || token != admin_token.as_str() {
+    let token_valid: bool = !admin_token.is_empty()
+        && token.as_bytes().ct_eq(admin_token.as_bytes()).into();
+    if !token_valid {
         return (StatusCode::UNAUTHORIZED, "Invalid token").into_response();
     }
 
@@ -956,6 +959,13 @@ async fn handle_features() -> impl IntoResponse {
 
 // ---- AI proxy (forwards to GPU_ENDPOINT) ----
 
+const ALLOWED_AI_PATHS: &[&str] = &[
+    "/v1/chat/completions",
+    "/api/generate",
+    "/api/chat",
+    "/v1/completions",
+];
+
 async fn handle_ai_proxy(
     req: axum::http::Request<axum::body::Body>,
 ) -> impl IntoResponse {
@@ -973,6 +983,11 @@ async fn handle_ai_proxy(
     };
 
     let path = req.uri().path().to_string();
+
+    // SSRF対策: 許可されたパスのみ転送する
+    if !ALLOWED_AI_PATHS.iter().any(|p| path.starts_with(p)) {
+        return StatusCode::NOT_FOUND.into_response();
+    }
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(120))
         .build()
@@ -1492,6 +1507,16 @@ fn verify_stripe_signature(payload: &[u8], sig_header: &str, secret: &str) -> bo
         }
     }
     if timestamp.is_empty() || signature.is_empty() {
+        return false;
+    }
+
+    // リプレイ攻撃対策: タイムスタンプが現在時刻から5分以上ずれていたら拒否
+    let ts: i64 = timestamp.parse().unwrap_or(0);
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+    if (now - ts).abs() > 300 {
         return false;
     }
 
