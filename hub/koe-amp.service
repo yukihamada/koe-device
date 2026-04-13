@@ -1,0 +1,21 @@
+[Unit]
+Description=Koe Amp — onset recording daemon
+Documentation=https://koe.live
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/local/bin/koe-amp
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Give audio thread higher scheduling priority
+Nice=-5
+LimitRTPRIO=10
+
+[Install]
+WantedBy=multi-user.target
