@@ -156,20 +156,23 @@ typedef struct {
 static size_t curl_sink(void *p, size_t s, size_t n, void *u)
     { (void)p; (void)u; return s * n; }
 
-static void http_post(const char *url, const char *json) {
+/* timeout_ms: use 300 for level (fire-and-forget), 2000 for session/heartbeat */
+static void http_post_t(const char *url, const char *json, long timeout_ms) {
     CURL *c = curl_easy_init();
     if (!c) return;
     struct curl_slist *h = curl_slist_append(NULL, "Content-Type: application/json");
-    curl_easy_setopt(c, CURLOPT_URL,           url);
-    curl_easy_setopt(c, CURLOPT_POSTFIELDS,    json);
-    curl_easy_setopt(c, CURLOPT_HTTPHEADER,    h);
-    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, curl_sink);
-    curl_easy_setopt(c, CURLOPT_TIMEOUT,       2L);
-    curl_easy_setopt(c, CURLOPT_NOSIGNAL,      1L); /* required in multi-threaded apps */
-    curl_easy_perform(c);   /* fire-and-forget; errors are non-fatal */
+    curl_easy_setopt(c, CURLOPT_URL,             url);
+    curl_easy_setopt(c, CURLOPT_POSTFIELDS,      json);
+    curl_easy_setopt(c, CURLOPT_HTTPHEADER,      h);
+    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION,   curl_sink);
+    curl_easy_setopt(c, CURLOPT_TIMEOUT_MS,      (long)timeout_ms);
+    curl_easy_setopt(c, CURLOPT_NOSIGNAL,        1L);
+    curl_easy_perform(c);
     curl_slist_free_all(h);
     curl_easy_cleanup(c);
 }
+static void http_post(const char *url, const char *json)
+    { http_post_t(url, json, 2000); }
 
 /* ── Session management (session thread only) ────────────────────── */
 static void session_start(State *st) {
@@ -267,6 +270,8 @@ static void *thr_level(void *arg) {
     snprintf(url, sizeof url, "%s/api/v1/room/audio-level", st->cfg->server);
 
     while (!st->shutdown) {
+        double tick = mono_secs();
+
         pthread_mutex_lock(&st->mu);
         float lv = st->level;
         int   rc = st->is_recording;
@@ -276,9 +281,14 @@ static void *thr_level(void *arg) {
         snprintf(body, sizeof body,
             "{\"device_id\":\"%s\",\"room\":\"%s\",\"level\":%.3f,\"is_recording\":%s}",
             st->cfg->device_id, st->cfg->room, lv, rc ? "true" : "false");
-        http_post(url, body);
 
-        usleep((useconds_t)(LEVEL_SECS * 1e6));
+        /* Short timeout: waveform is cosmetic; a dropped frame is fine */
+        http_post_t(url, body, 300);
+
+        /* Sleep for the remainder of the 100ms window (never negative) */
+        double elapsed = mono_secs() - tick;
+        double remaining = LEVEL_SECS - elapsed;
+        if (remaining > 0.005) usleep((useconds_t)(remaining * 1e6));
     }
     return NULL;
 }
