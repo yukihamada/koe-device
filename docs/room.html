@@ -268,7 +268,53 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
     z-index: 90;
 }
 .wake-flash.on { opacity: 1; }
+
+/* ── Browser mic button ── */
+.mic-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.25s;
+    font-family: inherit; margin-top: 0.8rem;
+}
+.mic-btn:hover {
+    background: rgba(139,92,246,0.1);
+    border-color: rgba(139,92,246,0.35);
+    color: rgba(167,139,250,0.9);
+}
+.mic-btn.active {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.5);
+    color: #a78bfa;
+    box-shadow: 0 0 20px rgba(139,92,246,0.15);
+}
+.mic-btn-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+}
+.mic-btn.active .mic-btn-dot {
+    animation: blinkDot 1s ease-in-out infinite;
+}
+
+/* ── Feature pills ── */
+.features-row {
+    display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 0.8rem; max-width: 320px; margin-left: auto; margin-right: auto;
+    opacity: 0; transition: opacity 0.5s; pointer-events: none;
+}
+.features-row.show { opacity: 1; }
+.feat-pill {
+    font-size: 0.48rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    padding: 0.28rem 0.65rem; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.07);
+}
 </style>
+<script async src="https://umami-analytics.fly.dev/script.js" data-website-id="00000000-0000-0000-0000-000000000000"></script>
 </head>
 <body>
 
@@ -343,6 +389,17 @@ canvas { position: fixed; inset: 0; pointer-events: none; }
         <div class="dev"></div><div class="dev"></div><div class="dev"></div>
     </div>
     <div class="bottom-label" id="dev-label">2 of 5 devices active</div>
+    <button class="mic-btn" id="micBtn" onclick="event.stopPropagation(); toggleBrowserMic()">
+        <span class="mic-btn-dot"></span>
+        <span id="micLabel">Use mic</span>
+    </button>
+    <div class="features-row" id="featuresRow">
+        <span class="feat-pill">Morning Mix</span>
+        <span class="feat-pill">Auracast</span>
+        <span class="feat-pill">Loop detect</span>
+        <span class="feat-pill">0.3ms sync</span>
+        <span class="feat-pill">Onset detect</span>
+    </div>
 </div>
 
 <script>
@@ -737,6 +794,68 @@ if (SpeechRec) {
 
 } else {
     vLabel.textContent = 'No mic API';
+}
+
+// ── Browser mic capture ─────────────────────────────────────────────────────
+let browserMicActive = false;
+let browserMicStream = null;
+let browserMicInterval = null;
+
+async function toggleBrowserMic() {
+    if (browserMicActive) { stopBrowserMic(); return; }
+
+    try {
+        browserMicStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const actx     = new AudioContext();
+        const src      = actx.createMediaStreamSource(browserMicStream);
+        const analyser = actx.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.55;
+        src.connect(analyser);
+        const buf = new Float32Array(analyser.frequencyBinCount);
+
+        document.getElementById('micBtn').classList.add('active');
+        document.getElementById('micLabel').textContent = 'Mic on';
+        document.getElementById('featuresRow').classList.add('show');
+        browserMicActive = true;
+        showToast('Browser mic active');
+
+        browserMicInterval = setInterval(() => {
+            analyser.getFloatTimeDomainData(buf);
+            let sum = 0;
+            for (const s of buf) sum += s * s;
+            const rms   = Math.sqrt(sum / buf.length);
+            const level = Math.min(1.0, rms * 20); // scale: mic RMS ~0.001–0.05 → 0–1
+
+            updateLevel(level, isRecording);
+            lastWsMessage = Date.now(); // suppress idle decay while mic is active
+
+            fetch('/api/v1/room/audio-level', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    device_id: 'browser-mic',
+                    room:       'main',
+                    level:      Math.round(level * 1000) / 1000,
+                    is_recording: isRecording
+                }),
+                keepalive: true
+            }).catch(() => {});
+        }, 100);
+
+    } catch (err) {
+        showToast('Mic access denied');
+    }
+}
+
+function stopBrowserMic() {
+    clearInterval(browserMicInterval);
+    browserMicInterval = null;
+    if (browserMicStream) { browserMicStream.getTracks().forEach(t => t.stop()); browserMicStream = null; }
+    browserMicActive = false;
+    document.getElementById('micBtn').classList.remove('active');
+    document.getElementById('micLabel').textContent = 'Use mic';
+    showToast('Mic stopped');
 }
 </script>
 </body>
