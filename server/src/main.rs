@@ -37,7 +37,7 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::broadcast;
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::{info, warn};
 use wtransport::{Endpoint, ServerConfig, Identity};
 use ring::digest;
@@ -395,13 +395,26 @@ async fn main() {
         .route("/api/v1/consent/:token/revoke",    post(handle_consent_revoke))
         .route("/admin/consents",                  get(handle_admin_consents))
         .route("/brain",                           get(handle_page_brain))
+        .route("/coin",                            get(handle_page_coin))
+        .route("/guide",                           get(handle_page_guide))
+        .route("/fill",                            get(handle_page_fill))
+        .route("/stage",                           get(handle_page_stage))
+        .route("/guide-v2",                        get(handle_page_guide_v2))
+        .route("/roadmap",                         get(handle_page_roadmap))
+        .route("/products",                        get(handle_page_products))
+        .route("/stage-os",                        get(handle_page_stage_os))
+        .route("/koe-software",                    get(handle_page_koe_software))
+        .route("/status",                          get(handle_page_status))
         .route("/api/v1/brain/event",              post(handle_brain_event))
         .route("/api/v1/brain/events",             get(handle_brain_events))
         .route("/ws/signal",  get(handle_ws_signal))
         .route("/ws/soluna",  get(handle_ws_soluna))
         .route("/ws/room",    get(handle_ws_room))
         .route("/api/v1/room/audio-level", post(handle_room_audio_level))
-        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true))
+        .route("/api/admin/devices",       get(handle_admin_devices))
+        .route("/api/admin/stats",         get(handle_admin_stats))
+        .route("/admin/devices",           get(handle_admin_devices_page))
+        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).not_found_service(ServeFile::new(format!("{}/404.html", static_dir))))
         .with_state(state);
 
     let addr = format!("0.0.0.0:{}", port);
@@ -445,6 +458,16 @@ async fn handle_page_artist() -> impl IntoResponse { serve_html("artist.html").a
 async fn handle_page_waitlist() -> impl IntoResponse { serve_html("waitlist.html").await }
 async fn handle_page_quick_start() -> impl IntoResponse { serve_html("quick-start.html").await }
 async fn handle_page_brain() -> impl IntoResponse { serve_html("brain.html").await }
+async fn handle_page_coin() -> impl IntoResponse { serve_html("coin.html").await }
+async fn handle_page_guide() -> impl IntoResponse { serve_html("guide.html").await }
+async fn handle_page_fill() -> impl IntoResponse { serve_html("fill.html").await }
+async fn handle_page_stage() -> impl IntoResponse { serve_html("stage.html").await }
+async fn handle_page_guide_v2() -> impl IntoResponse { serve_html("guide-v2.html").await }
+async fn handle_page_roadmap() -> impl IntoResponse { serve_html("roadmap.html").await }
+async fn handle_page_products() -> impl IntoResponse { serve_html("products.html").await }
+async fn handle_page_stage_os() -> impl IntoResponse { serve_html("stage-os.html").await }
+async fn handle_page_koe_software() -> impl IntoResponse { serve_html("koe-software.html").await }
+async fn handle_page_status() -> impl IntoResponse { serve_html("status.html").await }
 
 async fn serve_html(filename: &str) -> axum::response::Response {
     let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "/app/docs".to_string());
@@ -2858,6 +2881,125 @@ async fn handle_consent_pon_webhook(
             (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response()
         }
     }
+}
+
+// ---- Admin: Device Dashboard API ----
+
+/// Helper: verify KOE_ADMIN_TOKEN from Authorization: Bearer or ?token= query param
+fn verify_koe_admin_token(headers: &HeaderMap, params: &HashMap<String, String>) -> bool {
+    let admin_token = std::env::var("KOE_ADMIN_TOKEN").unwrap_or_default();
+    if admin_token.is_empty() {
+        return false;
+    }
+    if let Some(auth) = headers.get("authorization").and_then(|v| v.to_str().ok()) {
+        if auth.strip_prefix("Bearer ").unwrap_or("") == admin_token {
+            return true;
+        }
+    }
+    if let Some(t) = params.get("token") {
+        if t == &admin_token {
+            return true;
+        }
+    }
+    false
+}
+
+/// GET /api/admin/devices — list all devices from heartbeat table
+/// Auth: Authorization: Bearer <KOE_ADMIN_TOKEN>  or  ?token=<KOE_ADMIN_TOKEN>
+async fn handle_admin_devices(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_koe_admin_token(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"Unauthorized"}))).into_response();
+    }
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now = unix_now() as i64;
+    let online_cutoff = now - 300; // 5 minutes
+
+    let mut stmt = match db.prepare(
+        "SELECT device_id, device_type, firmware_ver, battery_pct, room, last_seen \
+         FROM device_heartbeats ORDER BY last_seen DESC"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    };
+    let rows: Vec<Value> = match stmt.query_map([], |row| {
+        let last_seen: i64 = row.get(5)?;
+        Ok(json!({
+            "device_id":   row.get::<_,String>(0)?,
+            "device_type": row.get::<_,String>(1)?,
+            "firmware_ver":row.get::<_,String>(2)?,
+            "battery_pct": row.get::<_,i64>(3)?,
+            "room":        row.get::<_,String>(4)?,
+            "last_seen":   last_seen,
+            "is_online":   last_seen >= online_cutoff,
+        }))
+    }) {
+        Ok(rows) => rows.filter_map(|r| r.ok()).collect(),
+        Err(_) => vec![],
+    };
+
+    (StatusCode::OK, axum::Json(json!({"devices": rows, "total": rows.len()}))).into_response()
+}
+
+/// GET /api/admin/stats — aggregate stats: total devices, online count, firmware version breakdown
+/// Auth: same as /api/admin/devices
+async fn handle_admin_stats(
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    if !verify_koe_admin_token(&headers, &params) {
+        return (StatusCode::UNAUTHORIZED, axum::Json(json!({"error":"Unauthorized"}))).into_response();
+    }
+    let db = match state.db.lock() {
+        Ok(db) => db,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":"db lock"}))).into_response(),
+    };
+    let now = unix_now() as i64;
+    let online_cutoff = now - 300;
+
+    let total: i64 = db.query_row("SELECT COUNT(*) FROM device_heartbeats", [], |r| r.get(0)).unwrap_or(0);
+    let online: i64 = db.query_row(
+        "SELECT COUNT(*) FROM device_heartbeats WHERE last_seen >= ?1",
+        rusqlite::params![online_cutoff], |r| r.get(0),
+    ).unwrap_or(0);
+
+    // firmware version counts
+    let mut vstmt = match db.prepare(
+        "SELECT firmware_ver, COUNT(*) as cnt FROM device_heartbeats GROUP BY firmware_ver ORDER BY cnt DESC"
+    ) {
+        Ok(s) => s,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error":e.to_string()}))).into_response(),
+    };
+    let mut versions: serde_json::Map<String, Value> = serde_json::Map::new();
+    if let Ok(rows) = vstmt.query_map([], |r| Ok((r.get::<_,String>(0)?, r.get::<_,i64>(1)?))) {
+        for row in rows.filter_map(|r| r.ok()) {
+            versions.insert(row.0, json!(row.1));
+        }
+    }
+
+    // latest firmware on disk
+    let latest_firmware = std::fs::read_to_string(format!("{}/koe-firmware/version.txt", DATA_DIR))
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|_| "unknown".to_string());
+
+    (StatusCode::OK, axum::Json(json!({
+        "total":           total,
+        "online":          online,
+        "versions":        versions,
+        "latest_firmware": latest_firmware,
+    }))).into_response()
+}
+
+/// GET /admin/devices — serve device management dashboard HTML
+async fn handle_admin_devices_page() -> impl IntoResponse {
+    serve_html("device-dashboard.html").await
 }
 
 // ---- Helpers ----
