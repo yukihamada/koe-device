@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe COIN — 双方向音声デバイス $65" data-en="Koe COIN — Bi-directional Audio Device $65">Koe COIN — 双方向音声デバイス $65</title>
+<meta name="description" content="フェス・ステージ向け双方向音声デバイス。マイク入力+スピーカー出力、UDP WiFi、遅延8ms。26mm丸基板、BOM $15。">
+<meta name="theme-color" content="#0a0f1a">
+<meta property="og:title" content="Koe COIN — 双方向音声デバイス">
+<meta property="og:description" content="群衆を楽器にする。フェス・ステージ向け $65デバイス。">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0f1a;--surface:#111827;--elevated:#1f2937;
+  --accent:#10B981;--dim:#065f46;
+  --text:#f3f4f6;--sub:#9ca3af;--muted:#6b7280;
+  --border:rgba(255,255,255,0.07);--r:14px;
+}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:rgba(10,15,26,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+nav .logo{font-size:1rem;font-weight:300;letter-spacing:0.3em}
+nav .logo span{color:var(--accent);font-weight:500}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{font-size:0.8rem;color:var(--sub);transition:color 0.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent)}
+
+/* HERO */
+.hero{padding:9rem 2rem 5rem;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(16,185,129,0.15) 0%,transparent 70%)}
+.hero-chip{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--accent);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:100px;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:200;letter-spacing:0.08em;line-height:1;margin-bottom:0.5rem}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{font-size:1.1rem;color:var(--sub);margin:1rem auto 2rem;max-width:520px;line-height:1.7}
+.hero-price{font-size:4rem;font-weight:100;letter-spacing:-0.02em;margin-bottom:0.3rem}
+.hero-price sup{font-size:1.8rem;vertical-align:super}
+.hero-price-note{font-size:0.85rem;color:var(--muted);margin-bottom:2.5rem}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.9rem 2.2rem;border-radius:8px;font-size:0.9rem;font-weight:600;letter-spacing:0.04em;transition:opacity 0.2s;cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{opacity:0.85}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);margin-left:0.75rem}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+/* STATS ROW */
+.stats{display:flex;justify-content:center;gap:3rem;padding:3rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-size:2rem;font-weight:200;color:var(--accent)}
+.stat-label{font-size:0.75rem;color:var(--muted);letter-spacing:0.08em;margin-top:0.2rem}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1000px;margin:0 auto}
+.sec-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+.sec-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:200;letter-spacing:0.04em;margin-bottom:0.8rem}
+.sec-title em{font-style:normal;color:var(--accent)}
+.sec-sub{color:var(--sub);line-height:1.75;max-width:580px;margin-bottom:3rem;font-size:0.95rem}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.5rem}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem}
+.feat-icon{font-size:1.8rem;margin-bottom:1rem}
+.feat-title{font-size:1rem;font-weight:500;margin-bottom:0.4rem}
+.feat-desc{font-size:0.83rem;color:var(--sub);line-height:1.65}
+
+/* SPEC TABLE */
+.spec-table{width:100%;border-collapse:collapse}
+.spec-table th{text-align:left;padding:0.7rem 1rem;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400}
+.spec-table td{padding:0.85rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;color:var(--sub)}
+.spec-table td:first-child{color:var(--text);font-weight:500;width:40%}
+.spec-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* USE CASES */
+.usecases{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.usecase{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.4rem;text-align:center}
+.usecase-icon{font-size:2rem;margin-bottom:0.7rem}
+.usecase-title{font-size:0.9rem;font-weight:500;margin-bottom:0.3rem}
+.usecase-desc{font-size:0.75rem;color:var(--muted)}
+
+/* WAITLIST */
+.waitlist-section{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.06));border:1px solid var(--border);border-radius:20px;padding:4rem 2rem;text-align:center}
+.waitlist-section h2{font-size:1.8rem;font-weight:200;letter-spacing:0.05em;margin-bottom:0.8rem}
+.waitlist-section p{color:var(--sub);margin-bottom:2rem;font-size:0.95rem;line-height:1.7}
+.wl-form{display:flex;flex-direction:column;gap:0.75rem;max-width:400px;margin:0 auto}
+.wl-form input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.85rem 1rem;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit}
+.wl-form input:focus{border-color:var(--accent)}
+.wl-form select{background:var(--surface);border:1px solid var(--border);color:var(--sub);padding:0.85rem 1rem;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit;cursor:pointer}
+.wl-form button{background:var(--accent);color:#000;font-size:0.9rem;font-weight:600;padding:0.9rem;border:none;border-radius:8px;cursor:pointer;transition:opacity 0.2s;font-family:inherit}
+.wl-form button:hover{opacity:0.85}
+.wl-note{font-size:0.75rem;color:var(--muted);margin-top:0.8rem}
+.wl-success{display:none;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:1.5rem;color:var(--accent);font-size:0.9rem}
+
+/* GITEKI */
+.giteki-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:0.6rem 1rem;font-size:0.8rem;color:var(--accent);margin-top:1rem}
+
+footer{border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--muted);font-size:0.8rem}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:640px){nav{padding:1rem 1.2rem}.hero{padding:7rem 1.2rem 3rem}section{padding:3rem 1.2rem}.stats{gap:1.5rem}}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+
+<div id="koe-nav"></div>
+
+<div class="hero">
+  <div class="hero-chip"><span class="ja">🪙 Koe COIN — 双方向デバイス</span><span class="en">🪙 Koe COIN — Bi-directional device</span></div>
+  <h1>Koe <em>COIN</em></h1>
+  <div class="hero-sub"><span class="ja">群衆を楽器にする。フェス・ステージ・パフォーマンスのための双方向音声デバイス。マイクで拾い、スピーカーで鳴らす。</span><span class="en">Turn the crowd into an instrument. A bi-directional audio device for festivals, stages, and performance. Capture with a mic, play through a speaker.</span></div>
+  <div class="hero-price"><sup>$</sup>65</div>
+  <div class="hero-price-note"><span class="ja">≈ ¥9,500 · 送料別 · 2026年8月発売予定</span><span class="en">≈ ¥9,500 · shipping excluded · ships Aug 2026</span></div>
+  <a href="#waitlist" class="btn btn-primary"><span class="ja">先行登録する</span><span class="en">Join Waitlist</span></a>
+  <a href="/app" class="btn btn-outline"><span class="ja">🪙 Webアプリで試す</span><span class="en">🪙 Try Web App</span></a>
+  <a href="/roadmap" class="btn btn-outline"><span class="ja">全製品を見る</span><span class="en">See All Products</span></a>
+  <br>
+  <div class="giteki-badge"><span class="ja">✅ 技適済み（ESP32-S3-MINI-1 / 201-220017）</span><span class="en">✅ Giteki certified (ESP32-S3-MINI-1 / 201-220017)</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">8ms</div><div class="stat-label"><span class="ja">エンドツーエンド遅延</span><span class="en">End-to-end latency</span></div></div>
+  <div class="stat"><div class="stat-num"><span class="ja">256台</span><span class="en">256 units</span></div><div class="stat-label"><span class="ja">同時接続</span><span class="en">Concurrent</span></div></div>
+  <div class="stat"><div class="stat-num">26mm</div><div class="stat-label"><span class="ja">丸基板径</span><span class="en">Round PCB</span></div></div>
+  <div class="stat"><div class="stat-num">$15</div><div class="stat-label"><span class="ja">BOM コスト</span><span class="en">BOM cost</span></div></div>
+</div>
+
+<section>
+  <div class="sec-label"><span class="ja">特徴</span><span class="en">Features</span></div>
+  <h2 class="sec-title"><span class="ja">声を、<em>インフラ</em>にする</span><span class="en">Make voice the <em>infrastructure</em></span></h2>
+  <p class="sec-sub"><span class="ja">1台は記憶、100台はオーケストラ。Koe COINはESP32-S3 + ES8388コーデックで、マイク→ADPCM圧縮→UDPマルチキャストの送受信を同時に行います。</span><span class="en">One device remembers. A hundred become an orchestra. Koe COIN uses ESP32-S3 + ES8388 codec to simultaneously capture audio, compress with ADPCM, and transmit/receive over UDP multicast.</span></p>
+
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">🎙</div>
+      <div class="feat-title"><span class="ja">双方向リアルタイム音声</span><span class="en">Bi-directional real-time audio</span></div>
+      <div class="feat-desc"><span class="ja">マイク入力とスピーカー出力を同時処理。全デバイスが同期してオーケストラになる。</span><span class="en">Captures mic input and plays speaker output simultaneously — every device syncs into one orchestra.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">8ms<span class="ja">超低遅延</span><span class="en">ultra-low latency</span></div>
+      <div class="feat-desc"><span class="ja">32サンプルパケット + WiFi QoS (DSCP EF) + DMAチューニングで22ms → 8msを実現。</span><span class="en">32-sample packets + Wi-Fi QoS (DSCP EF) + DMA tuning cuts latency from 22ms to 8ms.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📡</div>
+      <div class="feat-title"><span class="ja">WiFi UDP マルチキャスト</span><span class="en">Wi-Fi UDP multicast</span></div>
+      <div class="feat-desc"><span class="ja">239.42.42.1:4242 Solunaプロトコル。ルーター1台で256台同時接続。</span><span class="en">Soluna protocol on 239.42.42.1:4242. 256 concurrent devices on a single router.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔄</div>
+      <div class="feat-title"><span class="ja">OTA ファームウェア更新</span><span class="en">OTA firmware update</span></div>
+      <div class="feat-desc"><span class="ja">koe.live経由でフィールドアップデート。WiFi設定・デバイスIDは消えない。</span><span class="en">Field updates via koe.live. Wi-Fi settings and device IDs are preserved.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🎛</div>
+      <div class="feat-title"><span class="ja">ボタン操作</span><span class="en">Button controls</span></div>
+      <div class="feat-desc"><span class="ja">録音ON/OFF、ピッチシフト（±5/±12半音）、ボリューム調整をワンボタンで。</span><span class="en">Record on/off, pitch shift (±5/±12 semitones), and volume — all single-button.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">✅</div>
+      <div class="feat-title"><span class="ja">技適済み、日本で合法</span><span class="en">Giteki certified, legal in Japan</span></div>
+      <div class="feat-desc"><span class="ja">ESP32-S3-MINI-1（201-220017）採用。電波法完全準拠で販売・使用可能。</span><span class="en">Uses ESP32-S3-MINI-1 (201-220017). Fully compliant with Japan's Radio Law.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label"><span class="ja">スペック</span><span class="en">Specs</span></div>
+  <h2 class="sec-title"><span class="ja">技術<em>仕様</em></span><span class="en">Technical <em>Specifications</em></span></h2>
+  <table class="spec-table">
+    <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th><span class="ja">仕様</span><span class="en">Specification</span></th></tr></thead>
+    <tbody>
+      <tr><td>MCU</td><td>ESP32-S3-MINI-1 (240MHz, WiFi 2.4GHz, BLE 5.0)</td></tr>
+      <tr><td><span class="ja">オーディオコーデック</span><span class="en">Audio codec</span></td><td>ES8388 (24bit/96kHz, SNR 98dB)</td></tr>
+      <tr><td><span class="ja">マイク入力</span><span class="en">Mic input</span></td><td><span class="ja">エレクトレットコンデンサーマイク（MicBiasモード）</span><span class="en">Electret condenser mic (MicBias mode)</span></td></tr>
+      <tr><td><span class="ja">スピーカー出力</span><span class="en">Speaker output</span></td><td><span class="ja">Class-D アンプ内蔵、最大 2W</span><span class="en">Built-in Class-D amp, up to 2W</span></td></tr>
+      <tr><td><span class="ja">通信</span><span class="en">Connectivity</span></td><td><span class="ja">WiFi 802.11 b/g/n 2.4GHz、UDP マルチキャスト</span><span class="en">Wi-Fi 802.11 b/g/n 2.4GHz, UDP multicast</span></td></tr>
+      <tr><td><span class="ja">音声プロトコル</span><span class="en">Audio protocol</span></td><td><span class="ja">Soluna v1 (ADPCM / raw PCM16)、ポート 4242</span><span class="en">Soluna v1 (ADPCM / raw PCM16), port 4242</span></td></tr>
+      <tr><td><span class="ja">遅延</span><span class="en">Latency</span></td><td><span class="ja">8–10ms エンドツーエンド（low_latencyモード）</span><span class="en">8–10ms end-to-end (low_latency mode)</span></td></tr>
+      <tr><td><span class="ja">同時接続</span><span class="en">Concurrent units</span></td><td><span class="ja">最大 256台（同一LAN）</span><span class="en">Up to 256 devices (same LAN)</span></td></tr>
+      <tr><td><span class="ja">基板サイズ</span><span class="en">PCB size</span></td><td><span class="ja">26mm 丸形</span><span class="en">26mm round</span></td></tr>
+      <tr><td><span class="ja">電源</span><span class="en">Power</span></td><td><span class="ja">USB-C 5V / バッテリー接続対応</span><span class="en">USB-C 5V / battery compatible</span></td></tr>
+      <tr><td><span class="ja">ファームウェア</span><span class="en">Firmware</span></td><td><span class="ja">Rust (esp-idf-hal)、オープンソース</span><span class="en">Rust (esp-idf-hal), open source</span></td></tr>
+      <tr><td><span class="ja">技適</span><span class="en">Giteki</span></td><td>201-220017 (ESP32-S3-MINI-1)</td></tr>
+      <tr><td><span class="ja">価格</span><span class="en">Price</span></td><td><span class="ja">$65 / ¥9,500（予定）</span><span class="en">$65 / ¥9,500 (planned)</span></td></tr>
+      <tr><td><span class="ja">発売</span><span class="en">Launch</span></td><td><span class="ja">2026年8月（日本）</span><span class="en">Aug 2026 (Japan)</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="sec-label"><span class="ja">用途</span><span class="en">Use cases</span></div>
+  <h2 class="sec-title"><span class="ja">こんな<em>シーン</em>で使う</span><span class="en">Used in <em>these scenes</em></span></h2>
+  <div class="usecases">
+    <div class="usecase"><div class="usecase-icon">🎪</div><div class="usecase-title"><span class="ja">フェスティバル</span><span class="en">Festival</span></div><div class="usecase-desc"><span class="ja">観客全員が楽器になる</span><span class="en">Every audience member becomes an instrument</span></div></div>
+    <div class="usecase"><div class="usecase-icon">🎭</div><div class="usecase-title"><span class="ja">舞台・パフォーマンス</span><span class="en">Stage / Performance</span></div><div class="usecase-desc"><span class="ja">演者と観客をリアルタイム接続</span><span class="en">Connect performer and audience in real time</span></div></div>
+    <div class="usecase"><div class="usecase-icon">🎵</div><div class="usecase-title"><span class="ja">群衆楽器</span><span class="en">Crowd instrument</span></div><div class="usecase-desc"><span class="ja">100台が同期してオーケストラに</span><span class="en">100 units sync into an orchestra</span></div></div>
+    <div class="usecase"><div class="usecase-icon">🎬</div><div class="usecase-title"><span class="ja">映画・映像制作</span><span class="en">Film / Video production</span></div><div class="usecase-desc"><span class="ja">ワイヤレス音声収録・モニター</span><span class="en">Wireless audio capture and monitoring</span></div></div>
+  </div>
+</section>
+
+<section id="waitlist">
+  <div class="waitlist-section">
+    <h2><span class="ja">先行登録する</span><span class="en">Join the Waitlist</span></h2>
+    <p><span class="ja">Koe COINの発売（2026年8月予定）に先立ち、先行登録受付中。<br>登録者には発売1週間前に通知をお送りします。</span><span class="en">Reserve your spot for the Aug 2026 launch.<br>You'll be notified one week before release.</span></p>
+    <form class="wl-form" id="wl-form">
+      <input type="text" placeholder="お名前（任意）" data-ph-ja="お名前（任意）" data-ph-en="Name (optional)" id="wl-name">
+      <input type="email" placeholder="メールアドレス（必須）" data-ph-ja="メールアドレス（必須）" data-ph-en="Email address (required)" id="wl-email" required>
+      <select id="wl-usecase">
+        <option value="other" data-ja="用途を選択" data-en="Select use case">用途を選択</option>
+        <option value="home_studio" data-ja="フェス・イベント運営" data-en="Festival / event operations">フェス・イベント運営</option>
+        <option value="touring" data-ja="ステージ・パフォーマンス" data-en="Stage / performance">ステージ・パフォーマンス</option>
+        <option value="venue" data-ja="映像・収録制作" data-en="Video / recording production">映像・収録制作</option>
+        <option value="other" data-ja="その他" data-en="Other">その他</option>
+      </select>
+      <button type="submit"><span class="ja">先行登録する →</span><span class="en">Submit →</span></button>
+    </form>
+    <div class="wl-success" id="wl-success"><span class="ja">✓ 登録しました。発売時にご連絡します。</span><span class="en">✓ Registered. We'll notify you at launch.</span></div>
+    <p class="wl-note"><span class="ja">スパムは送りません。発売通知のみ。いつでも解除可能。</span><span class="en">No spam. Launch notification only. Unsubscribe anytime.</span></p>
+  </div>
+</section>
+
+<footer>
+  <p><a href="/">koe.live</a> &nbsp;·&nbsp; <a href="/guide">GUIDE</a> &nbsp;·&nbsp; <a href="/stage">STAGE</a> &nbsp;·&nbsp; <a href="/fill">FILL</a> &nbsp;·&nbsp; <a href="/roadmap"><span class="ja">ロードマップ</span><span class="en">Roadmap</span></a></p>
+  <p style="margin-top:0.5rem;color:#374151">© 2026 Koe Device. <span class="ja">Made in Japan with Rust</span><span class="en">Made in Japan with Rust</span> 🦀</p>
+</footer>
+
+<script>
+document.getElementById('wl-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.textContent = '送信中…'; btn.disabled = true;
+  try {
+    await fetch('/api/v1/waitlist', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: document.getElementById('wl-name').value || null,
+        email: document.getElementById('wl-email').value,
+        use_case: document.getElementById('wl-usecase').value
+      })
+    });
+    document.getElementById('wl-form').style.display = 'none';
+    document.getElementById('wl-success').style.display = 'block';
+  } catch {
+    btn.textContent = '先行登録する →'; btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

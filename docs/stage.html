@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe STAGE — 32chミキサーハブ $800" data-en="Koe STAGE — 32ch Mixer Hub $800">Koe STAGE — 32chミキサーハブ $800</title>
+<meta name="description" content="Raspberry Pi CM5ベースの32chミキサーハブ。EQ/リバーブ/コンプ、SRT/RTMP配信、256台Koeデバイス管理。業務用ミキサーの1/3価格。">
+<meta name="theme-color" content="#0a0f1a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Koe Device">
+<meta property="og:title" content="Koe STAGE — 32chミキサーハブ $800">
+<meta property="og:description" content="Pi CM5搭載32chミキサーハブ。SRT/RTMP配信・EQ/コンプ/リバーブ。業務用ミキサーの1/3価格。">
+<meta property="og:image" content="https://koe.live/images/H2-band-multi-channel.png">
+<meta property="og:url" content="https://koe.live/stage">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe STAGE — 32chミキサーハブ $800">
+<meta name="twitter:description" content="Pi CM5搭載32chミキサーハブ。SRT/RTMP配信・EQ/コンプ/リバーブ。業務用ミキサーの1/3価格。">
+<meta name="twitter:image" content="https://koe.live/images/H2-band-multi-channel.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0f1a;--surface:#111827;--elevated:#1f2937;
+  --accent:#ec4899;--accent-g:#10B981;
+  --text:#f3f4f6;--sub:#9ca3af;--muted:#6b7280;
+  --border:rgba(255,255,255,0.07);--r:14px;
+}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:rgba(10,15,26,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+nav .logo{font-size:1rem;font-weight:300;letter-spacing:0.3em}
+nav .logo span{color:var(--accent-g);font-weight:500}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{font-size:0.8rem;color:var(--sub);transition:color 0.2s}
+.nav-links a:hover{color:var(--accent-g)}
+.nav-links a.active{color:var(--accent)}
+.hero{padding:9rem 2rem 5rem;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(236,72,153,0.12) 0%,transparent 70%)}
+.hero-chip{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.25);color:var(--accent);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:100px;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:200;letter-spacing:0.08em;margin-bottom:0.5rem}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{font-size:1.1rem;color:var(--sub);margin:1rem auto 2rem;max-width:540px;line-height:1.7}
+.hero-price{font-size:4rem;font-weight:100;letter-spacing:-0.02em;margin-bottom:0.3rem}
+.hero-price sup{font-size:1.8rem;vertical-align:super}
+.hero-price-note{font-size:0.85rem;color:var(--muted);margin-bottom:1rem}
+.hero-compare{display:inline-block;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:0.4rem 1rem;font-size:0.8rem;color:var(--accent-g);margin-bottom:2rem}
+.btn{display:inline-flex;align-items:center;padding:0.9rem 2.2rem;border-radius:8px;font-size:0.9rem;font-weight:600;transition:opacity 0.2s;cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:0.85}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);margin-left:0.75rem}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.stats{display:flex;justify-content:center;gap:3rem;padding:3rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-size:2rem;font-weight:200;color:var(--accent)}
+.stat-label{font-size:0.75rem;color:var(--muted);letter-spacing:0.08em;margin-top:0.2rem}
+section{padding:5rem 2rem;max-width:1000px;margin:0 auto}
+.sec-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+.sec-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:200;letter-spacing:0.04em;margin-bottom:0.8rem}
+.sec-title em{font-style:normal;color:var(--accent)}
+.sec-sub{color:var(--sub);line-height:1.75;max-width:580px;margin-bottom:3rem;font-size:0.95rem}
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.5rem}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem}
+.feat-icon{font-size:1.8rem;margin-bottom:1rem}
+.feat-title{font-size:1rem;font-weight:500;margin-bottom:0.4rem}
+.feat-desc{font-size:0.83rem;color:var(--sub);line-height:1.65}
+.spec-table{width:100%;border-collapse:collapse}
+.spec-table th{text-align:left;padding:0.7rem 1rem;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400}
+.spec-table td{padding:0.85rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;color:var(--sub)}
+.spec-table td:first-child{color:var(--text);font-weight:500;width:40%}
+.waitlist-section{background:linear-gradient(135deg,rgba(236,72,153,0.08),rgba(16,185,129,0.06));border:1px solid var(--border);border-radius:20px;padding:4rem 2rem;text-align:center}
+.waitlist-section h2{font-size:1.8rem;font-weight:200;letter-spacing:0.05em;margin-bottom:0.8rem}
+.waitlist-section p{color:var(--sub);margin-bottom:2rem;font-size:0.95rem;line-height:1.7}
+.wl-form{display:flex;flex-direction:column;gap:0.75rem;max-width:400px;margin:0 auto}
+.wl-form input,.wl-form select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.85rem 1rem;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit}
+.wl-form input:focus{border-color:var(--accent)}
+.wl-form select{color:var(--sub);cursor:pointer}
+.wl-form button{background:var(--accent);color:#fff;font-size:0.9rem;font-weight:600;padding:0.9rem;border:none;border-radius:8px;cursor:pointer;transition:opacity 0.2s;font-family:inherit}
+.wl-form button:hover{opacity:0.85}
+.wl-note{font-size:0.75rem;color:var(--muted);margin-top:0.8rem}
+.wl-success{display:none;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:1.5rem;color:var(--accent);font-size:0.9rem}
+footer{border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--muted);font-size:0.8rem}
+footer a:hover{color:var(--accent-g)}
+@media(max-width:640px){nav{padding:1rem 1.2rem}.hero{padding:7rem 1.2rem 3rem}section{padding:3rem 1.2rem}}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+<div id="koe-nav"></div>
+
+<div class="hero">
+  <div class="hero-chip"><span class="ja">🎛 Koe STAGE — ミキサーハブ</span><span class="en">🎛 Koe STAGE — Mixer Hub</span></div>
+  <h1>Koe <em>STAGE</em></h1>
+  <div class="hero-sub"><span class="ja">Raspberry Pi CM5ベースの32chミキサーハブ。256台のKoeデバイスを一元管理し、SRT/RTMPで配信する。</span><span class="en">A Raspberry Pi CM5-based 32-channel mixer hub. Manage up to 256 Koe devices and stream via SRT/RTMP.</span></div>
+  <div class="hero-price"><sup>$</sup>800</div>
+  <div class="hero-price-note"><span class="ja">≈ ¥117,000 · 送料別 · 2026年11月発売予定</span><span class="en">≈ ¥117,000 · shipping excluded · ships Nov 2026</span></div>
+  <div class="hero-compare"><span class="ja">業務用ミキサー $2,000+ → Koe STAGE $800（1/3以下）</span><span class="en">Commercial mixers $2,000+ → Koe STAGE $800 (under 1/3 the price)</span></div>
+  <br>
+  <a href="#waitlist" class="btn btn-primary"><span class="ja">先行登録する</span><span class="en">Join Waitlist</span></a>
+  <a href="/stage-os" class="btn btn-outline"><span class="ja">🎛 STAGE OS を試す (Web)</span><span class="en">🎛 Try STAGE OS (Web)</span></a>
+  <a href="/downloads/KoeStage.dmg" class="btn btn-outline" download><span class="ja">⬇ macOSアプリ</span><span class="en">⬇ macOS app</span></a>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">32ch</div><div class="stat-label"><span class="ja">同時ミキシング</span><span class="en">Simultaneous mixing</span></div></div>
+  <div class="stat"><div class="stat-num"><span class="ja">256台</span><span class="en">256 units</span></div><div class="stat-label"><span class="ja">Koeデバイス管理</span><span class="en">Koe devices managed</span></div></div>
+  <div class="stat"><div class="stat-num">SRT</div><div class="stat-label"><span class="ja">ライブ配信対応</span><span class="en">Live streaming</span></div></div>
+  <div class="stat"><div class="stat-num">$800</div><div class="stat-label"><span class="ja">業務用の1/3価格</span><span class="en">1/3 of pro gear</span></div></div>
+</div>
+
+<section>
+  <div class="sec-label"><span class="ja">Koe STAGEとは</span><span class="en">About Koe STAGE</span></div>
+  <h2 class="sec-title"><span class="ja">ミキシングを<em>民主化</em>する</span><span class="en"><em>Democratize</em> mixing</span></h2>
+  <p class="sec-sub"><span class="ja">Pi CM5 + Rust製ハブソフトウェアで、32チャンネルの音声をリアルタイムミキシング。フェス、コンサート、スタジオ、配信スタジオに。Soluna OS ダッシュボードで全デバイスを可視化。</span><span class="en">A Pi CM5 + Rust-based hub that mixes 32 channels in real time. For festivals, concerts, studios, and streaming rooms. Visualize every device via the Soluna OS dashboard.</span></p>
+  <div class="features">
+    <div class="feat"><div class="feat-icon">🎛</div><div class="feat-title"><span class="ja">32ch リアルタイムミキシング</span><span class="en">32ch real-time mixing</span></div><div class="feat-desc"><span class="ja">Koe COINからのUDP音声を32チャンネル同時処理。EQ・リバーブ・コンプレッサー内蔵。</span><span class="en">Processes 32 UDP channels from Koe COIN simultaneously. Built-in EQ, reverb, and compressor.</span></div></div>
+    <div class="feat"><div class="feat-icon">📺</div><div class="feat-title"><span class="ja">SRT / RTMP 配信</span><span class="en">SRT / RTMP streaming</span></div><div class="feat-desc"><span class="ja">YouTube・Twitch・OBS連携。ミックス済み音声をリアルタイム配信。</span><span class="en">Integrates with YouTube, Twitch, and OBS. Streams mixed audio in real time.</span></div></div>
+    <div class="feat"><div class="feat-icon">📊</div><div class="feat-title"><span class="ja">Soluna OS ダッシュボード</span><span class="en">Soluna OS dashboard</span></div><div class="feat-desc"><span class="ja">256台のKoeデバイスの音量・ステータス・位置情報をWebダッシュボードで管理。</span><span class="en">Manage volume, status, and location of up to 256 Koe devices through a web dashboard.</span> <a href="/stage-os" style="color:#ec4899;text-decoration:underline;"><span class="ja">→ デモを見る</span><span class="en">→ Live demo</span></a></div></div>
+    <div class="feat"><div class="feat-icon">🦀</div><div class="feat-title"><span class="ja">Rust製、超高信頼性</span><span class="en">Rust-based, rock solid</span></div><div class="feat-desc"><span class="ja">ゼロクラッシュ設計。tokio非同期ランタイムで低レイテンシー処理。</span><span class="en">Zero-crash design. Low-latency processing on the tokio async runtime.</span></div></div>
+    <div class="feat"><div class="feat-icon">🔌</div><div class="feat-title"><span class="ja">標準I/O対応</span><span class="en">Standard I/O</span></div><div class="feat-desc"><span class="ja">HDMI・USB-A・Gigabit Ethernet・Wi-Fi 6。既存PA機材との接続も容易。</span><span class="en">HDMI, USB-A, Gigabit Ethernet, Wi-Fi 6. Connects easily to existing PA gear.</span></div></div>
+    <div class="feat"><div class="feat-icon">🌐</div><div class="feat-title"><span class="ja">WebRTC シグナリング</span><span class="en">WebRTC signaling</span></div><div class="feat-desc"><span class="ja">ブラウザからの直接参加もサポート。アプリ不要でリモートモニタリング。</span><span class="en">Supports direct participation from a browser. Remote monitoring without an app.</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label"><span class="ja">スペック</span><span class="en">Specs</span></div>
+  <h2 class="sec-title"><span class="ja">技術<em>仕様</em></span><span class="en">Technical <em>Specifications</em></span></h2>
+  <table class="spec-table">
+    <thead><tr><th><span class="ja">項目</span><span class="en">Item</span></th><th><span class="ja">仕様</span><span class="en">Specification</span></th></tr></thead>
+    <tbody>
+      <tr><td><span class="ja">コア</span><span class="en">Core</span></td><td>Raspberry Pi CM5 (Cortex-A76 × 4, 4GB RAM)</td></tr>
+      <tr><td><span class="ja">ソフトウェア</span><span class="en">Software</span></td><td><span class="ja">Rust (Axum + tokio)、オープンソース</span><span class="en">Rust (Axum + tokio), open source</span></td></tr>
+      <tr><td><span class="ja">チャンネル数</span><span class="en">Channels</span></td><td><span class="ja">最大 32ch（UDP マルチキャスト受信）</span><span class="en">Up to 32ch (UDP multicast receive)</span></td></tr>
+      <tr><td><span class="ja">管理デバイス数</span><span class="en">Managed devices</span></td><td><span class="ja">最大 256台の Koe デバイス</span><span class="en">Up to 256 Koe devices</span></td></tr>
+      <tr><td><span class="ja">エフェクト</span><span class="en">Effects</span></td><td><span class="ja">EQ / リバーブ / コンプレッサー / ノイズゲート</span><span class="en">EQ / reverb / compressor / noise gate</span></td></tr>
+      <tr><td><span class="ja">配信出力</span><span class="en">Streaming out</span></td><td><span class="ja">SRT / RTMP（YouTube・Twitch・OBS等）</span><span class="en">SRT / RTMP (YouTube, Twitch, OBS, etc.)</span></td></tr>
+      <tr><td><span class="ja">通信</span><span class="en">Connectivity</span></td><td>Gigabit Ethernet + Wi-Fi 6 (802.11ax)</td></tr>
+      <tr><td><span class="ja">管理UI</span><span class="en">Management UI</span></td><td><span class="ja">Webブラウザ（Soluna OS ダッシュボード）</span><span class="en">Web browser (Soluna OS dashboard)</span></td></tr>
+      <tr><td><span class="ja">電源</span><span class="en">Power</span></td><td>AC 100–240V / USB-C PD</td></tr>
+      <tr><td><span class="ja">技適</span><span class="en">Giteki</span></td><td><span class="ja">申請中（WiFi部: Pi CM5モジュール認証）</span><span class="en">In progress (Wi-Fi: Pi CM5 module certification)</span></td></tr>
+      <tr><td><span class="ja">価格</span><span class="en">Price</span></td><td><span class="ja">$800 / ¥117,000（予定）</span><span class="en">$800 / ¥117,000 (planned)</span></td></tr>
+      <tr><td><span class="ja">発売</span><span class="en">Launch</span></td><td><span class="ja">2026年11月（法人向け先行）</span><span class="en">Nov 2026 (B2B first)</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="waitlist">
+  <div class="waitlist-section">
+    <h2><span class="ja">先行登録する</span><span class="en">Join the Waitlist</span></h2>
+    <p><span class="ja">Koe STAGEの発売（2026年11月予定）に先立ち、先行登録受付中。<br>スタジオ・イベント会社向けのデモも対応します。</span><span class="en">Reserve your spot for the Nov 2026 launch.<br>Demos for studios and event companies are available.</span></p>
+    <form class="wl-form" id="wl-form">
+      <input type="text" placeholder="会社名 / お名前（任意）" data-ph-ja="会社名 / お名前（任意）" data-ph-en="Company / Name (optional)" id="wl-name">
+      <input type="email" placeholder="メールアドレス（必須）" data-ph-ja="メールアドレス（必須）" data-ph-en="Email address (required)" id="wl-email" required>
+      <select id="wl-usecase">
+        <option value="venue" data-ja="<span class="ja">用途</span><span class="en">Use cases</span>を選択" data-en="Select use case">用途を選択</option>
+        <option value="venue" data-ja="スタジオ・ライブハウス" data-en="Studio / live house">スタジオ・ライブハウス</option>
+        <option value="home_studio" data-ja="フェスティバル・野外イベント" data-en="Festival / outdoor event">フェスティバル・野外イベント</option>
+        <option value="touring" data-ja="配信・コンテンツ制作" data-en="Streaming / content production">配信・コンテンツ制作</option>
+        <option value="other" data-ja="その他" data-en="Other">その他</option>
+      </select>
+      <button type="submit"><span class="ja">先行登録する →</span><span class="en">Submit →</span></button>
+    </form>
+    <div class="wl-success" id="wl-success"><span class="ja">✓ 登録しました。発売時にご連絡します。</span><span class="en">✓ Registered. We'll notify you at launch.</span></div>
+    <p class="wl-note"><span class="ja">スパムは送りません。発売通知のみ。いつでも解除可能。</span><span class="en">No spam. Launch notification only. Unsubscribe anytime.</span></p>
+  </div>
+</section>
+
+<footer>
+  <p><a href="/">koe.live</a> &nbsp;·&nbsp; <a href="/coin">COIN</a> &nbsp;·&nbsp; <a href="/guide">GUIDE</a> &nbsp;·&nbsp; <a href="/fill">FILL</a> &nbsp;·&nbsp; <a href="/roadmap"><span class="ja">ロードマップ</span><span class="en">Roadmap</span></a></p>
+  <p style="margin-top:0.5rem;color:#374151">© 2026 Koe Device. <span class="ja">Made in Japan with Rust</span><span class="en">Made in Japan with Rust</span> 🦀</p>
+</footer>
+
+<script>
+document.getElementById('wl-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.textContent = '送信中…'; btn.disabled = true;
+  try {
+    await fetch('/api/v1/waitlist', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: document.getElementById('wl-name').value || null,
+        email: document.getElementById('wl-email').value,
+        use_case: document.getElementById('wl-usecase').value
+      })
+    });
+    document.getElementById('wl-form').style.display = 'none';
+    document.getElementById('wl-success').style.display = 'block';
+  } catch {
+    btn.textContent = '先行登録する →'; btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

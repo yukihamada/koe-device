@@ -142,6 +142,7 @@ body.lang-ja .en-block{display:none !important;}
 .ja-block{display:none;}
 .en-block{display:block;}
 </style>
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
 </head>
 <body>
 
@@ -273,7 +274,7 @@ body.lang-ja .en-block{display:none !important;}
             </g>
 
             <!-- nPM1300 QFN (top-center) -->
-            <g class="clickable-component" data-component="npm1300" onclick="showTooltip(event,'nPM1300','Nordic PMIC\nDual buck + LDO + charger\nLi-Po battery management\nQFN-32 (5x5mm)')">
+            <g class="clickable-component" data-component="npm1300" onclick="showTooltip(event,'nPM1300','Nordic PMIC\nDual buck + LDO + charger\nLi-Po battery management\nLGA-53 (13.2x16.6mm)')">
               <rect x="164" y="55" width="36" height="36" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
               <g fill="#888"><rect x="167" y="51" width="3.5" height="3" rx="0.3"/><rect x="174" y="51" width="3.5" height="3" rx="0.3"/><rect x="181" y="51" width="3.5" height="3" rx="0.3"/><rect x="188" y="51" width="3.5" height="3" rx="0.3"/>
               <rect x="167" y="92" width="3.5" height="3" rx="0.3"/><rect x="174" y="92" width="3.5" height="3" rx="0.3"/><rect x="181" y="92" width="3.5" height="3" rx="0.3"/><rect x="188" y="92" width="3.5" height="3" rx="0.3"/></g>
@@ -282,13 +283,13 @@ body.lang-ja .en-block{display:none !important;}
             </g>
 
             <!-- WS2812B LEDs -->
-            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB LED\nStatus + notification\n5050 package (5x5mm)')">
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812C LED (center)''Addressable RGB, board center LED\nStatus + notification\n5050 package (5x5mm)')">
               <rect x="250" y="130" width="7" height="7" rx="1" fill="#111" stroke="#333" stroke-width="0.3"/>
               <circle cx="253.5" cy="133.5" r="2.5" fill="#22c55e" filter="url(#glow-green)" opacity="0.9">
                 <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
               </circle>
             </g>
-            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB LED\nSoluna mode indicator\n5050 package (5x5mm)')">
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812C LED (center)''Addressable RGB, board center LED\nSoluna mode indicator\n5050 package (5x5mm)')">
               <rect x="260" y="130" width="7" height="7" rx="1" fill="#111" stroke="#333" stroke-width="0.3"/>
               <circle cx="263.5" cy="133.5" r="2.5" fill="#8B5CF6" filter="url(#glow-purple)" opacity="0.9">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
@@ -778,7 +779,7 @@ body.lang-ja .en-block{display:none !important;}
 <section class="product-section fade-in" id="coin">
   <div class="product-header">
     <h2><span class="purple">COIN</span> Lite</h2>
-    <p class="dims">26 mm <span class="en">diameter</span><span class="ja">直径</span> &mdash; <span class="en">500 yen coin size</span><span class="ja">500円玉サイズ</span></p>
+    <p class="dims">32 mm <span class="en">diameter</span><span class="ja">直径</span> &mdash; <span class="en">poker chip size, LED at center</span><span class="ja">ポーカーチップサイズ、LED中央</span></p>
   </div>
   <div class="product-layout">
     <div class="product-visual" id="coin-visual">
@@ -800,8 +801,8 @@ body.lang-ja .en-block{display:none !important;}
               <circle cx="200" cy="200" r="50" stroke-dasharray="2,4"/>
             </g>
 
-            <!-- ESP32-C3 module (center) -->
-            <g class="clickable-component" onclick="showTooltip(event,'ESP32-C3','RISC-V single-core @ 160MHz\nWiFi 4 + BLE 5.0\n400KB SRAM\nQFN-32 (5x5mm)')">
+            <!-- ESP32-C6-MINI-1 module (top) -->
+            <g class="clickable-component" onclick="showTooltip(event,'ESP32-C6','RISC-V 32-bit @ 160MHz\nWiFi 6 (802.11ax) + BLE 5\n512KB SRAM\nLGA-53 (13.2x16.6mm)')">
               <rect x="180" y="180" width="40" height="40" rx="2" fill="url(#chip-grad)" stroke="#555" stroke-width="0.5"/>
               <g fill="#888">
                 <rect x="183" y="177" width="3" height="2.5" rx="0.3"/><rect x="189" y="177" width="3" height="2.5" rx="0.3"/><rect x="195" y="177" width="3" height="2.5" rx="0.3"/><rect x="201" y="177" width="3" height="2.5" rx="0.3"/><rect x="207" y="177" width="3" height="2.5" rx="0.3"/><rect x="213" y="177" width="3" height="2.5" rx="0.3"/>
@@ -809,7 +810,7 @@ body.lang-ja .en-block{display:none !important;}
               </g>
               <circle cx="185" cy="185" r="1.5" fill="#555"/>
               <text x="200" y="202" text-anchor="middle" font-size="5" fill="#999" font-family="monospace">ESP32</text>
-              <text x="200" y="210" text-anchor="middle" font-size="4.5" fill="#888" font-family="monospace">-C3</text>
+              <text x="200" y="210" text-anchor="middle" font-size="4.5" fill="#888" font-family="monospace">-C6</text>
             </g>
 
             <!-- MAX98357A (left) -->
@@ -819,9 +820,9 @@ body.lang-ja .en-block{display:none !important;}
             </g>
 
             <!-- WS2812B LED (top, glowing) -->
-            <g class="clickable-component" onclick="showTooltip(event,'WS2812B LED','Addressable RGB\nSync indicator\nMulticolor patterns')">
-              <rect x="194" y="145" width="12" height="12" rx="2" fill="#111" stroke="#333" stroke-width="0.3"/>
-              <circle cx="200" cy="151" r="4.5" fill="#8B5CF6" filter="url(#led-bloom)" opacity="0.9">
+            <g class="clickable-component" onclick="showTooltip(event,'WS2812C LED (center)''Addressable RGB, board center\nSync indicator\nMulticolor patterns')">
+              <rect x="194" y="194" width="12" height="12" rx="2" fill="#111" stroke="#333" stroke-width="0.3"/>
+              <circle cx="200" cy="200" r="4.5" fill="#8B5CF6" filter="url(#led-bloom)" opacity="0.9">
                 <animate attributeName="fill" values="#8B5CF6;#06B6D4;#22c55e;#8B5CF6" dur="4s" repeatCount="indefinite"/>
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
               </circle>
@@ -852,14 +853,14 @@ body.lang-ja .en-block{display:none !important;}
 
           <!-- Size reference: 500 yen coin outline -->
           <circle cx="200" cy="200" r="80" fill="none" stroke="#444" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
-          <text x="200" y="300" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">26 mm</text>
+          <text x="200" y="300" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">32 mm</text>
 
           <!-- Actual size indicator -->
           <g transform="translate(320,160)">
             <text x="0" y="0" font-size="7" fill="#666" font-family="-apple-system,sans-serif" font-weight="300">
               <tspan class="en">Actual size</tspan><tspan class="ja">実寸</tspan>
             </text>
-            <text x="0" y="14" font-size="6" fill="#555" font-family="-apple-system,sans-serif" font-weight="200">(26 mm)</text>
+            <text x="0" y="14" font-size="6" fill="#555" font-family="-apple-system,sans-serif" font-weight="200">(32 mm)</text>
             <circle cx="20" cy="50" r="13" fill="none" stroke="var(--purple)" stroke-width="0.5" opacity="0.5"/>
             <circle cx="20" cy="50" r="0.5" fill="var(--purple)" opacity="0.5"/>
           </g>
@@ -906,19 +907,19 @@ body.lang-ja .en-block{display:none !important;}
           <text x="200" y="260" text-anchor="middle" font-size="11" fill="#888" font-family="-apple-system,sans-serif" font-weight="200">
             <tspan class="en">Frosted Polycarbonate + Matte Black</tspan><tspan class="ja">フロストポリカーボネート + マットブラック</tspan>
           </text>
-          <text x="200" y="280" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">26 mm &times; 8 mm &bull; ~8g</text>
+          <text x="200" y="280" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">32 mm &times; 8 mm &bull; ~8g</text>
         </svg>
       </div>
     </div>
     <div class="spec-sidebar">
       <h3><span class="en">Technical Specs</span><span class="ja">技術仕様</span></h3>
-      <div class="spec-row"><span class="label">PCB</span><span class="value">26 mm round, 2-layer</span></div>
-      <div class="spec-row"><span class="label"><span class="en">Enclosure</span><span class="ja">筐体</span></span><span class="value">26 x 8 mm disc</span></div>
+      <div class="spec-row"><span class="label">PCB</span><span class="value">32 mm round, 2-layer</span></div>
+      <div class="spec-row"><span class="label"><span class="en">Enclosure</span><span class="ja">筐体</span></span><span class="value">32 x 8 mm disc</span></div>
       <div class="spec-row"><span class="label"><span class="en">Weight</span><span class="ja">重量</span></span><span class="value">~8 g</span></div>
       <div class="spec-row"><span class="label">BOM</span><span class="value">~$24</span></div>
       <div class="spec-row"><span class="label"><span class="en">Components</span><span class="ja">部品数</span></span><span class="value">28</span></div>
       <div class="spec-row"><span class="label"><span class="en">Layers</span><span class="ja">層数</span></span><span class="value">2</span></div>
-      <div class="spec-row"><span class="label">SoC</span><span class="value">ESP32-C3</span></div>
+      <div class="spec-row"><span class="label">SoC</span><span class="value">ESP32-C6</span></div>
       <div class="spec-row"><span class="label">Amp</span><span class="value">MAX98357A</span></div>
       <div class="spec-row"><span class="label"><span class="en">Battery</span><span class="ja">電池</span></span><span class="value">LiPo 80mAh</span></div>
       <div class="spec-row"><span class="label"><span class="en">Runtime</span><span class="ja">動作時間</span></span><span class="value">~4 hours</span></div>

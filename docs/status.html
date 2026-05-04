@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe Device ステータス — 製品の現況" data-en="Koe Device Status — Product Status Board">Koe Device ステータス — 製品の現況</title>
+<meta name="description" content="Koe Deviceの全製品開発状況・製造ステージ・画像・仕様・ダウンロードをまとめたステータスページ。">
+<meta name="theme-color" content="#07090f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Koe Device">
+<meta property="og:title" content="Koe Device ステータス — 製品の現況">
+<meta property="og:description" content="全5製品の開発状況・3Dモデル・スペック・画像をまとめたリアルタイムダッシュボード。">
+<meta property="og:image" content="https://koe.live/images/G-lineup-all.png">
+<meta property="og:url" content="https://koe.live/status">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Device ステータス — 製品の現況">
+<meta name="twitter:description" content="全5製品の開発状況・3Dモデル・スペック・画像をまとめたリアルタイムダッシュボード。">
+<meta name="twitter:image" content="https://koe.live/images/G-lineup-all.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07090f;--surface:#0f1420;--elevated:#161d2e;--card:#111827;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#f1f5f9;--sub:#94a3b8;--muted:#64748b;
+  --c-coin:#10B981;--c-guide:#6366f1;--c-stage:#ec4899;
+  --c-fill:#f59e0b;--c-v2:#06b6d4;
+  --ok:#10B981;--warn:#f59e0b;--pend:#64748b;
+}
+body{font-family:-apple-system,'SF Pro Display','Helvetica Neue','Hiragino Sans',sans-serif;
+  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-size:14px}
+a{color:inherit;text-decoration:none}
+img{display:block}
+
+/* ===== HERO HEADER ===== */
+.page-hero{
+  position:relative;min-height:420px;display:flex;align-items:flex-end;
+  overflow:hidden;padding:6rem 2rem 3rem;
+}
+.page-hero-bg{
+  position:absolute;inset:0;
+  background-image:url('/images/G-lineup-all.webp');
+  background-size:cover;background-position:center 40%;
+  filter:brightness(0.35) saturate(0.7);
+  transform:scale(1.03);
+}
+.page-hero::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,var(--bg) 0%,transparent 60%);
+}
+.page-hero-content{position:relative;z-index:1;max-width:1200px;width:100%;margin:0 auto}
+.page-hero-eyebrow{
+  font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--c-coin);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.6rem;
+}
+.page-hero-eyebrow::before{content:'';display:inline-block;width:20px;height:1px;background:var(--c-coin)}
+.page-hero h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:200;letter-spacing:0.02em;line-height:1.1;margin-bottom:0.8rem}
+.page-hero h1 em{font-style:normal;color:var(--c-coin)}
+.page-hero p{color:var(--sub);font-size:0.95rem;max-width:560px;line-height:1.75}
+
+/* ===== STATS BAR ===== */
+.stats-bar{
+  max-width:1200px;margin:0 auto;padding:2rem 2rem;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;
+  background:var(--border);border-radius:16px;overflow:hidden;
+}
+.stat-cell{
+  background:var(--surface);padding:1.2rem 1.5rem;
+  display:flex;flex-direction:column;gap:0.25rem;
+}
+.stat-cell:first-child{border-radius:16px 0 0 16px}
+.stat-cell:last-child{border-radius:0 16px 16px 0}
+.sc-lbl{font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)}
+.sc-val{font-size:1.55rem;font-weight:300;letter-spacing:-0.02em;line-height:1}
+.sc-sub{font-size:0.7rem;color:var(--muted)}
+.pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 8px var(--ok);animation:pulse 1.8s infinite;margin-right:0.3rem;vertical-align:middle}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ===== SECTION LABELS ===== */
+.section-wrap{max-width:1200px;margin:0 auto;padding:0 2rem}
+.section-head{padding:3rem 0 1.5rem;display:flex;align-items:flex-end;gap:1.5rem}
+.section-head h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:200;letter-spacing:0.03em}
+.section-head h2 em{font-style:normal;color:var(--c-coin)}
+.section-head p{color:var(--sub);font-size:0.85rem;line-height:1.65;flex:1;max-width:480px}
+.sec-rule{height:1px;background:var(--border);max-width:1200px;margin:0 auto 0}
+
+/* ===== PRODUCT CARDS ===== */
+.products{max-width:1200px;margin:0 auto;padding:0 2rem 2rem;display:flex;flex-direction:column;gap:1.5rem}
+
+.pcard{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;display:flex;flex-direction:row;
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.pcard:hover{border-color:var(--border2);box-shadow:0 8px 40px rgba(0,0,0,0.35)}
+.pcard:nth-child(even){flex-direction:row-reverse}
+@media(max-width:860px){.pcard,.pcard:nth-child(even){flex-direction:column}}
+
+.pcard-media{
+  flex:1.25;min-height:340px;position:relative;overflow:hidden;
+}
+.pcard-media img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
+  transition:transform 0.5s ease;
+}
+.pcard:hover .pcard-media img{transform:scale(1.04)}
+.pcard-media-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.5) 100%);
+  pointer-events:none;
+}
+.pcard-badge{
+  position:absolute;top:1.2rem;left:1.2rem;z-index:2;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:100px;padding:0.3rem 0.8rem;
+  font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);
+}
+.pcard-ph{
+  background:linear-gradient(135deg,#0f1420,#161d2e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:7rem;opacity:0.5;
+}
+@media(max-width:860px){.pcard-media{min-height:260px;flex:none}}
+
+.pcard-body{flex:1;padding:2.4rem 2.6rem;display:flex;flex-direction:column;gap:0.9rem}
+@media(max-width:640px){.pcard-body{padding:1.6rem 1.4rem}}
+
+.pcard-header{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+.pcard-name{font-size:2rem;font-weight:200;letter-spacing:0.04em}
+.pcard-name em{font-style:normal}
+.pcard-price{font-size:1rem;color:var(--muted);margin-left:auto}
+.pcard-desc{font-size:0.82rem;color:var(--sub);line-height:1.65}
+
+.pills{display:flex;gap:0.4rem;flex-wrap:wrap}
+.pill{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-size:0.68rem;font-weight:600;padding:0.22rem 0.6rem;border-radius:100px;
+  letter-spacing:0.04em;
+}
+.pill.ok{background:rgba(16,185,129,0.1);color:var(--ok);border:1px solid rgba(16,185,129,0.2)}
+.pill.warn{background:rgba(245,158,11,0.1);color:var(--warn);border:1px solid rgba(245,158,11,0.2)}
+.pill.pend{background:rgba(100,116,139,0.1);color:#8899aa;border:1px solid rgba(100,116,139,0.2)}
+.pill.info{background:rgba(99,102,241,0.1);color:var(--c-guide);border:1px solid rgba(99,102,241,0.2)}
+.pill.star{background:rgba(16,185,129,0.15);color:var(--c-coin);border:1px solid rgba(16,185,129,0.3)}
+
+.progress{display:flex;flex-direction:column;gap:0.3rem}
+.progress-lbl{font-size:0.68rem;color:var(--muted);display:flex;justify-content:space-between}
+.progress-track{height:4px;background:rgba(255,255,255,0.07);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;border-radius:100px}
+
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2rem}
+.kv{display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.78rem}
+.kv-k{color:var(--muted)}
+.kv-v{font-weight:500}
+
+.meta-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;padding:0.8rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.meta-item{display:flex;flex-direction:column;gap:0.15rem;padding:0 0.6rem}
+.meta-item:not(:first-child){border-left:1px solid var(--border)}
+.meta-lbl{font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.meta-val{font-size:0.9rem;font-weight:500}
+
+.actions{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.4rem}
+.btn{
+  display:inline-flex;align-items:center;gap:0.35rem;
+  font-size:0.78rem;font-weight:500;padding:0.55rem 1.1rem;border-radius:9px;
+  border:1px solid var(--border);color:var(--text);transition:all 0.2s;
+}
+.btn:hover{border-color:var(--border2);background:rgba(255,255,255,0.04)}
+.btn.primary{background:var(--text);color:#000;border-color:transparent}
+.btn.primary:hover{opacity:0.88;transform:translateY(-1px)}
+.btn.accent{background:var(--c-coin);color:#000;border-color:transparent}
+.btn.accent:hover{opacity:0.88;transform:translateY(-1px)}
+
+/* per-product color accents — em gets text color only, progress-fill gets background only */
+.coin .pcard-name em{color:var(--c-coin)}  .coin .progress-fill{background:var(--c-coin)}
+.guide .pcard-name em{color:var(--c-guide)} .guide .progress-fill{background:var(--c-guide)}
+.stage .pcard-name em{color:var(--c-stage)} .stage .progress-fill{background:var(--c-stage)}
+.fill .pcard-name em{color:var(--c-fill)}  .fill .progress-fill{background:var(--c-fill)}
+.v2 .pcard-name em{color:var(--c-v2)}     .v2 .progress-fill{background:var(--c-v2)}
+.coin .pcard-badge{border-color:rgba(16,185,129,0.35);color:var(--c-coin)}
+.guide .pcard-badge{border-color:rgba(99,102,241,0.35);color:var(--c-guide)}
+.stage .pcard-badge{border-color:rgba(236,72,153,0.35);color:var(--c-stage)}
+.fill .pcard-badge{border-color:rgba(245,158,11,0.35);color:var(--c-fill)}
+.v2 .pcard-badge{border-color:rgba(6,182,212,0.35);color:var(--c-v2)}
+
+/* ===== VISUALIZATIONS ===== */
+.vis-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;
+  padding-bottom:1rem;
+}
+.vis-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  transition:all 0.2s;
+}
+.vis-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.vis-img{aspect-ratio:16/10;overflow:hidden;background:#0a0e1a}
+.vis-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.vis-card:hover .vis-img img{transform:scale(1.04)}
+.vis-caption{padding:0.85rem 1rem;display:flex;flex-direction:column;gap:0.15rem}
+.vis-title{font-size:0.85rem;font-weight:500}
+.vis-sub{font-size:0.72rem;color:var(--muted)}
+
+/* ===== BRAND RENDERS ===== */
+.renders-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;
+  padding-bottom:1.5rem;
+}
+@media(max-width:900px){.renders-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:540px){.renders-grid{grid-template-columns:repeat(2,1fr)}}
+.render-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  transition:all 0.2s;cursor:pointer;
+}
+.render-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.render-img{aspect-ratio:1;overflow:hidden;background:#0a0e1a}
+.render-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.render-card:hover .render-img img{transform:scale(1.06)}
+.render-lbl{padding:0.6rem 0.8rem;font-size:0.78rem;font-weight:500}
+.render-sub{padding:0 0.8rem 0.7rem;font-size:0.68rem;color:var(--muted)}
+
+/* ===== KEYNOTE GRID ===== */
+.keynote-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.8rem;
+  padding-bottom:1.5rem;
+}
+.keynote-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  transition:all 0.2s;
+}
+.keynote-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.keynote-img{aspect-ratio:16/10;overflow:hidden;background:#0a0e1a}
+.keynote-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.keynote-card:hover .keynote-img img{transform:scale(1.05)}
+.keynote-lbl{padding:0.5rem 0.75rem;font-size:0.75rem;color:var(--sub)}
+
+/* ===== 3D MODELS ===== */
+.stl-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.8rem;
+  padding-bottom:1.5rem;
+}
+.stl-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:0.9rem;transition:all 0.2s;display:flex;flex-direction:column;gap:0.5rem;
+}
+.stl-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stl-thumb{
+  aspect-ratio:1;border-radius:8px;
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.stl-thumb img{max-width:90%;max-height:90%;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5))}
+.stl-name{font-size:0.78rem;font-weight:500;line-height:1.3}
+.stl-sub{font-size:0.67rem;color:var(--muted)}
+.stl-dl{font-size:0.68rem;color:var(--c-coin);margin-top:auto}
+
+/* ===== PHOTO GALLERY ===== */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:0.8rem;padding-bottom:2rem;
+}
+.gallery-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;transition:all 0.2s;
+}
+.gallery-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.gallery-img{aspect-ratio:4/3;overflow:hidden;background:#0a0e1a}
+.gallery-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.gallery-card:hover .gallery-img img{transform:scale(1.06)}
+.gallery-cap{padding:0.6rem 0.85rem 0.75rem;display:flex;flex-direction:column;gap:0.1rem}
+.gallery-title{font-size:0.8rem;font-weight:500}
+.gallery-sub{font-size:0.7rem;color:var(--muted)}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;color:var(--muted);font-size:0.78rem;margin-top:2rem}
+footer a:hover{color:var(--c-coin)}
+
+@media(max-width:640px){
+  .page-hero{padding:5.5rem 1.2rem 2rem;min-height:320px}
+  .stats-bar{margin:1.5rem 1.2rem;grid-template-columns:repeat(3,1fr)}
+  .stat-cell:first-child,.stat-cell:last-child{border-radius:0}
+  .section-wrap{padding:0 1.2rem}
+  .products{padding:0 1.2rem 1.5rem}
+  .kv-grid{grid-template-columns:1fr}
+  .meta-row{grid-template-columns:repeat(2,1fr);gap:0.5rem}
+  .meta-item:nth-child(odd):not(:first-child){border-left:none}
+  .meta-item:nth-child(3){border-top:1px solid var(--border)}
+}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+
+<div id="koe-nav"></div>
+
+<!-- HERO HEADER -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <div class="page-hero-eyebrow">Product Status &nbsp;·&nbsp; Live</div>
+    <h1><span class="ja">製品<em>ステータス</em></span><span class="en">Product <em>Status</em></span></h1>
+    <p><span class="ja">Koe Deviceの全5製品の開発状況・製造ステージ・スペック・3Dモデル・参考画像をまとめたリアルタイムダッシュボード。</span><span class="en">Real-time dashboard covering development stage, manufacturing, specs, 3D models, and reference imagery for all 5 Koe devices.</span></p>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div style="padding:0 2rem;max-width:1200px;margin:0 auto">
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <div class="sc-lbl"><span class="ja">製品数</span><span class="en">Products</span></div>
+      <div class="sc-val">5</div>
+      <div class="sc-sub"><span class="ja">アクティブ開発中</span><span class="en">in active dev</span></div>
+    </div>
+    <div class="stat-cell">
+      <div class="sc-lbl"><span class="ja">本番サイト</span><span class="en">Production</span></div>
+      <div class="sc-val"><span class="pulse-dot"></span>LIVE</div>
+      <div class="sc-sub">koe.live · Fly.io nrt</div>
+    </div>
+    <div class="stat-cell">
+      <div class="sc-lbl">OTA API</div>
+      <div class="sc-val"><span class="pulse-dot"></span>200 OK</div>
+      <div class="sc-sub">/api/v1/device/firmware</div>
+    </div>
+    <div class="stat-cell">
+      <div class="sc-lbl"><span class="ja">技適モジュール</span><span class="en">Giteki</span></div>
+      <div class="sc-val" style="font-size:1.1rem;line-height:1.3">ESP32-S3-MINI-1</div>
+      <div class="sc-sub">201-220017</div>
+    </div>
+    <div class="stat-cell">
+      <div class="sc-lbl"><span class="ja">初回発売</span><span class="en">First launch</span></div>
+      <div class="sc-val">2026.8</div>
+      <div class="sc-sub"><span class="ja">COIN · 日本</span><span class="en">COIN · Japan</span></div>
+    </div>
+    <div class="stat-cell">
+      <div class="sc-lbl">STL <span class="ja">筐体</span><span class="en">models</span></div>
+      <div class="sc-val">35</div>
+      <div class="sc-sub"><span class="ja">無料ダウンロード</span><span class="en">free download</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     PRODUCT CARDS
+================================== -->
+<div class="section-wrap">
+  <div class="section-head">
+    <h2><span class="ja">製品<em>ラインアップ</em></span><span class="en">Product <em>Lineup</em></span></h2>
+    <p><span class="ja">各製品の開発ステージ・スペック・ダウンロード。</span><span class="en">Development stage, specs, and downloads for each product.</span></p>
+  </div>
+</div>
+<div class="sec-rule"></div>
+
+<div class="products">
+
+  <!-- ======= COIN ======= -->
+  <div class="pcard coin">
+    <div class="pcard-media">
+      <img loading="lazy" src="/images/NEW-B1-palm-v2.webp" alt="Koe COIN in palm"
+        onerror="this.onerror=null;this.src='/images/B2-palm-coin.webp'"
+      >
+      <div class="pcard-media-overlay"></div>
+      <div class="pcard-badge">★ <span class="ja">最優先製品</span><span class="en">Priority product</span></div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-header">
+        <div class="pcard-name">Koe <em>COIN</em></div>
+        <div class="pcard-price">$65 · ¥9,500</div>
+      </div>
+      <div class="pcard-desc"><span class="ja">26mm丸基板の双方向音声デバイス。マイク+スピーカー内蔵、ESP32-S3で8ms低遅延。フェス・群衆演奏・イベントに。</span><span class="en">Bi-directional audio on a 26mm round PCB. Built-in mic + speaker, 8ms latency via ESP32-S3. Made for festivals and crowd instruments.</span></div>
+
+      <div class="pills">
+        <span class="pill star">★ <span class="ja">最優先</span><span class="en">Top priority</span></span>
+        <span class="pill ok">✓ <span class="ja">FWテスト済</span><span class="en">FW tested</span></span>
+        <span class="pill ok">✓ OTA</span>
+        <span class="pill ok">✓ <span class="ja">技適済</span><span class="en">Giteki</span></span>
+        <span class="pill warn">⚡ JLCPCB <span class="ja">製造待ち</span><span class="en">awaiting</span></span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-lbl">
+          <span><span class="ja">2026年8月 日本発売まで</span><span class="en">Aug 2026 Japan launch</span></span>
+          <span>75%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-lbl">MCU</span><span class="meta-val">ESP32-S3</span></div>
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">遅延</span><span class="en">Latency</span></span><span class="meta-val">8ms E2E</span></div>
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">同時台数</span><span class="en">Concurrent</span></span><span class="meta-val">256</span></div>
+        <div class="meta-item"><span class="meta-lbl">BOM</span><span class="meta-val">$15</span></div>
+      </div>
+
+      <div class="kv-grid">
+        <div class="kv"><span class="kv-k"><span class="ja">コーデック</span><span class="en">Codec</span></span><span class="kv-v">ES8388 24/96kHz</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">通信</span><span class="en">Network</span></span><span class="kv-v">Wi-Fi UDP multicast</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">サイズ</span><span class="en">Size</span></span><span class="kv-v">Ø26mm</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">電源</span><span class="en">Power</span></span><span class="kv-v">USB-C 5V</span></div>
+      </div>
+
+      <div class="actions">
+        <a href="/coin" class="btn accent"><span class="ja">製品詳細</span><span class="en">Product page</span></a>
+        <a href="/app" class="btn">🪙 <span class="ja">Web体験</span><span class="en">Try web app</span></a>
+        <a href="/downloads/koe-pro-v2-gerbers.zip" class="btn" download>⬇ Gerbers</a>
+        <a href="/downloads/koe-pro-v2-BOM-JLCPCB.csv" class="btn" download>⬇ BOM</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= GUIDE ======= -->
+  <div class="pcard guide">
+    <div class="pcard-media">
+      <img loading="lazy" src="/images/A3-ear-white.webp" alt="Koe GUIDE earpiece"
+        onerror="this.onerror=null;this.parentElement.classList.add('pcard-ph');this.remove()"
+      >
+      <div class="pcard-media-overlay"></div>
+      <div class="pcard-badge"><span class="ja">受信専用</span><span class="en">Receive-only</span></div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-header">
+        <div class="pcard-name">Koe <em>GUIDE</em></div>
+        <div class="pcard-price">$99 · ¥14,500</div>
+      </div>
+      <div class="pcard-desc"><span class="ja">ツアーガイド・博物館・工場向け受信専用デバイス。Sennheiser比1/3〜1/4の価格で25時間稼働。</span><span class="en">Receive-only earpiece for guided tours, museums, and factories. 25-hour battery at 1/3 the cost of Sennheiser.</span></div>
+
+      <div class="pills">
+        <span class="pill info">★ <span class="ja">最優先製品</span><span class="en">Top priority</span></span>
+        <span class="pill ok">✓ FW (guide feature)</span>
+        <span class="pill warn">⚡ <span class="ja">PCB設計中</span><span class="en">PCB design</span></span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-lbl">
+          <span><span class="ja">2026年9月 日本発売まで</span><span class="en">Sep 2026 Japan launch</span></span>
+          <span>55%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:55%"></div></div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">稼働時間</span><span class="en">Runtime</span></span><span class="meta-val">25h</span></div>
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">消費電流</span><span class="en">Draw</span></span><span class="meta-val">20mA</span></div>
+        <div class="meta-item"><span class="meta-lbl">vs Sennheiser</span><span class="meta-val">1/3 price</span></div>
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">市場規模</span><span class="en">Market</span></span><span class="meta-val">$260M</span></div>
+      </div>
+
+      <div class="kv-grid">
+        <div class="kv"><span class="kv-k">MCU</span><span class="kv-v">ESP32-S3-MINI-1</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">出力</span><span class="en">Output</span></span><span class="kv-v">3.5mm jack</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">バッテリー</span><span class="en">Battery</span></span><span class="kv-v">500mAh</span></div>
+        <div class="kv"><span class="kv-k">CPU clock</span><span class="kv-v">80MHz (guide)</span></div>
+      </div>
+
+      <div class="actions">
+        <a href="/guide" class="btn primary"><span class="ja">製品詳細</span><span class="en">Product page</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= STAGE ======= -->
+  <div class="pcard stage">
+    <div class="pcard-media">
+      <img loading="lazy" src="/images/H2-band-multi-channel.webp" alt="Koe STAGE multi-channel"
+        onerror="this.onerror=null;this.src='/images/C1-festival-wide.webp'"
+      >
+      <div class="pcard-media-overlay"></div>
+      <div class="pcard-badge"><span class="ja">ミキサーハブ</span><span class="en">Mixer hub</span></div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-header">
+        <div class="pcard-name">Koe <em>STAGE</em></div>
+        <div class="pcard-price">$800 · ¥117,000</div>
+      </div>
+      <div class="pcard-desc"><span class="ja">Raspberry Pi CM5搭載の32chミキサーハブ。SRT/RTMP配信、EQ/コンプ/リバーブ対応。業務用ミキサーの1/3の価格。</span><span class="en">32-channel mixer hub powered by Raspberry Pi CM5. SRT/RTMP streaming, EQ/comp/reverb. One-third the cost of pro mixers.</span></div>
+
+      <div class="pills">
+        <span class="pill warn">⚡ <span class="ja">プロトタイプ中</span><span class="en">Prototyping</span></span>
+        <span class="pill ok">✓ STAGE OS (Web UI)</span>
+        <span class="pill ok">✓ macOS <span class="ja">アプリ</span><span class="en">app</span></span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-lbl">
+          <span><span class="ja">2026年11月 日本発売まで</span><span class="en">Nov 2026 Japan launch</span></span>
+          <span>40%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-lbl">Channels</span><span class="meta-val">32ch</span></div>
+        <div class="meta-item"><span class="meta-lbl">Devices</span><span class="meta-val">256</span></div>
+        <div class="meta-item"><span class="meta-lbl">Stream</span><span class="meta-val">SRT / RTMP</span></div>
+        <div class="meta-item"><span class="meta-lbl">vs Pro</span><span class="meta-val">1/3 price</span></div>
+      </div>
+
+      <div class="kv-grid">
+        <div class="kv"><span class="kv-k">Core</span><span class="kv-v">Pi CM5 4GB</span></div>
+        <div class="kv"><span class="kv-k">FX</span><span class="kv-v">EQ / Comp / Reverb</span></div>
+        <div class="kv"><span class="kv-k">Network</span><span class="kv-v">GbE + Wi-Fi 6</span></div>
+        <div class="kv"><span class="kv-k">Stack</span><span class="kv-v">Rust + Axum</span></div>
+      </div>
+
+      <div class="actions">
+        <a href="/stage" class="btn primary"><span class="ja">製品詳細</span><span class="en">Product page</span></a>
+        <a href="/stage-os" class="btn">🎛 STAGE OS</a>
+        <a href="/downloads/KoeStage.dmg" class="btn" download>⬇ macOS DMG</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= FILL ======= -->
+  <div class="pcard fill">
+    <div class="pcard-media">
+      <img loading="lazy" src="/brand/hero/05_amp.webp" alt="Koe FILL amplifier"
+        onerror="this.onerror=null;this.src='/images/C3-festival-aerial.webp'"
+      >
+      <div class="pcard-media-overlay"></div>
+      <div class="pcard-badge">LoRa 10km <span class="ja">同期</span><span class="en">sync</span></div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-header">
+        <div class="pcard-name">Koe <em>FILL</em></div>
+        <div class="pcard-price">$1,500 · ¥220,000</div>
+      </div>
+      <div class="pcard-desc"><span class="ja">LoRa同期1,000W Class-D PAスピーカー。フェスSoluna同期、10km無線同期。L-Acousticsの1/7の価格。10,000人フェスに18台。</span><span class="en">1,000W Class-D PA speaker with LoRa 10km sync for Soluna festivals. 18 units cover 10,000 people at 1/7 the cost of L-Acoustics.</span></div>
+
+      <div class="pills">
+        <span class="pill warn">⚡ <span class="ja">設計中</span><span class="en">Designing</span></span>
+        <span class="pill pend">● <span class="ja">技適申請予定</span><span class="en">Giteki pending</span></span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-lbl">
+          <span><span class="ja">2027年1月 日本発売まで</span><span class="en">Jan 2027 Japan launch</span></span>
+          <span>25%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:25%"></div></div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">同期距離</span><span class="en">Sync range</span></span><span class="meta-val">10km</span></div>
+        <div class="meta-item"><span class="meta-lbl">Amp power</span><span class="meta-val">1,000W</span></div>
+        <div class="meta-item"><span class="meta-lbl">10K fest</span><span class="meta-val">×18 units</span></div>
+        <div class="meta-item"><span class="meta-lbl">vs L-Acoustics</span><span class="meta-val">1/7 price</span></div>
+      </div>
+
+      <div class="kv-grid">
+        <div class="kv"><span class="kv-k">Sync MCU</span><span class="kv-v">RAK11160 (LoRa)</span></div>
+        <div class="kv"><span class="kv-k">Controller</span><span class="kv-v">Pi CM5</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">ユニット</span><span class="en">Drivers</span></span><span class="kv-v">8" + 1" horn</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">電源</span><span class="en">Power</span></span><span class="kv-v">AC / battery</span></div>
+      </div>
+
+      <div class="actions">
+        <a href="/fill" class="btn primary"><span class="ja">製品詳細</span><span class="en">Product page</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= GUIDE v2 ======= -->
+  <div class="pcard v2">
+    <div class="pcard-media">
+      <img loading="lazy" src="/images/A1-ear-shibuya.webp" alt="Koe GUIDE v2"
+        onerror="this.onerror=null;this.src='/images/A2-ear-cafe.webp'"
+      >
+      <div class="pcard-media-overlay"></div>
+      <div class="pcard-badge">BLE LE Audio · Auracast</div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-header">
+        <div class="pcard-name">Koe <em>GUIDE v2</em></div>
+        <div class="pcard-price">$79 · ¥11,500</div>
+      </div>
+      <div class="pcard-desc"><span class="ja">Wi-Fi不要のBluetooth LE Audio (Auracast) 対応次世代ガイドデバイス。50時間以上稼働。ペアリング不要で無限台数受信。</span><span class="en">Next-generation guide device with Bluetooth LE Audio (Auracast). 50+ hour runtime, no Wi-Fi or pairing needed. Unlimited concurrent receivers.</span></div>
+
+      <div class="pills">
+        <span class="pill pend">● <span class="ja">将来製品</span><span class="en">Future product</span></span>
+        <span class="pill pend">● nRF5340 <span class="ja">供給待ち</span><span class="en">supply pending</span></span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-lbl">
+          <span><span class="ja">2027年夏 発売まで</span><span class="en">Summer 2027 launch</span></span>
+          <span>10%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:10%"></div></div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-lbl">Runtime</span><span class="meta-val">50+ h</span></div>
+        <div class="meta-item"><span class="meta-lbl"><span class="ja">同時受信</span><span class="en">Receivers</span></span><span class="meta-val">∞</span></div>
+        <div class="meta-item"><span class="meta-lbl">Codec</span><span class="meta-val">LC3</span></div>
+        <div class="meta-item"><span class="meta-lbl">Wi-Fi</span><span class="meta-val"><span class="ja">不要</span><span class="en">None</span></span></div>
+      </div>
+
+      <div class="kv-grid">
+        <div class="kv"><span class="kv-k">MCU</span><span class="kv-v">nRF5340</span></div>
+        <div class="kv"><span class="kv-k"><span class="ja">消費電流</span><span class="en">Draw</span></span><span class="kv-v">~4mA</span></div>
+        <div class="kv"><span class="kv-k">Protocol</span><span class="kv-v">BLE 5.4 LE Audio</span></div>
+        <div class="kv"><span class="kv-k">Pairing</span><span class="kv-v"><span class="ja">不要</span><span class="en">None required</span></span></div>
+      </div>
+
+      <div class="actions">
+        <a href="/guide-v2" class="btn primary"><span class="ja">製品詳細</span><span class="en">Product page</span></a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /products -->
+
+<!-- ==============================
+     TECH VISUALIZATIONS
+================================== -->
+<div class="sec-rule" style="margin-top:2rem"></div>
+<div class="section-wrap">
+  <div class="section-head">
+    <h2><span class="ja">技術<em>ビジュアル</em></span><span class="en">Tech <em>Visuals</em></span></h2>
+    <p><span class="ja">回路構成・サイズ比較・メッシュ同期のビジュアライゼーション。</span><span class="en">Circuit structure, size comparison, and mesh-sync visualizations.</span></p>
+  </div>
+  <div class="vis-grid">
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/VIS-exploded.webp" alt="Exploded view"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">分解図</span><span class="en">Exploded view</span></div>
+        <div class="vis-sub"><span class="ja">PCB・筐体・コンポーネント構成</span><span class="en">PCB, enclosure & component layout</span></div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/VIS-4layers.webp" alt="4-layer PCB"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">4層PCB構造</span><span class="en">4-layer PCB stack</span></div>
+        <div class="vis-sub"><span class="ja">電源・GND・信号・RFの4層設計</span><span class="en">Power / GND / Signal / RF layer stack</span></div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/VIS-mesh-sync.webp" alt="Mesh sync"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">メッシュ同期</span><span class="en">Mesh sync</span></div>
+        <div class="vis-sub"><span class="ja">256台のUDPマルチキャスト同期</span><span class="en">256-device UDP multicast synchronization</span></div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/VIS-size-compare.webp" alt="Size comparison"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">サイズ比較</span><span class="en">Size comparison</span></div>
+        <div class="vis-sub"><span class="ja">硬貨・名刺・指先とのサイズ対比</span><span class="en">Compared against coin, card, and fingertip</span></div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/H6-signal-flow.webp" alt="Signal flow"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">シグナルフロー</span><span class="en">Signal flow</span></div>
+        <div class="vis-sub"><span class="ja">マイク→ESP32→UDP→スピーカー</span><span class="en">Mic → ESP32 → UDP → Speaker chain</span></div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-img"><img loading="lazy" src="/images/H1-guitar-to-devices.webp" alt="Guitar to devices"></div>
+      <div class="vis-caption">
+        <div class="vis-title"><span class="ja">ギター→全デバイス</span><span class="en">Guitar → all devices</span></div>
+        <div class="vis-sub"><span class="ja">1音源を全Koeデバイスへ一斉配信</span><span class="en">One source broadcast to all Koe devices</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     BRAND RENDERS
+================================== -->
+<div class="sec-rule"></div>
+<div class="section-wrap">
+  <div class="section-head">
+    <h2><span class="ja">製品<em>レンダー</em></span><span class="en">Brand <em>Renders</em></span></h2>
+    <p><span class="ja">プレス・マーケティング用の公式3Dレンダリングとライフスタイル素材。SNS・資料・メディア掲載に自由にご利用ください。</span><span class="en">Official 3D renders and lifestyle key visuals for press, marketing, and media use. Free to use for coverage and pitches.</span></p>
+  </div>
+  <div class="renders-grid">
+    <div class="render-card">
+      <div class="render-img"><img loading="lazy" src="/brand/hero/01_stone.webp" alt="Stone form factor"></div>
+      <div class="render-lbl">Stone</div>
+      <div class="render-sub">COIN · Koe standard</div>
+    </div>
+    <div class="render-card">
+      <div class="render-img"><img loading="lazy" src="/brand/hero/02_stone_mini.webp" alt="Stone mini"></div>
+      <div class="render-lbl">Stone Mini</div>
+      <div class="render-sub">COIN compact variant</div>
+    </div>
+    <div class="render-card">
+      <div class="render-img"><img loading="lazy" src="/brand/hero/03_pick.webp" alt="Pick form"></div>
+      <div class="render-lbl">Pick</div>
+      <div class="render-sub"><span class="ja">ギターピック型</span><span class="en">Guitar-pick form</span></div>
+    </div>
+    <div class="render-card">
+      <div class="render-img"><img loading="lazy" src="/brand/hero/04_pendant.webp" alt="Pendant form"></div>
+      <div class="render-lbl">Pendant</div>
+      <div class="render-sub"><span class="ja">ペンダント型</span><span class="en">Wearable pendant</span></div>
+    </div>
+    <div class="render-card">
+      <div class="render-img"><img loading="lazy" src="/brand/hero/05_amp.webp" alt="Amp / FILL"></div>
+      <div class="render-lbl">Amp (FILL)</div>
+      <div class="render-sub">1,000W PA speaker</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1rem;font-weight:400;color:var(--sub);margin:0.5rem 0 1rem;letter-spacing:0.04em"><span class="ja">Keynote ライフスタイル</span><span class="en">Keynote lifestyle</span></h3>
+  <div class="keynote-grid">
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/01_opening_black.webp" alt="Opening"></div><div class="keynote-lbl">Opening</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/02_pulse_wake.webp" alt="Pulse wake"></div><div class="keynote-lbl">Pulse wake</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/03_touch_music.webp" alt="Touch music"></div><div class="keynote-lbl">Touch music</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/04_second_stone.webp" alt="Second stone"></div><div class="keynote-lbl">Second stone</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/05_nightstand.webp" alt="Nightstand"></div><div class="keynote-lbl">Nightstand</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/06_kitchen.webp" alt="Kitchen"></div><div class="keynote-lbl">Kitchen</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/07_beach_deck.webp" alt="Beach deck"></div><div class="keynote-lbl">Beach deck</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/08_handheld_to_water.webp" alt="Handheld to water"></div><div class="keynote-lbl">Handheld · water</div></div>
+    <div class="keynote-card"><div class="keynote-img"><img loading="lazy" src="/brand/keynote/09_final_logo.webp" alt="Final logo"></div><div class="keynote-lbl">Logo</div></div>
+  </div>
+</div>
+
+<!-- ==============================
+     3D MODELS
+================================== -->
+<div class="sec-rule"></div>
+<div class="section-wrap">
+  <div class="section-head">
+    <h2><span class="ja">3D<em>モデル</em> — STL</span><span class="en">3D <em>Models</em> — STL</span></h2>
+    <p><span class="ja">筐体・マウント・アクセサリ35点。3Dプリンタですぐ試作できます。</span><span class="en">35 enclosures, mounts, and accessories. Print on any FDM printer to prototype immediately.</span></p>
+  </div>
+  <div class="stl-grid">
+<a class="stl-card" href="/stl/coin-lite-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/coin-lite-case.webp" alt="COIN case lite"></div>
+      <div class="stl-name">COIN case (Lite)</div>
+      <div class="stl-sub">Ø28mm · 26mm PCB</div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/pro-v2-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/pro-v2-case.webp" alt="COIN Pro v2"></div>
+      <div class="stl-name">COIN Pro v2</div>
+      <div class="stl-sub">Ø30mm · 技適版</div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/koe-mini-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/koe-mini-case.webp" alt="Mini case"></div>
+      <div class="stl-name">Koe Mini</div>
+      <div class="stl-sub">22mm compact</div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/koe-pick-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/koe-pick-case.webp" alt="Pick case"></div>
+      <div class="stl-name">Pick case</div>
+      <div class="stl-sub"><span class="ja">ピック型</span><span class="en">Guitar-pick</span></div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/koe-pendant-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/koe-pendant-case.webp" alt="Pendant"></div>
+      <div class="stl-name">Pendant</div>
+      <div class="stl-sub"><span class="ja">ペンダント</span><span class="en">Wearable</span></div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/hub-v2-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/hub-v2-case.webp" alt="Hub v2"></div>
+      <div class="stl-name">Hub v2</div>
+      <div class="stl-sub">Pi CM5 shell</div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/koe-amp-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/koe-amp-case.webp" alt="Amp case"></div>
+      <div class="stl-name">Amp case</div>
+      <div class="stl-sub">FILL prototype</div>
+      <div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/dk-case.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/dk-case.webp" alt="Dev kit"></div>
+      <div class="stl-name">Dev Kit</div>
+      <div class="stl-sub"><span class="ja">開発用</span><span class="en">Development</span></div>
+      <div class="stl-dl">⬇ STL</div>
+    </a>
+<div id="stl-more" style="display:none">
+<a class="stl-card" href="/stl/seed-amp.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-amp.webp" alt="Seed amp"></div>
+      <div class="stl-name">Seed Amp</div><div class="stl-sub">Accessory</div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-badge.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-badge.webp" alt="Seed badge"></div>
+      <div class="stl-name">Seed Badge</div><div class="stl-sub"><span class="ja">バッジ型</span><span class="en">Badge clip</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-ball.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-ball.webp" alt="Seed ball"></div>
+      <div class="stl-name">Seed Ball</div><div class="stl-sub"><span class="ja">球体</span><span class="en">Sphere</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-bottle.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-bottle.webp" alt="Seed bottle"></div>
+      <div class="stl-name">Seed Bottle</div><div class="stl-sub"><span class="ja">ボトル埋込</span><span class="en">Bottle mount</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-capo.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-capo.webp" alt="Seed capo"></div>
+      <div class="stl-name">Seed Capo</div><div class="stl-sub"><span class="ja">カポ型</span><span class="en">Guitar capo</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-card.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-card.webp" alt="Seed card"></div>
+      <div class="stl-name">Seed Card</div><div class="stl-sub"><span class="ja">カード型</span><span class="en">Card form</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-clip.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-clip.webp" alt="Seed clip"></div>
+      <div class="stl-name">Seed Clip</div><div class="stl-sub">Clip-on</div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-dot.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-dot.webp" alt="Seed dot"></div>
+      <div class="stl-name">Seed Dot</div><div class="stl-sub"><span class="ja">最小</span><span class="en">Minimal</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-earphone.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-earphone.webp" alt="Seed earphone"></div>
+      <div class="stl-name">Seed Earphone</div><div class="stl-sub"><span class="ja">イヤホン型</span><span class="en">Earphone</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-glasses.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-glasses.webp" alt="Seed glasses"></div>
+      <div class="stl-name">Seed Glasses</div><div class="stl-sub"><span class="ja">メガネ取付</span><span class="en">Glasses mount</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-hat-clip.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-hat-clip.webp" alt="Seed hat clip"></div>
+      <div class="stl-name">Seed Hat Clip</div><div class="stl-sub"><span class="ja">帽子クリップ</span><span class="en">Hat clip</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-headphone.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-headphone.webp" alt="Seed headphone"></div>
+      <div class="stl-name">Seed Headphone</div><div class="stl-sub"><span class="ja">ヘッドホン型</span><span class="en">Headphone</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-keychain.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-keychain.webp" alt="Seed keychain"></div>
+      <div class="stl-name">Seed Keychain</div><div class="stl-sub"><span class="ja">キーホルダー</span><span class="en">Keychain</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-mic-clip.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-mic-clip.webp" alt="Seed mic clip"></div>
+      <div class="stl-name">Seed Mic Clip</div><div class="stl-sub"><span class="ja">マイクラペル</span><span class="en">Lapel mic</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-neckband.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-neckband.webp" alt="Seed neckband"></div>
+      <div class="stl-name">Seed Neckband</div><div class="stl-sub"><span class="ja">ネックバンド</span><span class="en">Neckband</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-outdoor.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-outdoor.webp" alt="Seed outdoor"></div>
+      <div class="stl-name">Seed Outdoor</div><div class="stl-sub"><span class="ja">防水アウトドア</span><span class="en">Weatherproof</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-pedalboard.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-pedalboard.webp" alt="Seed pedalboard"></div>
+      <div class="stl-name">Seed Pedalboard</div><div class="stl-sub"><span class="ja">エフェクター台</span><span class="en">Pedalboard</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-pendant.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-pendant.webp" alt="Seed pendant"></div>
+      <div class="stl-name">Seed Pendant</div><div class="stl-sub"><span class="ja">ネックレス</span><span class="en">Necklace</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-pick.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-pick.webp" alt="Seed pick"></div>
+      <div class="stl-name">Seed Pick</div><div class="stl-sub"><span class="ja">ピック型</span><span class="en">Pick form</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-ring.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-ring.webp" alt="Seed ring"></div>
+      <div class="stl-name">Seed Ring</div><div class="stl-sub"><span class="ja">指輪型</span><span class="en">Ring form</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-shoe.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-shoe.webp" alt="Seed shoe"></div>
+      <div class="stl-name">Seed Shoe</div><div class="stl-sub"><span class="ja">靴取付</span><span class="en">Shoe mount</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-sticker.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-sticker.webp" alt="Seed sticker"></div>
+      <div class="stl-name">Seed Sticker</div><div class="stl-sub"><span class="ja">超薄型</span><span class="en">Ultra-thin</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-watch.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-watch.webp" alt="Seed watch"></div>
+      <div class="stl-name">Seed Watch</div><div class="stl-sub"><span class="ja">時計バンド</span><span class="en">Watch band</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-wristband.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-wristband.webp" alt="Seed wristband"></div>
+      <div class="stl-name">Seed Wristband</div><div class="stl-sub"><span class="ja">リストバンド</span><span class="en">Wristband</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-wristband-pod.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-wristband-pod.webp" alt="Seed wristband pod"></div>
+      <div class="stl-name">Wristband Pod</div><div class="stl-sub"><span class="ja">ポッド付き</span><span class="en">With pod</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-figurine.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-figurine.webp" alt="Seed figurine"></div>
+      <div class="stl-name">Seed Figurine</div><div class="stl-sub"><span class="ja">フィギュア型</span><span class="en">Figurine</span></div><div class="stl-dl">⬇ STL</div>
+    </a><a class="stl-card" href="/stl/seed-drumkey.stl" download>
+      <div class="stl-thumb"><img loading="lazy" src="/stl/thumbs/seed-drumkey.webp" alt="Seed drumkey"></div>
+      <div class="stl-name">Seed Drumkey</div><div class="stl-sub"><span class="ja">ドラムキー</span><span class="en">Drum key</span></div><div class="stl-dl">⬇ STL</div>
+    </a>
+</div>
+</div>
+<div style="text-align:center;margin:1rem 0 0.5rem">
+  <button class="btn" id="stl-toggle" onclick="var m=document.getElementById('stl-more'),open=m.style.display!='none'&&m.style.display!='';m.style.display=open?'none':'contents';this.innerHTML=open?'▼ <span class=\'ja\'>全 35 点を見る (+27)</span><span class=\'en\'>Show all 35 (+27)</span>':'▲ <span class=\'ja\'>折りたたむ</span><span class=\'en\'>Collapse</span>'" style="cursor:pointer;padding:0.6rem 1.6rem;font-size:0.82rem">▼ <span class="ja">全 35 点を見る (+27)</span><span class="en">Show all 35 (+27)</span></button>
+</div>
+</div>
+
+<!-- ==============================
+     PHOTO GALLERY
+================================== -->
+<div class="sec-rule"></div>
+<div class="section-wrap">
+  <div class="section-head">
+    <h2><span class="ja">使用<em>シーン</em></span><span class="en">Scene <em>Gallery</em></span></h2>
+    <p><span class="ja">自宅・街・フェス・スポーツ・職場 — あらゆるシーンの参考写真。</span><span class="en">At home, on the street, at festivals, at work — reference photography for every scene.</span></p>
+  </div>
+  <div class="gallery-grid">
+<div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/B2-palm-coin.webp" alt="Palm coin"></div><div class="gallery-cap"><div class="gallery-title">In Palm</div><div class="gallery-sub"><span class="ja">手のひらサイズ</span><span class="en">Palm-sized COIN</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/NEW-B1-palm-v2.webp" alt="Palm v2"></div><div class="gallery-cap"><div class="gallery-title">Palm v2</div><div class="gallery-sub"><span class="ja">最新モデル手持ち</span><span class="en">Latest model in hand</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/A3-ear-white.webp" alt="Ear white"></div><div class="gallery-cap"><div class="gallery-title">GUIDE White</div><div class="gallery-sub"><span class="ja">イヤピース装着</span><span class="en">Earpiece worn</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/A1-ear-shibuya.webp" alt="Shibuya"></div><div class="gallery-cap"><div class="gallery-title">Shibuya</div><div class="gallery-sub"><span class="ja">渋谷・街中での利用</span><span class="en">Urban street use</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/A2-ear-cafe.webp" alt="Cafe"></div><div class="gallery-cap"><div class="gallery-title">Cafe</div><div class="gallery-sub"><span class="ja">カフェ</span><span class="en">Coffee shop</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/C1-festival-wide.webp" alt="Festival wide"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">フェス全景</span><span class="en">Festival wide</span></div><div class="gallery-sub"><span class="ja">10,000人フェス</span><span class="en">10K festival</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/NEW-C2-fest-v2.webp" alt="Festival v2"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">フェス 2.0</span><span class="en">Festival v2</span></div><div class="gallery-sub"><span class="ja">観客とデバイス</span><span class="en">Crowd & devices</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/C3-festival-aerial.webp" alt="Festival aerial"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">空撮</span><span class="en">Aerial</span></div><div class="gallery-sub"><span class="ja">フェス俯瞰</span><span class="en">Festival from above</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/D1-jog-river.webp" alt="Jogging"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">ランニング</span><span class="en">Running</span></div><div class="gallery-sub"><span class="ja">川沿いジョギング</span><span class="en">Riverside jog</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/NEW-D1-run-v2.webp" alt="Run v2"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">ランニング v2</span><span class="en">Run v2</span></div><div class="gallery-sub"><span class="ja">最新ランシーン</span><span class="en">Updated run scene</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/D2-office-suit.webp" alt="Office"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">オフィス</span><span class="en">Office</span></div><div class="gallery-sub"><span class="ja">ビジネスシーン</span><span class="en">Business use</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F8-musician.webp" alt="Musician"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">ミュージシャン</span><span class="en">Musician</span></div><div class="gallery-sub"><span class="ja">演奏中の利用</span><span class="en">While performing</span></div></div>
+<div id="gallery-more" style="display:none">
+<div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F2-flatlay-desk.webp" alt="Desk flatlay"></div><div class="gallery-cap"><div class="gallery-title">Desk flatlay</div><div class="gallery-sub"><span class="ja">デスク上</span><span class="en">On the desk</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F6-unboxing.webp" alt="Unboxing"></div><div class="gallery-cap"><div class="gallery-title">Unboxing</div><div class="gallery-sub"><span class="ja">開封</span><span class="en">Out of the box</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F3-beach-sunset.webp" alt="Beach"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">ビーチ</span><span class="en">Beach</span></div><div class="gallery-sub"><span class="ja">夕暮れのビーチ</span><span class="en">Sunset beach</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F4-tent-friends.webp" alt="Camp"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">キャンプ</span><span class="en">Camp</span></div><div class="gallery-sub"><span class="ja">テント・友達と</span><span class="en">Tent with friends</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F7-parent-child.webp" alt="Parent child"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">親子</span><span class="en">Parent & child</span></div><div class="gallery-sub"><span class="ja">家族での利用</span><span class="en">Family use</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/F1-train.webp" alt="Train"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">電車</span><span class="en">Train</span></div><div class="gallery-sub"><span class="ja">通勤・通学</span><span class="en">Commute</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/E1-lineup-float.webp" alt="Lineup"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">全製品集合</span><span class="en">Full lineup</span></div><div class="gallery-sub"><span class="ja">全フォームファクター</span><span class="en">All form factors</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/E3-macro.webp" alt="Macro"></div><div class="gallery-cap"><div class="gallery-title">Macro</div><div class="gallery-sub"><span class="ja">マクロ撮影・細部</span><span class="en">Macro detail shot</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/NEW-E3-macro-v2.webp" alt="Macro v2"></div><div class="gallery-cap"><div class="gallery-title">Macro v2</div><div class="gallery-sub"><span class="ja">最新マクロ</span><span class="en">Updated macro</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/E2-accessories.webp" alt="Accessories"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">アクセサリ</span><span class="en">Accessories</span></div><div class="gallery-sub"><span class="ja">周辺アクセサリ一覧</span><span class="en">Full accessory range</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/H4-crowd-harmony.webp" alt="Crowd harmony"></div><div class="gallery-cap"><div class="gallery-title"><span class="ja">群衆ハーモニー</span><span class="en">Crowd harmony</span></div><div class="gallery-sub"><span class="ja">群衆を楽器に</span><span class="en">Crowd as instrument</span></div></div><div class="gallery-card"><div class="gallery-img"><img loading="lazy" src="/images/H3-harmony-waves.webp" alt="Harmony waves"></div><div class="gallery-cap"><div class="gallery-title">Harmony waves</div><div class="gallery-sub"><span class="ja">音の波紋</span><span class="en">Audio wave spread</span></div></div>
+</div>
+</div>
+<div style="text-align:center;margin:1rem 0 0.5rem">
+  <button class="btn" id="gallery-toggle" onclick="var m=document.getElementById('gallery-more'),t=document.getElementById('gallery-toggle');var open=m.style.display=='grid'||m.style.display=='block'||m.style.display=='contents';m.style.display=open?'none':'contents';t.innerHTML=open?'▼ <span class=\'ja\'>全 24 枚を見る (+12)</span><span class=\'en\'>Show all 24 (+12)</span>':'▲ <span class=\'ja\'>折りたたむ</span><span class=\'en\'>Collapse</span>'" style="cursor:pointer;padding:0.6rem 1.6rem;font-size:0.82rem">▼ <span class="ja">全 24 枚を見る (+12)</span><span class="en">Show all 24 (+12)</span></button>
+</div></div>
+
+<footer>
+  <p>
+    <a href="/products"><span class="ja">製品一覧</span><span class="en">Products</span></a> &nbsp;·&nbsp;
+    <a href="/roadmap"><span class="ja">ロードマップ</span><span class="en">Roadmap</span></a> &nbsp;·&nbsp;
+    <a href="/coin">COIN</a> &nbsp;·&nbsp;
+    <a href="/guide">GUIDE</a> &nbsp;·&nbsp;
+    <a href="/stage">STAGE</a> &nbsp;·&nbsp;
+    <a href="/stage-os">STAGE OS</a> &nbsp;·&nbsp;
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+  </p>
+  <p style="margin-top:0.5rem;color:#374151">© 2026 Koe Device · Made in Japan with Rust 🦀</p>
+</footer>
+
+</body>
+</html>

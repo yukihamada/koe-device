@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe ロードマップ — 製品ラインアップ & 発売スケジュール" data-en="Koe Roadmap — Product Lineup & Launch Schedule">Koe ロードマップ — 製品ラインアップ & 発売スケジュール</title>
+<meta name="description" content="Koeデバイス全製品ラインアップと日本発売スケジュール。COIN・GUIDE・FILL・STAGE・GUIDE v2。">
+<meta name="theme-color" content="#111827">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Koe Device">
+<meta property="og:title" content="Koe Device ロードマップ — 2026-2027">
+<meta property="og:description" content="Koe COIN・GUIDE・STAGE・FILLの開発・製造・発売スケジュール。">
+<meta property="og:image" content="https://koe.live/images/G-lineup-all.png">
+<meta property="og:url" content="https://koe.live/roadmap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Device ロードマップ — 2026-2027">
+<meta name="twitter:description" content="Koe COIN・GUIDE・STAGE・FILLの開発・製造・発売スケジュール。">
+<meta name="twitter:image" content="https://koe.live/images/G-lineup-all.png">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0f1a;
+  --bg-surface: #111827;
+  --bg-elevated: #1f2937;
+  --bg-card: #161d2c;
+  --accent: #10B981;
+  --accent-dim: #065f46;
+  --accent2: #6366f1;
+  --accent3: #f59e0b;
+  --accent4: #ec4899;
+  --accent5: #06b6d4;
+  --text: #f3f4f6;
+  --text-muted: #6b7280;
+  --text-sub: #9ca3af;
+  --radius: 14px;
+  --border: rgba(255,255,255,0.07);
+}
+
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; width: 100%; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(10,15,26,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+nav a.logo { font-size: 1rem; font-weight: 300; letter-spacing: 0.3em; color: var(--text); text-decoration: none; }
+nav a.logo span { color: var(--accent); font-weight: 500; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+.nav-links a:hover { color: var(--accent); }
+
+/* HERO */
+.hero {
+  padding: 10rem 2rem 5rem;
+  text-align: center;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.12) 0%, transparent 70%);
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  padding: 0.3rem 0.9rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 200;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.hero h1 em { font-style: normal; color: var(--accent); font-weight: 400; }
+.hero p {
+  font-size: 1.05rem;
+  color: var(--text-sub);
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--accent); color: #000;
+  font-size: 0.88rem; font-weight: 600; letter-spacing: 0.05em;
+  padding: 0.85rem 2rem; border-radius: 8px;
+  text-decoration: none; transition: opacity 0.2s;
+}
+.hero-cta:hover { opacity: 0.85; }
+
+/* SECTION */
+section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.section-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 200; letter-spacing: 0.04em;
+  margin-bottom: 0.8rem;
+}
+.section-title em { font-style: normal; color: var(--accent); }
+.section-sub { color: var(--text-sub); font-size: 0.95rem; line-height: 1.7; max-width: 600px; margin-bottom: 3rem; }
+
+/* PRODUCT GRID */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.product-card:hover { transform: translateY(-3px); }
+.product-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+
+.card-coin::before { background: var(--accent); }
+.card-coin:hover { border-color: rgba(16,185,129,0.35); }
+.card-guide::before { background: var(--accent2); }
+.card-guide:hover { border-color: rgba(99,102,241,0.35); }
+.card-fill::before { background: var(--accent3); }
+.card-fill:hover { border-color: rgba(245,158,11,0.35); }
+.card-stage::before { background: var(--accent4); }
+.card-stage:hover { border-color: rgba(236,72,153,0.35); }
+.card-guide2::before { background: var(--accent5); }
+.card-guide2:hover { border-color: rgba(6,182,212,0.35); }
+
+.product-status {
+  display: inline-block;
+  font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.2rem 0.65rem; border-radius: 100px;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}
+.status-dev { background: rgba(16,185,129,0.15); color: var(--accent); border: 1px solid rgba(16,185,129,0.25); }
+.status-proto { background: rgba(245,158,11,0.12); color: var(--accent3); border: 1px solid rgba(245,158,11,0.25); }
+.status-design { background: rgba(99,102,241,0.12); color: var(--accent2); border: 1px solid rgba(99,102,241,0.25); }
+.status-future { background: rgba(107,114,128,0.12); color: var(--text-muted); border: 1px solid rgba(107,114,128,0.2); }
+
+.product-icon { font-size: 2rem; margin-bottom: 1rem; }
+.product-name { font-size: 1.3rem; font-weight: 300; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+.product-tagline { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.2rem; }
+.product-price {
+  font-size: 1.8rem; font-weight: 200;
+  margin-bottom: 1.5rem;
+}
+.product-price sup { font-size: 0.9rem; color: var(--text-sub); }
+.product-price .jpy { font-size: 1rem; color: var(--text-muted); margin-left: 0.3rem; }
+
+.product-specs { list-style: none; margin-bottom: 1.5rem; }
+.product-specs li {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  font-size: 0.82rem; color: var(--text-sub);
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.product-specs li:last-child { border-bottom: none; }
+.spec-icon { opacity: 0.5; flex-shrink: 0; margin-top: 1px; }
+
+.launch-badge {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--bg-elevated);
+  border-radius: 8px; padding: 0.7rem 1rem;
+  font-size: 0.8rem;
+}
+.launch-date { font-weight: 600; color: var(--text); }
+.launch-label { color: var(--text-muted); font-size: 0.75rem; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 2rem; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3), var(--accent4), var(--accent5), transparent);
+  opacity: 0.4;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0 0 3rem 2rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute; left: -0.4rem; top: 0.4rem;
+  width: 0.8rem; height: 0.8rem;
+  border-radius: 50%; border: 2px solid var(--bg-card);
+}
+.tl-coin::before { background: var(--accent); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+.tl-guide::before { background: var(--accent2); box-shadow: 0 0 8px rgba(99,102,241,0.5); }
+.tl-stage::before { background: var(--accent4); box-shadow: 0 0 8px rgba(236,72,153,0.5); }
+.tl-fill::before { background: var(--accent3); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+.tl-guide2::before { background: var(--accent5); box-shadow: 0 0 8px rgba(6,182,212,0.5); }
+
+.tl-month {
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.4rem;
+}
+.tl-title { font-size: 1.1rem; font-weight: 400; margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.83rem; color: var(--text-sub); line-height: 1.6; }
+.tl-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+.tl-tag {
+  font-size: 0.7rem; letter-spacing: 0.06em;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-muted); padding: 0.2rem 0.6rem; border-radius: 6px;
+}
+
+/* GITEKI BOX */
+.info-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.8rem;
+  margin: 2rem 0;
+}
+.info-box h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.6rem; }
+.info-box p { font-size: 0.85rem; color: var(--text-sub); line-height: 1.7; }
+.info-box a { color: var(--accent); }
+
+/* COMPARISON TA<span class="ja">BLE</span><span class="en">BLE</span> */
+.compare-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.85rem;
+}
+th {
+  text-align: left; padding: 0.75rem 1rem;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-sub);
+  vertical-align: middle;
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+.td-name { color: var(--text); font-weight: 500; }
+.td-price { color: var(--text); font-weight: 400; }
+.badge-yes { color: var(--accent); }
+.badge-no { color: var(--text-muted); }
+.badge-plan { color: var(--accent3); }
+
+/* PREORDER */
+.preorder-section {
+  background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(99,102,241,0.08) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+.preorder-section h2 { font-size: 2rem; font-weight: 200; letter-spacing: 0.05em; margin-bottom: 1rem; }
+.preorder-section p { color: var(--text-sub); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.7; }
+.preorder-form { display: flex; gap: 0.75rem; max-width: 440px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+.preorder-form input {
+  flex: 1; min-width: 200px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  color: var(--text); padding: 0.8rem 1rem; border-radius: 8px;
+  font-size: 0.9rem; outline: none;
+}
+.preorder-form input:focus { border-color: var(--accent); }
+.preorder-form button {
+  background: var(--accent); color: #000;
+  font-size: 0.88rem; font-weight: 600;
+  padding: 0.8rem 1.5rem; border: none; border-radius: 8px;
+  cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+}
+.preorder-form button:hover { opacity: 0.85; }
+.preorder-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+footer a { color: var(--text-muted); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.9rem; }
+  section { padding: 3rem 1.2rem; }
+  nav { padding: 1rem 1.2rem; }
+  .nav-links { gap: 1rem; }
+  .nav-links a { font-size: 0.75rem; }
+}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+
+<div id="koe-nav"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Product Roadmap 2026–2027</div>
+  <h1><span class="ja">声を、<em>インフラ</em>にする</span><span class="en">Make voice the <em>infrastructure</em></span>。</h1>
+  <p><span class="ja">Koe Deviceは5つの製品ラインで、ツアーガイドからフェスPA、リアルタイム翻訳まで、<br>すべての「声の届け方」を再設計します。</span><span class="en">Five Koe product lines reimagine every form of voice delivery — from tour guides to festival PA to real-time translation.</span></p>
+  <a href="#preorder" class="hero-cta"><span class="ja">発売通知を受け取る →</span><span class="en">Get Launch Notifications →</span></a>
+</div>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="section-label"><span class="ja">製品ラインアップ</span><span class="en">Product Lineup</span></div>
+  <h2 class="section-title"><span class="ja">5つの<em>Koe</em>デバイス</span><span class="en">Five <em>Koe</em> devices</span></h2>
+  <p class="section-sub"><span class="ja">すべてESP32-S3またはRaspberry Pi CM5ベース。ファームウェアはRust製オープンソース。Solunaプロトコル（UDP 239.42.42.1:4242）で相互接続。</span><span class="en">All ESP32-S3 or Raspberry <span class="ja">Pi CM5</span><span class="en">Pi CM5</span> based. Firmware is open-source Rust. All devices interconnect via the Soluna protocol (UDP 239.42.42.1:4242).</span></p>
+
+  <div class="product-grid">
+
+    <!-- COIN -->
+    <div class="product-card card-coin">
+      <div class="product-status status-dev"><span class="ja">開発中 ✓</span><span class="en">In development ✓</span></div>
+      <div class="product-icon">🪙</div>
+      <div class="product-name">Koe COIN</div>
+      <div class="product-tagline"><span class="ja">双方向 · フェス · ステージ</span><span class="en">Bi-directional · Festival · Stage</span></div>
+      <div class="product-price"><sup>$</sup>65 <span class="jpy">≈ ¥9,500</span></div>
+      <ul class="product-specs">
+        <li><span class="spec-icon">🔧</span><span class="ja">ESP32-S3-MINI-1 + ES8388コーデック</span><span class="en">ESP32-S3-MINI-1 + ES8388 codec</span></li>
+        <li><span class="spec-icon">🎙</span><span class="ja">マイク入力 + スピーカー出力（双方向）</span><span class="en">Mic input + speaker output (bi-directional)</span></li>
+        <li><span class="spec-icon">📶</span><span class="ja">WiFi UDP マルチキャスト</span><span class="en">Wi-Fi UDP multicast</span><span class="ja">、遅延 8–10ms</span><span class="en"> · 8–10ms latency</span></li>
+        <li><span class="spec-icon">🔋</span><span class="ja">26mm丸基板、BOM ~$15</span><span class="en">26mm round PCB, ~$15 BOM</span></li>
+        <li><span class="spec-icon">✅</span><span class="ja">技適済み (201-220017)</span><span class="en">Giteki certified (201-220017)</span></li>
+      </ul>
+      <div class="launch-badge">
+        <div>
+          <div class="launch-date"><span class="ja">2026年8月</span><span class="en">Aug 2026</span></div>
+          <div class="launch-label"><span class="ja">日本国内発売予定</span><span class="en">Japan launch</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUIDE -->
+    <div class="product-card card-guide">
+      <div class="product-status status-dev"><span class="ja">最優先 ★</span><span class="en">Top priority ★</span></div>
+      <div class="product-icon">🎧</div>
+      <div class="product-name">Koe GUIDE</div>
+      <div class="product-tagline"><span class="ja">受信専用 · ツアーガイド · 博物館</span><span class="en">Receive-only · Tour guide · Museum</span></div>
+      <div class="product-price"><sup>$</sup>99 <span class="jpy">≈ ¥14,500</span></div>
+      <ul class="product-specs">
+        <li><span class="spec-icon">🔧</span><span class="ja">ESP32-S3-MINI-1 + ES8388 + 3.5mmジャック</span><span class="en">ESP32-S3-MINI-1 + ES8388 + 3.5mm jack</span></li>
+        <li><span class="spec-icon">🎧</span><span class="ja">受信専用、どのイヤホンでも接続可</span><span class="en">Receive-only, works with any earphones</span></li>
+        <li><span class="spec-icon">⚡</span><span class="ja">CPU 80MHz + モデムスリープ → 約20mA</span><span class="en">80MHz CPU + modem sleep → ~20mA</span></li>
+        <li><span class="spec-icon">🔋</span><span class="ja">500mAh → <strong>約25時間連続稼働</strong></span><span class="en">500mAh → <strong>~25 hrs runtime</strong></span></li>
+        <li><span class="spec-icon">💰</span><span class="ja">競合Sennheiser/Williams Soundの1/3価格</span><span class="en">1/3 the price of Sennheiser / Williams Sound</span></li>
+      </ul>
+      <div class="launch-badge">
+        <div>
+          <div class="launch-date"><span class="ja">2026年9月</span><span class="en">Sep 2026</span></div>
+          <div class="launch-label"><span class="ja">日本国内発売予定</span><span class="en">Japan launch</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE -->
+    <div class="product-card card-stage">
+      <div class="product-status status-proto"><span class="ja">プロトタイプ中</span><span class="en">Prototyping</span></div>
+      <div class="product-icon">🎛</div>
+      <div class="product-name">Koe STAGE</div>
+      <div class="product-tagline"><span class="ja">ミキサーハブ · 配信 · PA連携</span><span class="en">Mixer hub · Streaming · PA integration</span></div>
+      <div class="product-price"><sup>$</sup>800 <span class="jpy">≈ ¥117,000</span></div>
+      <ul class="product-specs">
+        <li><span class="spec-icon">🔧</span><span class="ja">Raspberry Pi CM5 + カスタムI/Oボード</span><span class="en">Raspberry <span class="ja">Pi CM5</span><span class="en">Pi CM5</span> + custom I/O board</span></li>
+        <li><span class="spec-icon">🎛</span><span class="ja">32chミキサー、EQ / リバーブ / コンプ</span><span class="en">32ch mixer, EQ / reverb / compressor</span></li>
+        <li><span class="spec-icon">📡</span><span class="ja">SRT / RTMP 配信出力</span><span class="en">SRT / RTMP streaming output</span></li>
+        <li><span class="spec-icon">📶</span><span class="ja">WiFi 6対応、最大256台Koeデバイス管理</span><span class="en">Wi-Fi 6, manages up to 256 Koe devices</span></li>
+        <li><span class="spec-icon">🏆</span><span class="ja">業務用ミキサー$2,000+の1/3以下</span><span class="en">Under 1/3 the price of $2,000+ pro mixers</span></li>
+      </ul>
+      <div class="launch-badge">
+        <div>
+          <div class="launch-date"><span class="ja">2026年11月</span><span class="en">Nov 2026</span></div>
+          <div class="launch-label"><span class="ja">日本国内発売予定</span><span class="en">Japan launch</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILL -->
+    <div class="product-card card-fill">
+      <div class="product-status status-design"><span class="ja">設計中</span><span class="en">Designing</span></div>
+      <div class="product-icon">🔊</div>
+      <div class="product-name">Koe FILL</div>
+      <div class="product-tagline"><span class="ja">LoRa同期PA · フェス · アウトドア</span><span class="en">LoRa sync PA · Festival · Outdoor</span></div>
+      <div class="product-price"><sup>$</sup>1,500 <span class="jpy">≈ ¥220,000</span></div>
+      <ul class="product-specs">
+        <li><span class="spec-icon">🔧</span><span class="ja">RAK11160 (ESP32-S3 + LoRa) + Pi CM5</span><span class="en">RAK11160 (ESP32-S3 + LoRa) + <span class="ja">Pi CM5</span><span class="en">Pi CM5</span></span></li>
+        <li><span class="spec-icon">🔊</span><span class="ja">8" + 1" ホーン、1,000W Class-D</span><span class="en">8" + 1" horn, 1,000W Class-D</span></li>
+        <li><span class="spec-icon">📡</span><span class="ja">LoRa 10km長距離同期（WiFi不要）</span><span class="en">LoRa 10km long-range sync (no Wi-Fi)</span></li>
+        <li><span class="spec-icon">🎛</span><span class="ja">Soluna OS ダッシュボードで一元管理</span><span class="en">Unified control via Soluna OS dashboard</span></li>
+        <li><span class="spec-icon">🏆</span><span class="ja">L-Acoustics $10,000+の1/7価格</span><span class="en">1/7 the price of $10,000+ L-Acoustics</span></li>
+      </ul>
+      <div class="launch-badge">
+        <div>
+          <div class="launch-date"><span class="ja">2027年1月</span><span class="en">Jan 2027</span></div>
+          <div class="launch-label"><span class="ja">日本国内発売予定</span><span class="en">Japan launch</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUIDE v2 -->
+    <div class="product-card card-guide2">
+      <div class="product-status status-future"><span class="ja">将来製品</span><span class="en">Future product</span></div>
+      <div class="product-icon">🦻</div>
+      <div class="product-name">Koe GUIDE v2</div>
+      <div class="product-tagline"><span class="ja">BLE LE Audio · 完全ワイヤレス · 超低消費電力</span><span class="en">BLE LE Audio · Fully wireless · Ultra-low power</span></div>
+      <div class="product-price"><sup>$</sup>79 <span class="jpy">≈ ¥11,500</span></div>
+      <ul class="product-specs">
+        <li><span class="spec-icon">🔧</span><span class="ja">nRF5340 + BLE LE Audio (LC3コーデック)</span><span class="en">nRF5340 + BLE LE Audio (LC3 codec)</span></li>
+        <li><span class="spec-icon">🎧</span><span class="ja">Auracast対応 — ペアリング不要、無限台受信</span><span class="en">Auracast-ready — no pairing, unlimited receivers</span></li>
+        <li><span class="spec-icon">⚡</span><span class="ja">消費電力 WiFiの1/5 → 500mAhで50時間+</span><span class="en">1/5 the power of Wi-Fi → 50+ hrs on 500mAh</span></li>
+        <li><span class="spec-icon">🎵</span><span class="ja">LC3コーデック: ADPCM比 音質2倍・遅延半分</span><span class="en">LC3 codec: 2× quality and half the latency of ADPCM</span></li>
+        <li><span class="spec-icon">🔋</span><span class="ja">完全ワイヤレスイヤホン形状も可能</span><span class="en">Fully wireless earbud form factor possible</span></li>
+      </ul>
+      <div class="launch-badge">
+        <div>
+          <div class="launch-date"><span class="ja">2027年夏</span><span class="en">Summer 2027</span></div>
+          <div class="launch-label"><span class="ja">日本国内発売予定</span><span class="en">Japan launch</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="section-label"><span class="ja">制作スケジュール</span><span class="en">Production Schedule</span></div>
+  <h2 class="section-title"><span class="ja">リアルな<em>開発ロードマップ</em></span><span class="en">A realistic <em>development roadmap</em></span></h2>
+  <p class="section-sub"><span class="ja">ファームウェアは完成済み。あとはハードウェア量産のみ。JLCPCBで基板製造、技適済みモジュールで日本市場に直接投入。</span><span class="en">The firmware is done. All that remains is hardware production. Boards made at JLCPCB, using Giteki-certified modules straight into the Japanese market.</span></p>
+
+  <div class="timeline">
+
+    <div class="timeline-item tl-coin">
+      <div class="tl-month"><span class="ja">2026年5月</span><span class="en">May 2026</span></div>
+      <div class="tl-title"><span class="ja">🪙 Koe COIN — プロトタイプ製造</span><span class="en">🪙 Koe COIN — Prototype production</span></div>
+      <div class="tl-desc"><span class="ja">JLCPCBに26mm丸基板BOM/CPLを発注。ESP32-S3-MINI-1 + ES8388実装。ファームウェアは完成済み。受け取り次第動作確認。</span><span class="en">Submit the 26mm round-PCB BOM/CPL to JLCPCB. Assemble ESP32-S3-MINI-1 + ES8388. Firmware is complete — verify operation on arrival.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">JLCPCB発注</span><span class="en">JLCPCB order</span></span>
+        <span class="tl-tag"><span class="ja">リードタイム2週間</span><span class="en">2-week lead time</span></span>
+        <span class="tl-tag"><span class="ja">BOM $15</span><span class="en">$15 BOM</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-guide">
+      <div class="tl-month"><span class="ja">2026年6月</span><span class="en">Jun 2026</span></div>
+      <div class="tl-title"><span class="ja">🎧 Koe GUIDE — PCB設計 + プロトタイプ</span><span class="en">🎧 Koe GUIDE — PCB design + prototype</span></div>
+      <div class="tl-desc"><span class="ja">COINベースに3.5mmジャック・電源管理・500mAhバッテリー回路を追加。シリコン筐体設計。受信専用ファームウェア（guide feature）適用済み。</span><span class="en">Add a 3.5mm jack, power management, and 500mAh battery circuit on the COIN baseline. Silicone enclosure design. Receive-only firmware (guide feature) already applied.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">3.5mmジャック追加</span><span class="en">3.5mm jack added</span></span>
+        <span class="tl-tag"><span class="ja">低消費電力設計</span><span class="en">Low-power design</span></span>
+        <span class="tl-tag"><span class="ja">25時間稼働確認</span><span class="en">25-hr runtime verified</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-coin">
+      <div class="tl-month"><span class="ja">2026年7月</span><span class="en">Jul 2026</span></div>
+      <div class="tl-title"><span class="ja">🪙 Koe COIN — 小ロット生産 50台</span><span class="en">🪙 Koe COIN — Small batch, 50 units</span></div>
+      <div class="tl-desc"><span class="ja">JLCPCB量産ライン。OTA対応でフィールドアップデート可能。フェス・ステージでのβテスト開始。フィードバックを反映したv1.1ファームをOTA配信。</span><span class="en">JLCPCB production line. OTA-capable for field updates. Beta tests at festivals and stages begin. Ship v1.1 firmware reflecting feedback over OTA.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">50台ロット</span><span class="en">50-unit batch</span></span>
+        <span class="tl-tag"><span class="ja">OTA対応</span><span class="en">OTA ready</span></span>
+        <span class="tl-tag"><span class="ja">βテスター募集</span><span class="en">Beta tester recruiting</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-coin">
+      <div class="tl-month"><span class="ja">2026年8月</span><span class="en">Aug 2026</span></div>
+      <div class="tl-title"><span class="ja">🚀 Koe COIN — 日本発売</span><span class="en">🚀 Koe COIN — Japan launch</span></div>
+      <div class="tl-desc"><span class="ja">技適済み（ESP32-S3-MINI-1: 201-220017）で電波法完全準拠。ECサイト + 直販で販売開始。フェス・イベント会社向けにレンタルプランも提供。</span><span class="en">Fully Radio-Law compliant via Giteki (ESP32-S3-MINI-1: 201-220017). Sales open via e-commerce + direct. Rental plans for festivals and event companies.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">技適 201-220017</span><span class="en">Giteki 201-220017</span></span>
+        <span class="tl-tag"><span class="ja">ECサイト販売</span><span class="en">E-commerce sales</span></span>
+        <span class="tl-tag"><span class="ja">レンタルプラン</span><span class="en">Rental plans</span></span>
+        <span class="tl-tag">¥9,500</span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-guide">
+      <div class="tl-month"><span class="ja">2026年9月</span><span class="en">Sep 2026</span></div>
+      <div class="tl-title"><span class="ja">🚀 Koe GUIDE — 日本発売</span><span class="en">🚀 Koe GUIDE — Japan launch</span></div>
+      <div class="tl-desc"><span class="ja">博物館・工場・教会・学校・国際会議向け。Sennheiser/Williams Soundの1/3価格。100台以上の法人向け見積もり対応。ツアーガイド会社への営業開始。</span><span class="en">For museums, factories, churches, schools, and international conferences. 1/3 the price of Sennheiser / Williams Sound. Enterprise quotes for 100+ units. Outreach to tour-guide companies.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">法人向け直販</span><span class="en">Direct B2B sales</span></span>
+        <span class="tl-tag"><span class="ja">博物館・工場</span><span class="en">Museums / factories</span></span>
+        <span class="tl-tag">¥14,500</span>
+        <span class="tl-tag"><span class="ja">技適済み</span><span class="en">Giteki certified</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-stage">
+      <div class="tl-month"><span class="ja">2026年11月</span><span class="en">Nov 2026</span></div>
+      <div class="tl-title"><span class="ja">🚀 Koe STAGE — 日本発売</span><span class="en">🚀 Koe STAGE — Japan launch</span></div>
+      <div class="tl-desc"><span class="ja">Pi CM5ハブ + カスタムI/Oボード。イベント制作会社・スタジオ向け。SRT/RTMP配信対応でライブ配信ワークフローに統合可能。</span><span class="en"><span class="ja">Pi CM5</span><span class="en">Pi CM5</span> hub + custom I/O board. For event-production companies and studios. SRT/RTMP integrates into live-streaming workflows.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">Pi CM5</span><span class="en">Pi CM5</span></span>
+        <span class="tl-tag"><span class="ja">32chミキサー</span><span class="en">32ch mixer</span></span>
+        <span class="tl-tag">¥117,000</span>
+        <span class="tl-tag"><span class="ja">法人限定</span><span class="en">B2B only</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-fill">
+      <div class="tl-month"><span class="ja">2027年1月</span><span class="en">Jan 2027</span></div>
+      <div class="tl-title"><span class="ja">🚀 Koe FILL — 日本発売</span><span class="en">🚀 Koe FILL — Japan launch</span></div>
+      <div class="tl-desc"><span class="ja">RAK11160（ESP32-S3 + LoRa）採用。WiFiインフラ不要でフェス屋外エリアに設置可能。L-Acousticsの1/7価格でフェスPA市場を刷新。10台以上の一括発注受付。</span><span class="en">Uses RAK11160 (ESP32-S3 + LoRa). Deployable across outdoor festival zones with no Wi-Fi infrastructure. Reshapes festival PA at 1/7 the L-Acoustics price. Bulk orders of 10+ welcome.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag"><span class="ja">RAK11160 LoRa</span><span class="en">RAK11160 LoRa</span></span>
+        <span class="tl-tag"><span class="ja">10km長距離同期</span><span class="en">10km long-range sync</span></span>
+        <span class="tl-tag">¥220,000</span>
+        <span class="tl-tag"><span class="ja">フェスPA</span><span class="en">Festival PA</span></span>
+      </div>
+    </div>
+
+    <div class="timeline-item tl-guide2">
+      <div class="tl-month"><span class="ja">2027年夏</span><span class="en">Summer 2027</span></div>
+      <div class="tl-title"><span class="ja">🚀 Koe GUIDE v2 — 日本発売</span><span class="en">🚀 Koe GUIDE v2 — Japan launch</span></div>
+      <div class="tl-desc"><span class="ja">nRF5340 + BLE LE Audio (Auracast)。ペアリング不要・無限台同時受信。完全ワイヤレスイヤホン形状。50時間以上のバッテリー。次世代ツアーガイドシステム。</span><span class="en">nRF5340 + BLE LE Audio (Auracast). No pairing, unlimited simultaneous receivers. Fully wireless earbud form factor. 50+ hour battery. A next-generation tour-guide system.</span></div>
+      <div class="tl-tags">
+        <span class="tl-tag">nRF5340</span>
+        <span class="tl-tag"><span class="ja">BLE Auracast</span><span class="en">BLE Auracast</span></span>
+        <span class="tl-tag">¥11,500</span>
+        <span class="tl-tag"><span class="ja">50時間稼働</span><span class="en">50-hr runtime</span></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="compare">
+  <div class="section-label"><span class="ja">製品比較</span><span class="en">Comparison</span></div>
+  <h2 class="section-title"><span class="ja">全製品<em>スペック比較</em></span><span class="en">Full-lineup <em>specs comparison</em></span></h2>
+
+  <div class="compare-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="ja">製品</span><span class="en">Product</span></th>
+          <th><span class="ja">価格</span><span class="en">Price</span></th>
+          <th><span class="ja">チップ</span><span class="en">Chip</span></th>
+          <th><span class="ja">マイク</span><span class="en">Mic</span></th>
+          <th>LoRa</th>
+          <th>BLE</th>
+          <th><span class="ja">稼働時間</span><span class="en">Runtime</span></th>
+          <th><span class="ja">日本発売</span><span class="en">Japan launch</span></th>
+          <th><span class="ja">技適</span><span class="en">Giteki</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-name">🪙 COIN</td>
+          <td class="td-price">$65</td>
+          <td>ESP32-S3</td>
+          <td class="badge-yes">✓</td>
+          <td class="badge-no">—</td>
+          <td class="badge-no">—</td>
+          <td><span class="ja">12時間</span><span class="en">12 hrs</span></td>
+          <td><span class="ja">2026.8</span><span class="en">Aug 2026</span></td>
+          <td class="badge-yes"><span class="ja">済み</span><span class="en">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="td-name">🎧 GUIDE</td>
+          <td class="td-price">$99</td>
+          <td>ESP32-S3</td>
+          <td class="badge-no">—</td>
+          <td class="badge-no">—</td>
+          <td class="badge-no">—</td>
+          <td><span class="ja"><strong>25時間</strong></span><span class="en"><strong>25 hrs</strong></span></td>
+          <td><span class="ja">2026.9</span><span class="en">Sep 2026</span></td>
+          <td class="badge-yes"><span class="ja">済み</span><span class="en">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="td-name">🎛 STAGE</td>
+          <td class="td-price">$800</td>
+          <td><span class="ja">Pi CM5</span><span class="en">Pi CM5</span></td>
+          <td class="badge-yes">32ch</td>
+          <td class="badge-no">—</td>
+          <td class="badge-no">—</td>
+          <td><span class="ja">AC電源</span><span class="en">AC power</span></td>
+          <td><span class="ja">2026.11</span><span class="en">Nov 2026</span></td>
+          <td class="badge-plan"><span class="ja">申請中</span><span class="en">Applying</span></td>
+        </tr>
+        <tr>
+          <td class="td-name">🔊 FILL</td>
+          <td class="td-price">$1,500</td>
+          <td>ESP32-S3<br>+ <span class="ja">Pi CM5</span><span class="en">Pi CM5</span></td>
+          <td class="badge-no">—</td>
+          <td class="badge-yes">✓ 10km</td>
+          <td class="badge-no">—</td>
+          <td><span class="ja">AC電源</span><span class="en">AC power</span></td>
+          <td><span class="ja">2027.1</span><span class="en">Jan 2027</span></td>
+          <td class="badge-plan"><span class="ja">申請予定</span><span class="en">Planned</span></td>
+        </tr>
+        <tr>
+          <td class="td-name">🦻 GUIDE v2</td>
+          <td class="td-price">$79</td>
+          <td>nRF5340</td>
+          <td class="badge-no">—</td>
+          <td class="badge-no">—</td>
+          <td class="badge-yes">LE Audio</td>
+          <td><span class="ja"><strong>50時間+</strong></span><span class="en"><strong>50+ hrs</strong></span></td>
+          <td><span class="ja">2027夏</span><span class="en">Summer 2027</span></td>
+          <td class="badge-plan"><span class="ja">申請予定</span><span class="en">Planned</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box" style="margin-top:2rem; border-left-color: var(--accent)">
+    <h3><span class="ja">⚡ 技適（電波法）について</span><span class="en">⚡ About Giteki (Radio Law)</span></h3>
+    <p><span class="ja">COIN・GUIDEは</span><span class="en">COIN and GUIDE use </span><strong><span class="ja">ESP32-S3-MINI-1（技適番号 201-220017）</span><span class="en">ESP32-S3-MINI-1 (Giteki 201-220017)</span></strong><span class="ja">を採用。このモジュールで製造した製品は日本国内で合法的に販売・使用できます。FILL・GUIDE v2は新規申請を予定。申請期間は通常2〜3ヶ月。</span><span class="en">. Products built on this module can be sold and used in Japan legally. FILL and GUIDE v2 have new filings planned, with a typical 2–3 month certification window.</span><br>
+    <span class="ja">開発・研究目的なら</span><span class="en">For development / research, use </span><a href="https://www.tele.soumu.go.jp/j/sys/others/special/" target="_blank"><span class="ja">総務省特例制度</span><span class="en">MIC special framework</span></a><span class="ja">（無料、オンライン届出、180日有効）を活用可能です。</span><span class="en"> (free, online filing, 180-day validity).</span></p>
+  </div>
+</section>
+
+<!-- PREORDER -->
+<section id="preorder">
+  <div class="preorder-section">
+    <h2><span class="ja">発売通知を受け取る</span><span class="en">Get Launch Notifications</span></h2>
+    <p><span class="ja">Koe GUIDE / COIN の先行予約・βテスター募集を開始します。<br>メールアドレスを登録すると、発売の1週間前に通知が届きます。</span><span class="en">Koe GUIDE / COIN preorders and beta-tester recruiting are open.<br>Register your email and we'll notify you one week before launch.</span></p>
+    <form class="preorder-form" onsubmit="handleSubmit(event)">
+      <input type="email" placeholder="your@email.com" required id="email-input">
+      <button type="submit"><span class="ja">通知を受け取る</span><span class="en">Sign me up</span></button>
+    </form>
+    <p class="preorder-note"><span class="ja">スパムは送りません。発売通知のみ。いつでも解除可能。</span><span class="en">No spam. Launch notification only. Unsubscribe anytime.</span></p>
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:0.5rem">
+    <a href="/">koe.live</a> &nbsp;·&nbsp;
+    <a href="/classroom.html"><span class="ja">Classroom</span><span class="en">Classroom</span></a> &nbsp;·&nbsp;
+    <a href="/roadmap">Roadmap</a> &nbsp;·&nbsp;
+    <a href="https://github.com/yukihamada/koe-device" target="_blank">GitHub</a>
+  </p>
+  <p style="margin-top:0.5rem; color: #374151;">© 2026 Koe Device. <span class="ja">Made in Japan with Rust</span><span class="en">Made in Japan with Rust</span> 🦀</p>
+</footer>
+
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById('email-input').value;
+  const btn = e.target.querySelector('button');
+  btn.textContent = '登録完了 ✓';
+  btn.style.background = 'var(--accent2)';
+  btn.style.color = '#fff';
+  btn.disabled = true;
+
+  fetch('https://koe.live/api/v1/waitlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  }).catch(() => {});
+}
+</script>
+
+</body>
+</html>

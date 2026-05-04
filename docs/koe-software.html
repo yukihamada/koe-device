@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe 音声入力 — macOSで声でどこへでも入力" data-en="Koe Voice Input — Speak into any macOS app">Koe 音声入力 — macOSで声でどこへでも入力</title>
+<meta name="description" content="Koe 音声入力: macOSで全アプリに声で入力できるユーティリティ。¥0で導入。">
+<meta name="theme-color" content="#0a0f1a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Koe Device">
+<meta property="og:title" content="Koe 音声入力 — macOSで声でどこへでも入力">
+<meta property="og:description" content="macOSの全アプリに声で入力。Shift長押しで録音、離したら転写。ローカル処理・無料。">
+<meta property="og:image" content="https://koe.live/images/A2-ear-cafe.png">
+<meta property="og:url" content="https://koe.live/koe-software">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe 音声入力 — macOSで声でどこへでも入力">
+<meta name="twitter:description" content="macOSの全アプリに声で入力。Shift長押しで録音、離したら転写。ローカル処理・無料。">
+<meta name="twitter:image" content="https://koe.live/images/A2-ear-cafe.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0f1a;--surface:#111827;--elevated:#1f2937;
+  --accent:#10B981;--accent-b:#6366f1;
+  --text:#f3f4f6;--sub:#9ca3af;--muted:#6b7280;
+  --border:rgba(255,255,255,0.07);--r:14px;
+}
+body{font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+.hero{padding:9rem 2rem 3rem;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(16,185,129,0.15) 0%,transparent 70%)}
+.hero-chip{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--accent);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:100px;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:200;letter-spacing:0.08em;line-height:1;margin-bottom:0.7rem}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{font-size:1.1rem;color:var(--sub);margin:1rem auto 2rem;max-width:560px;line-height:1.7}
+.version{font-size:0.85rem;color:var(--muted);margin-bottom:1.8rem}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.95rem 2rem;border-radius:10px;font-size:0.92rem;font-weight:600;transition:all 0.2s;cursor:pointer;border:none;margin:0.3rem}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+section{padding:4rem 2rem;max-width:1000px;margin:0 auto}
+.sec-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+.sec-title{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:200;letter-spacing:0.04em;margin-bottom:0.8rem}
+.sec-title em{font-style:normal;color:var(--accent)}
+.sec-sub{color:var(--sub);line-height:1.75;max-width:580px;margin-bottom:2.5rem;font-size:0.95rem}
+
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.6rem}
+.feat-icon{font-size:1.8rem;margin-bottom:0.9rem}
+.feat-title{font-size:1rem;font-weight:500;margin-bottom:0.4rem}
+.feat-desc{font-size:0.83rem;color:var(--sub);line-height:1.65}
+
+footer{border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--muted);font-size:0.8rem;margin-top:3rem}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:640px){.hero{padding:7rem 1.2rem 2.5rem}section{padding:2.5rem 1.2rem}}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+
+<div id="koe-nav"></div>
+
+<div class="hero">
+  <div class="hero-chip"><span class="ja">🎤 Koe 音声入力</span><span class="en">🎤 Koe Voice Input</span></div>
+  <h1>Koe <em>音声入力</em></h1>
+  <div class="hero-sub"><span class="ja">macOSの<em>どのアプリ</em>にも声で入力する。Slack、VS Code、Notion、メール、ブラウザ — Shift長押しで話すだけ。</span><span class="en">Speak into <em>any macOS app</em>. Slack, VS Code, Notion, Email, Safari — just hold Shift and talk.</span></div>
+  <div class="version">v2.9.4 · <span class="ja">macOS 13以降 · Apple Silicon / Intel 両対応</span><span class="en">macOS 13+ · Apple Silicon & Intel</span></div>
+  <a href="https://github.com/yukihamada/Koe-swift/releases/download/v2.9.4/Koe-Installer.dmg" class="btn btn-primary" download>⬇ <span class="ja">DMG をダウンロード</span><span class="en">Download DMG</span></a>
+  <a href="https://github.com/yukihamada/Koe-swift/releases/download/v2.9.4/Koe.pkg" class="btn btn-outline" download>⬇ <span class="ja">PKG インストーラ</span><span class="en">PKG Installer</span></a>
+  <div style="margin-top:1.2rem"><a href="https://github.com/yukihamada/Koe-swift/releases/latest" class="btn btn-outline" target="_blank"><span class="ja">GitHub Releases</span><span class="en">GitHub Releases</span> →</a></div>
+</div>
+
+<section>
+  <div class="sec-label"><span class="ja">機能</span><span class="en">Features</span></div>
+  <h2 class="sec-title"><span class="ja">キーボードより<em>速い</em></span><span class="en"><em>Faster</em> than typing</span></h2>
+  <p class="sec-sub"><span class="ja">ローカルで動作する音声認識。キーを押している間だけ録音 → 離したらカーソル位置に転写される。クラウド送信なし。</span><span class="en">Local speech recognition. Record while the key is held, transcribe at cursor release. No cloud upload.</span></p>
+
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title"><span class="ja">Shift長押しで録音</span><span class="en">Hold Shift to record</span></div>
+      <div class="feat-desc"><span class="ja">右Shift長押し中だけマイクが動き、離した瞬間に転写される。</span><span class="en">The mic is only active while Right Shift is held. Release to transcribe.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔒</div>
+      <div class="feat-title"><span class="ja">ローカル処理</span><span class="en">Local processing</span></div>
+      <div class="feat-desc"><span class="ja">ON-DEVICE SPEECHで処理。マイク音声は外部に送信されない。</span><span class="en">Processed on-device via SFSpeechRecognizer. Audio never leaves your Mac.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🌐</div>
+      <div class="feat-title"><span class="ja">日英自動判定</span><span class="en">JA/EN auto-detect</span></div>
+      <div class="feat-desc"><span class="ja">日本語/英語を話すたびに自動で認識言語を切替。設定不要。</span><span class="en">Auto-switches between Japanese and English based on what you speak.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🍏</div>
+      <div class="feat-title"><span class="ja">Apple Silicon最適化</span><span class="en">Apple Silicon native</span></div>
+      <div class="feat-desc"><span class="ja">M1/M2/M3/M4ネイティブ。Intelでも動作。軽量でバッテリー友達。</span><span class="en">Native on M1/M2/M3/M4 Macs. Runs on Intel too. Lightweight, battery-friendly.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🎯</div>
+      <div class="feat-title"><span class="ja">どのアプリでも</span><span class="en">Works everywhere</span></div>
+      <div class="feat-desc"><span class="ja">キーボード入力を受け付けるアプリなら全て対応。ブラウザ、エディタ、メーラー、チャット。</span><span class="en">Works with any app that accepts keyboard input — browsers, editors, mail, chat.</span></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💰</div>
+      <div class="feat-title"><span class="ja">無料 / 公証済み</span><span class="en">Free · Notarized</span></div>
+      <div class="feat-desc"><span class="ja">¥0・Apple Developer公証済み・Gatekeeper合格。Koe Deviceと同じチームが開発。</span><span class="en">Free. Apple-notarized and Gatekeeper-approved. Built by the Koe Device team.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label"><span class="ja">Koe Device との関係</span><span class="en">Relationship to Koe Device</span></div>
+  <h2 class="sec-title"><span class="ja">別プロダクト、<em>同じ思想</em></span><span class="en">Different product, <em>same philosophy</em></span></h2>
+  <p class="sec-sub"><span class="ja">Koe 音声入力は<strong>ソフトウェア単独</strong>で動作するmacOSアプリ。Koe DeviceのESP32ハードウェアとは独立していますが、「声を、インフラにする」という同じ思想で作られています。</span><span class="en">Koe Voice Input is a <strong>standalone macOS app</strong>. It operates independently from the Koe Device ESP32 hardware, but shares the same philosophy: make voice the infrastructure.</span></p>
+  <a href="/products" class="btn btn-outline">← <span class="ja">Koe Device 全製品に戻る</span><span class="en">Back to all Koe Devices</span></a>
+</section>
+
+<footer>
+  <p><a href="/">koe.live</a> &nbsp;·&nbsp; <a href="/products"><span class="ja">製品一覧</span><span class="en">Products</span></a> &nbsp;·&nbsp; <a href="https://github.com/yukihamada/Koe-swift" target="_blank">GitHub</a></p>
+  <p style="margin-top:0.5rem;color:#374151">© 2026 Koe. Made in Japan with Rust & Swift 🦀🦉</p>
+</footer>
+
+</body>
+</html>

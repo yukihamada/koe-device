@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-ja="Koe Device — 製品一覧" data-en="Koe Device — Products">Koe Device — 製品一覧</title>
+<meta name="description" content="Koe Deviceの全製品ラインアップ。COIN・GUIDE・FILL・STAGE・GUIDE v2。声を、インフラにする。">
+<meta name="theme-color" content="#0a0f1a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Koe Device">
+<meta property="og:title" content="Koe Device 製品一覧 — 全5製品">
+<meta property="og:description" content="COIN $65 / GUIDE $99 / STAGE $800 / FILL $1,500 — 声をインフラにする音声デバイスシリーズ。">
+<meta property="og:image" content="https://koe.live/images/E1-lineup-float.png">
+<meta property="og:url" content="https://koe.live/products">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe Device 製品一覧 — 全5製品">
+<meta name="twitter:description" content="COIN $65 / GUIDE $99 / STAGE $800 / FILL $1,500 — 声をインフラにする音声デバイスシリーズ。">
+<meta name="twitter:image" content="https://koe.live/images/E1-lineup-float.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0f1a;
+  --surface:#111827;
+  --border:rgba(255,255,255,0.07);
+  --text:#f3f4f6;
+  --sub:#9ca3af;
+  --muted:#6b7280;
+  --r:16px;
+  --c-coin:#10B981;
+  --c-guide:#6366f1;
+  --c-fill:#f59e0b;
+  --c-stage:#ec4899;
+  --c-v2:#06b6d4;
+}
+body{
+  font-family:-apple-system,'Helvetica Neue','Hiragino Sans',sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+
+/* NAV */
+nav{
+  position:fixed;top:0;width:100%;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 2rem;
+  background:rgba(10,15,26,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{font-size:1rem;font-weight:300;letter-spacing:0.3em}
+.logo span{color:var(--c-coin);font-weight:500}
+.nav-r{display:flex;align-items:center;gap:1.5rem}
+.nav-r a{font-size:0.8rem;color:var(--sub);transition:color 0.2s}
+.nav-r a:hover{color:var(--c-coin)}
+
+/* HERO */
+.hero{
+  padding:8rem 2rem 4rem;
+  text-align:center;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 50%,rgba(16,185,129,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 50%,rgba(99,102,241,0.08) 0%,transparent 60%);
+}
+.hero-label{
+  display:inline-block;
+  font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:1.2rem;
+}
+.hero h1{
+  font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:200;letter-spacing:0.06em;line-height:1.1;
+  margin-bottom:1rem;
+}
+.hero h1 em{font-style:normal;color:var(--c-coin)}
+.hero p{
+  font-size:1rem;color:var(--sub);
+  max-width:480px;margin:0 auto 2.5rem;line-height:1.75;
+}
+
+/* GRID */
+.grid-wrap{
+  max-width:1100px;margin:0 auto;
+  padding:0 2rem 6rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1.5rem;
+}
+
+/* PRODUCT CARD */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:transform 0.25s,box-shadow 0.25s;
+  cursor:pointer;
+  text-decoration:none;color:inherit;
+}
+.card:hover{transform:translateY(-5px)}
+.card:hover .card-arrow{opacity:1;transform:translateX(4px)}
+
+.card-top{
+  padding:2rem 2rem 1.5rem;
+  position:relative;
+}
+.card-top::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+}
+.card-coin .card-top::before{background:var(--c-coin)}
+.card-guide .card-top::before{background:var(--c-guide)}
+.card-fill .card-top::before{background:var(--c-fill)}
+.card-stage .card-top::before{background:var(--c-stage)}
+.card-v2 .card-top::before{background:var(--c-v2)}
+
+.card-coin:hover{box-shadow:0 20px 60px rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.2)}
+.card-guide:hover{box-shadow:0 20px 60px rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.2)}
+.card-fill:hover{box-shadow:0 20px 60px rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.2)}
+.card-stage:hover{box-shadow:0 20px 60px rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.2)}
+.card-v2:hover{box-shadow:0 20px 60px rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.2)}
+
+.card-status{
+  display:inline-block;
+  font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.18rem 0.6rem;border-radius:100px;
+  margin-bottom:1.2rem;font-weight:600;
+}
+.s-dev{background:rgba(16,185,129,0.12);color:var(--c-coin);border:1px solid rgba(16,185,129,0.2)}
+.s-proto{background:rgba(236,72,153,0.1);color:var(--c-stage);border:1px solid rgba(236,72,153,0.2)}
+.s-design{background:rgba(245,158,11,0.1);color:var(--c-fill);border:1px solid rgba(245,158,11,0.2)}
+.s-future{background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid rgba(107,114,128,0.15)}
+
+.card-icon{font-size:2.5rem;margin-bottom:0.8rem;display:block}
+.card-name{font-size:1.5rem;font-weight:200;letter-spacing:0.08em;margin-bottom:0.25rem}
+.card-tag{font-size:0.78rem;color:var(--muted);margin-bottom:1.2rem}
+.card-price{font-size:2rem;font-weight:100;margin-bottom:0.2rem}
+.card-price sup{font-size:1rem}
+.card-jpy{font-size:0.78rem;color:var(--muted)}
+
+.card-divider{height:1px;background:var(--border);margin:0 2rem}
+
+.card-bottom{
+  padding:1.2rem 2rem 1.5rem;
+  flex:1;display:flex;flex-direction:column;gap:0.6rem;
+}
+.card-point{
+  display:flex;align-items:flex-start;gap:0.5rem;
+  font-size:0.82rem;color:var(--sub);line-height:1.5;
+}
+.card-point .dot{
+  width:5px;height:5px;border-radius:50%;
+  flex-shrink:0;margin-top:0.45rem;
+}
+.card-coin .dot{background:var(--c-coin)}
+.card-guide .dot{background:var(--c-guide)}
+.card-fill .dot{background:var(--c-fill)}
+.card-stage .dot{background:var(--c-stage)}
+.card-v2 .dot{background:var(--c-v2)}
+
+.card-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 2rem;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.2);
+}
+.card-launch{font-size:0.75rem;color:var(--muted)}
+.card-launch strong{color:var(--text)}
+.card-arrow{
+  font-size:1rem;color:var(--sub);
+  opacity:0;transform:translateX(0);
+  transition:all 0.25s;
+}
+
+/* STATS BAR */
+.stats-bar{
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:center;gap:4rem;
+  padding:2rem;margin-bottom:3rem;flex-wrap:wrap;
+}
+.sb-item{text-align:center}
+.sb-num{font-size:1.6rem;font-weight:200;color:var(--c-coin)}
+.sb-lbl{font-size:0.72rem;color:var(--muted);letter-spacing:0.08em;margin-top:0.15rem}
+
+/* ROADMAP LINK */
+.roadmap-link{
+  text-align:center;padding:3rem 2rem;
+  border-top:1px solid var(--border);
+}
+.roadmap-link p{color:var(--sub);font-size:0.9rem;margin-bottom:1.2rem}
+.roadmap-btn{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text);padding:0.8rem 2rem;border-radius:8px;
+  font-size:0.88rem;transition:all 0.2s;
+}
+.roadmap-btn:hover{border-color:var(--c-coin);color:var(--c-coin)}
+
+footer{
+  border-top:1px solid var(--border);
+  padding:2.5rem 2rem;text-align:center;
+  color:var(--muted);font-size:0.78rem;
+}
+footer a:hover{color:var(--c-coin)}
+
+/* DASHBOARD MOCKUP */
+.dashboard-section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.sec-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+.sec-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:200;letter-spacing:0.04em;margin-bottom:0.8rem}
+.sec-title em{font-style:normal;color:var(--c-coin)}
+.sec-sub{color:var(--sub);line-height:1.75;max-width:560px;margin-bottom:3rem;font-size:0.95rem}
+
+.dashboard-frame{
+  background:#0d1117;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6);
+}
+.db-titlebar{
+  background:#161b22;
+  padding:0.75rem 1.2rem;
+  display:flex;align-items:center;gap:0.6rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.db-dot{width:12px;height:12px;border-radius:50%}
+.db-dot.r{background:#ff5f57}
+.db-dot.y{background:#ffbd2e}
+.db-dot.g{background:#28c840}
+.db-title-text{
+  margin-left:0.5rem;font-size:0.78rem;color:#6b7280;letter-spacing:0.1em;
+  font-family:monospace;
+}
+.db-live{
+  margin-left:auto;display:flex;align-items:center;gap:0.4rem;
+  font-size:0.65rem;color:#10B981;letter-spacing:0.1em;
+}
+.db-live-dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.db-body{display:grid;grid-template-columns:200px 1fr;min-height:420px}
+.db-sidebar{
+  background:#0d1117;
+  border-right:1px solid rgba(255,255,255,0.06);
+  padding:1rem 0;
+}
+.db-sidebar-item{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:0.6rem 1.2rem;font-size:0.78rem;color:#6b7280;cursor:pointer;
+  transition:all 0.15s;
+}
+.db-sidebar-item:hover,.db-sidebar-item.active{background:rgba(16,185,129,0.08);color:#10B981}
+.db-sidebar-icon{font-size:0.9rem;width:16px;text-align:center}
+.db-sidebar-sep{height:1px;background:rgba(255,255,255,0.05);margin:0.5rem 0}
+
+.db-main{padding:1.2rem;overflow:hidden}
+.db-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+}
+.db-topbar-title{font-size:0.88rem;color:#e6edf3;font-weight:500}
+.db-badge{
+  font-size:0.65rem;padding:0.2rem 0.6rem;border-radius:100px;
+  background:rgba(16,185,129,0.12);color:#10B981;border:1px solid rgba(16,185,129,0.2);
+}
+
+.db-device-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem}
+.db-device{
+  background:#161b22;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;padding:0.7rem 1rem;
+  display:flex;align-items:center;gap:0.8rem;
+}
+.db-device-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.db-device-dot.on{background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.5)}
+.db-device-dot.off{background:#374151}
+.db-device-id{font-size:0.72rem;color:#e6edf3;font-family:monospace;width:90px;flex-shrink:0}
+.db-device-mode{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:4px;flex-shrink:0}
+.db-device-mode.coin{background:rgba(16,185,129,0.1);color:#10B981}
+.db-device-mode.guide{background:rgba(99,102,241,0.1);color:#6366f1}
+.db-level-wrap{flex:1;display:flex;align-items:center;gap:0.5rem}
+.db-level-bar{flex:1;height:4px;background:#21262d;border-radius:2px;overflow:hidden;position:relative}
+.db-level-fill{height:100%;border-radius:2px;position:relative}
+.db-level-num{font-size:0.65rem;color:#6b7280;width:30px;text-align:right;font-family:monospace}
+
+.db-mixer{
+  background:#161b22;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;padding:0.8rem 1rem;
+}
+.db-mixer-label{font-size:0.65rem;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.7rem}
+.db-channels{display:flex;gap:0.5rem;overflow-x:auto}
+.db-ch{
+  display:flex;flex-direction:column;align-items:center;gap:0.3rem;
+  min-width:36px;
+}
+.db-ch-vol{
+  width:3px;height:60px;background:#21262d;border-radius:2px;
+  position:relative;cursor:pointer;
+}
+.db-ch-fill{
+  position:absolute;bottom:0;left:0;width:100%;border-radius:2px;
+}
+.db-ch-name{font-size:0.6rem;color:#6b7280;font-family:monospace;text-align:center}
+.db-ch-mute{
+  width:22px;height:12px;border-radius:2px;
+  font-size:0.45rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.db-ch-mute.on{background:rgba(16,185,129,0.15);color:#10B981}
+.db-ch-mute.off{background:rgba(239,68,68,0.15);color:#ef4444}
+
+.db-stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;
+}
+.db-stat-box{
+  background:#161b22;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;padding:0.6rem 0.8rem;text-align:center;
+}
+.db-stat-num{font-size:1.1rem;font-weight:200;color:#e6edf3}
+.db-stat-lbl{font-size:0.6rem;color:#6b7280;margin-top:0.1rem}
+
+/* USE CASES */
+.usecases-section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.uc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:2rem}
+.uc-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+}
+.uc-scene{
+  padding:2.5rem 2.5rem 2rem;
+  position:relative;overflow:hidden;
+}
+.uc-scene::before{
+  content:'';
+  position:absolute;top:-40%;right:-10%;
+  width:300px;height:300px;border-radius:50%;
+  opacity:0.06;
+}
+.uc-home .uc-scene::before{background:var(--c-guide)}
+.uc-lecture .uc-scene::before{background:var(--c-guide)}
+.uc-club .uc-scene::before{background:var(--c-coin)}
+.uc-fes .uc-scene::before{background:var(--c-fill)}
+
+.uc-emoji{font-size:3rem;margin-bottom:1rem;display:block;position:relative;z-index:1}
+.uc-scene-title{font-size:1.4rem;font-weight:200;letter-spacing:0.05em;margin-bottom:0.5rem;position:relative;z-index:1}
+.uc-scene-desc{font-size:0.88rem;color:var(--sub);line-height:1.7;position:relative;z-index:1}
+
+.uc-devices{
+  padding:1.5rem 2.5rem;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+.uc-devices-label{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem}
+.uc-device-item{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:0.82rem;
+}
+.uc-device-name{display:flex;align-items:center;gap:0.5rem;color:var(--text)}
+.uc-device-qty{color:var(--muted);font-size:0.78rem}
+
+.uc-cost{
+  padding:1.2rem 2.5rem;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.uc-cost-label{font-size:0.75rem;color:var(--muted)}
+.uc-cost-price{font-size:1.2rem;font-weight:300;color:var(--text)}
+
+/* USE CASE COLOR ACCENTS */
+.uc-home .uc-scene-title{color:#6366f1}
+.uc-lecture .uc-scene-title{color:#6366f1}
+.uc-club .uc-scene-title{color:var(--c-coin)}
+.uc-fes .uc-scene-title{color:var(--c-fill)}
+
+@media(max-width:640px){
+  nav{padding:1rem 1.2rem}
+  .hero{padding:6.5rem 1.2rem 2.5rem}
+  .grid-wrap{padding:0 1.2rem 4rem;grid-template-columns:1fr}
+  .stats-bar{gap:1.5rem}
+  .nav-r a{display:none}
+  .nav-r a:last-child{display:block}
+  .db-body{grid-template-columns:1fr}
+  .db-sidebar{display:none}
+  .uc-grid{grid-template-columns:1fr}
+}
+
+/* APPS SECTION */
+.apps-section{padding:5rem 2rem;max-width:1100px;margin:0 auto;border-top:1px solid var(--border)}
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-top:2rem}
+.app-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:1.8rem;display:flex;flex-direction:column;gap:0.8rem;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.app-card:hover{transform:translateY(-3px);border-color:rgba(16,185,129,0.3)}
+.app-badge{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;padding:0.18rem 0.55rem;border-radius:100px;display:inline-block;align-self:flex-start}
+.app-badge.web{background:rgba(16,185,129,0.12);color:var(--c-coin);border:1px solid rgba(16,185,129,0.25)}
+.app-badge.mac{background:rgba(99,102,241,0.12);color:var(--c-guide);border:1px solid rgba(99,102,241,0.25)}
+.app-badge.ios{background:rgba(107,114,128,0.12);color:var(--muted);border:1px solid rgba(107,114,128,0.2)}
+.app-icon{font-size:2rem}
+.app-title{font-size:1.15rem;font-weight:500}
+.app-desc{font-size:0.85rem;color:var(--sub);line-height:1.6;flex:1}
+.app-btn{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text);padding:0.65rem 1.1rem;border-radius:8px;
+  font-size:0.82rem;font-weight:500;text-decoration:none;
+  align-self:flex-start;transition:all 0.2s;
+}
+.app-btn:hover{border-color:var(--c-coin);color:var(--c-coin)}
+.app-btn.primary{background:var(--c-coin);color:#000;border-color:var(--c-coin)}
+.app-btn.primary:hover{opacity:0.85;color:#000}
+</style>
+  <link rel="stylesheet" href="/assets/koe-nav.css">
+  <script src="/assets/koe-nav.js" defer></script>
+  <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body class="koe-with-nav">
+
+<div id="koe-nav"></div>
+
+<div class="hero">
+  <div class="hero-label"><span class="ja">Koe Device — Product Line 2026–2027</span><span class="en">Koe Device — Product Line 2026–2027</span></div>
+  <h1><span class="ja">声を、<em>インフラ</em>にする。</span><span class="en">Make voice the <em>infrastructure</em>.</span></h1>
+  <p><span class="ja">ツアーガイドからフェスPA、リアルタイム翻訳まで。5つのKoeデバイスが、あらゆる「声の届け方」を再設計する。</span><span class="en">From tour guides to festival PA and real-time translation, five Koe devices reimagine every way voice is delivered.</span></p>
+</div>
+
+<div class="stats-bar">
+  <div class="sb-item"><div class="sb-num">5</div><div class="sb-lbl"><span class="ja">製品ライン</span><span class="en">Products</span></div></div>
+  <div class="sb-item"><div class="sb-num">$65〜</div><div class="sb-lbl"><span class="ja">最小価格</span><span class="en">Starting price</span></div></div>
+  <div class="sb-item"><div class="sb-num">8ms</div><div class="sb-lbl"><span class="ja">最小遅延</span><span class="en">Minimum latency</span></div></div>
+  <div class="sb-item"><div class="sb-num">2026.8</div><div class="sb-lbl"><span class="ja">初回発売</span><span class="en">First launch</span></div></div>
+  <div class="sb-item"><div class="sb-num"><span class="ja">技適済み</span><span class="en">Giteki certified</span></div><div class="sb-lbl"><span class="ja">日本合法使用</span><span class="en">Legal in Japan</span></div></div>
+</div>
+
+<div class="grid-wrap">
+
+  <!-- COIN -->
+  <a class="card card-coin" href="/coin">
+    <div class="card-top">
+      <div class="card-status s-dev"><span class="ja">開発中 ✓</span><span class="en">In development ✓</span></div>
+      <span class="card-icon">🪙</span>
+      <div class="card-name">Koe COIN</div>
+      <div class="card-tag"><span class="ja">双方向 · フェス · ステージ</span><span class="en">Bi-directional · Festival · Stage</span></div>
+      <div class="card-price"><sup>$</sup>65</div>
+      <div class="card-jpy">≈ ¥9,500</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-bottom">
+      <div class="card-point"><span class="dot"></span><span class="ja">マイク入力 + スピーカー出力（双方向）</span><span class="en">Mic input + speaker output (bi-directional)</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">WiFi UDP 8ms超低遅延、256台同時</span><span class="en">Wi-Fi UDP, 8ms ultra-low latency, 256 simultaneous</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">26mm丸基板、BOM $15、OTA対応</span><span class="en">26mm round PCB, $15 BOM, OTA supported</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">技適済み（201-220017）</span><span class="en">Giteki certified (201-220017)</span></div>
+    </div>
+    <div class="card-footer">
+      <div class="card-launch"><strong><span class="ja">2026年8月</span><span class="en">Aug 2026</span></strong><span class="ja">日本発売予定</span><span class="en">Japan launch</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- GUIDE -->
+  <a class="card card-guide" href="/guide">
+    <div class="card-top">
+      <div class="card-status s-dev"><span class="ja">最優先 ★</span><span class="en">Top priority ★</span></div>
+      <span class="card-icon">🎧</span>
+      <div class="card-name">Koe GUIDE</div>
+      <div class="card-tag"><span class="ja">受信専用 · ツアーガイド · 博物館</span><span class="en">Receive-only · Tour guide · Museum</span></div>
+      <div class="card-price"><sup>$</sup>99</div>
+      <div class="card-jpy">≈ ¥14,500 — <span class="ja">Sennheiserの1/3価格</span><span class="en">1/3 the price of Sennheiser</span></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-bottom">
+      <div class="card-point"><span class="dot"></span><span class="ja">3.5mmジャック、どのイヤホンでも</span><span class="en">3.5mm jack, any earphones</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">500mAhで</span><span class="en">500mAh, </span><strong style="color:var(--text)"><span class="ja">25時間</span><span class="en">25 hours</span></strong><span class="ja">連続稼働</span><span class="en"> runtime</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">CPU 80MHz + モデムスリープ = 20mA</span><span class="en">80MHz CPU + modem sleep = 20mA</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">博物館・工場・教会・学校向け</span><span class="en">For museums, factories, churches, schools</span></div>
+    </div>
+    <div class="card-footer">
+      <div class="card-launch"><strong><span class="ja">2026年9月</span><span class="en">Sep 2026</span></strong><span class="ja">日本発売予定</span><span class="en">Japan launch</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- STAGE -->
+  <a class="card card-stage" href="/stage">
+    <div class="card-top">
+      <div class="card-status s-proto"><span class="ja">プロトタイプ中</span><span class="en">Prototyping</span></div>
+      <span class="card-icon">🎛</span>
+      <div class="card-name">Koe STAGE</div>
+      <div class="card-tag"><span class="ja">ミキサーハブ · 配信 · PA連携</span><span class="en">Mixer hub · Streaming · PA integration</span></div>
+      <div class="card-price"><sup>$</sup>800</div>
+      <div class="card-jpy">≈ ¥117,000 — <span class="ja">業務用の1/3</span><span class="en">1/3 of commercial gear</span></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-bottom">
+      <div class="card-point"><span class="dot"></span><span class="ja">Raspberry Pi CM5 + Rust製ソフト</span><span class="en">Raspberry Pi CM5 + Rust software</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">32ch ミキサー、EQ/リバーブ/コンプ</span><span class="en">32ch mixer, EQ/reverb/compressor</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">SRT / RTMP 配信出力対応</span><span class="en">SRT / RTMP streaming output</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">256台Koeデバイスを一元管理</span><span class="en">Unified control for 256 Koe devices</span></div>
+    </div>
+    <div class="card-footer">
+      <div class="card-launch"><strong><span class="ja">2026年11月</span><span class="en">Nov 2026</span></strong><span class="ja">日本発売予定</span><span class="en">Japan launch</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- FILL -->
+  <a class="card card-fill" href="/fill">
+    <div class="card-top">
+      <div class="card-status s-design"><span class="ja">設計中</span><span class="en">Designing</span></div>
+      <span class="card-icon">🔊</span>
+      <div class="card-name">Koe FILL</div>
+      <div class="card-tag"><span class="ja">LoRa同期PA · フェス · アウトドア</span><span class="en">LoRa sync PA · Festival · Outdoor</span></div>
+      <div class="card-price"><sup>$</sup>1,500</div>
+      <div class="card-jpy">≈ ¥220,000 — <span class="ja">L-Acousticsの1/7</span><span class="en">1/7 of L-Acoustics</span></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-bottom">
+      <div class="card-point"><span class="dot"></span><span class="ja">RAK11160 (ESP32-S3 + LoRa) 採用</span><span class="en">Uses RAK11160 (ESP32-S3 + LoRa)</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">LoRa 10km長距離同期、WiFi不要</span><span class="en">LoRa 10km long-range sync, no Wi-Fi</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">8"+1"ホーン、1,000W Class-D</span><span class="en">8" + 1" horn, 1,000W Class-D</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">10Kフェス構成 $304K（競合$1M）</span><span class="en">10K-festival rig $304K (competitor $1M)</span></div>
+    </div>
+    <div class="card-footer">
+      <div class="card-launch"><strong><span class="ja">2027年1月</span><span class="en">Jan 2027</span></strong><span class="ja">日本発売予定</span><span class="en">Japan launch</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+  <!-- GUIDE v2 -->
+  <a class="card card-v2" href="/guide-v2">
+    <div class="card-top">
+      <div class="card-status s-future"><span class="ja">将来製品</span><span class="en">Future product</span></div>
+      <span class="card-icon">🦻</span>
+      <div class="card-name">Koe GUIDE v2</div>
+      <div class="card-tag"><span class="ja">BLE LE Audio · Auracast · TWS</span><span class="en">BLE LE Audio · Auracast · TWS</span></div>
+      <div class="card-price"><sup>$</sup>79</div>
+      <div class="card-jpy">≈ ¥11,500 — <span class="ja">WiFiすら不要</span><span class="en">No Wi-Fi needed</span></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-bottom">
+      <div class="card-point"><span class="dot"></span><span class="ja">nRF5340 + BLE LE Audio Auracast</span><span class="en">nRF5340 + BLE LE Audio Auracast</span></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">ペアリング不要、無限台同時受信</span><span class="en">No pairing, unlimited simultaneous receivers</span></div>
+      <div class="card-point"><span class="dot"></span><strong style="color:var(--text)"><span class="ja">500mAhで50時間+稼働</span><span class="en">500mAh → 50+ hrs runtime</span></strong></div>
+      <div class="card-point"><span class="dot"></span><span class="ja">LC3コーデック、ADPCM比音質2倍</span><span class="en">LC3 codec, 2× the quality of ADPCM</span></div>
+    </div>
+    <div class="card-footer">
+      <div class="card-launch"><strong><span class="ja">2027年夏</span><span class="en">Summer 2027</span></strong><span class="ja">日本発売予定</span><span class="en">Japan launch</span></div>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+
+</div>
+
+<!-- DASHBOARD MOCKUP -->
+<div class="dashboard-section">
+  <div class="sec-label"><span class="ja">管理画面</span><span class="en">Dashboard</span></div>
+  <h2 class="sec-title"><span class="ja">Soluna OS — <em>全デバイスを一元管理</em></span><span class="en">Soluna OS — <em>Control every device from one place</em></span></h2>
+  <p class="sec-sub"><span class="ja">Koe STAGEに付属のWebダッシュボード。会場にいる全Koeデバイスの音量・状態・音声レベルをリアルタイムで把握。ブラウザだけで操作できる。</span><span class="en">The web dashboard that ships with Koe STAGE. See volume, status, and audio level for every device in the venue in real time. Browser-only, no install.</span></p>
+
+  <div class="dashboard-frame">
+    <div class="db-titlebar">
+      <div class="db-dot r"></div>
+      <div class="db-dot y"></div>
+      <div class="db-dot g"></div>
+      <div class="db-title-text">soluna-os.koe.live — Koe Stage Dashboard</div>
+      <div class="db-live"><div class="db-live-dot"></div>LIVE</div>
+    </div>
+    <div class="db-body">
+      <div class="db-sidebar">
+        <div class="db-sidebar-item active"><span class="db-sidebar-icon">📊</span><span class="ja">デバイス一覧</span><span class="en">Devices</span></div>
+        <div class="db-sidebar-item"><span class="db-sidebar-icon">🎛</span><span class="ja">ミキサー</span><span class="en">Mixer</span></div>
+        <div class="db-sidebar-item"><span class="db-sidebar-icon">📡</span><span class="ja">配信設定</span><span class="en">Streaming</span></div>
+        <div class="db-sidebar-sep"></div>
+        <div class="db-sidebar-item"><span class="db-sidebar-icon">⚙️</span><span class="ja">設定</span><span class="en">Settings</span></div>
+        <div class="db-sidebar-item"><span class="db-sidebar-icon">🔄</span><span class="ja">OTA更新</span><span class="en">OTA Update</span></div>
+        <div class="db-sidebar-item"><span class="db-sidebar-icon">📋</span><span class="ja">ログ</span><span class="en">Log</span></div>
+      </div>
+      <div class="db-main">
+        <div class="db-topbar">
+          <div class="db-topbar-title"><span class="ja">接続デバイス</span><span class="en">Connected devices</span></div>
+          <div class="db-badge">12 <span class="ja">オンライン</span><span class="en">Online</span> / 16 <span class="ja">合計</span><span class="en">Total</span></div>
+        </div>
+        <div class="db-stats-row">
+          <div class="db-stat-box"><div class="db-stat-num" style="color:var(--c-coin)">8</div><div class="db-stat-lbl">COIN</div></div>
+          <div class="db-stat-box"><div class="db-stat-num" style="color:#6366f1">4</div><div class="db-stat-lbl">GUIDE</div></div>
+          <div class="db-stat-box"><div class="db-stat-num" style="color:#6b7280">4</div><div class="db-stat-lbl"><span class="ja">オフライン</span><span class="en">Offline</span></div></div>
+        </div>
+        <div class="db-device-list">
+          <div class="db-device">
+            <div class="db-device-dot on"></div>
+            <div class="db-device-id">koe-a3f2e1</div>
+            <div class="db-device-mode coin">COIN</div>
+            <div class="db-level-wrap">
+              <div class="db-level-bar"><div class="db-level-fill" style="width:73%;background:linear-gradient(90deg,#10B981,#34d399)"></div></div>
+              <div class="db-level-num">-8dB</div>
+            </div>
+          </div>
+          <div class="db-device">
+            <div class="db-device-dot on"></div>
+            <div class="db-device-id">koe-7c91b4</div>
+            <div class="db-device-mode guide">GUIDE</div>
+            <div class="db-level-wrap">
+              <div class="db-level-bar"><div class="db-level-fill" style="width:12%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div></div>
+              <div class="db-level-num">-32dB</div>
+            </div>
+          </div>
+          <div class="db-device">
+            <div class="db-device-dot on"></div>
+            <div class="db-device-id">koe-2d58c9</div>
+            <div class="db-device-mode coin">COIN</div>
+            <div class="db-level-wrap">
+              <div class="db-level-bar"><div class="db-level-fill" style="width:45%;background:linear-gradient(90deg,#10B981,#34d399)"></div></div>
+              <div class="db-level-num">-15dB</div>
+            </div>
+          </div>
+          <div class="db-device">
+            <div class="db-device-dot on"></div>
+            <div class="db-device-id">koe-e81a02</div>
+            <div class="db-device-mode coin">COIN</div>
+            <div class="db-level-wrap">
+              <div class="db-level-bar"><div class="db-level-fill" style="width:88%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <div class="db-level-num">-3dB</div>
+            </div>
+          </div>
+          <div class="db-device" style="opacity:0.4">
+            <div class="db-device-dot off"></div>
+            <div class="db-device-id">koe-9f33d7</div>
+            <div class="db-device-mode coin">COIN</div>
+            <div class="db-level-wrap">
+              <div class="db-level-bar"></div>
+              <div class="db-level-num" style="color:#374151">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="db-mixer">
+          <div class="db-mixer-label"><span class="ja">チャンネルミキサー</span><span class="en">Channel mixer</span></div>
+          <div class="db-channels">
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:73%;background:linear-gradient(0deg,#10B981,#34d399)"></div></div><div class="db-ch-name">CH1</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:45%;background:linear-gradient(0deg,#10B981,#34d399)"></div></div><div class="db-ch-name">CH2</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:88%;background:linear-gradient(0deg,#f59e0b,#fbbf24)"></div></div><div class="db-ch-name">CH3</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:30%;background:linear-gradient(0deg,#10B981,#34d399)"></div></div><div class="db-ch-name">CH4</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:0%;background:#10B981"></div></div><div class="db-ch-name">CH5</div><div class="db-ch-mute off">M</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:60%;background:linear-gradient(0deg,#6366f1,#818cf8)"></div></div><div class="db-ch-name">CH6</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:55%;background:linear-gradient(0deg,#10B981,#34d399)"></div></div><div class="db-ch-name">CH7</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:40%;background:linear-gradient(0deg,#10B981,#34d399)"></div></div><div class="db-ch-name">CH8</div><div class="db-ch-mute on">ON</div></div>
+            <div class="db-ch"><div class="db-ch-vol"><div class="db-ch-fill" style="height:78%;background:linear-gradient(0deg,#f59e0b,#fbbf24)"></div></div><div class="db-ch-name">MIX</div><div class="db-ch-mute on">ON</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USE CASES -->
+<div class="usecases-section">
+  <div class="sec-label"><span class="ja">シーン別ガイド</span><span class="en">By scene</span></div>
+  <h2 class="sec-title"><span class="ja">どんな場面でも、<em>Koeが繋ぐ</em></span><span class="en">Whatever the scene, <em>Koe connects</em></span></h2>
+  <p class="sec-sub"><span class="ja">自宅の勉強部屋から1万人のフェスまで。シーンに合った構成と費用感を確認しよう。</span><span class="en">From a study room at home to a 10,000-person festival. See the right rig and what it costs for each scene.</span></p>
+
+  <div class="uc-grid">
+
+    <!-- 自宅 -->
+    <div class="uc-card uc-home">
+      <div class="uc-scene">
+        <span class="uc-emoji">🏠</span>
+        <div class="uc-scene-title"><span class="ja">自宅で使う</span><span class="en">At home</span></div>
+        <div class="uc-scene-desc"><span class="ja">語学レッスン、オンライン授業、家族への読み聞かせ。別の部屋にいる人にもリアルタイムで声を届ける。アプリもルーター設定も不要。電源を入れるだけ。</span><span class="en">Language lessons, online classes, reading to family across rooms. Deliver voice room-to-room in real time — no app, no router setup, just power on.</span></div>
+      </div>
+      <div class="uc-devices">
+        <div class="uc-devices-label"><span class="ja">おすすめ構成</span><span class="en">Recommended setup</span></div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🎧</span>Koe GUIDE <span class="ja">× 受信機として</span><span class="en">× as receivers</span></div>
+          <div class="uc-device-qty"><span class="ja">1〜3台</span><span class="en">1–3 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🪙</span>Koe COIN <span class="ja">× 送信+受信</span><span class="en">× TX + RX</span></div>
+          <div class="uc-device-qty"><span class="ja">1台</span><span class="en">1 unit</span></div>
+        </div>
+      </div>
+      <div class="uc-cost">
+        <div class="uc-cost-label"><span class="ja">最小構成費用（COIN×1 + GUIDE×2）</span><span class="en">Minimum setup (COIN×1 + GUIDE×2)</span></div>
+        <div class="uc-cost-price" style="color:#6366f1">$263 ≈ ¥38,000</div>
+      </div>
+    </div>
+
+    <!-- 講演会 -->
+    <div class="uc-card uc-lecture">
+      <div class="uc-scene">
+        <span class="uc-emoji">🎤</span>
+        <div class="uc-scene-title"><span class="ja">講演会・ガイドツアー</span><span class="en">Lecture · Guided tour</span></div>
+        <div class="uc-scene-desc"><span class="ja">博物館・工場見学・国際会議・教会。演者の声を参加者全員のイヤホンへ。Sennheiserシステムの1/3の価格で、同等以上の音質と稼働時間を実現。</span><span class="en">Museums, factory tours, international conferences, churches. Deliver the speaker's voice into every listener's earphones at 1/3 the price of a Sennheiser system — with equal or better audio and runtime.</span></div>
+      </div>
+      <div class="uc-devices">
+        <div class="uc-devices-label"><span class="ja">おすすめ構成</span><span class="en">Recommended setup</span></div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🎧</span>Koe GUIDE <span class="ja">× 受信機</span><span class="en">× receivers</span></div>
+          <div class="uc-device-qty"><span class="ja">20〜100台</span><span class="en">20–100 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🪙</span>Koe COIN <span class="ja">× ガイドマイク</span><span class="en">× guide mic</span></div>
+          <div class="uc-device-qty"><span class="ja">1〜2台</span><span class="en">1–2 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🎛</span>Koe STAGE <span class="ja">× ハブ（50台以上）</span><span class="en">× hub (50+ units)</span></div>
+          <div class="uc-device-qty"><span class="ja">1台</span><span class="en">1 unit</span></div>
+        </div>
+      </div>
+      <div class="uc-cost">
+        <div class="uc-cost-label"><span class="ja">50人構成（GUIDE×50 + COIN×1）</span><span class="en">50-person rig (GUIDE×50 + COIN×1)</span></div>
+        <div class="uc-cost-price" style="color:#6366f1">$5,065 ≈ ¥740,000</div>
+      </div>
+    </div>
+
+    <!-- クラブ -->
+    <div class="uc-card uc-club">
+      <div class="uc-scene">
+        <span class="uc-emoji">🎧</span>
+        <div class="uc-scene-title"><span class="ja">クラブ・ライブハウス</span><span class="en">Club · Live house</span></div>
+        <div class="uc-scene-desc"><span class="ja">サイレントディスコ、アーティストモニター、スタッフ間インカム。COIN同士がリアルタイムで音を送り合う。フロア全員が同じ音楽を、それぞれのイヤホンで聴く体験。</span><span class="en">Silent disco, artist monitoring, staff intercom. COINs pass audio between each other in real time — the whole floor shares the same music through individual earphones.</span></div>
+      </div>
+      <div class="uc-devices">
+        <div class="uc-devices-label"><span class="ja">おすすめ構成</span><span class="en">Recommended setup</span></div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🪙</span>Koe COIN <span class="ja">× 参加者・スタッフ</span><span class="en">× attendees · staff</span></div>
+          <div class="uc-device-qty"><span class="ja">10〜200台</span><span class="en">10–200 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🎛</span>Koe STAGE <span class="ja">× DJ/ミキサーハブ</span><span class="en">× DJ / mixer hub</span></div>
+          <div class="uc-device-qty"><span class="ja">1台</span><span class="en">1 unit</span></div>
+        </div>
+      </div>
+      <div class="uc-cost">
+        <div class="uc-cost-label"><span class="ja">50人サイレントディスコ（COIN×50 + STAGE×1）</span><span class="en">50-person silent disco (COIN×50 + STAGE×1)</span></div>
+        <div class="uc-cost-price" style="color:var(--c-coin)">$4,050 ≈ ¥591,000</div>
+      </div>
+    </div>
+
+    <!-- フェス -->
+    <div class="uc-card uc-fes">
+      <div class="uc-scene">
+        <span class="uc-emoji">🎪</span>
+        <div class="uc-scene-title"><span class="ja">フェスティバル・野外イベント</span><span class="en">Festival · Outdoor event</span></div>
+        <div class="uc-scene-desc"><span class="ja">観客全員がCOINを持ち、音楽に合わせて一斉に光り、振動する。フィルスピーカーが会場全体をカバー。L-Acoustics $1Mシステムを$304Kで再現する。</span><span class="en">Every attendee holds a COIN, flashing and vibrating in sync with the music. Fill speakers cover the whole venue. Reproduce a $1M L-Acoustics system for $304K.</span></div>
+      </div>
+      <div class="uc-devices">
+        <div class="uc-devices-label"><span class="ja">10,000人フェス構成</span><span class="en">10,000-person festival rig</span></div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🪙</span>Koe COIN <span class="ja">× 観客</span><span class="en">× audience</span></div>
+          <div class="uc-device-qty"><span class="ja">4,000台</span><span class="en">4,000 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🔊</span>Koe FILL <span class="ja">× PAスピーカー</span><span class="en">× PA speakers</span></div>
+          <div class="uc-device-qty"><span class="ja">18台</span><span class="en">18 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🔊</span>Koe SUB <span class="ja">× サブウーファー</span><span class="en">× subwoofers</span></div>
+          <div class="uc-device-qty"><span class="ja">10台</span><span class="en">10 units</span></div>
+        </div>
+        <div class="uc-device-item">
+          <div class="uc-device-name"><span>🎛</span>Koe STAGE <span class="ja">× メインハブ</span><span class="en">× main hub</span></div>
+          <div class="uc-device-qty"><span class="ja">1台</span><span class="en">1 unit</span></div>
+        </div>
+      </div>
+      <div class="uc-cost">
+        <div class="uc-cost-label"><span class="ja">10,000人構成合計</span><span class="en">10K-person rig total</span></div>
+        <div class="uc-cost-price" style="color:var(--c-fill)">$304,000 — <span class="ja">競合比</span><span class="en">vs. competitor</span> <strong>1/3</strong></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- APPS & WEB APPS -->
+<div class="apps-section" id="apps">
+  <div class="sec-label"><span class="ja">アプリ & Webアプリ</span><span class="en">Apps & Web Apps</span></div>
+  <h2 class="sec-title"><span class="ja">今すぐ<em>使える</em></span><span class="en"><em>Try it</em> now</span></h2>
+  <p class="sec-sub"><span class="ja">デバイスが届く前から、ブラウザやMacで動作確認やデモを試せます。</span><span class="en">Try demos and features in your browser or on Mac — even before devices arrive.</span></p>
+
+  <div class="apps-grid">
+
+    <div class="app-card">
+      <span class="app-badge web">WEB · Free</span>
+      <div class="app-icon">🎛</div>
+      <div class="app-title">Koe STAGE OS</div>
+      <div class="app-desc"><span class="ja">32chミキサー / EQ・コンプ・リバーブ / SRT・RTMP配信 / OTA管理。ブラウザで即起動。</span><span class="en">32ch mixer / EQ · comp · reverb / SRT & RTMP / OTA management. Runs directly in the browser.</span></div>
+      <a class="app-btn primary" href="/stage-os"><span class="ja">起動 →</span><span class="en">Launch →</span></a>
+    </div>
+
+    <div class="app-card">
+      <span class="app-badge web">WEB · Free</span>
+      <div class="app-icon">🪙</div>
+      <div class="app-title">Soluna P2P</div>
+      <div class="app-desc"><span class="ja">ブラウザで直接 Soluna プロトコルの音声送受信。スマホ2台以上あれば群衆楽器の雰囲気を体験できる。</span><span class="en">Soluna-protocol audio send/receive directly in the browser. Two phones are enough to feel the crowd-instrument effect.</span></div>
+      <a class="app-btn primary" href="/app"><span class="ja">起動 →</span><span class="en">Launch →</span></a>
+    </div>
+
+    <div class="app-card">
+      <span class="app-badge web">WEB · Free</span>
+      <div class="app-icon">📊</div>
+      <div class="app-title">Soluna OS Dashboard</div>
+      <div class="app-desc"><span class="ja">フェス運営向け管理画面デモ。全Koeデバイスの音量・ステータスをリアルタイム表示。</span><span class="en">Festival-operator dashboard demo. Real-time view of every Koe device's volume and status.</span></div>
+      <a class="app-btn" href="/soluna-os"><span class="ja">起動 →</span><span class="en">Launch →</span></a>
+    </div>
+
+    <div class="app-card">
+      <span class="app-badge mac">macOS</span>
+      <div class="app-icon">🖥</div>
+      <div class="app-title">Koe STAGE (Mac)</div>
+      <div class="app-desc"><span class="ja">STAGE OSをネイティブmacOSアプリとして起動。Apple Silicon / Intel両対応。</span><span class="en">Launch STAGE OS as a native macOS app. Apple Silicon and Intel compatible.</span></div>
+      <a class="app-btn primary" href="/downloads/KoeStage.dmg" download><span class="ja">ダウンロード (DMG)</span><span class="en">Download (DMG)</span></a>
+    </div>
+
+    <div class="app-card">
+      <span class="app-badge mac">macOS</span>
+      <div class="app-icon">🛠</div>
+      <div class="app-title">Koe Manager (Mac)</div>
+      <div class="app-desc"><span class="ja">ローカルネットワーク上のKoeデバイスを自動検出・管理するMacアプリ。Bonjour対応。</span><span class="en">Mac app that auto-discovers and manages Koe devices on the local network (Bonjour).</span></div>
+      <a class="app-btn primary" href="/downloads/KoeManager.dmg" download><span class="ja">ダウンロード (DMG)</span><span class="en">Download (DMG)</span></a>
+    </div>
+
+    <div class="app-card">
+      <span class="app-badge ios">macOS · iOS · Win</span>
+      <div class="app-icon">🎤</div>
+      <div class="app-title">Koe 音声入力</div>
+      <div class="app-desc"><span class="ja">声で全アプリへ入力するデスクトップ/モバイルユーティリティ。別プロダクト。</span><span class="en">Voice-to-any-app dictation utility for desktop and mobile. Separate product.</span></div>
+      <a class="app-btn primary" href="/koe-software"><span class="ja">詳細・ダウンロード →</span><span class="en">Details · Download →</span></a>
+    </div>
+
+  </div>
+</div>
+
+<div class="roadmap-link">
+  <p><span class="ja">製品の詳細なスケジュールと技術仕様はロードマップで確認できます。</span><span class="en">See the full schedule and technical specs on the roadmap.</span></p>
+  <a class="roadmap-btn" href="/roadmap"><span class="ja">ロードマップを見る →</span><span class="en">View Roadmap →</span></a>
+</div>
+
+<footer>
+  <p>
+    <a href="/coin">COIN</a> &nbsp;·&nbsp;
+    <a href="/guide">GUIDE</a> &nbsp;·&nbsp;
+    <a href="/stage">STAGE</a> &nbsp;·&nbsp;
+    <a href="/fill">FILL</a> &nbsp;·&nbsp;
+    <a href="/guide-v2">GUIDE v2</a> &nbsp;·&nbsp;
+    <a href="/roadmap"><span class="ja">ロードマップ</span><span class="en">Roadmap</span></a>
+  </p>
+  <p style="margin-top:0.5rem;color:#374151">© 2026 Koe Device. <span class="ja">Made in Japan with Rust</span><span class="en">Made in Japan with Rust</span> 🦀</p>
+</footer>
+
+</body>
+</html>
