@@ -415,12 +415,30 @@ async fn main() {
         .route("/api/admin/stats",         get(handle_admin_stats))
         .route("/admin/devices",           get(handle_admin_devices_page))
         .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).not_found_service(ServeFile::new(format!("{}/404.html", static_dir))))
-        .with_state(state);
+        .with_state(state)
+        .layer(axum::middleware::from_fn(security_headers));
 
     let addr = format!("0.0.0.0:{}", port);
     info!("koe-server listening on {}", addr);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+async fn security_headers(request: axum::extract::Request, next: axum::middleware::Next) -> axum::response::Response {
+    let mut response = next.run(request).await;
+    let headers = response.headers_mut();
+    use axum::http::header::{HeaderName, HeaderValue};
+    let set = |h: &'static str, v: &'static str| {
+        (HeaderName::from_static(h), HeaderValue::from_static(v))
+    };
+    let pairs = [
+        set("x-content-type-options",    "nosniff"),
+        set("x-frame-options",           "SAMEORIGIN"),
+        set("referrer-policy",           "strict-origin-when-cross-origin"),
+        set("strict-transport-security", "max-age=31536000; includeSubDomains"),
+    ];
+    for (k, v) in pairs { headers.insert(k, v); }
+    response
 }
 
 // ---- Health ----
