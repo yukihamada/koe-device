@@ -1521,7 +1521,19 @@ async fn handle_stripe_webhook(
         let email = session["customer_details"]["email"].as_str().unwrap_or("");
         let name = session["customer_details"]["name"].as_str().unwrap_or("");
         let amount = session["amount_total"].as_i64().unwrap_or(0);
-        let product = session["metadata"]["product"].as_str().unwrap_or("seed");
+        // The Stripe account is shared with wearmu.com, so non-Koe events arrive here too.
+        // Only proceed when metadata.product names a Koe Seed SKU — otherwise the
+        // wearmu MA/MUGEN/MUON buyer would get a stray "Koe Seed" confirmation email
+        // and a phantom row in the orders table.
+        let product = match session["metadata"]["product"].as_str() {
+            Some(p) if matches!(p, "seed" | "seed_earlybird" | "seed_pro" | "dk_edition" | "deposit") => p,
+            _ => {
+                info!("Stripe webhook: ignoring non-Koe checkout (session={}, kind={:?})",
+                    session_id,
+                    session["metadata"]["kind"].as_str());
+                return (StatusCode::OK, "ignored").into_response();
+            }
+        };
         let quantity: i64 = session["metadata"]["quantity"].as_str()
             .and_then(|q| q.parse().ok())
             .unwrap_or(1);
@@ -1596,7 +1608,7 @@ async fn handle_stripe_webhook(
                 r#"<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:2rem;background:#0a0a0a;color:#e8e8e8;">
 <h2 style="color:#8B5CF6;">ご注文ありがとうございます</h2>
 <p>{} 様</p>
-<p>Koe Seedのご注文を承りました。</p>
+<p>{}のご注文を承りました。</p>
 <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;">
 <tr><td style="padding:0.5rem 0;color:#888;">商品</td><td style="padding:0.5rem 0;">{}</td></tr>
 <tr><td style="padding:0.5rem 0;color:#888;">数量</td><td style="padding:0.5rem 0;">{}</td></tr>
@@ -1608,9 +1620,10 @@ async fn handle_stripe_webhook(
 <p style="margin-top:2rem;color:#888;">ご質問は <a href="mailto:hello@koe.live" style="color:#8B5CF6;">hello@koe.live</a> までお気軽にどうぞ。</p>
 <p style="margin-top:2rem;color:#666;">— Koe チーム</p>
 </div>"#,
-                display_name, product_name, quantity, amount, full_address
+                display_name, product_name, product_name, quantity, amount, full_address
             );
-            send_email(&email_owned, "ご注文ありがとうございます — Koe Seed", &html).await;
+            let subject = format!("ご注文ありがとうございます — {}", product_name);
+            send_email(&email_owned, &subject, &html).await;
         }
     }
 
