@@ -19,8 +19,12 @@ jobs:
           default: true
           ldproxy: true
 
-      - name: Check demo firmware
-        working-directory: firmware/demo
+      - name: Check amp firmware
+        working-directory: firmware/amp
+        run: cargo check 2>&1 || echo "Check completed (may have ESP-IDF deps issues in CI)"
+
+      - name: Check stone firmware
+        working-directory: firmware/stone
         run: cargo check 2>&1 || echo "Check completed (may have ESP-IDF deps issues in CI)"
 
   site-check:
