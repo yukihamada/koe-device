@@ -764,9 +764,25 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
 .np-seek { margin-top:6px; padding:0 4px; }
 #vocal-strip { margin-top:8px; }
 
+/* Cleaner two-line header: name + status dot on top, muted meta below. */
+#room-info { flex-direction:column; align-items:flex-start; gap:2px; }
+.room-line1 { display:flex; align-items:center; gap:8px; }
+.room-line2 { display:flex; align-items:center; gap:7px; font-size:0.72rem; color:var(--muted); }
+.room-sep { opacity:0.4; }
+#room-count-badge { font-size:0.72rem; color:var(--muted); background:none; border-radius:0; padding:0; }
+#room-dot.online + #room-name-top { } /* keep selector specificity stable */
+#latency-badge { font-size:0.72rem; color:var(--muted); }
+
 /* Roomier, calmer participant stage so single/few users don't feel lost. */
 #orb-stage { gap:32px; padding:28px 20px; align-content:center; }
 .orb-name { color:rgba(255,255,255,0.82); font-weight:500; }
+/* Soft focal glow behind the orbs so the centre reads as intentional, not empty. */
+#orb-stage::before {
+  content:''; position:absolute; left:50%; top:50%;
+  width:min(70vw,440px); height:min(70vw,440px); transform:translate(-50%,-50%);
+  background:radial-gradient(circle, rgba(124,58,237,0.16), rgba(124,58,237,0.05) 45%, transparent 70%);
+  z-index:0; pointer-events:none;
+}
 
 /* Cohesive bottom panel. */
 #chat-bar { padding-bottom:8px; }
@@ -832,11 +848,17 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
   <!-- TOP BAR -->
   <div id="top-bar">
     <div id="room-info">
-      <span id="room-name-top">Soluna</span>
-      <div id="room-dot"></div>
-      <span id="status-text-top">接続中...</span>
-      <span id="room-count-badge" style="font-size:0.72rem;color:var(--green);background:rgba(34,197,94,0.1);border-radius:8px;padding:2px 8px;">0人</span>
-      <span id="latency-badge">--ms</span>
+      <div class="room-line1">
+        <div id="room-dot"></div>
+        <span id="room-name-top">Soluna</span>
+      </div>
+      <div class="room-line2">
+        <span id="status-text-top">接続中...</span>
+        <span class="room-sep">·</span>
+        <span id="room-count-badge">0人</span>
+        <span class="room-sep">·</span>
+        <span id="latency-badge">--ms</span>
+      </div>
     </div>
     <div style="display:flex;gap:8px;">
       <button onclick="showQR()">⊕</button>
