@@ -1489,7 +1489,7 @@ function updateStatus(online) {
 // ============================================================
 // APP INIT
 // ============================================================
-function enterApp(mode) {
+async function enterApp(mode) {
   isListenerMode = (mode === 'listener');
   // Get name from HTML input (no more prompt())
   const nameInput = document.getElementById('splash-name-input');
@@ -1510,6 +1510,18 @@ function enterApp(mode) {
         <div class="orb-name" id="orb-local-name">${localName}</div>
         <div class="orb-caption" id="cap-local"></div>
       </div>`;
+  }
+
+  // Voice mode: acquire the mic BEFORE connecting signaling so the local audio
+  // track is present when peer connections are created (otherwise it never gets
+  // added and nobody can hear you). Start muted; first 🎙️ tap unmutes.
+  if (!isListenerMode) {
+    if (await initMic()) {
+      isMuted = true;
+      localStream.getAudioTracks().forEach(t => t.enabled = false);
+      const mb = document.getElementById('btn-mic-main');
+      if (mb) { mb.classList.add('muted'); mb.textContent = '🔇'; }
+    }
   }
 
   connectSignaling();
@@ -1812,6 +1824,24 @@ async function initMic() {
   }
 }
 
+// Attach the local mic track to any peer connection that doesn't have it yet,
+// then renegotiate. Used on the fallback path where the mic is enabled AFTER
+// peer connections were already created (e.g. permission granted late).
+async function addLocalStreamToPeers() {
+  if (!localStream) return;
+  for (const [peerId, pc] of Object.entries(peerConnections)) {
+    const hasAudioSender = pc.getSenders().some(s => s.track && s.track.kind === 'audio');
+    if (hasAudioSender) continue;
+    try {
+      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+      const offer = await pc.createOffer({ offerToReceiveAudio: true, voiceActivityDetection: false });
+      offer.sdp = patchSdp(offer.sdp);
+      await pc.setLocalDescription(offer);
+      send({ type: 'offer', to: peerId, data: { name: localName, sdp: offer.sdp } });
+    } catch (e) {}
+  }
+}
+
 function createOrGetPC(peerId, peerName, isInitiator) {
   if (peerConnections[peerId]) return peerConnections[peerId];
 
@@ -1869,16 +1899,19 @@ async function handleOffer(fromId, fromName, sdp) {
 // ---- MIC CONTROLS ----
 async function toggleMic() {
   if (!localStream) {
+    // Mic not acquired at entry (permission denied / listener mode) — acquire
+    // it now and attach the track to peers that are already connected.
     if (!await initMic()) return;
-    // Also start transcription
+    await addLocalStreamToPeers();
     toggleTranscription();
     send({ type:'joined', data:{ name:localName } });
+    isMuted = false; // first activation = live, not muted
   } else {
     // Toggle transcription
     toggleTranscription();
+    isMuted = !isMuted;
   }
-  isMuted = !isMuted;
-  if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
   const btn = document.getElementById('btn-mic-main');
   btn.classList.toggle('muted', isMuted);
   btn.textContent = isMuted ? '🔇' : '🎙️';
