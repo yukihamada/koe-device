@@ -1069,7 +1069,11 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
     <p>このQRコードをスキャンして<br>同じルームに参加</p>
     <canvas id="qr-canvas" width="200" height="200"></canvas>
     <br>
-    <div style="font-size:0.8rem; color:var(--muted); word-break:break-all; margin-bottom:16px;" id="qr-url"></div>
+    <div style="font-size:0.8rem; color:var(--muted); word-break:break-all; margin-bottom:14px;" id="qr-url"></div>
+    <div style="display:flex; gap:8px; justify-content:center; margin-bottom:14px;">
+      <button class="fx-btn" onclick="copyInviteLink()">🔗 リンクをコピー</button>
+      <button class="fx-btn" onclick="shareInviteLink()">📤 共有</button>
+    </div>
     <button class="modal-close" onclick="hideQR()">閉じる</button>
   </div>
 </div>
@@ -1604,6 +1608,8 @@ async function enterApp(mode) {
 // ---- SIGNALING (WebRTC) ----
 function connectSignaling() {
   if (signalingWs) { try { signalingWs.close(); } catch(e){} }
+  // Reflect the current room in the address bar so it's shareable as an invite link.
+  try { history.replaceState(null, '', `/app?room=${encodeURIComponent(currentRoom)}`); } catch(e) {}
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   const modeParam = isListenerMode ? '&mode=listener' : '';
   const url = `${proto}://${location.host}/ws/signal?room=${encodeURIComponent(currentRoom)}&peer=${myPeerId}&name=${encodeURIComponent(localName)}${modeParam}`;
@@ -2492,12 +2498,25 @@ function showToast(msg) {
   t._tid = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+function inviteUrl() {
+  return `${location.origin}/app?room=${encodeURIComponent(currentRoom)}`;
+}
+function copyInviteLink() {
+  navigator.clipboard?.writeText(inviteUrl()).then(() => showToast('リンクをコピーしました'));
+}
+function shareInviteLink() {
+  const url = inviteUrl();
+  if (navigator.share) {
+    navigator.share({ title: 'Koe', text: 'Koeで一緒に聴いて話そう', url }).catch(() => {});
+  } else {
+    copyInviteLink();
+  }
+}
 function showQR() {
-  const url = `${location.origin}/app?room=${encodeURIComponent(currentRoom)}`;
+  const url = inviteUrl();
   document.getElementById('qr-url').textContent = url;
   document.getElementById('qr-modal').classList.add('show');
   drawQR(url);
-  navigator.clipboard?.writeText(url).then(() => showToast('URLをコピーしました'));
 }
 
 function hideQR() { document.getElementById('qr-modal').classList.remove('show'); }
@@ -2551,34 +2570,13 @@ function drawQR(text) {
   const urlRoom = urlParams.get('room');
   if (urlRoom) {
     currentRoom = urlRoom;
-    document.getElementById('room-input').value = urlRoom;
-    setTimeout(() => {
-      document.getElementById('splash').style.display = 'none';
-      document.getElementById('app').classList.add('visible');
-      const stage = document.getElementById('orb-stage');
-      if (stage) {
-        stage.innerHTML = `
-          <div class="orb local" id="orb-local">
-            <div class="orb-circle">🙂</div>
-            <div class="orb-name" id="orb-local-name">${localName}</div>
-            <div class="orb-caption" id="cap-local"></div>
-          </div>`;
-      }
-      document.getElementById('room-name-top').textContent = urlRoom;
-      connectSignaling();
-      connectSolunaRelay();
-      initPlaylist();
-      fetchDevices();
-      deviceRefreshInterval = setInterval(fetchDevices, 5000);
-      initMic().then(ok => {
-        if (ok) {
-          toggleTranscription();
-          send({ type:'joined', data:{ name:localName } });
-        }
-      });
-      initViz();
-      startLatencyMonitor();
-    }, 200);
+    const ri = document.getElementById('room-input'); if (ri) ri.value = urlRoom;
+    const rn = document.getElementById('room-name-top'); if (rn) rn.textContent = urlRoom;
+    // Don't auto-enter: keep the splash so the invitee picks 会話 / 聴くだけ and
+    // enterApp() requests the mic correctly (auto-entering here skipped the mic
+    // setup and left invited users unable to talk). Just show an invite hint.
+    const sub = document.querySelector('#splash .splash-sub');
+    if (sub) sub.textContent = `ルーム「${urlRoom}」に招待されました`;
   }
 })();
 
