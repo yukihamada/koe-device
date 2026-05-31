@@ -1912,9 +1912,22 @@ async function handleOffer(fromId, fromName, sdp) {
 async function toggleMic() {
   if (!localStream) {
     // Mic not acquired at entry (permission denied / listener mode) — acquire
-    // it now and attach the track to peers that are already connected.
+    // it now and start sending audio to peers.
     if (!await initMic()) return;
-    await addLocalStreamToPeers();
+    if (isListenerMode) {
+      // Upgrade listener -> speaker. The server does not forward offer/answer/ice
+      // to listeners, so we must re-register without listener mode. Re-enter as a
+      // fresh peer id so everyone builds clean sendrecv connections (same path as a
+      // normal speaker join), and drop the half-open listener-side connections.
+      isListenerMode = false;
+      Object.values(peerConnections).forEach(pc => { try { pc.close(); } catch(e){} });
+      peerConnections = {};
+      myPeerId = 'web-' + Math.random().toString(36).slice(2,8);
+      connectSignaling();
+      showToast('🎙️ 会話に参加しました');
+    } else {
+      await addLocalStreamToPeers();
+    }
     toggleTranscription();
     send({ type:'joined', data:{ name:localName } });
     isMuted = false; // first activation = live, not muted
@@ -4667,9 +4680,11 @@ document.addEventListener('keydown', (e) => {
   });
 })();
 
-// Initialize shuffle/repeat button opacity
-document.getElementById('btn-shuffle').style.opacity = '0.4';
-document.getElementById('btn-repeat').style.opacity = '0.4';
+// Initialize shuffle/repeat button opacity (elements may not be present)
+const _btnShuffle = document.getElementById('btn-shuffle');
+if (_btnShuffle) _btnShuffle.style.opacity = '0.4';
+const _btnRepeat = document.getElementById('btn-repeat');
+if (_btnRepeat) _btnRepeat.style.opacity = '0.4';
 
 console.log('Koe Web App initialized. Peer ID:', myPeerId);
 console.log('Shortcuts: Space=Play/Pause, ←→=Seek, Shift+←→=Track, ↑↓=Vol, M=Mic, L=Lyrics, E=Echo, Esc=Close');
