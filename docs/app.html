@@ -157,6 +157,15 @@ html, body {
   background-size:200% 100%; animation:shimmer 2.5s infinite;
 }
 .btn-primary:active { transform:scale(0.95); opacity:0.9; }
+.splash-enter-btns { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.btn-secondary {
+  background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.85);
+  border:1px solid rgba(255,255,255,0.22); border-radius:var(--r);
+  padding:13px 40px; font-size:0.92rem; font-weight:500; cursor:pointer;
+  -webkit-appearance:none; transition:transform 0.15s, background 0.15s;
+}
+.btn-secondary:hover { background:rgba(255,255,255,0.12); }
+.btn-secondary:active { transform:scale(0.95); opacity:0.9; }
 #splash .splash-hint { color:var(--muted); font-size:0.75rem; margin-top:16px; opacity:0.85; line-height:1.5; }
 .splash-features {
   text-align:left; margin:0 auto 28px; max-width:340px;
@@ -770,8 +779,11 @@ input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
         maxlength="20" autocomplete="off" spellcheck="false">
     </div>
 
-    <button class="btn-primary" id="btn-enter" onclick="enterApp()">はじめる</button>
-    <p class="splash-hint">🔊 音楽が流れます（音量調整可）· マイク不要でも参加OK</p>
+    <div class="splash-enter-btns">
+      <button class="btn-primary" id="btn-enter" onclick="enterApp()">🎙️ 会話して参加</button>
+      <button class="btn-secondary" id="btn-enter-listen" onclick="enterApp('listener')">🎧 聴くだけで参加</button>
+    </div>
+    <p class="splash-hint">「会話して参加」を選ぶと、相手に声を届けるためにマイクの使用許可を求めます（最初はミュート。🎙️をタップで発話）。<br>🔊 音楽が流れます（音量調整可）· 聴くだけならマイク不要</p>
   </div>
 </div>
 
