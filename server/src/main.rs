@@ -343,6 +343,8 @@ async fn main() {
         .route("/sessions/hawaii-2026-07",         get(handle_page_sessions_hawaii))
         .route("/artist",                          get(handle_page_artist))
         .route("/room",                            get(handle_page_room))
+        .route("/connect",                         get(handle_page_connect))
+        .route("/tsunagu",                         get(handle_page_connect))
         .route("/archive",                         get(handle_page_archive))
         .route("/key",                             get(handle_page_key))
         .route("/waitlist",                        get(handle_page_waitlist))
@@ -470,6 +472,7 @@ async fn handle_page_family() -> impl IntoResponse { serve_html("family.html").a
 async fn handle_page_sessions() -> impl IntoResponse { serve_html("sessions.html").await }
 async fn handle_page_sessions_hawaii() -> impl IntoResponse { serve_html("sessions-hawaii.html").await }
 async fn handle_page_room() -> impl IntoResponse { serve_html("room.html").await }
+async fn handle_page_connect() -> impl IntoResponse { serve_html("connect.html").await }
 async fn handle_page_archive() -> impl IntoResponse { serve_html("archive.html").await }
 async fn handle_page_key() -> impl IntoResponse { serve_html("key.html").await }
 async fn handle_page_artist() -> impl IntoResponse { serve_html("artist.html").await }
