@@ -345,6 +345,10 @@ async fn main() {
         .route("/room",                            get(handle_page_room))
         .route("/connect",                         get(handle_page_connect))
         .route("/tsunagu",                         get(handle_page_connect))
+        .route("/llms.txt",                        get(handle_llms))
+        .route("/api/connect",                     get(handle_api_connect).post(handle_api_connect))
+        .route("/mcp",                             get(handle_mcp_get).post(handle_mcp_post))
+        .route("/.well-known/mcp",                 get(handle_well_known_mcp))
         .route("/archive",                         get(handle_page_archive))
         .route("/key",                             get(handle_page_key))
         .route("/waitlist",                        get(handle_page_waitlist))
@@ -473,6 +477,135 @@ async fn handle_page_sessions() -> impl IntoResponse { serve_html("sessions.html
 async fn handle_page_sessions_hawaii() -> impl IntoResponse { serve_html("sessions-hawaii.html").await }
 async fn handle_page_room() -> impl IntoResponse { serve_html("room.html").await }
 async fn handle_page_connect() -> impl IntoResponse { serve_html("connect.html").await }
+
+// ── KOE 声でつなぐ — エージェント面（API + MCP + llms.txt） ──
+// 声の実体は稼働中の room インフラ(yukihamada.jp)。Koe はその入口を人にもエージェントにも開く。
+fn koe_connect_link(name: &str) -> (String, String, String) {
+    let h: String = name
+        .to_lowercase()
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
+        .take(48)
+        .collect();
+    let h = if h.is_empty() {
+        let n = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0) as u32;
+        format!("koe-{:x}", n)
+    } else {
+        h
+    };
+    let link = format!("https://yukihamada.jp/k/{}", h);
+    let prompt = format!("!open {}", link);
+    (h, link, prompt)
+}
+
+#[derive(serde::Deserialize)]
+struct ConnectQ {
+    #[serde(default)]
+    name: String,
+}
+
+async fn handle_api_connect(Query(q): Query<ConnectQ>) -> impl IntoResponse {
+    let (room, link, prompt) = koe_connect_link(&q.name);
+    (
+        [("access-control-allow-origin", "*")],
+        axum::Json(json!({
+            "ok": true,
+            "name": q.name,
+            "room": room,
+            "link": link,
+            "prompt": prompt,
+            "enter_url": format!("https://yukihamada.jp/room/{}", room),
+            "presence_url": format!("https://yukihamada.jp/api/room/{}/presence", room),
+            "note": "Open the link (or run the prompt in Claude Code) on both sides to connect by voice. Up to 6 people."
+        })),
+    )
+}
+
+const LLMS_TXT: &str = "# Koe — Sound That Connects\n\
+\n\
+Koe is a voice hardware + service ecosystem. \"1 device remembers, 100 devices become an orchestra.\"\n\
+This site (koe.live) sells the Koe device and offers \"声でつなぐ / Connect\": instant voice rooms.\n\
+\n\
+## What an agent can do here\n\
+- POST/GET https://koe.live/api/connect?name=<who>  -> { room, link, prompt, enter_url, presence_url }\n\
+  Use `link` (https://yukihamada.jp/k/<who>) to connect two people by voice. `prompt` is a Claude Code one-liner (!open <link>).\n\
+- MCP server: https://koe.live/mcp  (tools: make_connect_link, room_presence)\n\
+- Voice room presence: GET https://yukihamada.jp/api/room/<room>/presence -> { count }\n\
+\n\
+## Pages\n\
+- /            product landing\n\
+- /connect     声でつなぐ (voice connect UI)\n\
+- /pro /busker /classroom /moji  product use-cases\n\
+\n\
+## Note\n\
+The voice transport (WebRTC mesh, up to 6) is hosted at yukihamada.jp/room. Open the same link on both sides to connect.\n";
+
+async fn handle_llms() -> impl IntoResponse {
+    ([("content-type", "text/plain; charset=utf-8")], LLMS_TXT)
+}
+
+async fn handle_well_known_mcp() -> impl IntoResponse {
+    axum::Json(json!({
+        "name": "koe",
+        "endpoint": "https://koe.live/mcp",
+        "transport": "http",
+        "tools": ["make_connect_link", "room_presence"]
+    }))
+}
+
+fn koe_mcp_tools() -> serde_json::Value {
+    json!([
+        {"name":"make_connect_link","description":"声でつなぐリンクを作る。名前を渡すと voice room のリンク・Claude Code 用プロンプト・入室URLを返す。認証不要。","inputSchema":{"type":"object","properties":{"name":{"type":"string","description":"つなぐ相手の名前(省略可)"}}}},
+        {"name":"room_presence","description":"その voice room にいま何人いるか。認証不要。","inputSchema":{"type":"object","required":["room"],"properties":{"room":{"type":"string"}}}}
+    ])
+}
+
+async fn handle_mcp_get() -> impl IntoResponse {
+    (
+        [("content-type", "text/html; charset=utf-8")],
+        "<!doctype html><meta charset=utf-8><title>Koe MCP</title><body style=\"background:#0a0a0a;color:#e8e8e8;font-family:system-ui;max-width:680px;margin:40px auto;padding:0 20px;line-height:1.7\"><h1>🎙 Koe MCP — Sound That Connects</h1><p>声でつなぐを人にもエージェントにも。<code>POST /mcp</code> (JSON-RPC 2.0)。tools: <b>make_connect_link</b> / <b>room_presence</b>（認証不要）。</p><pre style=\"background:#161619;padding:14px;border-radius:8px;overflow-x:auto\">claude mcp add --transport http koe https://koe.live/mcp</pre><p>REST も可: <code>GET /api/connect?name=&lt;who&gt;</code> / <a style=\"color:#a78bfa\" href=\"/llms.txt\">/llms.txt</a></p></body>",
+    )
+}
+
+async fn handle_mcp_post(axum::Json(req): axum::Json<serde_json::Value>) -> impl IntoResponse {
+    let id = req.get("id").cloned().unwrap_or(serde_json::Value::Null);
+    let method = req.get("method").and_then(|m| m.as_str()).unwrap_or("");
+    let ok = |result: serde_json::Value| axum::Json(json!({"jsonrpc":"2.0","id":id.clone(),"result":result}));
+    match method {
+        "initialize" => axum::Json(json!({"jsonrpc":"2.0","id":id,"result":{
+            "protocolVersion":"2024-11-05","serverInfo":{"name":"koe","version":"1.0.0"},"capabilities":{"tools":{}}}})),
+        "ping" => ok(json!({})),
+        "tools/list" => ok(json!({"tools": koe_mcp_tools()})),
+        "tools/call" => {
+            let name = req.get("params").and_then(|p| p.get("name")).and_then(|n| n.as_str()).unwrap_or("");
+            let args = req.get("params").and_then(|p| p.get("arguments")).cloned().unwrap_or(json!({}));
+            let text = |s: String| json!({"content":[{"type":"text","text": s}]});
+            match name {
+                "make_connect_link" => {
+                    let who = args.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                    let (room, link, prompt) = koe_connect_link(who);
+                    ok(text(format!("声でつなぐリンクができました。\nリンク: {link}\nClaude Code: {prompt}\n入室: https://yukihamada.jp/room/{room}\n相手とふたりで開けば声でつながります（最大6人）。")))
+                }
+                "room_presence" => {
+                    let room: String = args.get("room").and_then(|v| v.as_str()).unwrap_or("")
+                        .chars().filter(|c| c.is_ascii_alphanumeric() || *c=='-').take(64).collect();
+                    if room.is_empty() { return ok(text("room が必要です".into())); }
+                    let url = format!("https://yukihamada.jp/api/room/{}/presence", room);
+                    let n = match reqwest::Client::new().get(&url).timeout(std::time::Duration::from_secs(6)).send().await {
+                        Ok(r) => r.json::<serde_json::Value>().await.ok().and_then(|v| v.get("count").and_then(|c| c.as_i64())).unwrap_or(0),
+                        Err(_) => 0,
+                    };
+                    ok(text(format!("room '{room}' にいま {n} 人。2人以上なら声でつながっています。")))
+                }
+                _ => axum::Json(json!({"jsonrpc":"2.0","id":id,"error":{"code":-32601,"message":"unknown tool"}})),
+            }
+        }
+        _ => axum::Json(json!({"jsonrpc":"2.0","id":id,"error":{"code":-32601,"message":"method not found"}})),
+    }
+}
 async fn handle_page_archive() -> impl IntoResponse { serve_html("archive.html").await }
 async fn handle_page_key() -> impl IntoResponse { serve_html("key.html").await }
 async fn handle_page_artist() -> impl IntoResponse { serve_html("artist.html").await }
