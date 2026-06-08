@@ -31,5 +31,6 @@ CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
 # Logging
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y
 
-# Power management (DFS) — ガイドモードの省電力(set_cpu_80mhz)に必要
+# Power management (DFS+自動ライトスリープ) — 設計v4 §6・10h駆動の土台
 CONFIG_PM_ENABLE=y
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=y

@@ -33,7 +33,9 @@ pub fn set_cpu_80mhz() {
     let cfg = esp_idf_sys::esp_pm_config_esp32s3_t {
         max_freq_mhz: 80,
         min_freq_mhz: 40,
-        light_sleep_enable: false,
+        // 設計v4 §6準拠: 自動ライトスリープ有効化（要 CONFIG_FREERTOS_USE_TICKLESS_IDLE）。
+        // ⚠ 実機未検証: I2S/WiFi復帰レイテンシは実機(INA226)で要確認。
+        light_sleep_enable: true,
     };
     let err = unsafe {
         esp_idf_sys::esp_pm_configure(&cfg as *const _ as *const core::ffi::c_void)
