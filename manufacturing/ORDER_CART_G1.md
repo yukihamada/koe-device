@@ -7,7 +7,9 @@
 ## ほぼ1クリック（まとめてカート投入）
 下のURLを開くと主要5点がカートに入る（要ログイン・在庫により一部入らない場合は下の個別リンクで）:
 
-`https://www.amazon.co.jp/gp/aws/cart/add.html?ASIN.1=B0C3M8FCNS&Quantity.1=1&ASIN.2=B074Z4THWJ&Quantity.2=1&ASIN.3=B0DS1LQJMT&Quantity.3=1&ASIN.4=B09WMDVXSQ&Quantity.4=1&ASIN.5=B07KC4Z6LD&Quantity.5=1`
+`https://www.amazon.co.jp/gp/aws/cart/add.html?ASIN.1=B0C3M8FCNS&Quantity.1=1&ASIN.2=B074Z4THWJ&Quantity.2=1&ASIN.3=B0DS1LQJMT&Quantity.3=1&ASIN.4=B09WMDVXSQ&Quantity.4=1&ASIN.5=B07KC4Z6LD&Quantity.5=1&ASIN.6=B086WVGMLV&Quantity.6=1`
+
+> 💴 **価格について**: Amazonは自動取得ツールに価格を出さない仕様のため、本表の価格は概算。**実価格・在庫はカート/商品ページで確定**（怠慢でなくAmazon側制約）。商品の同一性は実打確認済（XIAO Sense=マイク内蔵 / uxcell 6V2Wパネル / Adafruit MAX98357A / uxcell 28mm 8Ω2Wリード線付）。
 
 ## 個別リンク（確実）
 | # | 部品 | 役割 | 概算 | リンク(ASIN) |
@@ -17,10 +19,10 @@
 | 3 | **1S LiPo 3.7V 1000mAh (JST-PH2.0)** | 主電源(10h検証) | ~¥900 | https://www.amazon.co.jp/dp/B0DS1LQJMT |
 | 4 | **CN3791 MPPT ソーラー充電 (6V版)** | ソーラー→LiPo MPPT充電 | ~¥1,700 | https://www.amazon.co.jp/dp/B09WMDVXSQ |
 | 5 | **6V 2W ソーラーパネル (uxcell 136×110mm)** | 充電源 | ~¥1,200 | https://www.amazon.co.jp/dp/B07KC4Z6LD |
-| 6 | 8Ω 0.5–1W 小型スピーカー | 再生用(commodity) | ~¥300 | 検索: `8ohm 1W スピーカー 小型 28mm` |
-| 7 | (任意) USB電流計 | 消費電流の実測精度UP | ~¥1,000 | 検索: `USB 電流計 テスター Type-C` |
+| 6 | **8Ω 2W 28mm スピーカー (uxcell・リード線付=はんだ不要)** | 再生(聴く)用 | ~¥780 | https://www.amazon.co.jp/dp/B086WVGMLV |
+| 7 | (任意) **USB-C 電流計 (Route R TC1VAB2)** | 消費電流の実測精度UP | ~¥1,500 | https://www.amazon.co.jp/dp/B07H3Z7ZB2 |
 
-**必須(1–5)合計: 約¥8,300 / スピーカー込み ~¥8,600 / 計測込み ~¥9,600**
+**必須(1–6・録音+再生+ソーラー)合計: 約¥9,100 / 実測USB計込み(1–7): 約¥10,600**（いずれも概算・実価格はカートで確定）
 
 ## 注意
 - XIAO Sense は **マイク内蔵**なので「押して話す→焚き火に薪」(G1の録音側)は本体だけで可。聴く側は #2+#6。
