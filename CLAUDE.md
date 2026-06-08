@@ -3,12 +3,14 @@
 ## プロジェクト概要
 ESP32-S3 + Raspberry Pi CM5 の音声デバイスエコシステム。
 - **koe.live** — 製品サイト + OTA APIサーバー (Fly.io `koe-live`, nrt)
-- **firmware/** — ESP32-S3 Rust ファームウェア (Koe + Soluna + Pro)
-- **firmware/src/pro.rs** — Koe Pro 低遅延オーディオ送信機 (UWB同期)
-- **firmware/src/uwb.rs** — DW3000 UWBクロック同期
-- **firmware/coin-lite/** — COIN Lite (ESP32-C3) 受信専用ファーム
+- **firmware/** — ESP32-S3 Rust ファームウェア。bin名=`koe`・8モジュール
+  (`main.rs` `audio.rs`(ADPCM) `es8388.rs`(コーデックI2C) `led.rs` `network.rs`(WiFi/NTP) `ota.rs` `power.rs`)
 - **hub/** — Koe Hub ソフトウェア (Pi CM5, 8ch mixer, EQ/reverb/comp, SRT/RTMP)
 - **server/** — koe.live の Axum サーバー (静的配信 + OTA API + WebRTC signaling)
+- **stage/** `amp/` `stone/` — 筐体/フォームファクタ別アセット
+
+> ⚠ かつて文書にあった `firmware/src/pro.rs` / `uwb.rs` / `firmware/coin-lite/` は
+> **現コードには存在しない**（UWB同期・Pro送信機・C3受信専用ファームは未実装）。
 
 ## Webページ (docs/)
 | ページ | URL | 説明 |
@@ -81,31 +83,35 @@ cargo build          # debug
 cargo build --release  # release (OTA用)
 ```
 
-## ボタン操作
-| btn | 動作 |
+## 動作モード（現状）
+NVS読み込みは `power.rs::DeviceMode::load` が **TODO（未実装）**で、実際は
+**コンパイル時フィーチャー**で切替：
+- 既定（feature無し）= **COIN**: 双方向。Mic→ADPCM→UDP `239.42.42.1:4242` 送信 + 受信再生
+- `--features guide` = **GUIDE**: 受信専用・低消費電力（イヤホン向け）
+- `--features low_latency` = 32サンプル/パケット + raw PCM16（〜8ms）
+
+## ボタン操作（実装は1ボタンのみ）
+| btn (GPIO33) | 動作 |
 |-----|------|
-| 1 (short) | 録音ON/OFF |
-| 2 | モード切替 (Koe ↔ Soluna) |
-| 4 (double-tap) | ピッチシフトサイクル (0→+5→+12→-5→0半音) |
-| 5 (long) | Factory reset (NVS全消去 + 再起動) |
-| 6 | ボリューム↑ |
-| 7 | ボリューム↓ |
+| 押すたび | 録音ON/OFF トグル（COINモードのTXのみ） |
 
-## 4つの特殊機能
-1. **ピッチシフター** — double-tap でサイクル、ビープ音でフィードバック
-2. **拍手検出→LED閃光** — 拍手で全Solunaデバイスが同期フラッシュ (UDP multicast)
-3. **自動ポジショニング** — ハッシュ順で左→右の送信遅延 (0〜8ms)、波エフェクト
-4. **ウェイクワード** — ダブル拍手 (600ms以内) で録音強制ON + 黄色フラッシュ
+> モード切替・ピッチシフト・factory reset・音量±・拍手検出・ウェイクワード等は
+> **現ファームに未実装**（過去文書の記述は実体と不一致だった）。
 
-## ピン配置 (ESP32-S3)
+## ピン配置 (ESP32-S3 / main.rs と一致)
 | 用途 | GPIO |
 |------|------|
-| Mic I2S BCLK | 14 |
-| Mic I2S WS | 15 |
-| Mic I2S DIN | 32 |
-| Spk I2S BCLK | 26 |
-| Spk I2S DOUT | 25 |
-| Spk I2S WS | 27 |
-| Spk Amp SD | 21 |
+| I2S BCLK（双方向・ES8388経由） | 14 |
+| I2S WS | 15 |
+| I2S DOUT（→DAC→スピーカー/ジャック） | 25 |
+| I2S DIN（←ADC←マイク） | 32 |
+| ES8388 I2C SDA | 18 |
+| ES8388 I2C SCL | 23 |
+| Amp/Jack SD（ミュート制御） | 21 |
 | Button | 33 |
-| LED | 2 |
+| LED (RGB) | 2 |
+
+## 既知の未実装・要修正（コードと文書の整合のため記録）
+- `power.rs::set_cpu_80mhz()` は構造体を作って捨てるだけで `esp_pm_configure` を**呼んでいない** → 80MHz化が効いていない
+- `power.rs::enable_modem_sleep()` は定義のみで `main.rs` から**未呼出**
+- `DeviceMode::load()` の NVS 読み込みが TODO（モードは再ビルドでしか変えられない）
