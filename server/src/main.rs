@@ -2122,6 +2122,25 @@ async fn handle_admin_orders_export(
     ).into_response()
 }
 
+// ---- Inquiry hub forwarding ----
+
+/// Best-effort forward of a lead/inquiry to the central hub (labs-enabler).
+/// Reads `INQUIRY_HUB_URL` (default https://labs-enabler.fly.dev/api/inquiry);
+/// if it is empty, this is a no-op. Failures are ignored — never blocks or
+/// affects the caller's response.
+async fn forward_to_inquiry_hub(payload: serde_json::Value) {
+    let url = std::env::var("INQUIRY_HUB_URL")
+        .unwrap_or_else(|_| "https://labs-enabler.fly.dev/api/inquiry".to_string());
+    if url.is_empty() {
+        return;
+    }
+    let _ = reqwest::Client::new()
+        .post(&url)
+        .json(&payload)
+        .send()
+        .await;
+}
+
 // ---- Waitlist ----
 
 #[derive(Debug, Deserialize)]
@@ -2163,7 +2182,25 @@ async fn handle_waitlist_submit(
         "INSERT INTO waitlist (name, email, artist_name, use_case) VALUES (?1, ?2, ?3, ?4)",
         rusqlite::params![body.name, email, body.artist_name, use_case],
     ) {
-        Ok(_) => (StatusCode::OK, axum::Json(json!({"ok": true}))).into_response(),
+        Ok(_) => {
+            // Best-effort fan-out to the central inquiry hub. Never blocks the
+            // response; existing behavior is unchanged.
+            let payload = json!({
+                "slug": "koe-device-waitlist",
+                "name": body.name.clone().unwrap_or_default(),
+                "email": email,
+                "message": "",
+                "extra": {
+                    "kind": "waitlist",
+                    "artist_name": body.artist_name,
+                    "use_case": use_case,
+                    "source": "koe-device",
+                },
+                "utm_source": "koe-device",
+            });
+            tokio::spawn(async move { forward_to_inquiry_hub(payload).await; });
+            (StatusCode::OK, axum::Json(json!({"ok": true}))).into_response()
+        }
         Err(e) => {
             warn!("waitlist insert error: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, axum::Json(json!({"error": "failed to save"}))).into_response()
