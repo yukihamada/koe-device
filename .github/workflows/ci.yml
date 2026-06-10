@@ -11,7 +11,7 @@ jobs:
     name: Firmware syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install Rust ESP toolchain
         uses: esp-rs/xtensa-toolchain@v1.5
@@ -31,7 +31,7 @@ jobs:
     name: Site HTML validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Check HTML files exist
         run: |
@@ -63,7 +63,7 @@ jobs:
     name: License check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Verify LICENSE exists
         run: |
           test -f LICENSE && echo "LICENSE: OK"
