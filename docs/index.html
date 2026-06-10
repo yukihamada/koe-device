@@ -484,6 +484,7 @@ footer .links {
 <nav>
     <a href="/" class="logo">KOE</a>
     <ul>
+        <li><a href="https://mcp.koe.live">MCP</a></li>
         <li><a href="/connect">声でつなぐ</a></li>
         <li><a href="/3d">Stone</a></li>
         <li><a href="/family">Family</a></li>
@@ -505,11 +506,57 @@ footer .links {
     <div class="cta-row">
         <a href="/sessions" class="cta cta-primary">See how it works</a>
         <a href="/3d" class="cta cta-secondary">Explore in 3D</a>
+        <a href="https://mcp.koe.live" class="cta cta-secondary">Use Koe in Claude Code &rarr;</a>
     </div>
+    <a href="#mcp" style="font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:#8B5CF6;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);padding:0.45rem 1rem;border-radius:100px;">
+        MCP-ready &middot; Voice clone TTS / STT &middot; 声クローンTTS/STT
+    </a>
     <p style="font-size:12px;color:rgba(255,255,255,0.25);margin-top:20px;letter-spacing:0.05em;">
         Koe COIN from $65 &nbsp;&middot;&nbsp; Koe GUIDE from $99 &nbsp;&middot;&nbsp; Free iOS app included
     </p>
     <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- MCP: Koe in Claude Code -->
+<section class="loop-section" id="mcp">
+    <div class="loop-copy">
+        <div class="loop-label">MCP &middot; Voice API</div>
+        <h2 class="loop-headline">Koe speaks inside Claude Code.</h2>
+        <p class="loop-body">
+            Koe is also an MCP server. Turn text into a cloned voice, and voice into text
+            &mdash; straight from your agent. Works anonymously (5/day), 200/day with a free key. OAuth supported.<br>
+            <span lang="ja">声クローンTTS/STTをMCPで。Claude Codeから1コマンドで繋がります（匿名でも1日5回・無料キーで1日200回）。</span>
+        </p>
+        <ul class="loop-steps">
+            <li>
+                <span class="step-num">1</span>
+                <span>Run the command once. &nbsp;<span lang="ja">コマンドを1回実行。</span></span>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <span><code>speak</code> turns text into voice, <code>transcribe</code> turns voice into text.</span>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <span><code>send_voice</code> delivers a voice message by email. &nbsp;<span lang="ja">声をメールで届ける。</span></span>
+            </li>
+        </ul>
+    </div>
+    <div class="loop-visual">
+        <div>
+            <span class="highlight">$ Connect from Claude Code</span><br>
+            <code style="display:block;background:rgba(0,0,0,0.5);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:0.9rem 1rem;margin-top:0.7rem;font-size:0.78rem;color:#e8e8e8;overflow-x:auto;white-space:pre;">claude mcp add --transport http koe https://mcp.koe.live/mcp</code>
+        </div>
+        <br>
+        <div>
+            Tools: <span class="highlight">speak &middot; transcribe &middot; send_voice &middot; inbox &middot; list_voices</span>
+        </div>
+        <div class="caption">
+            <a href="https://mcp.koe.live" style="color:#8B5CF6;">mcp.koe.live &rarr;</a>
+            &nbsp;&middot;&nbsp; <a href="https://mcp.koe.live/docs/mcp">docs</a>
+            &nbsp;&middot;&nbsp; <a href="https://mcp.koe.live/llms.txt">llms.txt</a>
+        </div>
+    </div>
 </section>
 
 <!-- Solo Loop Artist Workflow -->
@@ -676,6 +723,7 @@ footer .links {
     <div class="links">
         <a href="mailto:hello@koe.live">hello@koe.live</a>
         <a href="mailto:business@koe.live">business@koe.live</a>
+        <a href="https://mcp.koe.live">MCP</a>
         <a href="/archive">Archive</a>
     </div>
 </footer>
