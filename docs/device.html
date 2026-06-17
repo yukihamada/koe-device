@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koe</title>
+<meta name="description" content="The take that happened before you pressed record. Koe Stone — Limited to 100.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://koe.live/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Koe">
+<meta property="og:description" content="The take that happened before you pressed record.">
+<meta property="og:image" content="https://koe.live/brand/hero/01_stone.png">
+<meta property="og:url" content="https://koe.live/">
+<meta property="og:site_name" content="Koe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Koe">
+<meta name="twitter:description" content="The take that happened before you pressed record.">
+<meta name="twitter:image" content="https://koe.live/brand/hero/01_stone.png">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    font-family: 'Inter', 'Hiragino Sans', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: inherit; text-decoration: none; }
+
+nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 2rem;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+nav .logo { font-size: 1rem; font-weight: 200; letter-spacing: 0.35em; }
+nav ul { display: flex; list-style: none; gap: 2rem; }
+nav ul a {
+    font-size: 0.78rem; font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+}
+nav ul a:hover { color: #fff; }
+nav ul a.archive { opacity: 0.35; }
+@media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    nav ul { gap: 1.2rem; }
+    nav ul a.hide-mobile { display: none; }
+}
+
+.hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 6rem 1.5rem 4rem;
+    text-align: center;
+    position: relative;
+    background: radial-gradient(ellipse at center top, #1a1a2e 0%, #0a0a0a 60%);
+}
+.hero-badge {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+}
+.hero h1 {
+    font-size: clamp(3rem, 9vw, 8rem);
+    font-weight: 100;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    margin-bottom: 2rem;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero h2 {
+    font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+    font-weight: 200;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    max-width: 560px;
+    margin-bottom: 3rem;
+}
+.hero-image {
+    width: min(92vw, 960px);
+    aspect-ratio: 16/9;
+    background-image: url(/brand/hero/01_stone.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px;
+    box-shadow: 0 40px 120px rgba(139,92,246,0.15), 0 20px 60px rgba(0,0,0,0.7);
+    margin-bottom: 3rem;
+    animation: hoverFloat 8s ease-in-out infinite;
+}
+@keyframes hoverFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+.cta-row {
+    display: flex; gap: 0.8rem; flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 4rem;
+}
+.cta {
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    padding: 0.9rem 1.8rem;
+    border-radius: 100px;
+    transition: all 0.2s ease;
+}
+.cta-primary { background: #fff; color: #0a0a0a; }
+.cta-primary:hover {
+    background: #8B5CF6;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px rgba(139,92,246,0.3);
+}
+.cta-secondary {
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.cta-secondary:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.5);
+}
+.scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    animation: fadePulse 2.5s ease-in-out infinite;
+}
+@keyframes fadePulse {
+    0%, 100% { opacity: 0.2; transform: translate(-50%, 0); }
+    50% { opacity: 0.5; transform: translate(-50%, 4px); }
+}
+
+/* ── Solo Loop Artist Section ─────────────────────────── */
+.loop-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+@media (max-width: 720px) {
+    .loop-section { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+}
+.loop-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+}
+.loop-headline {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 200;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: #fff;
+    margin-bottom: 1.6rem;
+}
+.loop-body {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
+}
+.loop-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.loop-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+}
+.loop-steps li .step-num {
+    flex-shrink: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: #8B5CF6;
+    margin-top: 0.1rem;
+}
+.loop-visual {
+    background: rgba(139,92,246,0.04);
+    border: 1px solid rgba(139,92,246,0.12);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+}
+.loop-visual::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+}
+.loop-visual .highlight {
+    color: rgba(255,255,255,0.9);
+    font-weight: 400;
+}
+.loop-visual .caption {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+}
+
+/* ── Artist Quotes ───────────────────────────────────── */
+.quotes-section {
+    padding: 6rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.quotes-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+.quotes-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+.quotes-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.85);
+}
+.quotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.quote-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 16px;
+    padding: 2rem 1.8rem;
+    position: relative;
+    transition: all 0.25s;
+}
+.quote-card:hover {
+    border-color: rgba(139,92,246,0.35);
+    background: rgba(139,92,246,0.03);
+    transform: translateY(-2px);
+}
+.quote-card::before {
+    content: '\201C';
+    position: absolute;
+    top: 1.2rem;
+    left: 1.8rem;
+    font-size: 3rem;
+    font-weight: 100;
+    color: rgba(139,92,246,0.3);
+    line-height: 1;
+}
+.quote-text {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+    margin-top: 1.8rem;
+    margin-bottom: 1.8rem;
+    font-style: italic;
+}
+.quote-author {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+.quote-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.25);
+    flex-shrink: 0;
+}
+.quote-name {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: small-caps;
+    color: rgba(255,255,255,0.6);
+}
+.quote-role {
+    font-size: 0.68rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.15rem;
+    letter-spacing: 0.03em;
+}
+
+/* ── Specs ───────────────────────────────────────────── */
+.specs {
+    padding: 8rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.specs-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    margin-bottom: 3rem;
+    text-align: center;
+    color: rgba(255,255,255,0.9);
+}
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+.spec-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1.8rem 1.6rem;
+    transition: all 0.25s;
+}
+.spec-card:hover {
+    border-color: rgba(139,92,246,0.3);
+    background: rgba(139,92,246,0.03);
+}
+.spec-card .label {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 0.6rem;
+}
+.spec-card .value {
+    font-size: 1.5rem;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+    line-height: 1.15;
+}
+.spec-card .sub {
+    font-size: 0.74rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+}
+
+.manifesto {
+    max-width: 720px;
+    margin: 6rem auto;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+.manifesto p {
+    font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    font-weight: 200;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+}
+.manifesto p:first-of-type::first-line { color: #fff; }
+.manifesto .signature {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.1em;
+    margin-top: 2.5rem;
+}
+
+.price-banner {
+    max-width: 680px;
+    margin: 6rem auto 4rem;
+    padding: 3rem 2rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    text-align: center;
+    background: rgba(255,255,255,0.015);
+}
+.price-banner .limited {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: #8B5CF6;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+.price-banner .amount {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 100;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 0.4rem;
+}
+.price-banner .sub-amount {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 2rem;
+    font-weight: 300;
+}
+.price-banner .note {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+footer {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.35);
+}
+footer a { color: rgba(255,255,255,0.5); }
+footer a:hover { color: #fff; }
+footer .links {
+    display: flex; justify-content: center; gap: 1.5rem;
+    margin-top: 0.6rem;
+    flex-wrap: wrap;
+}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Product","name":"Koe","slogan":"Sound That Connects","description":"声をつなぐハードウェア＋サービス。1台が記憶し、100台でオーケストラに。声でつなぐ(voice rooms)も提供。","brand":{"@type":"Brand","name":"Koe"},"url":"https://koe.live/","category":"Voice / Audio Hardware","potentialAction":{"@type":"CommunicateAction","name":"声でつなぐ / Connect","target":"https://koe.live/connect"}}
+</script>
+<link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+</head>
+<body>
+<div id="koe-back-banner" style="background:#0c0a08;color:#8a7c68;font:13px -apple-system,sans-serif;padding:8px 14px;border-bottom:1px solid #222"><a href="/" style="color:#ef6d54;text-decoration:none">← Koe（声を、あなたのまま）に戻る</a> ・ これは Koe デバイス版のページです</div>
+
+<nav>
+    <a href="/" class="logo">KOE</a>
+    <ul>
+        <li><a href="https://mcp.koe.live">MCP</a></li>
+        <li><a href="/connect">声でつなぐ</a></li>
+        <li><a href="/3d">Stone</a></li>
+        <li><a href="/family">Family</a></li>
+        <li><a href="/sessions">Sessions</a></li>
+        <li><a href="/business" class="hide-mobile">Business</a></li>
+        <li><a href="/archive" class="archive hide-mobile">Archive</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="hero-badge">Limited &middot; 100</div>
+    <h1>Koe</h1>
+    <h2>The take that happened<br>before you pressed record.</h2>
+    <p style="font-size:clamp(13px,1.6vw,16px);color:rgba(255,255,255,0.45);margin-top:16px;letter-spacing:0.03em;">
+        A hardware device that keeps a rolling 30-second buffer.<br>
+        One tap saves it. No phone. No DAW. No missed moment.
+    </p>
+    <div class="hero-image"></div>
+    <div class="cta-row">
+        <a href="/sessions" class="cta cta-primary">See how it works</a>
+        <a href="/3d" class="cta cta-secondary">Explore in 3D</a>
+        <a href="https://mcp.koe.live" class="cta cta-secondary">Use Koe in Claude Code &rarr;</a>
+    </div>
+    <a href="#mcp" style="font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:#8B5CF6;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);padding:0.45rem 1rem;border-radius:100px;">
+        MCP-ready &middot; Voice clone TTS / STT &middot; 声クローンTTS/STT
+    </a>
+    <p style="font-size:12px;color:rgba(255,255,255,0.25);margin-top:20px;letter-spacing:0.05em;">
+        Koe COIN from $65 &nbsp;&middot;&nbsp; Koe GUIDE from $99 &nbsp;&middot;&nbsp; Free iOS app included
+    </p>
+    <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- MCP: Koe in Claude Code -->
+<section class="loop-section" id="mcp">
+    <div class="loop-copy">
+        <div class="loop-label">MCP &middot; Voice API</div>
+        <h2 class="loop-headline">Koe speaks inside Claude Code.</h2>
+        <p class="loop-body">
+            Koe is also an MCP server. Turn text into a cloned voice, and voice into text
+            &mdash; straight from your agent. Works anonymously (5/day), 200/day with a free key. OAuth supported.<br>
+            <span lang="ja">声クローンTTS/STTをMCPで。Claude Codeから1コマンドで繋がります（匿名でも1日5回・無料キーで1日200回）。</span>
+        </p>
+        <ul class="loop-steps">
+            <li>
+                <span class="step-num">1</span>
+                <span>Run the command once. &nbsp;<span lang="ja">コマンドを1回実行。</span></span>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <span><code>speak</code> turns text into voice, <code>transcribe</code> turns voice into text.</span>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <span><code>send_voice</code> delivers a voice message by email. &nbsp;<span lang="ja">声をメールで届ける。</span></span>
+            </li>
+        </ul>
+    </div>
+    <div class="loop-visual">
+        <div>
+            <span class="highlight">$ Connect from Claude Code</span><br>
+            <code style="display:block;background:rgba(0,0,0,0.5);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:0.9rem 1rem;margin-top:0.7rem;font-size:0.78rem;color:#e8e8e8;overflow-x:auto;white-space:pre;">claude mcp add --transport http koe https://mcp.koe.live/mcp</code>
+        </div>
+        <br>
+        <div>
+            Tools: <span class="highlight">speak &middot; transcribe &middot; send_voice &middot; inbox &middot; list_voices</span>
+        </div>
+        <div class="caption">
+            <a href="https://mcp.koe.live" style="color:#8B5CF6;">mcp.koe.live &rarr;</a>
+            &nbsp;&middot;&nbsp; <a href="https://mcp.koe.live/docs/mcp">docs</a>
+            &nbsp;&middot;&nbsp; <a href="https://mcp.koe.live/llms.txt">llms.txt</a>
+        </div>
+    </div>
+</section>
+
+<!-- Solo Loop Artist Workflow -->
+<section class="loop-section">
+    <div class="loop-copy">
+        <div class="loop-label">Solo Artist Workflow</div>
+        <h2 class="loop-headline">The room was already recording.</h2>
+        <p class="loop-body">
+            Pick up a guitar. Start a loop. Find the groove.
+            The house was already recording &mdash; from five seconds before you found it.
+        </p>
+        <ul class="loop-steps">
+            <li>
+                <span class="step-num">1</span>
+                <span>Play freely &mdash; no phones, no DAWs, no interruptions.</span>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <span>Koe keeps a rolling buffer. The magic moment is already captured.</span>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <span>Touch once to commit. Walk away with a stem, not a memory.</span>
+            </li>
+            <li>
+                <span class="step-num">4</span>
+                <span>Check out of the hotel room with your session intact.</span>
+            </li>
+        </ul>
+    </div>
+    <div class="loop-visual">
+        <div>
+            <span class="highlight">02:14 AM</span><br>
+            Guitar loop, key of E<br>
+            <span class="highlight">Buffer: rolling 30s</span>
+        </div>
+        <br>
+        <div>
+            Groove found at 02:17<br>
+            <span class="highlight">Captured: 5s before intent</span>
+        </div>
+        <br>
+        <div>
+            Single tap &rarr; stem saved<br>
+            <span class="highlight">koe-session-230412.wav</span>
+        </div>
+        <div class="caption">No DAW. No latency. No lost takes.</div>
+    </div>
+</section>
+
+<!-- Artist Quotes -->
+<section class="quotes-section">
+    <div class="quotes-header">
+        <div class="quotes-label">As used by</div>
+        <h3 class="quotes-title">Artists who stop losing the good stuff.</h3>
+    </div>
+    <div class="quotes-grid">
+        <div class="quote-card">
+            <div class="quote-text">
+                I write on guitar at 2am. I used to lose everything by morning. Not anymore.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Solo Artist</div>
+                    <div class="quote-role">London</div>
+                </div>
+            </div>
+        </div>
+        <div class="quote-card">
+            <div class="quote-text">
+                We jammed for three hours. Koe caught the 40 seconds that became the single.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Band</div>
+                    <div class="quote-role">Tokyo</div>
+                </div>
+            </div>
+        </div>
+        <div class="quote-card">
+            <div class="quote-text">
+                The room at Aman had a Koe setup. I checked out with stems.
+            </div>
+            <div class="quote-author">
+                <div class="quote-avatar"></div>
+                <div>
+                    <div class="quote-name">Touring Artist</div>
+                    <div class="quote-role">NYC</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="specs">
+    <h3 class="specs-title">Every detail, considered.</h3>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <div class="label">Form</div>
+            <div class="value">&Oslash;80 &times; 25 mm</div>
+            <div class="sub">Palm-sized worry stone. Superellipse n=3.5.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Weight</div>
+            <div class="value">380 g</div>
+            <div class="sub">CNC 6061-T6 unibody aluminum.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Audio</div>
+            <div class="value">Tectonic BMR</div>
+            <div class="sub">40mm balanced-mode radiator. LDAC &middot; aptX Adaptive &middot; LC3.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Battery</div>
+            <div class="value">8 h &middot; 30 d</div>
+            <div class="sub">8 hours playback. 30 days standby.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Charging</div>
+            <div class="value">Qi wireless</div>
+            <div class="sub">No cables. Set it on any wireless pad.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Interface</div>
+            <div class="value">Zero buttons</div>
+            <div class="sub">Touch the top. Flip to mute. That&rsquo;s all.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Mesh</div>
+            <div class="value">8&times; sync</div>
+            <div class="sub">Up to 8 Stones play perfectly in time. One song, everywhere.</div>
+        </div>
+        <div class="spec-card">
+            <div class="label">Finish</div>
+            <div class="value">Space Gray</div>
+            <div class="sub">Hairline + hard anodize. Laser-engraved serial.</div>
+        </div>
+    </div>
+</section>
+
+<section class="manifesto">
+    <p>One room is a speaker.<br>Eight rooms is a symphony.</p>
+    <p>Pick one up. The music follows you.<br>Put it down. It stays.</p>
+    <p>No app. No setup. No account.<br>Touch it, and it begins.</p>
+    <div class="signature">&mdash; Enabler Inc., Tokyo</div>
+</section>
+
+<section class="price-banner">
+    <div class="limited">Limited Edition</div>
+    <div class="amount">$1,995 USD</div>
+    <div class="sub-amount">&yen;300,000 JPY</div>
+    <div class="note">
+        Hand-crafted in Tokyo.<br>
+        Serial numbered 001 &mdash; 100.<br>
+        First shipments Summer 2026.
+    </div>
+    <a href="/sessions" class="cta cta-primary">See how Sessions works</a>
+</section>
+
+<footer>
+    Koe &mdash; Enabler Inc., Tokyo.
+    <div class="links">
+        <a href="mailto:hello@koe.live">hello@koe.live</a>
+        <a href="mailto:business@koe.live">business@koe.live</a>
+        <a href="https://mcp.koe.live">MCP</a>
+        <a href="/archive">Archive</a>
+    </div>
+</footer>
+
+</body>
+</html>
