@@ -421,7 +421,7 @@ async fn main() {
         .route("/api/admin/devices",       get(handle_admin_devices))
         .route("/api/admin/stats",         get(handle_admin_stats))
         .route("/admin/devices",           get(handle_admin_devices_page))
-        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).not_found_service(handle_profile_or_404.into_service()))
+        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).fallback(handle_profile_or_404.into_service()))
         .with_state(state)
         .layer(axum::middleware::from_fn(security_headers));
 
