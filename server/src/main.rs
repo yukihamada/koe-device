@@ -37,7 +37,8 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::broadcast;
-use tower_http::services::{ServeDir, ServeFile};
+use tower_http::services::ServeDir;
+use axum::handler::HandlerWithoutStateExt;
 use tracing::{info, warn};
 use wtransport::{Endpoint, ServerConfig, Identity};
 use ring::digest;
@@ -420,7 +421,7 @@ async fn main() {
         .route("/api/admin/devices",       get(handle_admin_devices))
         .route("/api/admin/stats",         get(handle_admin_stats))
         .route("/admin/devices",           get(handle_admin_devices_page))
-        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).not_found_service(ServeFile::new(format!("{}/404.html", static_dir))))
+        .fallback_service(ServeDir::new(&static_dir).append_index_html_on_directories(true).not_found_service(handle_profile_or_404.into_service()))
         .with_state(state)
         .layer(axum::middleware::from_fn(security_headers));
 
@@ -622,6 +623,47 @@ async fn handle_page_products() -> impl IntoResponse { serve_html("products.html
 async fn handle_page_stage_os() -> impl IntoResponse { serve_html("stage-os.html").await }
 async fn handle_page_koe_software() -> impl IntoResponse { serve_html("koe-software.html").await }
 async fn handle_page_status() -> impl IntoResponse { serve_html("status.html").await }
+
+/// Root-level profile handles: koe.live/<handle> reverse-proxies the
+/// profile page from voice.koe.live/u/<handle>. Runs only when ServeDir
+/// finds no static file, so existing pages/assets are untouched.
+async fn handle_profile_or_404(req: axum::extract::Request) -> axum::response::Response {
+    let seg = req.uri().path().trim_start_matches('/').to_string();
+    let is_handle = seg.len() >= 2
+        && seg.len() <= 20
+        && seg
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_');
+    if is_handle {
+        let url = format!("https://voice.koe.live/u/{}", seg);
+        if let Ok(r) = reqwest::Client::new()
+            .get(&url)
+            .timeout(std::time::Duration::from_secs(8))
+            .send()
+            .await
+        {
+            if r.status().is_success() {
+                if let Ok(html) = r.text().await {
+                    return (
+                        StatusCode::OK,
+                        [("content-type", "text/html; charset=utf-8")],
+                        html,
+                    )
+                        .into_response();
+                }
+            }
+        }
+    }
+    let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "/app/docs".to_string());
+    let body = std::fs::read_to_string(format!("{}/404.html", static_dir))
+        .unwrap_or_else(|_| "Not Found".to_string());
+    (
+        StatusCode::NOT_FOUND,
+        [("content-type", "text/html; charset=utf-8")],
+        body,
+    )
+        .into_response()
+}
 
 async fn serve_html(filename: &str) -> axum::response::Response {
     let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "/app/docs".to_string());
