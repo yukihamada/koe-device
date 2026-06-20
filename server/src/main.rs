@@ -323,6 +323,7 @@ async fn main() {
     let app = Router::new()
         .route("/health",                          get(handle_health))
         .route("/app",                             get(handle_app))
+        .route("/yomiage",                         get(handle_page_yomiage))
         .route("/pro",                             get(handle_page_pro))
         .route("/busker",                          get(handle_page_busker))
         .route("/classroom",                       get(handle_page_classroom))
@@ -458,6 +459,7 @@ async fn handle_health() -> impl IntoResponse {
 
 async fn handle_app() -> impl IntoResponse { serve_html("app.html").await }
 async fn handle_page_pro() -> impl IntoResponse { serve_html("pro.html").await }
+async fn handle_page_yomiage() -> impl IntoResponse { serve_html("yomiage.html").await }
 async fn handle_page_busker() -> impl IntoResponse { serve_html("busker.html").await }
 async fn handle_page_classroom() -> impl IntoResponse { serve_html("classroom.html").await }
 async fn handle_page_moji() -> impl IntoResponse { serve_html("moji.html").await }
