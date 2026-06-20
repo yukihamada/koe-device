@@ -5,15 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>紙芝居『Koe — コピーして、クリック。声になる。』</title>
 <meta name="description" content="Koe の使い方を7場面の紙芝居で。文章をコピーして、メニューバーのアイコンをクリックするだけ。あなたの声で読み上げます。">
-<meta name="theme-color" content="#faf6ee">
+<meta name="theme-color" content="#191410">
 <style>
 :root{
-  --bg:#faf6ee; --surface:#fffdf9; --ink:#2c2722; --mut:#6f6657;
-  --line:#ece2d2; --accent:#7c3aed; --accent-hi:#6d28d9; --gold:#e6c449;
+  /* 温かい暗め(エスプレッソ)。物語ビューア向け・目に優しい・冷たくない */
+  --bg:#191410; --surface:#241c15; --ink:#f4ece0; --mut:#b6a890;
+  --line:#3a2e23; --accent:#b89bff; --accent-hi:#d4c4ff; --gold:#e6c449;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);
+body{color:var(--ink);
+  background:
+    radial-gradient(120% 80% at 50% 18%, rgba(184,155,255,.10) 0%, transparent 55%),
+    radial-gradient(120% 90% at 50% 110%, rgba(230,196,73,.06) 0%, transparent 50%),
+    var(--bg);
   font-family:-apple-system,'Hiragino Sans',system-ui,sans-serif;overflow:hidden}
 #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 .scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
@@ -21,7 +26,7 @@ body{background:var(--bg);color:var(--ink);
   opacity:0;transform:translateY(14px) scale(.99);transition:opacity .5s ease, transform .5s ease;
   pointer-events:none}
 .scene.show{opacity:1;transform:none;pointer-events:auto}
-.art{font-size:clamp(72px,20vw,150px);line-height:1;filter:drop-shadow(0 10px 28px rgba(70,55,25,.12))}
+.art{font-size:clamp(72px,20vw,150px);line-height:1;filter:drop-shadow(0 14px 34px rgba(0,0,0,.5))}
 .scene h1{font-size:clamp(30px,7.5vw,60px);line-height:1.25;font-weight:800;letter-spacing:.01em}
 .scene h2{font-size:clamp(22px,5.4vw,38px);line-height:1.4;font-weight:800}
 .scene p{font-size:clamp(16px,4.2vw,22px);line-height:1.8;color:var(--mut);max-width:18em}
@@ -130,33 +135,33 @@ document.getElementById('prev').onclick=prev;
 document.getElementById('restart').onclick=()=>show(0);
 addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
 
-// --- 読み上げ（ブラウザ内蔵＝オフラインで誰でも。アプリのフォールバック哲学と同じ）---
-let auto=true;
-function jaVoice(){
-  const vs=speechSynthesis.getVoices();
-  return vs.find(v=>/ja|Kyoko|O-ren|Otoya/i.test(v.lang+v.name))||vs[0];
-}
-function say(text){
-  if(!('speechSynthesis' in window))return;
-  speechSynthesis.cancel();
+// --- ナレーション = 本人声(Koe)の事前生成MP3。各場面で再生。---
+// 検証済み本人声(誤読ゼロ保証パイプライン)。再生不可な環境だけ内蔵音声に退避。
+let auto=true, current=null;
+const clips=scenes.map((_,k)=>{const a=new Audio('yomiage-audio/s'+(k+1)+'.mp3');a.preload='auto';return a;});
+function stopAll(){ if(current){try{current.pause();current.currentTime=0;}catch(_){} } if('speechSynthesis'in window)speechSynthesis.cancel(); }
+function sayFallback(text){
+  if(!('speechSynthesis'in window))return;
   const u=new SpeechSynthesisUtterance(text);
-  const v=jaVoice(); if(v)u.voice=v; u.lang='ja-JP'; u.rate=1.0;
-  speechSynthesis.speak(u);
+  const vs=speechSynthesis.getVoices();
+  const v=vs.find(x=>/ja|Kyoko|O-ren|Otoya/i.test(x.lang+x.name)); if(v)u.voice=v;
+  u.lang='ja-JP'; speechSynthesis.speak(u);
 }
-function speakScene(){
-  if(!auto)return;
-  const s=scenes[i];
-  const h=s.querySelector('h1,h2');
-  const p=s.querySelector('p');
-  const t=[h&&h.textContent, p&&p.textContent].filter(Boolean).join('。').replace(/\s+/g,'');
-  if(t)setTimeout(()=>say(t),350);
+function playClip(k){
+  stopAll();
+  const a=clips[k]; current=a;
+  a.currentTime=0;
+  const p=a.play();
+  if(p&&p.catch)p.catch(()=>{ /* 自動再生ブロック or MP3欠 → 内蔵音声で退避 */
+    const s=scenes[k], h=s.querySelector('h1,h2'), pr=s.querySelector('p');
+    sayFallback([h&&h.textContent,pr&&pr.textContent].filter(Boolean).join('。'));
+  });
 }
+function speakScene(){ if(auto)setTimeout(()=>playClip(i),300); }
 document.addEventListener('click',e=>{
   const b=e.target.closest('.say');
-  if(b){e.stopPropagation();say(b.dataset.say);}
+  if(b){e.stopPropagation();playClip(4);} // 場面5(=index4)の本人声を再生
 },true);
-// voices load async on some browsers
-speechSynthesis.onvoiceschanged=()=>{};
 show(0);
 </script>
 </body>
