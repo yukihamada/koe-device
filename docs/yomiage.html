@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>紙芝居『Koe — コピーして、クリック。声になる。』</title>
+<meta name="description" content="Koe の使い方を7場面の紙芝居で。文章をコピーして、メニューバーのアイコンをクリックするだけ。あなたの声で読み上げます。">
+<meta name="theme-color" content="#faf6ee">
+<style>
+:root{
+  --bg:#faf6ee; --surface:#fffdf9; --ink:#2c2722; --mut:#6f6657;
+  --line:#ece2d2; --accent:#7c3aed; --accent-hi:#6d28d9; --gold:#e6c449;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,'Hiragino Sans',system-ui,sans-serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:8vh 8vw;gap:22px;
+  opacity:0;transform:translateY(14px) scale(.99);transition:opacity .5s ease, transform .5s ease;
+  pointer-events:none}
+.scene.show{opacity:1;transform:none;pointer-events:auto}
+.art{font-size:clamp(72px,20vw,150px);line-height:1;filter:drop-shadow(0 10px 28px rgba(70,55,25,.12))}
+.scene h1{font-size:clamp(30px,7.5vw,60px);line-height:1.25;font-weight:800;letter-spacing:.01em}
+.scene h2{font-size:clamp(22px,5.4vw,38px);line-height:1.4;font-weight:800}
+.scene p{font-size:clamp(16px,4.2vw,22px);line-height:1.8;color:var(--mut);max-width:18em}
+.scene .big{color:var(--accent)}
+.step{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;
+  border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:22px;
+  box-shadow:0 8px 22px rgba(124,58,237,.28)}
+.key{display:inline-block;border:1px solid var(--line);background:var(--surface);
+  border-radius:8px;padding:3px 10px;font-weight:700;box-shadow:0 2px 0 var(--line)}
+.sub{color:var(--mut);font-size:clamp(14px,3.4vw,17px)}
+.cta{margin-top:8px;display:inline-block;background:var(--accent);color:#fff;font-weight:800;
+  text-decoration:none;font-size:17px;padding:14px 30px;border-radius:99px;border:none;cursor:pointer;
+  box-shadow:0 10px 26px rgba(124,58,237,.30)}
+.cta.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.say{margin-top:4px;background:none;border:1px solid var(--line);color:var(--accent-hi);
+  border-radius:99px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer}
+.say:active{transform:scale(.96)}
+/* nav */
+.tap{position:absolute;top:0;bottom:0;width:38%;z-index:5;border:none;background:transparent;cursor:pointer}
+#prev{left:0}#next{right:0;width:62%}
+#bar{position:absolute;top:0;left:0;right:0;display:flex;gap:5px;
+  padding:14px 14px;z-index:8;pointer-events:none}
+#bar span{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+#bar span i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s ease}
+#bar span.done i{width:100%}#bar span.cur i{width:100%}
+.hint{position:absolute;bottom:calc(3vh + env(safe-area-inset-bottom));left:0;right:0;
+  text-align:center;color:var(--mut);font-size:12px;z-index:8;pointer-events:none;opacity:.8}
+.mb{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:10px 16px;font-weight:700;box-shadow:0 6px 18px rgba(70,55,25,.08)}
+.mb .dot{font-size:22px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- 1 -->
+  <section class="scene">
+    <div class="art">🔊</div>
+    <h1>Koe</h1>
+    <p style="font-size:clamp(18px,4.6vw,24px);color:var(--ink);font-weight:600">コピーして、クリック。<br><span class="big">声になる。</span></p>
+    <div class="sub">タップで、つぎへ →</div>
+  </section>
+  <!-- 2 -->
+  <section class="scene">
+    <div class="art">📄😮‍💨</div>
+    <h2>長い文章、<br>目で追うの大変。</h2>
+    <p>メール、記事、書きかけの原稿。<br>耳で聞けたら、ラクなのに。</p>
+  </section>
+  <!-- 3 -->
+  <section class="scene">
+    <div class="step">1</div>
+    <h2>読みたいところを<br>コピー</h2>
+    <p>えらんで <span class="key">⌘ C</span><br>（コピーするだけ）</p>
+  </section>
+  <!-- 4 -->
+  <section class="scene">
+    <div class="step">2</div>
+    <h2>メニューバーの<br>Koe をクリック</h2>
+    <div class="mb"><span class="dot">🔊</span> Koe</div>
+    <p>右上の小さなアイコン。<br>左クリック、ひとつだけ。</p>
+  </section>
+  <!-- 5 -->
+  <section class="scene">
+    <div class="step">3</div>
+    <h2>あなたの声で、<br>読み上げ。</h2>
+    <p>コピーした文章が、<br><span class="big" style="font-weight:800">あなたの声</span>で流れます。</p>
+    <button class="say" data-say="これが、あなたの声での読み上げです。コピーして、クリックするだけ。">▶ 試しに聞く</button>
+  </section>
+  <!-- 6 -->
+  <section class="scene">
+    <div class="art">📶🚫➡️🔊</div>
+    <h2>ネットが無くても、<br>大丈夫。</h2>
+    <p>電波がなくても、設定がなくても、<br>内蔵の声で<span class="big" style="font-weight:800">かならず</span>読みます。<br>だから、誰でも、すぐ。</p>
+  </section>
+  <!-- 7 -->
+  <section class="scene">
+    <div class="art">🎙️</div>
+    <h1 style="font-size:clamp(26px,6.5vw,46px)">さあ、どうぞ。</h1>
+    <p>左クリック＝読み上げ。<br>右クリック＝メニュー（録音・送る・設定）。</p>
+    <button class="cta" id="restart">もう一度みる</button>
+    <a class="cta ghost" href="https://koe.live" target="_blank" rel="noopener">Koe をひらく</a>
+  </section>
+</div>
+
+<div id="bar"></div>
+<button class="tap" id="prev" aria-label="前へ"></button>
+<button class="tap" id="next" aria-label="次へ"></button>
+<div class="hint">画面の左/右をタップ ・ ← → キー</div>
+
+<script>
+const scenes=[...document.querySelectorAll('.scene')];
+const bar=document.getElementById('bar');
+scenes.forEach(()=>bar.insertAdjacentHTML('beforeend','<span><i></i></span>'));
+const dots=[...bar.children];
+let i=0;
+function show(n){
+  i=Math.max(0,Math.min(scenes.length-1,n));
+  scenes.forEach((s,k)=>s.classList.toggle('show',k===i));
+  dots.forEach((d,k)=>{d.classList.toggle('done',k<i);d.classList.toggle('cur',k===i);});
+  // 各場面に入ったら、その見出しを内蔵音声でそっと読む（題材＝読み上げの体現）
+  speakScene();
+}
+function next(){ i<scenes.length-1 ? show(i+1) : null }
+function prev(){ show(i-1) }
+document.getElementById('next').onclick=next;
+document.getElementById('prev').onclick=prev;
+document.getElementById('restart').onclick=()=>show(0);
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+
+// --- 読み上げ（ブラウザ内蔵＝オフラインで誰でも。アプリのフォールバック哲学と同じ）---
+let auto=true;
+function jaVoice(){
+  const vs=speechSynthesis.getVoices();
+  return vs.find(v=>/ja|Kyoko|O-ren|Otoya/i.test(v.lang+v.name))||vs[0];
+}
+function say(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const v=jaVoice(); if(v)u.voice=v; u.lang='ja-JP'; u.rate=1.0;
+  speechSynthesis.speak(u);
+}
+function speakScene(){
+  if(!auto)return;
+  const s=scenes[i];
+  const h=s.querySelector('h1,h2');
+  const p=s.querySelector('p');
+  const t=[h&&h.textContent, p&&p.textContent].filter(Boolean).join('。').replace(/\s+/g,'');
+  if(t)setTimeout(()=>say(t),350);
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.say');
+  if(b){e.stopPropagation();say(b.dataset.say);}
+},true);
+// voices load async on some browsers
+speechSynthesis.onvoiceschanged=()=>{};
+show(0);
+</script>
+</body>
+</html>
